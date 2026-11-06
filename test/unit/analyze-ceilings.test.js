@@ -8,8 +8,8 @@
 // with an optional between them, a scan restarted from every opener, a fixpoint re-reading every body, a
 // glob of many stars compiled to a backtracking pattern. Each shape below is one of them, at the size the
 // policy still reads (999,000 bytes); before the corrections each took from 4 s to hours, and now each is
-// read far inside the ceiling. The ceiling is set for a slow runner, not for this machine: what it
-// catches is a return of the quadratic, which at this size takes minutes.
+// read far inside the ceiling. The ceiling is CPU time, set for a slow runner, not for this machine: what
+// it catches is a return of the quadratic, which at this size takes minutes.
 //
 // The two readings rewritten in place of a pattern are also held to the pattern's answers, on generated
 // inputs: the allowance file's heading and the glob dialect.
@@ -35,6 +35,19 @@ const core = (src) => base({ "src/core/x.ts": src });
 const testFile = (src) => base({ "src/core/x.ts": "export function guardFields(a: number) { return a; }\n", "test/x.test.ts": src });
 const IMPORT = "import { guardFields } from '../src/core/x.ts';\n";
 
+/**
+ * The CPU time of one reading, in milliseconds. Until 2026-11-06 the ceiling was read on the wall
+ * clock, and one run of the suite at a load average near 50 stretched the star re-export shape from
+ * 1.4 s, measured on a quiet machine, to 9.6 s: a ceiling that reddens on a busy machine is not a
+ * measure of the reading.
+ */
+function cpu(fn) {
+  const t0 = process.cpuUsage();
+  fn();
+  const t = process.cpuUsage(t0);
+  return (t.user + t.system) / 1000;
+}
+
 function timed(files) {
   const dir = mkdtempSync(join(tmpdir(), "rw-ceiling-"));
   const lock = { version: 1, writtenBy: "test", analysis: "runward-analysis/1", files: {} };
@@ -43,9 +56,9 @@ function timed(files) {
       mkdirSync(dirname(join(dir, rel)), { recursive: true });
       writeFileSync(join(dir, rel), text);
     }
-    const t0 = process.hrtime.bigint();
-    const reading = analyzeDelivery(join(dir, "runward"));
-    return { reading, ms: Number(process.hrtime.bigint() - t0) / 1e6 };
+    let reading;
+    const ms = cpu(() => { reading = analyzeDelivery(join(dir, "runward")); });
+    return { reading, ms };
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 
@@ -89,7 +102,7 @@ for (const [family, why, files] of SHAPES) {
   test(`${family}: ${why}, read in linear time at ${SIZE} bytes`, () => {
     const { reading, ms } = timed(files());
     assert.ok(reading, "the reading ran");
-    assert.ok(ms < CEILING_MS, `read in ${ms.toFixed(0)} ms, over the ${CEILING_MS} ms ceiling`);
+    assert.ok(ms < CEILING_MS, `read in ${ms.toFixed(0)} ms of CPU, over the ${CEILING_MS} ms ceiling`);
   });
 }
 
@@ -105,11 +118,10 @@ const COMMENT_SHAPES = [
 for (const [path, why, text] of COMMENT_SHAPES) {
   test(`evidence, comment reader: ${why}, read in linear time at ${SIZE} bytes`, () => {
     const t = text();
-    const t0 = process.hrtime.bigint();
-    const out = withoutComments(t, path);
-    const ms = Number(process.hrtime.bigint() - t0) / 1e6;
+    let out;
+    const ms = cpu(() => { out = withoutComments(t, path); });
     assert.equal(out.length, t.length, "every character kept or blanked, none lost");
-    assert.ok(ms < CEILING_MS, `read in ${ms.toFixed(0)} ms, over the ${CEILING_MS} ms ceiling`);
+    assert.ok(ms < CEILING_MS, `read in ${ms.toFixed(0)} ms of CPU, over the ${CEILING_MS} ms ceiling`);
   });
 }
 

@@ -68,6 +68,56 @@
 	<testcase name="allowances: a row removed brings its finding back; a row that sets nothing aside and a row that cannot be read are said" classname="test"/>
 	<testcase name="secrets: each format of the policy is found, placeholders and documented examples are not" classname="test"/>
 	<testcase name="the capabilities, and the same text in comments and strings, which is never code" classname="test"/>
+	<testcase name="symbol: `function` and blanks before another name (2.6 s at 50 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="symbol: the cited name declared again and again with a parameter list left open (4.7 s at 250 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="symbol: the same as an arrow (2.4 s at 250 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="linkage: `export function` and blanks (6.5 s at 62 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="linkage: an imported name and blanks before `as` (3.2 s at 1 MB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="linkage: star re-exports, each looking up its literal from the first (3 s at 1 MB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="test-integrity: cases left open, each scanned to the end (11 s at 250 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="test-integrity: cases nested in cases (18 s at 250 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="test-integrity: cases nested with a skip option (4 s at 250 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="test-integrity: a promise type argument left open (13 s at 250 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="test-integrity: a member chain read once per link (9.5 s at 62 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="test-integrity: helpers each calling the next, the fixpoint re-reading every body (over 30 s at 62 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="test-integrity: declarations on one line, each searching it for an arrow (1.8 s at 250 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="test-integrity: functions left open beside a case (29 s at 250 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="test-integrity: functions with a return type and no body (2.9 s at 1 MB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="test-integrity: assignments nested in parentheses (3.7 s at 62 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="test-integrity: a chain of assignments (4.5 s at 62 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="capability: `eval(` repeated, each tested for a declaration to its closer (7.7 s at 62 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="capability: loaders of one bound name, each walking every occurrence (7 s at 62 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="every family: regular-expression literals left open, the masker reading each line to its end (5.5 s at 62 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="every family: a chain of arrows, each body read to the end (2.1 s at 62 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="every family: arrows opening a parenthesis left open (21 s at 250 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="allowances: a heading line of `runward/analysis.md` with blank runs around one character (16 s at 4 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="allowances: a glob of many stars against a long file name (over 60 s for one name), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="territory: a pattern of `runward/territory.md` holding a long run of slashes, its trailing ones stripped from every slash (7.7 s at 100,000 characters), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="territory: the same glob in `runward/territory.md`, read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="evidence, comment reader: regular-expression literals left open (54 s at 250 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="evidence, comment reader: an HTML comment opened and never closed, again and again (85 s at 250 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="evidence, comment reader: the same in HTML (44 s at 250 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="evidence, comment reader: code spans of every length, none closed (11 s at 250 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="evidence, comment reader: a line of ` #` ending in a line separator (30 s at 250 KB), read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="evidence, comment reader: a line of quotes, each read back to the line's start, read in linear time at 999000 bytes" classname="test"/>
+	<testcase name="the allowance file's heading reads as the pattern it replaces read it, on 200,000 generated lines" classname="test"/>
+	<testcase name="the glob matcher answers as the dialect's pattern does, on 400,000 generated globs and paths" classname="test"/>
+	<testcase name="every spelling of the environment read in the core is a finding, hono's `process?.env` included" classname="test"/>
+	<testcase name="what is not the environment read stays quiet" classname="test"/>
+	<testcase name="an environment allowance of the file still covers every spelling" classname="test"/>
+	<testcase name="test-integrity: a type alias instantiating an assertion type constrained `extends true` asserts (hono src/client/client.test.ts:654)" classname="test"/>
+	<testcase name="test-integrity: a `// @ts-expect-error` directive inside the case asserts, in a TypeScript file (hono src/middleware/jsx-renderer/index.test.tsx:69)" classname="test"/>
+	<testcase name="test-integrity: an assertion inside a `const` arrow helper whose parameters span lines (hono src/middleware/compress/index.test.ts:121)" classname="test"/>
+	<testcase name="test-integrity: mocha's done handed to the code under test, as an argument, a property value or a listener (express test/Route.js:10, Router.js:19, app.js:8, app.listen.js:7 and :38)" classname="test"/>
+	<testcase name="test-integrity: an awaited method of an object the case built and set up, the promise form of done (fastify test/schema-special-usage.test.js:423, test/http2/closing.test.js:118)" classname="test"/>
+	<testcase name="test-integrity: an awaited promise that rejects on a failure condition (fastify test/reply-trailers.test.js:269)" classname="test"/>
+	<testcase name="test-integrity: the bench's emptied suite still reads red, and a literal-only case is never said to be by design" classname="test"/>
+	<testcase name="capability: a loader whose name is a `const` bound to a literal in its scope loads that module (hono src/utils/color.ts:48)" classname="test"/>
+	<testcase name="capability: `require(param)` of a local function that is not exported and is only called with a literal (express examples/content-negotiation/index.js:34)" classname="test"/>
+	<testcase name="capability: a network module bound only for its constants is a built-in import of the core, never the network (express lib/request.js:17, lib/utils.js:15; fastify fastify.js:6, lib/error-handler.js:3)" classname="test"/>
+	<testcase name="secret: a PEM private key block needs a body; armour around an interpolation is none (hono src/utils/jwt/jwt.test.ts:1561 and :1794)" classname="test"/>
+	<testcase name="symbol: an empty constant the code reads as a value is a sentinel, not a placeholder (hono src/router/reg-exp-router/matcher.ts:9)" classname="test"/>
+	<testcase name="symbol: a cited name resolves to the module's declaration, never to a block's local of the same name (fastify lib/reply.js:606)" classname="test"/>
 	<testcase name="a new mission and the example are born with the analysis policy pinned; an existing mission keeps what its lock says" classname="test"/>
 	<testcase name="the green example: the payload carries the reading, and adds nothing to a payload whose mission has no pin" classname="test"/>
 	<testcase name="a planted capability: refused under --strict, and named with its file and line on every surface" classname="test"/>
@@ -91,6 +141,13 @@
 	<testcase name="test files: an empty one, one that imports only its framework, and one that spawns the code under test" classname="test"/>
 	<testcase name="a test co-located in the declared core is a test: its framework imports are not a boundary finding" classname="test"/>
 	<testcase name="scope: build output beside a package.json, dependencies and links are set aside; a src/build directory is read" classname="test"/>
+	<testcase name="B, hono's own shape: the test script runs tsc -p tsconfig.spec.json, which includes src, so the type assertions are credited" classname="test"/>
+	<testcase name="A: the only type check is the build's, whose configuration excludes *.test.ts: nothing is credited" classname="test"/>
+	<testcase name="E: the test script runs the build's configuration first: it checks no test file, nothing is credited" classname="test"/>
+	<testcase name="C: no script type-checks anything: nothing is credited" classname="test"/>
+	<testcase name="a bare tsc reads the tsconfig.json beside its package.json, through relative extends, as TypeScript reads it" classname="test"/>
+	<testcase name="fail closed: what the reading does not follow credits nothing" classname="test"/>
+	<testcase name="a type case whose Expect and Equal come from the module under test stays red under a covering tsc (said in ADR-0118, no real case has that shape)" classname="test"/>
 	<testcase name="the library may not import a command, and the linter says so" classname="test"/>
 	<testcase name="the same import from an adapter is allowed — the rule encodes a direction, not a ban" classname="test"/>
 	<testcase name="the committed lint report is what the manifests cite, and it is a report the gate can read" classname="test"/>
@@ -574,6 +631,11 @@
 	<testcase name="the section runs to the next heading, and everything after it is outside again" classname="test"/>
 	<testcase name="the section ends at a heading of ANY depth, including level 1" classname="test"/>
 	<testcase name="a fence flush against the heading does not hide it" classname="test"/>
+	<testcase name="a pointer followed by a long run of closing punctuation (over 60 s on 0.46.0): `check --strict` reads it in linear time" classname="test"/>
+	<testcase name="a cell opening like the template placeholder, blanks and words to its end (18 s): `check --strict` reads it in linear time" classname="test"/>
+	<testcase name="a cell of path characters with no extension, then a pointer (15 s): `check --strict` reads it in linear time" classname="test"/>
+	<testcase name="a draft decision of blank lines (11 s): `check --strict` reads it in linear time" classname="test"/>
+	<testcase name="a decision ending in blank lines of tabs (6.8 s): `check --strict` reads it in linear time" classname="test"/>
 	<testcase name="a self-citation is refused even when a fenced example of the table sits above it" classname="test"/>
 	<testcase name="without the fence the same row is refused too, so the fence is what is being pinned" classname="test"/>
 	<testcase name="a fenced illustration does not turn honest evidence red" classname="test"/>
@@ -781,6 +843,13 @@
 	<testcase name="4. a tool that is not green fails the check, and a report the tree did not produce or nobody committed is named" classname="test"/>
 	<testcase name="5. the adapter samples, the Action and the GitLab template run the gate with --hooks by default" classname="test"/>
 	<testcase name="RWD-2026-0156: the packed example is green out of the box — init --example then check --strict exits 0" classname="test"/>
+	<testcase name="junit(), as shipped, gives the former function's projection of every generated report" classname="test"/>
+	<testcase name="junit(), comment openers that never close (CodeQL's line): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="junit(), a quoted tag restarted from every `&lt;` (the tag pattern's attack string): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="junit(), cases that open and never close, each read to the end before: 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="junit(), cases whose body holds a failure that never closes: 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="junit(), suites and cases with quoted names, in the shape a writer produces: 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="reports.mjs --check compares two reports of 50,000 cases in linear time, and names the difference" classname="test"/>
 	<testcase name="RWD-2026-0157: every shipped sample that prints the exit codes says 2 is never a red gate, and not only 'no mission'" classname="test"/>
 	<testcase name="exit 2 legible: no-mission, additive beside the verdict/reason each document already carried" classname="test"/>
 	<testcase name="exit 2 legible: usage, from Commander and from each command's own refusals" classname="test"/>
@@ -799,6 +868,24 @@
 	<testcase name="the CLI writes index.json and index.html, refuses without writing, and reads no clock" classname="test"/>
 	<testcase name="the build reads no clock, and the scan for one sees a planted one" classname="test"/>
 	<testcase name="the specification names every key the index carries: a key added without its line reddens" classname="test"/>
+	<testcase name="ownText: the verbatim blocks and the tags come out as the former patterns took them out" classname="test"/>
+	<testcase name="resolvePath: the same value as the former pattern for every generated path, on one index" classname="test"/>
+	<testcase name="the numbers of a view and the paths it names: the former pattern's matches, and its substring test" classname="test"/>
+	<testcase name="the page's own text: data URLs and external scripts read as the former patterns read them" classname="test"/>
+	<testcase name="normRepo and the markdown's comment reader: the former patterns' answers" classname="test"/>
+	<testcase name="the markdown view writes a `&lt;!--` left in the text as text, never as markup (CodeQL's sanitization alert)" classname="test"/>
+	<testcase name="ownText, verbatim openers that never close (CodeQL): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="ownText, a run of `&lt;` (9 s at 100,000 characters before): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="resolvePath, CodeQL's string: 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="checkView, number openers that never close (CodeQL): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="checkView, one opener and data-index after data-index (CodeQL): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="checkView, every count looked up (9.6 s at 400,000 characters before): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="checkPage, inline index openers that never close (CodeQL, two alerts): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="checkPage, data URLs that never close (CodeQL): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="checkPage, style and module openers that never close: 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="checkPage, script tags that never end: 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="normRepo, a run of slashes (CodeQL; 7.8 s at 100,000 before): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="md, comment openers that never close (CodeQL): 1,000,000 characters read in linear time" classname="test"/>
 	<testcase name="runward-fleet ships at runward's version, private to npm, with no dependency and no script" classname="test"/>
 	<testcase name="the runward-fleet tarball holds its modules, its page, its fonts with their licenses, README, package.json and LICENSE, nothing else" classname="test"/>
 	<testcase name="the fleet Action builds from this repository's package, passes its inputs through the environment, pins every action, reads no secret" classname="test"/>
@@ -943,6 +1030,9 @@
 	<testcase name="hooks-honest: the failed hook is named, in the terminal and in --json" classname="test"/>
 	<testcase name="hooks-honest: a misconfigured gate-hook fails open, says so, and traces it — even under stop_hook_active" classname="test"/>
 	<testcase name="hooks-honest: gate-hook with no mission reachable says so on stderr, still exit 0 with an empty stdout" classname="test"/>
+	<testcase name="positive control: a node --test under a parent's NODE_TEST_CONTEXT skips its files and exits 0" classname="test"/>
+	<testcase name="a hook running a failing node --test fails, whether or not runward runs under a parent test runner" classname="test"/>
+	<testcase name="the hook sees no NODE_TEST_CONTEXT, and every other variable of runward's environment" classname="test"/>
 	<testcase name="a lock that is the JSON literal null, or whose identities are null, declares nothing and never throws" classname="test"/>
 	<testcase name="a name that folds to nothing is never declared, even against an id or an alias that also folds to nothing" classname="test"/>
 	<testcase name="the spellings of a declared id are its own and its aliases, and nothing else when it has none listed" classname="test"/>
@@ -1122,9 +1212,7 @@
 	</testcase>
 	<testcase name="the selector names the covering files, cheap line then expensive line, and ALL on every doubt" classname="test"/>
 	<testcase name="the test command runs the selected files cheap-first and stops at the first failure; without a map it runs the whole suite" classname="test"/>
-	<testcase name="positive control: the map selects the one slow CLI-spawning file that executes check-contract L41" classname="test">
-		<skipped type="skipped" message="check-contract.js L40-41 are no longer the `--witness` beside `--freeze` refusal; re-anchor this control"/>
-	</testcase>
+	<testcase name="positive control: the map selects the one slow CLI-spawning file that executes check-contract's `--witness` beside `--freeze` refusal" classname="test"/>
 	<testcase name="the net has one definition, and the pass that runs it does not keep a copy" classname="test"/>
 	<testcase name="every leg of the net is a script that exists, and the composition is written down" classname="test"/>
 	<testcase name="the digest moves when a leg's content moves, and not otherwise" classname="test"/>
@@ -1154,6 +1242,7 @@
 	<testcase name="the guard consumes a non-trivial rule set from the package" classname="test"/>
 	<testcase name="the guard scans more than one file, and knows what it scanned" classname="test"/>
 	<testcase name="the guard does not fire on legitimate prose" classname="test"/>
+	<testcase name="2026-11-06: the four sentences an adversarial review wrote now fire, and the honest neighbours do not" classname="test"/>
 	<testcase name="a frozen citation is writable verbatim, and every paraphrase of it still fires" classname="test"/>
 	<testcase name="ADR-0088 decision 10: the documents that say how runward is run carry the one-accountable-person disclosure" classname="test"/>
 	<testcase name="ADR-0088 decision 10: the unqualified claims of 2026-10-01 do not come back" classname="test"/>
@@ -1170,6 +1259,7 @@
 	<testcase name="package SBOM: the same inputs give the same bytes, and the serial number follows the tarball" classname="test"/>
 	<testcase name="package SBOM: every way a bundle can differ from the lockfile is refused, and says which" classname="test"/>
 	<testcase name="package SBOM: the helpers say what they mean" classname="test"/>
+	<testcase name="package SBOM: an author's name is the one npm reads, and a long field is read in linear time" classname="test"/>
 	<testcase name="ADR-0116: the tarball this tree packs bundles the lockfile's runtime tree, at the lockfile's versions" classname="test"/>
 	<testcase name="ADR-0116: the command writes the document, refuses a lockfile the bundle does not match, and names a missing input" classname="test"/>
 	<testcase name="every distribution manifest is valid JSON and stamped with the current version" classname="test"/>
@@ -1181,6 +1271,13 @@
 	<testcase name="ADR-0070: every documentary path the shipped CLI prints resolves for someone who has only the package" classname="test"/>
 	<testcase name="ADR-0070: no shipped sample contradicts the package's own engines floor (RWD-2026-0108)" classname="test"/>
 	<testcase name="ADR-0070: the tarball ships CHANGELOG.md, carrying the packed version, and update points at it" classname="test"/>
+	<testcase name="ADR-0120: the runward tarball ships none of runward-run, and none of its modules imports it" classname="test"/>
+	<testcase name="positive control: in this partial clone, a plain git blame fetches the blob it lacks" classname="test"/>
+	<testcase name="doctor adds no promisor pack, and a line git cannot read is unknown, not uncommitted" classname="test"/>
+	<testcase name="sample adds no promisor pack: its status says unknown, and its draw refuses a population it cannot read whole" classname="test"/>
+	<testcase name="characterize adds no promisor pack, and says the churn is unknown" classname="test"/>
+	<testcase name="the remote gone: doctor and sample say unknown, never not committed" classname="test"/>
+	<testcase name="control: in a full clone, the same history reads, and a ratification not committed yet still says so" classname="test"/>
 	<testcase name="every shipped sentence stating a phase count matches the phases the gate actually gates" classname="test"/>
 	<testcase name="the phase-count grammar refuses the shipped false sentences and accepts the true ones (controls)" classname="test"/>
 	<testcase name="every file deliverable in PHASES carries a templateKey naming a shipped template" classname="test"/>
@@ -1337,6 +1434,8 @@
 	<testcase name="posture: the governance / health files the sheet relies on exist" classname="test"/>
 	<testcase name="posture: release wires provenance + an attested SBOM bound to the published tarball" classname="test"/>
 	<testcase name="posture: build provenance is signed in the isolated builder, and the caller cross-checks it" classname="test"/>
+	<testcase name="posture: what the sheets say runs with the network cut is INSIDE the unshare block, not merely in ci.yml" classname="test"/>
+	<testcase name="positive control: a command moved out of the unshare block, or the block removed, is caught" classname="test"/>
 	<testcase name="posture: CI runs core tests network-isolated, gates runward, and tracks SBOM drift" classname="test"/>
 	<testcase name="posture: dated external facts are watched out-of-band (ADR-0032)" classname="test"/>
 	<testcase name="posture: CodeQL scans the sources and the workflows on push, pull request and schedule" classname="test"/>
@@ -1477,6 +1576,39 @@
 	<testcase name="ADR-0041: `*` stops at a path separator, `**` is what crosses directories" classname="test"/>
 	<testcase name="ADR-0024: the envelope publishes the gated phases, so a consumer never re-lists them" classname="test"/>
 	<testcase name="ADR-0009 amendment: every CRITICAL/HIGH rule is ruled on — silence is never a state" classname="test"/>
+	<testcase name="R1: the healthy example, run by runward-run and its Statement signed, passes at attested (exit 0)" classname="test"/>
+	<testcase name="R1: an unsigned Statement, consistent with the tree, reads declared and exits 5" classname="test"/>
+	<testcase name="R1: a hand-committed report, and a forged JUnit report, are refused at attested for want of a binding" classname="test"/>
+	<testcase name="R1: a cited source edited after the run breaks the binding and exits 5" classname="test"/>
+	<testcase name="R1: a manifest edited after the run, a narrower recorded set, a run with the network open: each unbinds" classname="test"/>
+	<testcase name="R1: a run that could not cut the network leaves nothing the gate reads as evidence" classname="test"/>
+	<testcase name="R1: a Sigstore bundle around the Statement is read too, its signature counted, never verified" classname="test"/>
+	<testcase name="R1: a run Statement and its bundle are about the tree, not part of it: the delivered tree and the analyzers leave them out" classname="test"/>
+	<testcase name="the shipped example as `init --example` writes it: below re-derived on its one prose row, named, and the lab is what types it" classname="test"/>
+	<testcase name="every rendering of a run below attested names the level, and no surface says nothing was verified when rows were" classname="test"/>
+	<testcase name="a run: the sources hashed first, the install with the network open, a probe, the legs with it cut, and nothing written into the tree" classname="test"/>
+	<testcase name="the run Statement: its subjects are the reports, its predicate how they were produced, and the same inputs give the same bytes" classname="test"/>
+	<testcase name="a run that cannot cut the network writes nothing, whichever way the runtime fails (ADR-0120 decision 3)" classname="test"/>
+	<testcase name="fail closed on everything that would make the run unprovable: exit 3, nothing written" classname="test"/>
+	<testcase name="the policy in the tree, an output inside it, a check output of another tree: each refused by name" classname="test"/>
+	<testcase name="a red leg is a fact: the reports and the Statement are written, the exit code is 1, the Statement records it" classname="test"/>
+	<testcase name="the normalisers take out absolute paths and timings, touch no verdict, and are idempotent" classname="test"/>
+	<testcase name="the policy is read strictly: shapes refused as usage, what would make a run unprovable refused as a refusal" classname="test"/>
+	<testcase name="GitHub: the executing job holds no id-token and no secret; it is the only job that runs the project's code" classname="test"/>
+	<testcase name="GitHub: the signing job runs no project code, checks the hand-over, and signs keyless under its own workflow's identity" classname="test"/>
+	<testcase name="GitHub: the run policy lives in the workflow, is runward-run's to accept, and is the shipped example's" classname="test"/>
+	<testcase name="GitHub: every action is pinned by commit, and no ${{ }} reaches a run script" classname="test"/>
+	<testcase name="GitLab at parity: the same run policy, the same three jobs, no id_tokens where the project's code runs" classname="test"/>
+	<testcase name="runward-run ships at runward's version, MIT, private to npm, with no dependency and no script" classname="test"/>
+	<testcase name="the runward-run tarball holds its modules, its samples, README, package.json and LICENSE, nothing else" classname="test"/>
+	<testcase name="D4a: the pinned reusable workflow, at its pinned commit, for this repository and commit, is accepted, and a landing on the protected ref" classname="test"/>
+	<testcase name="D4a: a Statement signed from the mission's own caller workflow is refused, even under a policy that pins it" classname="test"/>
+	<testcase name="D4a: an unpinned signer workflow is refused: one the policy does not name, or names without a commit" classname="test"/>
+	<testcase name="D4a: the pinned workflow at another commit is refused, and so is a signature for another commit of the mission" classname="test"/>
+	<testcase name="D4a: a Statement the agent signs with a key of its own is refused; the operator's pinned key is accepted (an offline instance)" classname="test"/>
+	<testcase name="R1 and D4a: what the executing job can make without id-token is no signature the trust policy accepts" classname="test"/>
+	<testcase name="D4a, GitLab at parity: the runner project's pipeline signs, and the mission's commit is the one its signed Statement names" classname="test"/>
+	<testcase name="D4a: `runward-fleet verify-run` reads files only and answers by its exit code: 0 accepted, 1 refused, 2 a question it cannot ask" classname="test"/>
 	<testcase name="ADR-0054 crossing 1: the verdict path imports no socket and no process spawner, transitively" classname="test"/>
 	<testcase name="ADR-0054 crossing 1, the wider ring: the module that OWNS the exit code carries only enumerated crossings" classname="test"/>
 	<testcase name="ADR-0054, the gate-hook ring: the harness seam carries NO crossing at all — not even the hook seam" classname="test"/>
@@ -1492,6 +1624,9 @@
 	<testcase name="ADR-0093: runward-fleet imports nothing from runward, opens no connection, spawns nothing, and is not an SPAWN_ALLOWED entry" classname="test"/>
 	<testcase name="ADR-0093: the runward package imports nothing from runward-fleet, and does not ship it" classname="test"/>
 	<testcase name="ADR-0093, positive controls: a planted runward import, a planted spawn, a planted escape and a planted fetch in the satellite redden" classname="test"/>
+	<testcase name="ADR-0120: runward-run imports nothing from runward and opens no socket of its own; it spawns, and this test says so" classname="test"/>
+	<testcase name="ADR-0120: the runward package imports nothing from runward-run, never spawns it, and does not ship it" classname="test"/>
+	<testcase name="ADR-0120, positive controls: a planted import of runward-run into runward, a planted spawn of it, and planted escapes out of it redden" classname="test"/>
 	<testcase name="every case carries a stable identifier the ledger pins to its name, and the ledger names no other" classname="test"/>
 	<testcase name="the two pinned limits are the ones ADR-0124 writes, quoted as the record says them" classname="test"/>
 	<testcase name="SC-001 control: the example as shipped: N exits 0, S exits 0" classname="test"/>
@@ -1517,6 +1652,7 @@
 	<testcase name="SC-021 g6: ADR-0002 rewritten as a well-formed record that reverses the decision: N exits 0, S exits 1" classname="test"/>
 	<testcase name="SC-022 x1: control, a decision kept in docs/adr in another tool's format, cited by a deviated row: N exits 0, S exits 1" classname="test"/>
 	<testcase name="with the example's hook: the control crosses, and b4, which no reading of the tree refuses, does not" classname="test"/>
+	<testcase name="offline, the H cases are skipped with a reason that names what failed, and a reachable registry runs them" classname="test"/>
 	<testcase name="sarif: a green mission emits a valid, EMPTY log — not an absent one" classname="test"/>
 	<testcase name="sarif: a violation is annotated on the manifest ROW that carries it, not the top of the file" classname="test"/>
 	<testcase name="sarif: the non-scope travels with the findings — dropping it has to be deliberate" classname="test"/>
@@ -1900,7 +2036,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 56056, runward 61660 -->
+	<!-- witness bytes: example 56063, runward 61664 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -2051,11 +2187,11 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2045 -->
+	<!-- tests 2183 -->
 	<!-- suites 0 -->
-	<!-- pass 2043 -->
+	<!-- pass 2182 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
-	<!-- skipped 2 -->
+	<!-- skipped 1 -->
 	<!-- todo 0 -->
 </testsuites>

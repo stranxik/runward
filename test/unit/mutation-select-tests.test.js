@@ -10,9 +10,10 @@
 // paths.js:1-60 from release run 40684642130, while that build is the one in dist/); every doubt
 // the selector can have answers ALL, and the test command then runs the whole ordered suite; a
 // selected set is run cheap-first and exits at the first failure; and the positive control, on the
-// real tree: the ObjectLiteral mutant on check-contract.js L41, killed on 2026-10-28 by the release
-// ratchet, is executed by exactly one unit test file of its module's neighbourhood, the 24-second
-// verdict-witness.test.js, and the map hands the selector that file and no other.
+// real tree: the ObjectLiteral mutant of check-contract.js's `--witness` beside `--freeze` refusal,
+// killed on 2026-10-28 by the release ratchet, is executed by exactly one unit test file of its
+// module's neighbourhood, the 24-second verdict-witness.test.js, and the map hands the selector that
+// file and no other.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, cpSync, existsSync, chmodSync } from "node:fs";
@@ -239,21 +240,40 @@ test("the test command runs the selected files cheap-first and stops at the firs
   } finally { rmSync(s.root, { recursive: true, force: true }); }
 });
 
-// POSITIVE CONTROL, on the real tree. check-contract.js L41-43 (`--witness` beside `--freeze`) carries
-// an ObjectLiteral mutant the release ratchet of 2026-10-28 killed (run 40684642130, chunk
-// check-contract--1, id 12). The full map of 2026-11-03 found ONE unit test file in 211 executing
-// those lines: test/unit/verdict-witness.test.js, the most expensive file of the suite (24.6 s),
-// which spawns the CLI. Here the map is built for that file and the three check-contract files
-// (cheap, and the ones RUNWARD_MUTATION_MODULE puts first), and the selector must hand over the
-// witness file alone: the slow CLI-spawning file the old command reached only in its last stage.
-test("positive control: the map selects the one slow CLI-spawning file that executes check-contract L41", async (t) => {
+// POSITIVE CONTROL, on the real tree. The `--witness` beside `--freeze` refusal of check-contract.js
+// (L41-43 of the build when this control was written) carries an ObjectLiteral mutant the release
+// ratchet of 2026-10-28 killed (run 40684642130, chunk check-contract--1, id 12). The full map of
+// 2026-11-03 found ONE unit test file in 211 executing those lines: test/unit/verdict-witness.test.js,
+// the most expensive file of the suite (24.6 s), which spawns the CLI. Here the map is built for that
+// file and the three check-contract files (cheap, and the ones RUNWARD_MUTATION_MODULE puts first),
+// and the selector must hand over the witness file alone: the slow CLI-spawning file the old command
+// reached only in its last stage.
+//
+// The refusal is found by its text, never by its line. Until 2026-11-06 this control read lines 40-41
+// and skipped when they held something else: imports added at the top of the module moved the
+// refusal to L43, and the control skipped on every run since, counted as a skip, never as a failure.
+// A build without the refusal now FAILS here: a control that cannot run is re-anchored. The one
+// skip left is Stryker's instrumented copy of the module, in a mutation sandbox: it no longer holds
+// the refusal's text, and failing there would kill every mutant of the module for a reason that is
+// none of theirs.
+test("positive control: the map selects the one slow CLI-spawning file that executes check-contract's `--witness` beside `--freeze` refusal", async (t) => {
   const built = join(ROOT, "dist", "lib", "check-contract.js");
   if (!existsSync(built)) return t.skip("no dist/: npm run build first");
   const source = readFileSync(built, "utf8");
-  const line = source.split("\n")[40] ?? "";
-  if (!/opts\.witness !== undefined && opts\.freeze/.test(source.split("\n")[39] ?? "") || !/return \{/.test(line)) {
-    return t.skip("check-contract.js L40-41 are no longer the `--witness` beside `--freeze` refusal; re-anchor this control");
+  if (/\bstry(?:MutAct|Cov)_[0-9a-f]+\(/.test(source)) {
+    return t.skip("dist/lib/check-contract.js is Stryker's instrumented copy (a mutation sandbox), not the build this control reads");
   }
+  const lines = source.split("\n");
+  const at = lines.findIndex((l) => /\bopts\.witness !== undefined && opts\.freeze\b/.test(l));
+  assert.ok(at >= 0, "dist/lib/check-contract.js no longer holds the `--witness` beside `--freeze` refusal: re-anchor this control on another killed mutant");
+  assert.match(lines[at + 1] ?? "", /^\s*return \{\s*$/, "the refusal returns an object literal on the next line");
+  const line = at + 2; // the one-based line of `return {`, where the ObjectLiteral mutant starts
+  const closes = lines.findIndex((l, i) => i > at + 1 && /^\s*\};\s*$/.test(l)) + 1;
+  assert.ok(closes > line, "the refusal's object literal closes");
+  // The run's own chunk, lines 1-60, grown if the literal ever ends past it: a range of the single
+  // line would leave the mutant out, since Stryker places a mutant only when its whole node lies
+  // inside the range.
+  const range = `1-${Math.max(60, closes)}`;
   const root = mkdtempSync(join(tmpdir(), "rw-control-"));
   try {
     const mapPath = join(root, "map.json");
@@ -266,19 +286,17 @@ test("positive control: the map selects the one slow CLI-spawning file that exec
     const witness = map.tests.findIndex((x) => x.file === "test/unit/verdict-witness.test.js");
     assert.ok(witness >= 0);
     assert.ok(map.tests[witness].spawnsCli, "the witness file spawns the CLI and its coverage came back");
-    // The run's own chunk, lines 1-60: a range of the single line 41 would leave the mutant out,
-    // since Stryker places a mutant only when its whole node lies inside the range (L41:16-43:10).
-    r = run(process.execPath, [TABLE, "--mutate", "dist/lib/check-contract.js:1-60", "--out", tablePath], { cwd: ROOT });
+    r = run(process.execPath, [TABLE, "--mutate", `dist/lib/check-contract.js:${range}`, "--out", tablePath], { cwd: ROOT });
     assert.equal(r.status, 0, r.stderr);
     const table = JSON.parse(readFileSync(tablePath, "utf8"));
-    const mutant = table.mutants.find((m) => m.mutator === "ObjectLiteral" && m.line === 41);
+    const mutant = table.mutants.find((m) => m.mutator === "ObjectLiteral" && m.line === line);
     assert.ok(mutant, JSON.stringify(table.mutants));
     // The sandbox: the instrumented module, the test files by path, the cost file, the selector.
     const box = join(root, "sandbox");
     mkdirSync(join(box, "dist", "lib"), { recursive: true });
     mkdirSync(join(box, "test", "unit"), { recursive: true });
     mkdirSync(join(box, "scripts"), { recursive: true });
-    writeFileSync(join(box, "dist", "lib", "check-contract.js"), (await instrumented(built, source, 1, 60)).content);
+    writeFileSync(join(box, "dist", "lib", "check-contract.js"), (await instrumented(built, source, 1, Math.max(60, closes))).content);
     for (const x of map.tests) writeFileSync(join(box, x.file), "");
     cpSync(join(ROOT, "test", "unit-cost.json"), join(box, "test", "unit-cost.json"));
     cpSync(SELECT, join(box, "scripts", "mutation-select-tests.mjs"));
@@ -286,6 +304,7 @@ test("positive control: the map selects the one slow CLI-spawning file that exec
       env: { RUNWARD_MUTATION_MAP: mapPath, RUNWARD_MUTATION_TABLE: tablePath, __STRYKER_ACTIVE_MUTANT__: mutant.id } });
     assert.equal(r.status, 0, r.stderr);
     assert.equal(r.stdout, "\ntest/unit/verdict-witness.test.js\n", r.stderr);
-    assert.match(r.stderr, /check-contract L41-43 mutant \d+: 1 covering file\(s\)/);
+    assert.equal(mutant.endLine, closes, "the mutant spans the literal");
+    assert.match(r.stderr, new RegExp(`check-contract L${line}-${closes} mutant \\d+: 1 covering file\\(s\\)`));
   } finally { rmSync(root, { recursive: true, force: true }); }
 });

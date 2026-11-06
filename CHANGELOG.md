@@ -194,6 +194,29 @@ its SPKI) for instances with no keyless signing. Exit 0 accepted, 1 refused, 2 a
 Its result enters no file runward reads. The display half of D4 (cells raised to `machine-established`
 from run Statements in the fleet view) is D4b, not delivered.
 
+### Fixed: what CodeQL raised on runward-fleet, the example's report script and the SBOM generator (RWD-2026-0206 to RWD-2026-0208)
+
+The repository's code scanning raised eleven alerts of severity high on the first integration pull request
+of 2026-11-06, all in code no release carried. Eight are polynomial-time patterns of runward-fleet: the
+view rules (`ownText`, the numbers of a view, the page's inline index and its data URLs), the repository
+names of the trust policy (`normRepo`) and the markdown of the pull-request view. The static analyzers of
+RWD-2026-0203 found four more in the same functions, and reading them found a lookup that is not a pattern:
+every count of a view searched for again in the whole view. Measured at 100,000 characters, a run of `<`
+took 9 s in `ownText` and a run of slashes 7.8 s in `normRepo`; the count lookup took 9.6 s at 400,000.
+Each reader now reads its text in one pass, with the answers of the pattern it replaces (compared on
+310,000 generated inputs); `test/unit/fleet-linear-readers.test.js` holds twelve shapes at 1,000,000
+characters under a ceiling of CPU time. The index path reader CodeQL named measured linear, and was
+rewritten anyway. Three alerts read a sanitization as incomplete. On the markdown view it is not one: `md`
+escapes every character of its input, and a test holds that a `<!--` left in the text is written as text. On
+the example's `reports.mjs` it is not one either, since the JUnit report is read and never written as
+markup, but reading `junit()` for it found the comment reader, the tag pattern and the search for each
+case's body restarting from every opener left open, and the comparison of two reports quadratic in their
+cases (9.4 s of CPU for 50,000): each is linear now, with the same projection
+(`test/unit/example-report-readers.test.js`). On the SBOM generator, an author's address left open stayed in
+the name and an object's name lost what it held in parentheses: the name is now the one npm reads, an
+object's `name` as written and a string up to its first `<` or `(`. No author of the runtime tree the
+release bundles changes.
+
 ### Fixed: the declared core's environment read through optional chaining, a bracket, `globalThis` or a destructuring is a finding
 
 The capability family looked for `process.env`, `import.meta.env`, `Deno.env` and `Bun.env` written with a
@@ -231,7 +254,7 @@ did it, each first measured where it arrived: the path tokens of a cell from 0.8
 status from 0.21.1, the cut of a segment where a pointer starts from 0.32.0, the template placeholder test
 from 0.41.0. Each reads each character one way now, with the same answers (compared on 850,000 generated
 inputs with the former patterns); `test/unit/evidence-conformance-ceilings.test.js` runs the five shapes
-through the CLI under a ceiling. On a release before this one, a manifest cell or a decision longer than a
+through the CLI under a ceiling of its CPU time. On a release before this one, a manifest cell or a decision longer than a
 few thousand characters is the shape to look for in a gate that does not finish.
 
 ### Fixed: the built-in analyzers, the globs of the mission's own files and the comment reader read in linear time (RWD-2026-0203)
@@ -256,8 +279,8 @@ one file makes the reading read is bounded at sixteen times its size: a case pas
 which can only leave a case red. On the 68 shapes the slowest reading now takes 1.4 s at 999,000 bytes. The
 static audit's last pass found one more: the trailing slashes of a territory or allowance pattern, stripped
 from every slash of a run (7.7 s for one pattern of 100,000 characters), now stripped from the end.
-`test/unit/analyze-ceilings.test.js` runs 32 shapes at that size under a ceiling, and holds the heading
-reader and the glob matcher to the patterns they replace. No release carried the analyzers or the comment
+`test/unit/analyze-ceilings.test.js` runs 32 shapes at that size under a ceiling of CPU time, and holds the
+heading reader and the glob matcher to the patterns they replace. No release carried the analyzers or the comment
 reader. `rules --for` and `propose` read their globs through the same matcher, with the same answers.
 
 ### The saboteur corpus joins the repository (ADR-0117, ADR-0124)
@@ -1031,9 +1054,11 @@ only turn a kill into a survivor the ratchet then refuses, never a survivor into
 `.github/workflows/mutation-ratchet.yml` builds the map in its plan job, hands it to every leg as an
 artifact, and writes the table per leg (its own commit, pushed by the maintainer). Positive control,
 run on the server and pinned in `test/unit/mutation-select-tests.test.js`: the `ObjectLiteral`
-mutant on `check-contract.js` L41-43 that the release ratchet killed is executed by one unit test
-file of 211, the 24-second CLI-spawning `verdict-witness.test.js`, which the selector names alone and
-which alone kills it. That test file is the suite's most expensive and joins `test/unit-cost.json`'s
+mutant of the `--witness` beside `--freeze` refusal (`check-contract.js` L41-43 in the run's build) that
+the release ratchet killed is executed by one unit test file of 211, the 24-second CLI-spawning
+`verdict-witness.test.js`, which the selector names alone and which alone kills it. The control finds the
+refusal by its text: anchored on its line, it skipped once imports added above moved the refusal, on the
+integration branch of 2026-11-06, and a build without the refusal now fails it. That test file is the suite's most expensive and joins `test/unit-cost.json`'s
 slow list from a single measurement under load (78.5 s). No CLI behaviour, output or verdict changes.
 
 ### The release verification demands a GitHub-hosted runner (RWD-2026-0185), and a deploy-time verification recipe
