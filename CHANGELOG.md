@@ -289,6 +289,7 @@ CI step that regenerates its report out of the agent's reach, with its `requires
 planted-sabotage control and a named maintainer, in the order SARIF, JUnit, LCOV, then GitHub Actions,
 GitLab, Jenkins, then agent harnesses, then consumers of in-toto attestations, and counted only while its
 control passes. Documentation only: no CLI behaviour, output or verdict changes.
+
 ### The perimeter widens: decisions, code and execution, each at a named level (ADR-0117, ADR-0119, ADR-0120)
 
 Three records, accepted on 2026-11-05 by the maintainer's delegation in chat, on the recommendation of the
@@ -315,6 +316,7 @@ the cited lines and the evals in a pinned container with the network cut, and wr
 Statement the operator's CI signs in another job, from a workflow the agent cannot write; the CLI still
 runs nothing and never verifies a signature, and the verification half of ADR-0093's D4 moves ahead of D2
 and D3. Documentation only: no CLI behaviour, output or verdict changes.
+
 ### runward-assess 0.1.0: the repeatable assessment grid, outside the verdict path and outside the tool it rates (ADR-0123)
 
 A new package, `packages/runward-assess`, holds `grille@1`: 35 criteria on seven axes (reliability,
