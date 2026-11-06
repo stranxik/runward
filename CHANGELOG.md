@@ -366,6 +366,44 @@ bench and the README now say that, with the analyzers on, the strict gate's cost
 code it reads (on this repository's tree, 470 ms to about 800 ms). ADR-0118 amends ADR-0001, 0005, 0041 and
 0043, and leaves the thesis of ADR-0052 and the crossings of ADR-0054 as they are.
 
+### Fixed: the analyzers' false reds on three repositories runward did not write (ADR-0117 criterion 2)
+
+Before the analysis policy can stay the default of new missions, ADR-0117 asks for zero false reds on three
+real repositories. Run on express, fastify and hono at pinned commits, the analyzers raised 221 findings, and
+two reviewer sessions that wrote neither the analyzers nor the harness classified 129 of them false. The
+reading now follows what those cases assert and what those loaders load, on evidence the tree carries. A
+TypeScript case asserts at compile time when its project runs a type-checker (`tsc`, `tsd`, `tstyche`,
+`--typecheck` in a `package.json` script) and the assertion is about the code under test: an assertion type
+constrained `extends true` instantiated on it (`type verify = Expect<Equal<Expected, Actual>>`), or a
+`@ts-expect-error` over a line that uses it; on literals alone (`Expect<Equal<1, 1>>`) or with nothing that
+type-checks the tests, it still reads red. An asserting `const` helper may spread its parameters over lines.
+A case that hands its `done` to the code under test (under a runner that passes one: node:test, or mocha,
+Jest and Jasmine as the project declares them), builds an object of it, sets it up and awaits it as a
+statement (`await fastify.ready()`), or awaits a promise of its own that can still reject on a failure path,
+is no longer a finding: it is the hypothesis `case-asserts-completion`, which says that the case checks only
+that the code completes without error. The code under test is what the test file imports from a module that
+is not a test, and every name it assigns from it; `done` handed to a package (`request(app).end(done)`), a
+timer or a helper of the tests, and a value awaited and never read, still read red. A loader whose name is a
+`const` initialised with a literal alone, or the parameter of a local function only ever called with a
+literal, is read as that literal import when the name occurs nowhere else. The network is judged by what an
+import of a network module binds and reads: a table of constants (`METHODS`, `STATUS_CODES`, `isIP`) or a
+type-only import is a `core-import-builtin` finding of a declared core (a `network` allowance of the file
+still covers it). A PEM private key block is a finding when a base64 run of key length sits before its END
+line, whatever carries the lines (comments, quotes, `\n` escapes, `\/`, continuations, entities); a body
+that holds `${…}` or a placeholder holds no key. A cited symbol resolves to the module's declaration (a
+function that wraps the module included, a named function's local never), and an empty constant the code
+reads as a value is the hypothesis `symbol-sentinel-constant`, never counted; a stub that is only called,
+exported or typed stays a placeholder. Re-measured with the same harness: in a new mission's configuration,
+the 123 false findings are gone and the 12 true ones remain; under the harness's declared core, the 129 false
+ones are gone, the 92 true ones remain, and five findings appear, each what a literal import gives there
+(four `core-import-builtin` where `network` stood, and hono's `src/utils/color.ts` loading
+`cloudflare:workers`); 13 cases of express and fastify are now `case-asserts-completion` hypotheses. The
+bench's sabotages keep their exit codes and their findings, and the readings stay linear in the size of a
+file. A case with no assertion at all still reads red, a bare call awaited or not, and so does a type case
+with no type assertion; the hypothesis on a case that asserts only on literals no longer says it is by
+design. `test/unit/analyze-false-reds.test.js` holds one test per pattern, each beside a case classified true
+and evasions built against this reading that still fire.
+
 ### Changed: a `#SYMBOL` naming an identifier is looked for outside the file's comments (ADR-0114, RWD-2026-0194)
 
 The gate, `spec-check` and the `rules --for` reminder now search a pointer's symbol of identifier form in
