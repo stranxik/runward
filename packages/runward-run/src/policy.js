@@ -9,9 +9,9 @@
 //           digest, an install whose scripts are not disabled, a leg this version does not deliver.
 export const POLICY_FORMAT = "runward-run-policy/0";
 
-/** The legs of ADR-0120 decision 2 this version runs; the others are refused by name. */
-export const LEGS = ["tests", "reports", "coverage", "mutation"];
-const LATER_LEGS = { evals: "R3" };
+/** The legs of ADR-0120 decision 2, all delivered (R1, R2, R3). */
+export const LEGS = ["tests", "reports", "coverage", "mutation", "evals"];
+const LATER_LEGS = {};
 /** The mutation leg's bounds: each mutant's run, and the mutants of one cited location (ADR-0120: the
  *  wall clock of the leg is bounded by the cited lines; a capped location says so). */
 export const MUTANT_TIMEOUT_SECONDS = 300;
@@ -74,6 +74,7 @@ export function readPolicy(doc) {
     const cwd = l.cwd ?? ".";
     if (cwd !== "." && !safeRel(cwd)) throw usage(`${where}.cwd ${JSON.stringify(cwd)} is not a project-relative path`);
     if (l.leg === "mutation") return mutationLeg(l, where, cwd);
+    if (l.leg === "evals" && l.remote === true) return remoteEvals(l, where, cwd);
     if (!Array.isArray(l.reports) || l.reports.length === 0) throw usage(`${where}.reports must list the reports the leg writes`);
     const reports = l.reports.map((r, k) => {
       if (!r || !safeRel(r.path)) throw usage(`${where}.reports[${k}].path must be a project-relative path`);
@@ -88,9 +89,10 @@ export function readPolicy(doc) {
   });
   if (legs.filter((l) => l.leg === "mutation").length > 1) throw usage("one mutation leg per run: its mutants are the cited lines', not the leg's");
   const paths = legs.flatMap((l) => l.reports.map((r) => r.path));
+  if (legs.every((l) => l.remote)) throw usage("no leg runs: every evals leg is remote, and a run Statement binds what a leg of the run wrote");
   const dup = paths.find((p, i) => paths.indexOf(p) !== i);
   if (dup) throw usage(`two legs write ${dup}`);
-  if (paths.length === 0) throw usage("no leg writes a report: a run Statement binds the reports of the run, and the mutation leg's facts ride the Statement of a run that has some");
+  if (legs.filter((l) => !l.remote).flatMap((l) => l.reports).length === 0) throw usage("no leg writes a report: a run Statement binds the reports of the run, and the mutation leg's facts ride the Statement of a run that has some");
   const dirs = [...new Set(paths.map(dirOf))];
   // runward reads a run Statement in the directory of the report it binds (docs/spec/runward-run.md §4):
   // one run, one directory, one Statement beside every report it binds.
@@ -113,6 +115,24 @@ function mutationLeg(l, where, cwd) {
   const max = l.maxMutantsPerLocation ?? MAX_MUTANTS_PER_LOCATION;
   if (!Number.isInteger(max) || max < 1 || max > 1000) throw usage(`${where}.maxMutantsPerLocation must be an integer between 1 and 1000`);
   return { leg: "mutation", cwd, command: command(l.command, where), junit: l.junit, reports: [], timeoutSeconds, maxMutantsPerLocation: max };
+}
+
+/**
+ * An evals leg whose evals need a remote model (ADR-0120 decision 2): runward-run runs every leg with the
+ * network cut, so it cannot run them. The leg names the reports such evals write elsewhere, with no
+ * command; runward-run runs nothing for it and records each report in the Statement as declared, with the
+ * reason, so runward names why a row citing one is not attested. It binds nothing.
+ */
+function remoteEvals(l, where, cwd) {
+  if (l.command !== undefined) throw usage(`${where}: a remote evals leg has no command: runward-run never runs an eval that needs the network`);
+  if (!Array.isArray(l.reports) || l.reports.length === 0) throw usage(`${where}.reports must list the reports the remote evals write`);
+  const reports = l.reports.map((r, k) => {
+    if (!r || !safeRel(r.path)) throw usage(`${where}.reports[${k}].path must be a project-relative path`);
+    if (!NATURES.includes(r.nature)) throw usage(`${where}.reports[${k}].nature must be one of ${NATURES.join(", ")}`);
+    return { path: r.path, nature: r.nature };
+  });
+  const why = l.why === undefined ? null : String(l.why).slice(0, 300);
+  return { leg: "evals", remote: true, cwd, command: [], reports, why, timeoutSeconds: 1 };
 }
 
 /** `${out}` and `${work}` in a command, expanded to the container paths of the run. */

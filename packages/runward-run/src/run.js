@@ -174,7 +174,7 @@ export function runPolicy({ policyPath, tree, checkPath, out, runtimeBin = "dock
     // The directory of each report the policy declares exists before the legs run: a reporter that
     // writes to a path (Node.js's `--test-reporter-destination`) does not create its directory, and
     // measured on a real runtime the tests leg then wrote nothing at all.
-    for (const leg of policy.legs) for (const rep of leg.reports) mkdirSync(dirname(join(stage, ...rep.path.split("/"))), { recursive: true });
+    for (const leg of policy.legs) if (!leg.remote) for (const rep of leg.reports) mkdirSync(dirname(join(stage, ...rep.path.split("/"))), { recursive: true });
     let install = null;
     if (policy.install) {
       const i = policy.install;
@@ -199,7 +199,11 @@ export function runPolicy({ policyPath, tree, checkPath, out, runtimeBin = "dock
     let mutation = null;
     let seq = 0;
     const name = () => `runward-run-${process.pid}-${seq++}`;
-    for (const leg of [...policy.legs.filter((l) => l.leg !== "mutation"), ...mutationLegs]) {
+    const declared = policy.legs.filter((l) => l.remote).flatMap((l) => l.reports.map((r) => ({
+      path: r.path, nature: r.nature, leg: "evals",
+      why: `an eval that needs a remote model: runward-run runs every leg with the network cut, so this report is produced outside it and its result stays declared (ADR-0120 decision 2)${l.why ? `; the run policy says: ${l.why}` : ""}`,
+    })));
+    for (const leg of [...policy.legs.filter((l) => l.leg !== "mutation" && !l.remote), ...mutationLegs]) {
       if (leg.leg === "mutation") {
         const started = Date.now();
         mutation = runMutationLeg({ rt, image: policy.image, leg, work, scratch, targets, user, env, name, log });
@@ -216,7 +220,7 @@ export function runPolicy({ policyPath, tree, checkPath, out, runtimeBin = "dock
     // 7. The reports, normalised; the sources, again; then, and only then, the output.
     const reports = [];
     const junitTexts = [];
-    for (const leg of policy.legs) {
+    for (const leg of policy.legs.filter((l) => !l.remote)) {
       for (const rep of leg.reports) {
         const abs = join(stage, ...rep.path.split("/"));
         if (!existsSync(abs) || !statSync(abs).isFile()) throw new RunRefused(`the ${leg.leg} leg wrote no report at ${rep.path} (\${out}/${rep.path}): there is nothing to bind`);
@@ -244,6 +248,7 @@ export function runPolicy({ policyPath, tree, checkPath, out, runtimeBin = "dock
       reports,
       coverage: coverageFacts(reports, targets),
       mutation,
+      declared,
     };
     const statement = buildRunStatement(run);
     const testResult = buildTestResultStatement(run, junitTexts);

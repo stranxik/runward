@@ -120,7 +120,7 @@ test("a row's mutation fact: killed through an assertion, without the distinctio
   assert.match(read(fact([m(12, "assertion")], { leg: { junit: "reports/other.xml" } })).why, /runs the cases of reports\/other\.xml, and this row cites none of them/);
 });
 
-test("the run policy: the coverage and mutation legs are delivered, the evals leg is refused by name (R3)", () => {
+test("the run policy: the coverage and mutation legs are delivered, and so is the evals leg (R3)", () => {
   const base = mutationPolicy();
   const p = readPolicy(base);
   const leg = p.legs.find((l) => l.leg === "mutation");
@@ -133,7 +133,7 @@ test("the run policy: the coverage and mutation legs are delivered, the evals le
   assert.equal(kind({ ...base, legs: [...base.legs.slice(0, -1), { ...base.legs.at(-1), junit: "../x.xml" }] }), "usage");
   assert.equal(kind({ ...base, legs: [...base.legs.slice(0, -1), { ...base.legs.at(-1), maxMutantsPerLocation: 0 }] }), "usage");
   assert.equal(kind({ ...base, legs: [{ leg: "coverage", cwd: "code", command: ["node", "-e", "0"], reports: [{ path: "code/reports/junit.xml", nature: "junit" }] }] }), "usage", "a coverage leg writes a coverage report");
-  assert.equal(kind({ ...base, legs: [{ leg: "evals", cwd: "code", command: ["node", "-e", "0"], reports: [{ path: "code/reports/e.json", nature: "junit" }] }] }), "refusal");
+  assert.equal(kind({ ...base, legs: [{ leg: "evals", cwd: "code", command: ["node", "-e", "0"], reports: [{ path: "code/reports/e.json", nature: "junit" }] }] }), "ok");
 });
 
 // ── R2's acceptance, on the laboratory ──────────────────────────────────────────────────────────────

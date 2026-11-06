@@ -515,6 +515,12 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
     statementsByDir.set(dirAbs, found);
     return found;
   };
+  const declaredBy = (doc: RunDocument, rel: string): string | null => {
+    const list = (doc.statement.predicate as { declared?: unknown } | undefined)?.declared;
+    if (!Array.isArray(list)) return null;
+    const hit = list.find((d) => (d as { path?: unknown })?.path === rel) as { why?: unknown } | undefined;
+    return hit ? (typeof hit.why === "string" && hit.why ? hit.why : "the run Statement names it as produced outside runward-run: declared") : null;
+  };
   const subjectsOf = (doc: RunDocument): Set<string> => {
     const out = new Set<string>();
     const subject = doc.statement.subject;
@@ -536,7 +542,14 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
     const attesting = candidates.find((s) => s.bound && s.signatures > 0);
     let r: { level: ProofLevel; statement?: string; why?: string };
     if (attesting) r = { level: "attested", statement: attesting.path };
-    else if (candidates.length === 0) r = { level: "declared", why: `no run Statement in ${toPosix(relative(tree.root, dirname(abs))) || "."}/ has its digest among its subjects` };
+    else if (candidates.length === 0) {
+      // ADR-0120 decision 2 (R3): an eval that needs a remote model is outside runward-run, which says so
+      // in the Statement of the run beside it; the reading names it rather than « no Statement binds it ».
+      const naming = statementsIn(dirname(abs)).find((s) => s.bound && declaredBy(s.doc, rel));
+      r = naming
+        ? { level: "declared", statement: naming.path, why: declaredBy(naming.doc, rel)! }
+        : { level: "declared", why: `no run Statement in ${toPosix(relative(tree.root, dirname(abs))) || "."}/ has its digest among its subjects` };
+    }
     else {
       const unbound = candidates.find((s) => !s.bound);
       r = unbound

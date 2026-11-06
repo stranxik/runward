@@ -114,7 +114,6 @@ test("fail closed on everything that would make the run unprovable: exit 3, noth
     ["npm install scripts left on", { policy: labPolicy({ install: { cwd: "code", lockfile: "code/package-lock.json", command: ["npm", "ci"] } }) }, /without --ignore-scripts/],
     ["an install from no lockfile", { policy: labPolicy({ install: { cwd: "code", lockfile: "code/no-such-lock.json", command: ["node", "-e", "0"] } }) }, /lockfile .* is not in this tree/],
     ["an install that fails", { runtimeEnv: { FAKE_RUNTIME_INSTALL_FAIL: "1" } }, /install .* failed/],
-    ["a leg this version does not deliver", { policy: labPolicy({ legs: [{ leg: "evals", cwd: "code", command: ["node", "-e", "0"], reports: [{ path: "code/reports/m.json", nature: "junit" }] }] }) }, /evals leg is not delivered by this version .*R3/],
     ["a leg that writes no report", { policy: labPolicy({ legs: [{ leg: "tests", cwd: "code", command: ["node", "-e", "0"], reports: [{ path: "code/reports/junit.xml", nature: "junit" }] }] }) }, /wrote no report/],
   ];
   for (const [what, opts, re] of cases) {
@@ -201,5 +200,6 @@ test("the policy is read strictly: shapes refused as usage, what would make a ru
   assert.equal(kind({ ...good, legs: [{ ...good.legs[0], reports: [{ path: "/etc/passwd", nature: "junit" }] }] }), "usage");
   assert.equal(kind({ ...good, legs: [good.legs[0], { ...good.legs[1], reports: [{ path: "elsewhere/lcov.info", nature: "coverage" }] }] }), "usage", "one run, one directory of reports");
   assert.equal(kind({ ...good, legs: [{ ...good.legs[1], leg: "tests" }] }), "usage", "a tests leg writes a JUnit report");
-  assert.equal(kind({ ...good, legs: [{ ...good.legs[0], leg: "evals" }] }), "refusal", "R3's leg is refused by name");
+  assert.equal(kind({ ...good, legs: [{ ...good.legs[0], leg: "evals" }] }), "ok", "R3's leg runs like the tests");
+  assert.equal(kind({ ...good, legs: [{ ...good.legs[0], leg: "benchmarks" }] }), "usage", "a leg ADR-0120 does not name is a usage error");
 });

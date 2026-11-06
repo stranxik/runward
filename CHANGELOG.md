@@ -70,6 +70,20 @@ measured on three real repositories and none left, and that classification is no
 is one constant, `NEW_MISSION_REQUIRED_LEVEL`. runward's own mission asks for no level either: it pins no
 analysis policy, and re-derived would refuse 1 of its rows, which rests on a declaration.
 
+### runward-run R3: the evals leg, and an eval that needs a remote model reads `declared`, named (ADR-0120 R3)
+
+runward-run runs the evals the run policy declares like any other leg, the network cut, so only evals that
+replay recorded outputs or run a pinned local model; their report is bound by the run Statement and reads
+`attested` once it is signed. An eval that needs a remote model is outside runward-run: the policy names
+its reports in an evals leg with `"remote": true` and no command, runward-run runs nothing for it and
+records the reports in the Statement as declared (`predicate.declared`, never a subject), and runward
+reads a row citing one as `declared`, « an eval that needs a remote model: runward-run runs every leg
+with the network cut, so this report is produced outside it and its result stays declared », with the
+policy's reason, rather than « no run Statement binds it ». Measured on the laboratory: a row citing a
+local eval and a remote one reads the first `attested` and the second `declared`, named, and stays below
+`attested`. A run with no remote evals leg writes the Statement it wrote before. With R1 and R2, every leg
+of ADR-0120 decision 2 is delivered.
+
 ### runward-run R2: the coverage and the mutation of the cited lines, and `attested` reads them (ADR-0120 R2, ADR-0119 decision 2)
 
 Measured on 2026-11-05 (ADR-0117, row 8): with every assertion of the example's tests replaced by

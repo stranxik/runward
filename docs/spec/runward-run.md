@@ -3,7 +3,7 @@
 **Status**: specification, dated 2026-11-06, with the code that implements it (`packages/runward-run`,
 the reader in `src/lib/evidence-levels.ts`, the verifier in `packages/runward-fleet/src/run-signature.js`)
 · **Implements**: [ADR-0120](../adr/ADR-0120-an-executor-outside-the-cli-runward-run-executes-the-tests-in-a-pinned-container-and-the-operators-ci-signs-what-it-wrote.md)
-decisions 2 to 6, deliveries R1, D4a and R2 · **Contracts**: two, both expand-only: the run policy
+decisions 2 to 6, deliveries R1, D4a, R2 and R3 · **Contracts**: two, both expand-only: the run policy
 `runward-run-policy/0`, read by runward-run; the run predicate `https://runward.dev/run/v1`, written by
 runward-run and read by runward and runward-fleet.
 
@@ -22,7 +22,8 @@ the tree is refused, exit 3).
 | `format` | `runward-run-policy/0` |
 | `image` | `name[:tag]@sha256:<64 hex>`; anything else is refused (exit 3) |
 | `install` | optional: `{ cwd, lockfile, command }`; `lockfile` must exist in the tree; for `npm`, `pnpm`, `yarn` and `bun` the command must carry `--ignore-scripts` (exit 3 otherwise) |
-| `legs[]` | `{ leg, cwd, command, reports[], timeoutSeconds }`; `leg` is `tests` or `reports` (R1), `coverage` or `mutation` (R2); `evals` is refused by name until R3 |
+| `legs[]` | `{ leg, cwd, command, reports[], timeoutSeconds }`; `leg` is `tests` or `reports` (R1), `coverage` or `mutation` (R2), `evals` (R3) |
+| an `evals` leg | runs like a `tests` leg, the network cut: only evals that replay recorded outputs or run a pinned local model. With `remote: true`, `{ leg, remote, reports[], why? }` and no command: the evals need a remote model, runward-run runs nothing for them, and the Statement names their reports as declared (`declared[]`), never as subjects. A run needs at least one leg that runs |
 | a `coverage` leg | writes a `coverage` report (LCOV); runward-run reads it for the coverage of the cited lines (§7) |
 | a `mutation` leg | `{ leg, cwd, command, junit, timeoutSeconds, maxMutantsPerLocation }`, at most one, no `reports`: `command` runs the tests and writes a JUnit report at `junit` under `${out}`; `timeoutSeconds` bounds one mutant's run (default 300), `maxMutantsPerLocation` the mutants of one cited location, the first in source order (default 40). A run needs at least one leg that writes a report |
 | `legs[].command` | an argument vector, never a shell line; `${out}` and `${work}` expand to the container paths of the output directory and of the copy of the tree |
@@ -57,6 +58,7 @@ several signers sign one payload.
 | `expected` | `{ from, runward }`: where the set came from, and the runward version that derived it |
 | `coverage` | present only with a coverage leg (R2): `{ report, targets[] }`, each target `{ deliverable, rule, locations[] }`, a location `{ file, from, to, instrumented, executed }` (§7) |
 | `mutation` | present only with a mutation leg (R2): `{ mutator, leg, distinction, baseline, targets[], locations[], mutants[] }` (§7) |
+| `declared` | present only with a remote evals leg (R3): `[{ path, nature, leg: "evals", why }]`, the reports the run did not produce; runward reads a cited report listed here as `declared`, with `why` |
 | `nonScope` | what a run Statement never claims, at the character of `RUN_NON_SCOPE` |
 
 A key a reader does not know is ignored; no key changes meaning under this URI.

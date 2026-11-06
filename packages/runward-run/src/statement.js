@@ -42,6 +42,8 @@ export function buildRunStatement(run) {
       // every other run keeps its bytes (docs/spec/runward-run.md §7).
       ...(run.coverage ? { coverage: run.coverage } : {}),
       ...(run.mutation ? { mutation: run.mutation } : {}),
+      // R3, expand-only: the reports of evals that need a remote model, named, never bound.
+      ...(run.declared && run.declared.length ? { declared: run.declared } : {}),
       nonScope: RUN_NON_SCOPE,
     },
   };

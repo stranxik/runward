@@ -66,6 +66,7 @@
     "test/unit/update-newly-gated.test.js",
     "test/unit/sarif-emit.test.js",
     "test/unit/characterize-governed.test.js",
+    "test/unit/run-evals.test.js",
     "test/unit/readiness-golden.test.js",
     "test/unit/rules-for-cited.test.js",
     "test/unit/verify-findings-out-of-verdict.test.js",
@@ -131,6 +132,11 @@
     {
       "file": "test/unit/junit-quote-escaping.test.js",
       "seconds": 6.41,
+      "passed": true
+    },
+    {
+      "file": "test/unit/run-evals.test.js",
+      "seconds": 3.68,
       "passed": true
     },
     {

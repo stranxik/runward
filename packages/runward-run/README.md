@@ -14,9 +14,8 @@ runward writes; runward imports nothing from it, never spawns it and does not sh
 planted controls). Unlike runward, it runs processes: the container runtime, and through it the
 project's code. It holds no key, opens no socket of its own and keeps no state between runs.
 
-This version delivers R1, the tests leg and the declared-reports leg, and R2, the coverage and the
-mutation of the cited lines, JavaScript and TypeScript first. The evals leg (R3) is refused by name until
-it ships.
+This version delivers R1, the tests leg and the declared-reports leg; R2, the coverage and the mutation
+of the cited lines, JavaScript and TypeScript first; and R3, the evals leg.
 
 ## What it does, in order, and when it refuses
 
@@ -83,6 +82,12 @@ so are the mutants of one cited location (`maxMutantsPerLocation`, default 40, t
 the Statement recording how many there were). A coverage leg writes the LCOV runward-run reads for the
 coverage of the cited lines, shown on each row; it sets no level. `docs/spec/runward-run.md` §7 gives the
 whole contract.
+
+An evals leg runs like the tests, the network cut, so only evals that replay recorded outputs or run a
+pinned local model. Evals that need a remote model are outside runward-run: name their reports in a leg
+`{ "leg": "evals", "remote": true, "reports": [...], "why": "..." }` with no command. runward-run runs
+nothing for it and records the reports in the Statement as declared; runward reads a row citing one as
+`declared`, with that reason, never as « no Statement binds it ».
 
 ## The CI layout: two jobs, a workflow the agent cannot write
 
