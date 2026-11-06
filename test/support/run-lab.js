@@ -1,6 +1,7 @@
 // A laboratory for runward-run (ADR-0120), shared by its tests: the shipped example mission as
-// `init --example` writes it, with the lockfile the repository's copy carries and its last prose row
-// typed (ADR-0119 decision 4 asks it of the example before `re-derived`), and a run policy whose legs
+// `init --example` writes it, with the lockfile the repository's copy carries (its last prose row is
+// typed in the example itself since `re-derived` became the default of new missions, ADR-0119
+// decision 4), and a run policy whose legs
 // the fake container runtime (fake-container-runtime.mjs) executes on this machine. The legs re-write the
 // reports the example commits, as the real tools do on an unchanged tree (the committed reports are
 // regenerated and compared in CI, `reports:fresh`): the run is real, the container is not.
@@ -27,25 +28,22 @@ const PORT_ROWS = [
   ["floor.md", "| tools-scope-atomicity | applied | file:code/src/core/ports/routing.port.ts#RoutingApproval; "],
 ];
 
-/** The example as a laboratory repository: `init --example`, the lockfile, the prose row typed, the two
- *  rows that cite a port's interface citing the adapter that implements it too. */
+/** The example as a laboratory repository: `init --example`, the lockfile, the two rows that cite a
+ *  port's interface citing the adapter that implements it too. */
 export function makeLab(dir) {
   mkdirSync(dir, { recursive: true });
   execFileSync(process.execPath, [CLI, "--yes", "init", "--example"], { cwd: dir, env, stdio: "pipe" });
   cpSync(join(ROOT, "examples", "request-triage", "code", "package-lock.json"), join(dir, "code", "package-lock.json"));
-  const topo = join(dir, "runward", "execution-topology.md");
-  writeFileSync(topo, readFileSync(topo, "utf8").replace(
-    "| topology-usage-registry-present | applied | file:runward/execution-topology.md#Usage — §3 usage registry",
-    "| topology-usage-registry-present | applied | file:runward/governance/usage-registry.md#triage-bot — §3 usage registry"));
+  // The example's usage registry row cites a file the gate opens (it typed what the laboratory typed
+  // here until then); a laboratory built on an example that answers it in prose again says so.
+  const typed = "| topology-usage-registry-present | applied | file:runward/governance/usage-registry.md#triage-bot — §3 usage registry";
+  if (!readFileSync(join(dir, "runward", "execution-topology.md"), "utf8").includes(typed)) throw new Error("the laboratory expects the example's typed usage registry row");
   for (const [file, row] of PORT_ROWS) {
     const p = join(dir, "runward", file);
     const text = readFileSync(p, "utf8");
     if (!text.includes(row)) throw new Error(`the laboratory expects the example's row ${row.trim()} in ${file}`);
     writeFileSync(p, text.replace(row, `${row}${IMPLEMENTS}`));
   }
-  writeFileSync(join(dir, "runward", "governance", "usage-registry.md"),
-    "# Usage registry — Request Triage\n\n| Deployment | Risk class | Data classes touched | Action scopes | Owner / responsible | Last review |\n|---|---|---|---|---|---|\n" +
-    "| triage-bot / prod | medium | request text (personal possible), `TriageRecord` | read intake; write to ticketing (approval-gated for compliance-flagged records) | triage product owner | — |\n");
   try { chmodSync(FAKE, 0o755); } catch { /* read-only checkout: the spawn below says so */ }
   return dir;
 }

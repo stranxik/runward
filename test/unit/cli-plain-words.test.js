@@ -90,8 +90,17 @@ test("check --strict on the example: disclosures in plain words, runward's ADRs 
     assert.doesNotMatch(c.out, /evidence nature|arming this check|refuse this yet/);
   } finally { rmSync(cut, { recursive: true, force: true }); }
   assert.match(r.out, /decided row\(s\) carry no ratification trace — reported, not counted: .*`runward ratify --decided` records a ratification/);
-  assert.match(r.out, /never verified \(runward ADR-0004\)/, "an ADR number says whose it is");
   assert.doesNotMatch(r.out, /\((?:disclosed, not judged — )?ADR-00\d\d\)/, "no bare ADR number a reader would look for in the mission");
+  // The example answers no row in prose since it typed its usage registry row (ADR-0119 decision 4): the
+  // prose line, and the ADR number it names, are read on a copy whose row is answered in prose again.
+  const prose = copy(example);
+  try {
+    const topo = join(prose, "runward", "execution-topology.md");
+    writeFileSync(topo, readFileSync(topo, "utf8").replace("file:runward/governance/usage-registry.md#triage-bot", "file:runward/execution-topology.md#Usage"));
+    const p = run(prose, undefined, "check", "--strict");
+    assert.match(p.out, /never verified \(runward ADR-0004\)/, "an ADR number says whose it is");
+    assert.doesNotMatch(p.out, /\((?:disclosed, not judged — )?ADR-00\d\d\)/, "no bare ADR number a reader would look for in the mission");
+  } finally { rmSync(prose, { recursive: true, force: true }); }
 });
 
 test("check --strict on a blank mission: the shared cause counts rows and says how many rules", () => {

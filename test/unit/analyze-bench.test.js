@@ -236,9 +236,11 @@ test("a case removed from the sources while the committed JUnit report keeps it 
 
 test("the opt-in: without the pin nothing is read and the sabotage passes as before; an unknown or malformed pin refuses", () => {
   const lock = "runward/scaffold-lock.json";
+  // "Not opted in" is a mission from before ADR-0118: no pin, and no level, which a new mission asks
+  // for since ADR-0119 decision 4 made `re-derived` its default.
   const setPin = (d, value) => {
     const j = JSON.parse(read(d, lock));
-    if (value === undefined) delete j.analysis; else j.analysis = value;
+    if (value === undefined) { delete j.analysis; delete j.requiredLevel; } else j.analysis = value;
     write(d, lock, `${JSON.stringify(j, null, 2)}\n`);
   };
   withMission((d) => { write(d, "code/src/core/application/autopilot.ts", autopilot(FAKE_KEY)); setPin(d, undefined); }, (dir) => {

@@ -35,7 +35,8 @@ test("a PASSED verification names the level it reached", () => {
   try {
     const p = vsa(root);
     assert.equal(p.verificationResult, "PASSED");
-    assert.deepEqual(p.verifiedLevels, ["RUNWARD_GATE_STRICT"]);
+    // and the level of proof the lock of a new mission asks for, met (ADR-0119 decisions 4 and 6).
+    assert.deepEqual(p.verifiedLevels, ["RUNWARD_GATE_STRICT", "RUNWARD_PROOF_RE_DERIVED"]);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 

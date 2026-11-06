@@ -20,6 +20,7 @@ Mission structure
   write runward/governance/threat-model.md
   write runward/governance/evaluation-rubric.md
   write runward/governance/observability-schema.md
+  write runward/governance/usage-registry.md
   write runward/contracts/port-contract.md
   write runward/runbook.md
   write runward/handover.md
@@ -153,7 +154,7 @@ Profile · Claude Code (.claude/commands/rw-* + .claude/skills/)
 
 Done
 ────────────
-✓ 125 file(s) written, 0 skipped
+✓ 126 file(s) written, 0 skipped
 
 Next steps
   1. Fill runward/framing.md — do not architect before the framing gate passes.

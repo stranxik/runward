@@ -65,15 +65,14 @@ export function lockRequiredLevel(missionDir: string): { level: RequiredLevel } 
 }
 
 /**
- * ADR-0119 decision 4: the level `runward init` writes into a new mission's lock. It becomes
- * `re-derived` in the first release that both ships ADR-0118's analyzers and meets ADR-0117's
- * criterion 2: the false reds of the analyzers measured on three real repositories runward did not
- * write, classified by a reviewer who did not write them, and zero left after the fixes. Until that
- * classification is published, a new mission is born asking for no level, as every mission before it,
- * and asks for one by adding the line to its lock. Existing missions never move: `update` preserves
- * what the lock says and never writes the line on its own.
+ * ADR-0119 decision 4: the level `runward init` writes into a new mission's lock. It is `re-derived`
+ * from the first release that both ships ADR-0118's analyzers and meets ADR-0117's criterion 2: the
+ * findings of the analyzers measured on three real repositories runward did not write, classified by
+ * reviewer sessions that did not write them, zero false reds (docs/compliance/analyzers-on-real-repositories.md,
+ * measured at 51675dc). A new mission asks for another level, or none, by editing the line in its lock.
+ * Existing missions never move: `update` preserves what the lock says and never writes the line on its own.
  */
-export const NEW_MISSION_REQUIRED_LEVEL: RequiredLevel | null = null;
+export const NEW_MISSION_REQUIRED_LEVEL: RequiredLevel | null = "re-derived";
 
 /** ADR-0119 decision 4, at the character: a `re-derived` the lock asks for, on a territory holding a
  *  language the analyzers do not read. For an `attested` the lock asks for, only the static half falls,

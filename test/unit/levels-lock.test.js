@@ -42,14 +42,21 @@ function addPython(dir) {
   writeFileSync(join(dir, "code", "tools", "convert.py"), "def convert(x):\n    return x\n");
 }
 
-let base, example, locked;
+let base, pristine, example, locked;
 const fresh = (from) => { const d = mkdtempSync(join(base, "case-")); cpSync(from, d, { recursive: true }); return d; };
 
 before(() => {
   base = mkdtempSync(join(tmpdir(), "rw-level-lock-"));
-  example = join(base, "example");
-  execFileSync("git", ["init", "-q", example]);
-  execFileSync(process.execPath, [CLI, "--yes", "init", "--example"], { cwd: example, env, stdio: "pipe" });
+  pristine = join(base, "pristine");
+  execFileSync("git", ["init", "-q", pristine]);
+  execFileSync(process.execPath, [CLI, "--yes", "init", "--example"], { cwd: pristine, env, stdio: "pipe" });
+  // The fixture these cases measure a level against: the example with its usage registry row answered in
+  // prose again (the state it shipped in before `re-derived` became the default of new missions, ADR-0119
+  // decision 4) and no level in its lock, so one applied row rests on a declaration.
+  example = fresh(pristine);
+  const topo = join(example, "runward", "execution-topology.md");
+  writeFileSync(topo, readFileSync(topo, "utf8").replace("file:runward/governance/usage-registry.md#triage-bot", "file:runward/execution-topology.md#Usage"));
+  lockLevel(example, undefined);
   locked = fresh(example);
   lockLevel(locked, "re-derived");
 });
@@ -104,9 +111,44 @@ test("ADR-0119 decision 4: update carries the lock's level through as written, e
   const plain = fresh(example);
   assert.equal(run(plain, "update").status, 0);
   assert.equal("requiredLevel" in JSON.parse(readFileSync(join(plain, "runward", "scaffold-lock.json"), "utf8")), false, "update writes no level on its own");
-  // `init` writes the level this release names for new missions: none until ADR-0117's criterion 2 is published.
-  const lock = JSON.parse(readFileSync(join(example, "runward", "scaffold-lock.json"), "utf8"));
-  assert.equal(lock.requiredLevel, NEW_MISSION_REQUIRED_LEVEL ?? undefined);
+  // `init` writes the level this release names for new missions: `re-derived` since ADR-0117's criterion 2
+  // is published (docs/compliance/analyzers-on-real-repositories.md).
+  const lock = JSON.parse(readFileSync(join(pristine, "runward", "scaffold-lock.json"), "utf8"));
+  assert.equal(NEW_MISSION_REQUIRED_LEVEL, "re-derived");
+  assert.equal(lock.requiredLevel, NEW_MISSION_REQUIRED_LEVEL);
+});
+
+test("ADR-0119 decision 4: a new mission that follows the blank template meets re-derived on its usage registry row; a pointer at the manifest itself is declared", () => {
+  // The blank template keeps the usage registry in a file of its own, as `topology-usage-registry-present`
+  // says, so the row of a new mission that follows it cites a file the gate opens; the same fact cited in
+  // the manifest that carries the row is read as a declaration, below the level the lock asks for.
+  const blank = mkdtempSync(join(base, "blank-"));
+  execFileSync("git", ["init", "-q", blank]);
+  execFileSync(process.execPath, [CLI, "--yes", "init"], { cwd: blank, env, stdio: "pipe" });
+  assert.equal(JSON.parse(readFileSync(join(blank, "runward", "scaffold-lock.json"), "utf8")).requiredLevel, "re-derived");
+  const registry = join(blank, "runward", "governance", "usage-registry.md");
+  const placeholder = "| [deployment / environment] | [risk class] | [data classes] | [action scopes, approval points] | [named owner] | [date] |";
+  assert.ok(readFileSync(registry, "utf8").includes(placeholder), "init scaffolds the registry's own file, its row still the template's");
+  writeFileSync(registry, readFileSync(registry, "utf8").replace(placeholder,
+    "| intake-bot / prod | medium | request text (personal possible) | read intake; write a ticket (approval-gated) | intake product owner | 2026-11-06 |"));
+  const topo = join(blank, "runward", "execution-topology.md");
+  const template = readFileSync(topo, "utf8");
+  const slot = "| [rule-slug] | applied \\| deviated \\| n/a | [pointer, ADR-id, or reason] |";
+  assert.ok(template.includes(slot), "the template's conformance row is where a mission writes its own");
+  const row = (evidence) => writeFileSync(topo, template.replace(slot, `| ${PROSE_ROW} | applied | ${evidence} |`));
+  const levelOf = (j) => Object.entries(j.levels.rows).filter(([, rows]) => rows.some((r) => r.deliverable === "execution-topology.md" && r.rule === PROSE_ROW)).map(([level]) => level);
+
+  row("file:runward/governance/usage-registry.md#intake-bot — one deployment, its risk class, data classes, action scopes and owner");
+  const own = strictJson(blank);
+  assert.equal(own.levels.required, "re-derived");
+  assert.deepEqual(levelOf(own), ["re-derived"], "the registry in its own file is opened and checked");
+  assert.ok(!own.levels.below.some((b) => b.rule === PROSE_ROW), "nothing holds the row below the level");
+
+  row('file:runward/execution-topology.md#"Usage registry" — the section above');
+  const self = strictJson(blank);
+  assert.deepEqual(levelOf(self), ["declared"], "a pointer at the manifest itself is a declaration");
+  const held = self.levels.below.find((b) => b.rule === PROSE_ROW);
+  assert.match(held?.holds?.[0] ?? "", /the gate does not open it as evidence/);
 });
 
 test("ADR-0119 decision 4: the lock's re-derived on a territory holding Python requires mechanical and says so at the character; asked by name, it refuses", () => {
