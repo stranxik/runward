@@ -11,6 +11,8 @@
   "totalSeconds": 781.7,
   "slowSeconds": 728.1,
   "slow": [
+    "test/unit/run-binding.test.js",
+    "test/unit/run-executor.test.js",
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
     "test/unit/mission-name-independent-of-checkout.test.js",
@@ -104,6 +106,16 @@
     "test/unit/package-sbom.test.js"
   ],
   "files": [
+    {
+      "file": "test/unit/run-binding.test.js",
+      "seconds": 12.21,
+      "passed": true
+    },
+    {
+      "file": "test/unit/run-executor.test.js",
+      "seconds": 11.82,
+      "passed": true
+    },
     {
       "file": "test/unit/junit-quote-escaping.test.js",
       "seconds": 6.41,
