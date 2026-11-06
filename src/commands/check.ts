@@ -1,6 +1,6 @@
 import { existsSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { buildVerdictStatement } from "../lib/attestation.js";
+import { buildVerdictStatement, deliveredTreeOf } from "../lib/attestation.js";
 import { analyze, declaredMissionName, findMissionRoot, incompleteContracts, inProgressDetail } from "../lib/mission.js";
 import { decisionCoverage, rulesDir, UNBOUND_CAUSE_TEXT } from "../lib/conformance.js";
 import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
@@ -8,7 +8,7 @@ import { buildSarif, manifestLineLocator, verdictFindings } from "../lib/sarif.j
 import { buildCodeQuality, buildJUnit, payloadDigest, renderCodeQuality, renderingPathFault } from "../lib/renderings.js";
 import { buildVsaStatement } from "../lib/attestation.js";
 import { collectEvidenceSeal, renderEvidenceSeal, EVIDENCE_LOCK, citedJUnitNotGreen } from "../lib/evidence.js";
-import { conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, currentGateLabel, impliesStrict, isMachineRun, machinePayload, nextPayload, nextStep, optionFault, redPhases, rerunCommand } from "../lib/check-contract.js";
+import { attestedQuestion, conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, currentGateLabel, impliesStrict, isMachineRun, machinePayload, nextPayload, nextStep, optionFault, redPhases, rerunCommand } from "../lib/check-contract.js";
 import { computeVerdict, verdictFrom, verdictSummaryParts } from "../lib/verdict.js";
 
 import { behavioralProof } from "../lib/behavioral-proof.js";
@@ -35,7 +35,7 @@ import { buildWitness, renderWitness, witnessPathFault, WITNESS_SCHEMA } from ".
  * so an agent drives on data, not scraped text — the exit-code contract is unchanged.
  * Exit codes: 0 = current gate clean, 1 = gaps, 2 = the question could not be asked (no mission, a usage error — ADR-0083).
  */
-export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean; sarif?: boolean; vsa?: boolean; resourceUri?: string; witness?: string; codequality?: string; junit?: string }): Promise<void> {
+export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean; sarif?: boolean; vsa?: boolean; resourceUri?: string; witness?: string; codequality?: string; junit?: string; wholeTree?: boolean }): Promise<void> {
   // The decisions live in check-contract.ts so a test can ask what a flag combination means without
   // spawning a process and reading stderr (ADR-0047, finished 2026-08-24). This function keeps what
   // only a command can do: print, and exit.
@@ -830,11 +830,20 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // same payload with the machine-specific absolute mission path replaced by the name the
       // mission DECLARES (its contract's title, ADR-0109), so the attestation is portable and the
       // same tree gives the same bytes whatever the checkout folder is called (it was the folder's
-      // basename until 2026-10-28: RWD-2026-0186); the subject digest (mission tree ∪ cited
-      // evidence) binds it to this exact state. No signature field: signing is the operator's
-      // opt-in step under their own key (layer 5).
-      const predicate = { ...payload, mission: declaredMissionName(mission) };
-      const statement = buildVerdictStatement(root, mission, predicate);
+      // basename until 2026-10-28: RWD-2026-0186); the subject digest binds it to the mission state,
+      // runward/ and the evidence the manifests cite, and nothing else (RWD-2026-0193). No signature
+      // field: signing is the operator's opt-in step under their own key (layer 5).
+      //
+      // ADR-0113: the Next line it carries is the bare command's (`attestedQuestion`), never the `-p`
+      // this invocation typed, so it re-derives and one tree gives one attestation however the command
+      // was written; `verify` re-derives every field of it, under the build named in `producer`. With
+      // `--whole-tree`, the files the project delivers are bound as a second subject; the verdict above
+      // never reads them.
+      const predicate = {
+        ...payload, mission: declaredMissionName(mission),
+        next: nextPayload(nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown }, attestedQuestion(opts))),
+      };
+      const statement = buildVerdictStatement(root, mission, predicate, { deliveredTree: opts.wholeTree ? deliveredTreeOf(root) : undefined });
       process.stdout.write(JSON.stringify(statement, null, 2) + "\n");
     } else {
       process.stdout.write(JSON.stringify(payload, null, 2) + "\n");

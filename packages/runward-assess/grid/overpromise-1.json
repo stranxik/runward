@@ -1,0 +1,37 @@
+{
+  "format": "runward-assess-lexicon/1",
+  "id": "overpromise@1",
+  "about": "Terms a public surface should not assert. A detector is good for raising a flag and poor at judging (runward ADR-0092): a sentence that negates the term is counted apart, and a project exception needs a reason and a date. The terms are listed to be found, never to be claimed.",
+  "terms": [
+    {
+      "id": "certification-claim",
+      "re": "\\bcertifi(?:ed|é|ée|és|ées)\\b"
+    },
+    {
+      "id": "conformity-claim",
+      "re": "\\bcompl(?:i)ant\\b|\\bconformes?\\s+(?:au|à la|aux|à l')\\s+(?:RGPD|GDPR|AI Act|CRA|DORA|NIS ?2|ISO)"
+    },
+    {
+      "id": "guarantee-claim",
+      "re": "\\bguarantee(?:d|s)?\\b|\\bgaranti(?:e|es|s)?\\b"
+    },
+    {
+      "id": "tamper-claim",
+      "re": "\\btamper[- ]proof\\b|\\binviolables?\\b"
+    },
+    {
+      "id": "no-hallucination-claim",
+      "re": "\\b(?:no|zero|aucune|z[ée]ro)\\s+hallucinations?\\b"
+    },
+    {
+      "id": "zero-defect-claim",
+      "re": "\\bz[ée]ro[- ](?:bugs?|defects?|d[ée]fauts?)\\b|\\bbug[- ]free\\b"
+    },
+    {
+      "id": "unbreakable-claim",
+      "re": "\\bunhackable\\b|\\bbullet[- ]?proof\\b|\\b100 ?% (?:secure|s[ée]curis[ée]e?)\\b"
+    }
+  ],
+  "negation": "\\b(?:not|never|no|cannot|can't|isn't|aren't|won't|doesn't|without|nor|neither|forbidden|banned|refuses?|ne|n'|pas|jamais|sans|interdits?|refuse)\\b",
+  "negatingOpening": "^[\\s>*_-]*(?:\\*\\*|__)?(?:never|do not|don't|forbidden|banned|avoid|interdit|jamais|ne jamais|à proscrire)\\b"
+}

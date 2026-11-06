@@ -89,6 +89,7 @@ program
   // ADR-0055: emit the verdict as an UNSIGNED in-toto Statement (a Statement wrapping --json, whose
   // subject binds it to this mission tree). The operator signs it under their own key (never runward's).
   .option("--attest", "emit the verdict as an unsigned in-toto attestation (in-toto Statement wrapping --json; sign it yourself under your own key)")
+  .option("--whole-tree", "with --attest: also bind every file the project delivers (what its own .gitignore files do not ignore, read without git) as a second subject; `verify` then names each file changed, added or removed. The verdict does not read it (ADR-0113)")
   // ADR-0056 widening, emission half: the verdict in the format every forge already renders, so a
   // gap becomes an annotation on the manifest row that carries it. Emission only — runward writes
   // the file; uploading it is the operator's CI step (ADR-0054).
@@ -111,10 +112,10 @@ program
 
 program
   .command("verify")
-  .description("re-check a `check --attest` attestation offline — the tree has not drifted and the verdict re-derives, on the repo alone (ADR-0055)")
+  .description("re-check a `check --attest` attestation offline: under the runward build that produced it, every field re-derives from runward/ and the evidence it cites, and, when the attestation binds it, the whole delivered tree matches; another build is sent back to its producer, exit 2 (ADR-0055, ADR-0113)")
   .argument("<attestation>", "path to the in-toto Statement emitted by `runward check --attest`")
   .option("-p, --path <path>", "project directory")
-  .option("--json", "machine output: verified, and the digest/verdict match (stable contract)")
+  .option("--json", "machine output: result (verified | differs | version-skew | not-re-derivable), what the digest covers, and every field that differs (stable contract)")
   .action(verifyCommand);
 
 program

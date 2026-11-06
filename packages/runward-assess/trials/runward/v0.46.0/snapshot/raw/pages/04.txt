@@ -1,0 +1,45 @@
+# Runward
+
+> Runward est le cadre de travail de votre agent, de l'idée à la production. Une méthode en 6 étapes, 64 règles d'ingénierie, et aucune étape franchie sans une preuve que l'humain valide : l'agent exécute, vous validez.
+
+Runward encadre les systèmes agentiques, du problème métier au système qui tient en production. Trois entrées : depuis l'idée avant le code, après la spec à partir de l'architecture, ou d'un prototype à faire tenir en production. Principes forts : aucun chiffre halluciné (le déterministe reste hors du modèle), gouverné dès le jour zéro et non après l'incident, chaque décision structurante verrouillée en ADR (datée, réévaluable). Compatible avec tous les agents : Codex, Claude, Cursor, Copilot, Gemini, Windsurf. Outillage sous licence MIT ; la doctrine « Designing and Running Agentic Systems » est un canon séparé sous CC BY-ND.
+
+## Pages
+- [Accueil](/#/) : ce qu'est Runward, les 6 étapes, la commande d'installation.
+- [Les entrées](/#/entrees) : d'où vous partez, idée, spec, ou prototype.
+- [Après la spec](/#/apres-la-spec) : Spec Kit, OpenSpec, BMAD, Spec Kitty face à Runward.
+- [La preuve](/#/preuve) : éprouvé, pas déclaré.
+- [Les artefacts](/#/artefacts) : ce que la mission capitalise.
+- [Installer](/#/commencer) : guide d'installation, commandes, première mission.
+- [Nouveautés](/news/) : les releases, datées, sur preuve.
+- Étapes : [Cadrer](/#/etape/1), [Architecturer](/#/etape/2), [Plancher](/#/etape/3), [Itérer](/#/etape/4), [Gouverner](/#/etape/5), [Transmettre](/#/etape/6).
+
+## Documentation (/docs)
+Documentation complète, pensée pour l'humain ET pour l'agent, FR sous /docs et EN sous /docs/en.
+- [Vue d'ensemble](/docs/)
+- [Quickstart](/docs/getting-started/quickstart/) : du dossier vide au premier gate vert.
+- Concepts : [La porte déterministe](/docs/concepts/the-gate/), [Les six phases](/docs/concepts/six-phases/), [Preuve & intégrité](/docs/concepts/evidence/), [Architecture & choix](/docs/concepts/architecture/).
+- Opérer : [Depuis un agent IA](/docs/operating/from-an-agent/), [Brancher la porte (CI & local)](/docs/operating/wire-the-gate/), [Reprendre un système existant](/docs/operating/resume-existing/), [Maintenir & diagnostiquer](/docs/operating/maintain/).
+- Conformité : [La preuve du système que vous livrez](/docs/compliance/evidence/) (ISO 42001, NIST AI RMF, EU AI Act, export OSCAL), [Adopter runward en environnement régulé](/docs/compliance/regulated-adoption/).
+- Référence (générée depuis le paquet) : [Commandes CLI](/docs/reference/cli/), [Catalogue des règles](/docs/reference/rules/), [Journal des ADR](/docs/reference/adr/).
+- Projet : [Ce qui vient](/docs/project/roadmap/).
+
+## Le cycle en 6 portes (franchies sur preuve, jamais sur déclaration)
+1. Cadrer, `framing.md`, le sponsor valide le critère de succès observable et le périmètre du plancher.
+2. Architecturer, `architecture.md` + ADR, frontières décidées, la stack reste ouverte.
+3. Plancher, le plus petit système qui prouve la valeur sur trafic réel.
+4. Itérer, chaque évolution tracée à un déclencheur objectif.
+5. Gouverner, modèle de menace, évaluation, observabilité dès le jour zéro.
+6. Transmettre, l'équipe refait une tâche en autonomie : démontré, pas déclaré.
+
+## Installation
+`npx runward init` (publié sur npm). Aussi depuis les sources : `git clone`, `npm install`, `npm run build`, puis `node dist/cli.js init`. Prérequis : Node.js 20+ et git. Commandes : `init`, `check` (audit de porte, sort en code 1 s'il reste des trous), `status`, `doctor`, `wire` (détecte le harnais IA et recommande le canal, en lecture seule), `update`.
+
+## Où installer la porte (carte honnête des canaux)
+La porte s'installe depuis là où vous travaillez déjà, mais tous les canaux ne tiennent pas la même force. Dur en CI (GitHub Action `uses: stranxik/runward` en contrôle requis) et là où vous câblez `npx runward check --strict`. Indicatif en fin de tour dans les agents (Claude Code, Gemini CLI, OpenAI Codex, Copilot). Souple, outil par outil, dans les éditeurs (Cursor, Kiro). MCP non publié, par choix : un outil MCP est piloté par le modèle, il peut le sauter, donc il ne peut pas être la porte (ADR-0029). Dans tous les cas, c'est l'opérateur qui installe ; runward ne câble rien tout seul.
+
+## Code source
+Dépôt (MIT) : https://github.com/stranxik/runward, `git clone https://github.com/stranxik/runward.git`
+
+## Auteur
+Thibault Souris, https://thibaultsouris.fr

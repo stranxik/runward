@@ -45,12 +45,31 @@ wrongly often enough, or are new enough, to be said here:
   scaffold's placeholder was never filled; the same name is the `subject[].name` of `--attest` and
   `--vsa`, the `predicate.mission` of `bundle`, and the OSCAL pack's component title and UUID seed.
   Until 0.46.0 those carried the checkout folder's basename, so the same tree cloned under two folder
-  names gave two attestations (RWD-2026-0186, ADR-0109). `runward verify` never read the name: an
-  older attestation verifies as before, and its `mission` reads as the folder it was made in.
+  names gave two attestations (RWD-2026-0186, ADR-0109). `runward verify` compares `mission` and
+  `subject[0].name` with the name the tree declares (ADR-0113); an attestation made by 0.46.0 or
+  earlier is another build's, answered by that build (see `producer` below), and its `mission` reads as
+  the folder it was made in.
 - **`next`: the gesture the terminal's "Next" line names**, from the same function:
   `{ action, command, rerun, text }`. `action` is the stable identifier to branch on; `rerun` is the
-  gate that said no (null on a green). `runward verify` re-derives `next.action`; `command`, `rerun`
-  and `text` echo the invocation and are listed as not re-derived.
+  gate that said no (null on a green). In `--json` they echo the invocation (`-p <path>` among them);
+  in `--attest` they are the bare command's (`runward check --strict`), so one tree gives one
+  attestation however the command was typed, and `runward verify` re-derives all four (ADR-0113).
+- **`producer`, in `--attest` only: the build that produced it** (ADR-0113): `{ name, version, purl,
+  build }`. `purl` (`pkg:npm/runward@X.Y.Z`) retrieves it, a published version being never replaceable
+  on npm; `build` (`sha256:…`, the digest of the package's `dist/` and `templates/`, path and content)
+  confirms the retrieved one is the same, and tells a build from a working copy apart from the release
+  it is numbered after. `runward verify` answers only for its own build: another one is exit 2,
+  `version-skew`, with the `npx --yes runward@X.Y.Z verify …` command that re-derives it.
+- **`deliveredTree` and a second subject, in `check --attest --whole-tree` only** (ADR-0113):
+  `subject[1]` is `<mission name> (delivered tree)`, its digest the digest of `deliveredTree.entries`
+  (`{ path: sha256 }`, built like the mission-state digest), `deliveredTree.files` their number and
+  `deliveredTree.rule` the sentence of what is bound. A delivered file is every file and symbolic link
+  under the project root that the project's own `.gitignore` files do not ignore, read with git's
+  pattern rules and without git, except `.git` entries, nested repositories, files of zero bytes (the
+  shell creates the attestation's own file empty before runward writes it) and runward in-toto
+  Statements (an attestation, its DSSE envelope, a bundle). Not read, so not applied: `.git/info/exclude`,
+  the global excludes file, a `.gitignore` above the project root; patterns match case-sensitively.
+  `runward verify` names each file changed, added or removed, exit 1; the verdict never reads the tree.
 - **`conformance[]`: each row says where and what** (additive since 0.42.3). Beside
   `scope`, `rule` and `problem`, every row carries `kind` (a stable identifier: `proposed`,
   `missing-row`, `empty-status`, `invalid-status`, `unresolved-pointer`, `evidence-refused`,
@@ -60,8 +79,8 @@ wrongly often enough, or are new enough, to be said here:
   `unratified-decision`, `unbound-row`; values are only ever added), `file` (repository-relative,
   `/`-separated), `line` (the rule's row in that file, or `null` when the refusal has no row) and
   `phaseId`. File and line come from the locator `--sarif` uses, so the two documents agree.
-  `runward verify` re-derives all four; an attestation made before they existed carries none and is
-  compared on the three fields it has.
+  `runward verify` re-derives all four; an attestation made before they existed is another build's,
+  answered by that build (ADR-0113).
 - **`ratification`: the ledger, disclosed and never gating outside the regulated tier.** A row is
   counted in a mode (`lineByLine`, `enBloc`, `blind`, `agent`) only while its latest ratification
   still matches it. A decided row whose latest ratification bound a digest (`bound:`, ADR-0080) that
@@ -80,8 +99,8 @@ wrongly often enough, or are new enough, to be said here:
   untraced row. `by`, `for` and `date` are copied as the tree declares them (declared, not proved);
   `unboundCause` is filled only under the regulated tier. The counts beside it count ratification
   **entries**, the list counts **rows**: a row ratified twice adds two to `rows` and its mode, one
-  element to `byRow`. `runward verify` compares `byRow` on its own, only when present, so an
-  attestation sealed before it (0.43.x) keeps verifying.
+  element to `byRow`. `runward verify` names `ratification.byRow` on its own when it differs; an
+  attestation sealed before it (0.43.x) is answered by 0.43.x (ADR-0113).
 - **`gaps.causesByKind`** (strict, additive, ADR-0095): for each `kind` present in `conformance[]`,
   sorted by kind, `{ count, indices }`, the indices pointing into `conformance[]`. `{}` on a green.
 - **`delegation.assurance`** (with a charter, additive, ADR-0095 for the shape, ADR-0090 for the
@@ -219,10 +238,14 @@ which case it was, by a stable `error` field, additive (ADR-0030):
 | `usage` | an unknown command or option, a missing argument, an invalid choice, a flag combination or a value the command refuses | fix the invocation |
 | `refused` | a gesture runward will not perform here: `ratify --agent` outside its rules, `wire --install` under an agent or without a terminal, `report` over a file that is not a report | the operator performs it, in a terminal |
 | `unreadable-input` | a file `verify` or `spec-check` was given cannot be read as what it must be | fix or replace the file named |
+| `version-skew` | `verify` was given an attestation another runward build produced (ADR-0113): a verdict re-derives only under its producer | run the `rederive.command` it prints (`npx --yes runward@X.Y.Z verify …`) |
+| `not-re-derivable` | `verify` found every field agreeing, but the attesting run executed hook commands, whose outcome no offline reading can give | re-run them: `runward check --strict --hooks` |
 
 A document that already carried its case keeps it, with the same values: `check`, `status`,
 `manifest`, `propose`, `report`, `compliance` and `ratify --list` keep `verdict: "no-mission"`,
-`verify` keeps `reason` (`attestation-not-found`, `not-in-toto`, …, `no-mission`), `spec-check` keeps
+`verify` keeps `reason` (`attestation-not-found`, `not-in-toto`, …, `no-mission`) on the exits 2 where it
+could not read its input, and carries the whole document (`result`, `digest`, `verdict`, `predicate`) on
+the two where it read it and cannot answer (`version-skew`, `not-re-derivable`), `spec-check` keeps
 `verdict` (`no-spec`, `no-criteria`). Every other exit 2 of a `--json` run prints
 `{ runward, error, message, exitCode: 2 }`; `message` is the sentence stderr also carries: read
 `error`, never parse `message`. Commander's own usage errors (`check --json --bogus`,
@@ -498,10 +521,21 @@ Docker, [Docker daemon attack surface](https://docs.docker.com/engine/security/#
 runward verify verdict.intoto.json     # or verdict.dsse.json
 ```
 
-Re-derives the mission-state digest and the verdict from the current tree: a drifted tree and a
-tampered predicate both fail, loud. No network, no trust root, no second tree. If the attestation was
-produced by an older runward, the version skew is named, so an evolved verdict is never mistaken for
-a forgery.
+Under the build the attestation names in `producer`, rebuilds the Statement that build emits for this
+tree and for the question the attestation records (`strict`, `through`, whether `--hooks` and
+`--coverage` ran), and compares every key both ways (ADR-0113). Four answers:
+
+| `result` | Exit | Meaning |
+|---|---|---|
+| `verified` | 0 | the digest and every field agree (an honest record of a red gate is `verified` too: authentic, not passing) |
+| `differs` | 1 | the subject digest, a field (`predicate.differing` names it, a key added or removed included), or the delivered tree differs |
+| `version-skew` | 2 | another build produced it: `rederive.command` re-derives it with that build; this build's reading is in `digest`, `verdict` and `predicate`, `comparison: "advisory"` |
+| `not-re-derivable` | 2 | everything agrees, and the attesting run executed hook commands (`notReDerived: ["hooks.failed"]`) |
+
+What the digest covers is said, not implied: `digest.covers` lists `runward/` and the evidence files
+the manifests cite outside it, and `digest.notCovered` says every other file is not covered, unless
+the attestation was made with `--whole-tree`, whose second subject `verify` compares file by file
+(`tree.changed`, `tree.added`, `tree.removed`). No network, no trust root, no second tree.
 
 ## A system of several repositories
 

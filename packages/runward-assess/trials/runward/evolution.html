@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Assessment evolution</title>
+<meta name="description" content="Evolution of 3 grid records: axis tiers and criterion transitions.">
+<style>
+:root{
+  --basalte:#191715; --chaux:#E9E4DB; --pierre:#E1DCD2; --sauge:#C9D2C6; --encre:#2A2622; --or:#C9A45C; --term:#131110;
+  --bg:var(--chaux); --fg:var(--basalte); --panel:var(--pierre); --mist:var(--sauge);
+  --soft:rgb(25 23 21 / .66); --hair:rgb(25 23 21 / .16); --hair2:rgb(25 23 21 / .30);
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Departure Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --code:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --gut:16px; --max:1180px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:var(--basalte); --fg:var(--chaux); --panel:var(--encre); --mist:rgb(201 210 198 / .16);
+    --soft:rgb(233 228 219 / .66); --hair:rgb(233 228 219 / .14); --hair2:rgb(233 228 219 / .30); }
+}
+:root[data-theme="dark"]{ --bg:var(--basalte); --fg:var(--chaux); --panel:var(--encre); --mist:rgb(201 210 198 / .16);
+  --soft:rgb(233 228 219 / .66); --hair:rgb(233 228 219 / .14); --hair2:rgb(233 228 219 / .30); }
+@media (min-width: 760px){ :root{ --gut:32px; } }
+*{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{ margin:0; background:var(--bg); color:var(--fg); font-family:var(--font); font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+body::after{ content:""; position:fixed; inset:0; pointer-events:none; z-index:90; opacity:.06;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.09  0 0 0 0 0.08  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>"); }
+a{ color:inherit; text-decoration-thickness:1px; text-underline-offset:3px; }
+.wrap{ max-width:var(--max); margin:0 auto; padding:0 var(--gut); }
+.rv{ font-family:var(--mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--soft); }
+.rv b{ color:var(--fg); font-weight:400; text-transform:none; }
+header.top{ border-bottom:1px solid var(--hair); }
+.top .wrap{ display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 18px; padding-top:18px; padding-bottom:12px; }
+.brand{ font-weight:600; letter-spacing:-.01em; font-size:17px; }
+.brand span{ font-weight:300; }
+main{ padding:28px 0 72px; }
+.head{ display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:8px 0; border-top:1px solid var(--hair2); border-bottom:1px solid var(--hair); margin-bottom:28px; }
+h1{ font-weight:300; font-size:clamp(2rem,5vw,3.8rem); line-height:1.04; letter-spacing:-.025em; margin:0 0 14px; overflow-wrap:anywhere; }
+.lede{ font-weight:300; font-size:clamp(1.1rem,2.2vw,1.5rem); line-height:1.3; letter-spacing:-.01em; margin:0 0 30px; max-width:60ch; }
+h2{ font-weight:500; font-size:13px; letter-spacing:.02em; margin:38px 0 12px; }
+h3{ font-weight:500; font-size:17px; letter-spacing:-.01em; margin:26px 0 8px; }
+p{ margin:0 0 12px; max-width:78ch; }
+.soft{ color:var(--soft); }
+.face{ display:grid; gap:14px; grid-template-columns:1fr; }
+@media (min-width: 640px){ .face{ grid-template-columns:repeat(2,1fr); } }
+@media (min-width: 980px){ .face{ grid-template-columns:repeat(4,1fr); } }
+.cell{ background:var(--panel); padding:16px 16px 14px; border-radius:2px; min-width:0; }
+.cell .tier{ font-weight:300; font-size:44px; line-height:1; letter-spacing:-.03em; margin:8px 0 6px; }
+.cell .name{ font-size:14px; margin:0 0 10px; }
+.cell .per{ display:flex; gap:12px; font-size:13px; color:var(--soft); font-variant-numeric:tabular-nums; }
+.cell .blk{ font-size:13px; margin-top:10px; border-top:1px solid var(--hair); padding-top:8px; }
+.st{ display:inline-flex; align-items:center; gap:7px; white-space:nowrap; }
+.mk{ width:.72em; height:.72em; border-radius:50%; display:inline-block; flex:none; border:1.5px solid currentColor; }
+.mk-full{ background:currentColor; }
+.mk-half{ background:linear-gradient(90deg,currentColor 50%,transparent 50%); }
+.mk-void{ border-style:dashed; background:transparent; }
+.mk-dot{ width:.4em; height:.4em; background:currentColor; border:0; }
+.mk-cross{ border-radius:1px; background:transparent; position:relative; }
+.mk-cross::before,.mk-cross::after{ content:""; position:absolute; left:50%; top:-1px; bottom:-1px; width:1.5px; background:currentColor; transform:rotate(45deg); }
+.mk-cross::after{ transform:rotate(-45deg); }
+.chip-inv{ background:var(--fg); color:var(--bg); padding:1px 8px 1px 6px; border-radius:2px; }
+.chip-inv .mk{ border-radius:1px; transform:rotate(45deg); }
+.tw{ overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 0 8px; }
+table.t{ width:100%; border-collapse:collapse; font-size:14px; }
+table.t th{ text-align:left; font-weight:500; font-size:12px; color:var(--soft); padding:6px 10px 6px 0; border-bottom:1px solid var(--hair2); vertical-align:bottom; }
+table.t td{ padding:7px 10px 7px 0; border-bottom:1px solid var(--hair); vertical-align:top; }
+table.t td.why{ color:var(--soft); font-size:13px; min-width:16ch; }
+code,.hash{ font-family:var(--code); font-size:.86em; overflow-wrap:anywhere; }
+.proof{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:12px 14px; border:1px solid var(--hair2); border-radius:2px; margin:0 0 28px; }
+.proof .mk{ border-radius:1px; transform:rotate(45deg); border-color:var(--or); background:var(--or); }
+ul.plain{ margin:0 0 12px; padding-left:18px; }
+ul.plain li{ margin:0 0 4px; }
+footer{ border-top:1px solid var(--hair); padding:18px 0 40px; }
+@media print{ body::after{ display:none; } }
+.tier-s{ font-weight:300; font-size:26px; letter-spacing:-.02em; }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><span class="brand">runward<span>-assess</span></span><span class="rv">evolution · 3 records · same grid</span></div></header>
+<main class="wrap">
+<h1>v0.37.1 → v0.46.0 → 32d8425</h1>
+<p class="lede">Every record was produced under the same grid: a difference comes from the repository, or from the date of a snapshot.</p>
+<h2>Axis tiers</h2>
+<div class="tw"><table class="t"><thead><tr><th>Axis</th><th>v0.37.1<br><span class="rv">0e194d6accf9 · 2026-09-01</span></th><th>v0.46.0<br><span class="rv">192ca3d63c45 · 2026-10-28</span></th><th>32d8425<br><span class="rv">32d8425b1cb4 · 2026-11-05</span></th></tr></thead><tbody>
+<tr><td><span class="rv"><b>FIA</b></span> Reliability and test evidence</td><td><span class="tier-s">P0</span></td><td><span class="tier-s">P0</span></td><td><span class="tier-s">P0</span></td></tr>
+<tr><td><span class="rv"><b>SEC</b></span> Security and supply chain</td><td><span class="tier-s">P0</span></td><td><span class="tier-s">P0</span></td><td><span class="tier-s">P0</span></td></tr>
+<tr><td><span class="rv"><b>GOU</b></span> Governance and continuity</td><td><span class="tier-s">P0</span></td><td><span class="tier-s">P0</span></td><td><span class="tier-s">P1</span></td></tr>
+<tr><td><span class="rv"><b>PRV</b></span> Evidence and conformity</td><td><span class="tier-s">P0</span></td><td><span class="tier-s">P0</span></td><td><span class="tier-s">P0</span></td></tr>
+<tr><td><span class="rv"><b>PRO</b></span> Public promises</td><td><span class="tier-s">P0</span></td><td><span class="tier-s">P0</span></td><td><span class="tier-s">P0</span></td></tr>
+<tr><td><span class="rv"><b>ADO</b></span> Adoption experience</td><td><span class="tier-s">P0</span></td><td><span class="tier-s">P0</span></td><td><span class="tier-s">P0</span></td></tr>
+<tr><td><span class="rv"><b>MAR</b></span> Market signals</td><td><span class="tier-s">P0</span></td><td><span class="tier-s">P0</span></td><td><span class="tier-s">P0</span></td></tr>
+</tbody></table></div>
+<h2>Axis changes</h2>
+<ul class="plain"><li><span class="st"><span class="mk mk-full" aria-hidden="true"></span>gain</span> v0.46.0 → 32d8425 · GOU P0 → P1</li></ul>
+<h2>Criterion transitions</h2>
+<div class="tw"><table class="t"><thead><tr><th>Between</th><th>Criterion</th><th>From</th><th>To</th><th>Kind</th></tr></thead><tbody><tr><td>v0.37.1 → v0.46.0</td><td><span class="rv"><b>GOU-01</b></span> Governance files</td><td><span class="st chip-inv"><span class="mk mk-full" aria-hidden="true"></span>not met · P1</span></td><td><span class="st"><span class="mk mk-full" aria-hidden="true"></span>met · P2</span></td><td><span class="st"><span class="mk mk-full" aria-hidden="true"></span>gain</span></td></tr>
+<tr><td>v0.37.1 → v0.46.0</td><td><span class="rv"><b>SEC-01</b></span> Coordinated disclosure</td><td><span class="st chip-inv"><span class="mk mk-full" aria-hidden="true"></span>not met · P1</span></td><td><span class="st"><span class="mk mk-half" aria-hidden="true"></span>not observed · P1</span></td><td><span class="st"><span class="mk mk-half" aria-hidden="true"></span>no longer observed</span></td></tr>
+<tr><td>v0.37.1 → v0.46.0</td><td><span class="rv"><b>SEC-03</b></span> Known vulnerabilities; visibility of the project&#39;s advisories</td><td><span class="st chip-inv"><span class="mk mk-full" aria-hidden="true"></span>not met · none</span></td><td><span class="st"><span class="mk mk-half" aria-hidden="true"></span>not observed · P2</span></td><td><span class="st"><span class="mk mk-full" aria-hidden="true"></span>gain</span></td></tr>
+<tr><td>v0.46.0 → 32d8425</td><td><span class="rv"><b>GOU-02</b></span> Independent review and branch protection</td><td><span class="st"><span class="mk mk-half" aria-hidden="true"></span>not observed · none</span></td><td><span class="st chip-inv"><span class="mk mk-full" aria-hidden="true"></span>not met · P1</span></td><td><span class="st"><span class="mk mk-full" aria-hidden="true"></span>gain</span></td></tr>
+<tr><td>v0.46.0 → 32d8425</td><td><span class="rv"><b>GOU-03</b></span> Continuity of access</td><td><span class="st"><span class="mk mk-half" aria-hidden="true"></span>not observed · none</span></td><td><span class="st chip-inv"><span class="mk mk-full" aria-hidden="true"></span>not met · none</span></td><td><span class="st"><span class="mk mk-dot" aria-hidden="true"></span>now observed</span></td></tr>
+<tr><td>v0.46.0 → 32d8425</td><td><span class="rv"><b>PRO-01</b></span> Factual statements tagged and checked (runward ADR-0092)</td><td><span class="st"><span class="mk mk-half" aria-hidden="true"></span>not observed · none</span></td><td><span class="st chip-inv"><span class="mk mk-full" aria-hidden="true"></span>not met · P1</span></td><td><span class="st"><span class="mk mk-full" aria-hidden="true"></span>gain</span></td></tr>
+<tr><td>v0.46.0 → 32d8425</td><td><span class="rv"><b>PRO-02</b></span> Public numbers are consistent</td><td><span class="st"><span class="mk mk-half" aria-hidden="true"></span>not observed · none</span></td><td><span class="st chip-inv"><span class="mk mk-full" aria-hidden="true"></span>not met · none</span></td><td><span class="st"><span class="mk mk-dot" aria-hidden="true"></span>now observed</span></td></tr>
+<tr><td>v0.46.0 → 32d8425</td><td><span class="rv"><b>PRO-03</b></span> Overpromise lexicon</td><td><span class="st"><span class="mk mk-half" aria-hidden="true"></span>not observed · none</span></td><td><span class="st chip-inv"><span class="mk mk-full" aria-hidden="true"></span>not met · none</span></td><td><span class="st"><span class="mk mk-dot" aria-hidden="true"></span>now observed</span></td></tr>
+<tr><td>v0.46.0 → 32d8425</td><td><span class="rv"><b>SEC-01</b></span> Coordinated disclosure</td><td><span class="st"><span class="mk mk-half" aria-hidden="true"></span>not observed · P1</span></td><td><span class="st"><span class="mk mk-full" aria-hidden="true"></span>met · P2</span></td><td><span class="st"><span class="mk mk-full" aria-hidden="true"></span>gain</span></td></tr>
+<tr><td>v0.46.0 → 32d8425</td><td><span class="rv"><b>SEC-03</b></span> Known vulnerabilities; visibility of the project&#39;s advisories</td><td><span class="st"><span class="mk mk-half" aria-hidden="true"></span>not observed · P2</span></td><td><span class="st chip-inv"><span class="mk mk-full" aria-hidden="true"></span>not met · P2</span></td><td><span class="st"><span class="mk mk-dot" aria-hidden="true"></span>now observed</span></td></tr>
+<tr><td>v0.46.0 → 32d8425</td><td><span class="rv"><b>SEC-05</b></span> Hardened CI; Scorecard</td><td><span class="st"><span class="mk mk-half" aria-hidden="true"></span>not observed · P1</span></td><td><span class="st chip-inv"><span class="mk mk-full" aria-hidden="true"></span>not met · P2</span></td><td><span class="st"><span class="mk mk-full" aria-hidden="true"></span>gain</span></td></tr></tbody></table></div>
+</main>
+</body>
+</html>
