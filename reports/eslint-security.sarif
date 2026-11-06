@@ -141,6 +141,86 @@
             {
               "physicalLocation": {
                 "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 633,
+                  "startColumn": 33
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 642,
+                  "startColumn": 33
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 655,
+                  "startColumn": 33
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 692,
+                  "startColumn": 12
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
                   "uri": "src/lib/characterize.ts"
                 },
                 "region": {
@@ -244,7 +324,7 @@
                   "uri": "src/lib/mission.ts"
                 },
                 "region": {
-                  "startLine": 455,
+                  "startLine": 466,
                   "startColumn": 21
                 }
               }

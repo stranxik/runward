@@ -10,6 +10,11 @@
 	<testcase name="update: an untouched adapter an older release wrote unpinned is refreshed; an edited one is kept" classname="test"/>
 	<testcase name="the stamped pre-commit: the local install only when it is that version, else the pinned npx" classname="test"/>
 	<testcase name="the packaged client hooks and the wire entries run package.json's version" classname="test"/>
+	<testcase name="under the structure contract, a stub left accepted in the mission's journal carries no decision" classname="test"/>
+	<testcase name="without the opt-in nothing moves: the same stub reads as a decision, as before" classname="test"/>
+	<testcase name="a status refusal keeps its words: a proposed stub is unratified before it is incomplete" classname="test"/>
+	<testcase name="a journal outside the mission keeps its reading, whatever format it is kept in" classname="test"/>
+	<testcase name="end to end: the corpus's g2 and g4 are refused, sealed or not, and the example as shipped crosses" classname="test"/>
 	<testcase name="the journal declares its own status vocabulary, and it is the template's" classname="test"/>
 	<testcase name="the journal is read through the one status reader, and every ADR has a status" classname="test"/>
 	<testcase name="a proposed decision says what would settle it, and what the tree does meanwhile" classname="test"/>
@@ -67,6 +72,15 @@
 	<testcase name="the green example: the payload carries the reading, and adds nothing to a payload whose mission has no pin" classname="test"/>
 	<testcase name="a planted capability: refused under --strict, and named with its file and line on every surface" classname="test"/>
 	<testcase name="the opt-in, measured on the same planted tree: without the pin the strict gate is green, as it was before" classname="test"/>
+	<testcase name="the export reading: declarations, lists, defaults and re-exports, and what it leaves open" classname="test"/>
+	<testcase name="the import reading: what a statement takes from its module" classname="test"/>
+	<testcase name="the example as shipped links: no finding" classname="test"/>
+	<testcase name="case b: a cited core file replaced by one word is named at every import that no longer links" classname="test"/>
+	<testcase name="the limit: a file that keeps every name as a placeholder links, and only an execution sees it" classname="test"/>
+	<testcase name="a JavaScript file shipped with its declaration file exports what the declaration declares" classname="test"/>
+	<testcase name="a CommonJS file is never refused: its exports are not settled, and the reading says so" classname="test"/>
+	<testcase name="linkage reads the delivered tree only (ADR-0113 decision 5): an ignored declaration file is not read" classname="test"/>
+	<testcase name="the export reading stays linear on a file built to make it quadratic" classname="test"/>
 	<testcase name="masking keeps every offset and newline, and blanks comments and literal contents only" classname="test"/>
 	<testcase name="a template literal: its text is blanked, the code of its substitutions stays readable" classname="test"/>
 	<testcase name="a slash is a regular expression after an operator or a keyword, a division after a value" classname="test"/>
@@ -1536,6 +1550,9 @@
 	<testcase name="the charter template, every baseline skill and every tool profile are in the map, keyed project-relative" classname="test"/>
 	<testcase name="the lock's record joins the map, except the mission-relative workflows, rules and adapters" classname="test"/>
 	<testcase name="RWD-2026-0191: a cited symlink sealed through a symlinked path keeps a project-relative lock key" classname="test"/>
+	<testcase name="an ADR a manifest names only in prose and tables is sealed; one nobody names is not" classname="test"/>
+	<testcase name="end to end: a named decision rewritten after the seal is refused, the seal intact before" classname="test"/>
+	<testcase name="a lock written before keeps verifying exactly the keys it lists; the next freeze widens" classname="test"/>
 	<testcase name="RWD-2026-0189: a lock that records the sentinel &quot;unreadable&quot; never reads intact over an unreadable file" classname="test"/>
 	<testcase name="RWD-2026-0190: a Cost ceilings section with no number is refused, its heading's digit aside" classname="test"/>
 	<testcase name="RWD-2026-0121: the scan refuses an ESM child_process import outside the named crossings" classname="test"/>
@@ -1858,7 +1875,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 53368, runward 61659 -->
+	<!-- witness bytes: example 56056, runward 61660 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -2009,9 +2026,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2003 -->
+	<!-- tests 2020 -->
 	<!-- suites 0 -->
-	<!-- pass 2001 -->
+	<!-- pass 2018 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 2 -->
