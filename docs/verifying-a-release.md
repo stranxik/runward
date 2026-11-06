@@ -19,7 +19,8 @@ against their attestation subjects; the Sigstore timestamps inside the bundles i
 the attestations to the original release day.
 From v0.43.0, a release also holds the qualification kit and its provenance bundle (Step 8).
 From the first release that carries it, a release also holds `runward-forge-X.Y.Z.tgz`, the second
-package of the repository, released at the same version (Step 9).
+package of the repository, released at the same version (Step 9), and, from the first release that
+carries it, `runward-fleet-X.Y.Z.tgz`, the third, a release asset only, never published to npm (Step 9).
 From the first release after [ADR-0116](adr/ADR-0116-what-a-user-installs-is-what-the-release-tested-the-tarball-bundles-its-dependencies-the-sbom-is-the-packages-and-no-signing-job-runs-the-build.md),
 the tarball carries its runtime dependencies at the versions of the tag's lockfile, and the SBOM is
 the package's own, which you derive again yourself (Step 10); until then it was a scan of the
@@ -289,7 +290,7 @@ passed on your installation, of which kind, in which environment.
 your own tool classification; runward determines no class, level or outcome for anyone, and the
 report is evidence for your work, not a conclusion.
 
-## Step 9 — the runward-forge tarball (releases from the first that carries it)
+## Step 9 — the runward-forge and runward-fleet tarballs (releases from the first that carries each)
 
 `runward-forge`, the forge adapters (ADR-0094), is released with `runward`: same version, same tag,
 packed and attested by the same isolated builder, cross-checked byte for byte by the release workflow
@@ -315,6 +316,20 @@ runward-forge-X.Y.Z.tgz --repo stranxik/runward` covers it as Step 7 covers the 
 **Proves**: the file is the one the isolated builder packed from that tag, and npm serves that file.
 **Does not prove**: anything about what the adapters do on your forge; their tests run against
 loopback stubs, not a recorded forge.
+
+`runward-fleet`, the fleet view (ADR-0093 D4), is packed, attested and cross-checked the same way and
+attached as `runward-fleet-X.Y.Z.tgz`. It is never published to npm (the package is private), so the
+release asset is the only file to verify:
+
+```sh
+gh attestation verify runward-fleet-X.Y.Z.tgz --repo stranxik/runward \
+  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml \
+  --source-ref refs/tags/vX.Y.Z \
+  --deny-self-hosted-runners
+```
+
+**Proves**: the file is the one the isolated builder packed from that tag. **Does not prove**: that a
+page it builds says more than the exports it read; that is what its view rules and their tests hold.
 
 ## Step 10 — the SBOM is the package's, and the tarball carries the tested tree (releases from the first that carries it)
 

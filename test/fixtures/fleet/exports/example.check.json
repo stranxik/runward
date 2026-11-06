@@ -1,0 +1,889 @@
+{
+  "runward": "0.46.0",
+  "mission": "(fixture: examples/request-triage at main@32d8425)",
+  "currentGate": "all gates passed",
+  "adrCount": 3,
+  "strict": true,
+  "verdict": "clean",
+  "exitCode": 0,
+  "gaps": {
+    "deliverables": 0,
+    "conformance": 0,
+    "hooks": 0,
+    "deferred": 0,
+    "proposed": 0,
+    "causesByKind": {}
+  },
+  "deliverables": [
+    {
+      "phase": "1 · Frame",
+      "artifact": "Framing note",
+      "relPath": "framing.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "frame"
+    },
+    {
+      "phase": "1 · Frame",
+      "artifact": "Steering contract",
+      "relPath": "mission-contract.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "frame"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Architecture note",
+      "relPath": "architecture.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Execution topology",
+      "relPath": "execution-topology.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Decision matrix",
+      "relPath": "decision-matrix.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Decision journal (≥1 ADR)",
+      "relPath": "adr",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Port contracts (≥1 filled)",
+      "relPath": "contracts",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "3 · Floor",
+      "artifact": "Floor note (measured proof)",
+      "relPath": "floor.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "floor"
+    },
+    {
+      "phase": "5 · Govern (day zero)",
+      "artifact": "Threat model",
+      "relPath": "governance/threat-model.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "govern"
+    },
+    {
+      "phase": "5 · Govern (day zero)",
+      "artifact": "Evaluation rubric",
+      "relPath": "governance/evaluation-rubric.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "govern"
+    },
+    {
+      "phase": "5 · Govern (day zero)",
+      "artifact": "Observability schema",
+      "relPath": "governance/observability-schema.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "govern"
+    },
+    {
+      "phase": "6 · Hand over",
+      "artifact": "Recovery runbook",
+      "relPath": "runbook.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "handover"
+    },
+    {
+      "phase": "6 · Hand over",
+      "artifact": "Hand-over note (the kit, proven)",
+      "relPath": "handover.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "handover"
+    }
+  ],
+  "through": null,
+  "horizon": null,
+  "corpusPin": null,
+  "corpusDrift": null,
+  "conformance": [],
+  "evidence": {
+    "rows": 46,
+    "applied": 24,
+    "deviated": 0,
+    "na": 22,
+    "typed": 22,
+    "prose": 2,
+    "proseRows": [
+      {
+        "deliverable": "execution-topology.md",
+        "rule": "topology-usage-registry-present"
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "resilience-fail-open"
+      }
+    ],
+    "signed": 5,
+    "evidenceFiles": {
+      "total": 15,
+      "external": 13
+    },
+    "duplicated": []
+  },
+  "corpus": {
+    "status": "package",
+    "missing": [],
+    "edited": [],
+    "extra": []
+  },
+  "seal": {
+    "present": false,
+    "count": 0,
+    "sealedAt": null,
+    "violations": 0
+  },
+  "criticalScope": {
+    "total": 45,
+    "mapped": 41,
+    "unmapped": [
+      "patterns-memory-router-tiered",
+      "routing-model-cost-ratios",
+      "routing-smart-complexity",
+      "scaling-distributed-rate-limiting"
+    ]
+  },
+  "ratification": {
+    "rows": 0,
+    "lineByLine": 0,
+    "enBloc": 0,
+    "blind": 0,
+    "untraced": 46,
+    "byRow": [
+      {
+        "deliverable": "architecture.md",
+        "rule": "contracts-governance",
+        "phaseId": "architect",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "64d494a01c141226",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "architecture.md",
+        "rule": "hexa-architecture",
+        "phaseId": "architect",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "5d1fa6d1fa6337de",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "architecture.md",
+        "rule": "hexa-adapter-pattern",
+        "phaseId": "architect",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "93191ed23b7897cf",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "architecture.md",
+        "rule": "hexa-typescript-native",
+        "phaseId": "architect",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "f9ee519225869534",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "architecture.md",
+        "rule": "process-adr-and-journal",
+        "phaseId": "architect",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "935fff06ac837645",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "architecture.md",
+        "rule": "security-mcp-server-pinning",
+        "phaseId": "architect",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "a672c2967a402eba",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "execution-topology.md",
+        "rule": "topology-port-placement-mapped",
+        "phaseId": "topology",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "c4a99a24204033dd",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "execution-topology.md",
+        "rule": "topology-sovereignty-by-data-class",
+        "phaseId": "topology",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "99e9048035125696",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "execution-topology.md",
+        "rule": "topology-trace-export-decision",
+        "phaseId": "topology",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "e397c7ca5a41d43c",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "execution-topology.md",
+        "rule": "topology-usage-registry-present",
+        "phaseId": "topology",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "60c509ba876232db",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "frontier-deterministic-boundary",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "5d2941cc2fdd9fac",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "hexa-move-deterministic-out",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "4ade18d50546d5fc",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "config-secrets-boundary",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "2724d5360369153c",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "provider-llm-auto-detection",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "1da06559daeffed9",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "security-prompt-injection",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "c9b1e7402c642e12",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "hexa-architecture",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "62911a4e1bf3b3ea",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "hexa-adapter-pattern",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "72f51101d2bfead4",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "provider-no-crash-missing-env",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "dda3bafb0ebdfb77",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "state-event-sourcing",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "cf7176cd06b7414e",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "tools-scope-atomicity",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "bf6ac09f15f6deb0",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "async-post-turn-pipeline",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "20a303677f11d964",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "checklist-day-zero-project",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "a89b94bce4272722",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "data-migrations-forward-only",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "b35b8940127eb879",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "scaling-state-externalization",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "e8e05fb2b7f2c621",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "tools-registry-pattern",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "0d75ce5fe28c99c2",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "eval-loop",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "60a86554cbb0ed1c",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "security-prompt-injection",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "f9826c15fd5dda05",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "config-secrets-boundary",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "c1811f8815649cc2",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "resilience-fail-open",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "23e7754d1a028c23",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "resilience-multi-provider-fallback",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "aefd5be9d6c9c68e",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "resilience-retry-backoff",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "2958d68ca8d9036f",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "async-job-guardrails",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "991f2ded1249d713",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "security-mcp-server-pinning",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "5d5c8fd9a84a9b6b",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "security-tool-change-reapproval",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "b849683653a72121",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "data-memory-provenance",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "b04ba9c765f9bc21",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "security-code-execution-sandbox",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "99f77c92b4de0322",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "security-human-agent-trust",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "5f0f9552c8c9e8bb",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "checklist-pre-production-observability",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "14fc787e3f1971aa",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "checklist-pre-production-performance",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "7123d951a01968d5",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "checklist-pre-production-resilience",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "cb75cdb32ec09ca2",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "checklist-pre-production-security",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "63dfd18379b010c3",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "routing-confidence-upgrade",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "664b1a1af02c0bc0",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "handover.md",
+        "rule": "handover-redone-task-proof",
+        "phaseId": "handover",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "4a04165a791176d5",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "handover.md",
+        "rule": "handover-runbook-executable",
+        "phaseId": "handover",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "515b6a8c76d370f2",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "handover.md",
+        "rule": "handover-agents-charter-final",
+        "phaseId": "handover",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "1f009f43921f59c9",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "handover.md",
+        "rule": "handover-succession-named",
+        "phaseId": "handover",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "014f7888e69af3dc",
+        "unboundCause": null
+      }
+    ]
+  },
+  "requiresUnmet": [
+    {
+      "deliverable": "architecture.md",
+      "rule": "contracts-governance",
+      "requires": "junit"
+    },
+    {
+      "deliverable": "architecture.md",
+      "rule": "hexa-architecture",
+      "requires": "eslint"
+    },
+    {
+      "deliverable": "architecture.md",
+      "rule": "hexa-adapter-pattern",
+      "requires": "eslint"
+    },
+    {
+      "deliverable": "execution-topology.md",
+      "rule": "topology-port-placement-mapped",
+      "requires": "adr"
+    },
+    {
+      "deliverable": "execution-topology.md",
+      "rule": "topology-sovereignty-by-data-class",
+      "requires": "adr"
+    },
+    {
+      "deliverable": "floor.md",
+      "rule": "hexa-move-deterministic-out",
+      "requires": "junit"
+    },
+    {
+      "deliverable": "floor.md",
+      "rule": "security-prompt-injection",
+      "requires": "junit"
+    },
+    {
+      "deliverable": "floor.md",
+      "rule": "hexa-architecture",
+      "requires": "eslint"
+    },
+    {
+      "deliverable": "floor.md",
+      "rule": "hexa-adapter-pattern",
+      "requires": "eslint"
+    },
+    {
+      "deliverable": "floor.md",
+      "rule": "provider-no-crash-missing-env",
+      "requires": "junit"
+    },
+    {
+      "deliverable": "floor.md",
+      "rule": "state-event-sourcing",
+      "requires": "junit"
+    },
+    {
+      "deliverable": "floor.md",
+      "rule": "tools-scope-atomicity",
+      "requires": "junit"
+    },
+    {
+      "deliverable": "floor.md",
+      "rule": "checklist-day-zero-project",
+      "requires": "junit"
+    },
+    {
+      "deliverable": "governance/threat-model.md",
+      "rule": "eval-loop",
+      "requires": "junit"
+    },
+    {
+      "deliverable": "governance/threat-model.md",
+      "rule": "security-prompt-injection",
+      "requires": "junit"
+    },
+    {
+      "deliverable": "governance/threat-model.md",
+      "rule": "resilience-fail-open",
+      "requires": "junit"
+    },
+    {
+      "deliverable": "governance/threat-model.md",
+      "rule": "security-human-agent-trust",
+      "requires": "junit"
+    }
+  ],
+  "prosePointers": [],
+  "workflowContract": {
+    "gating": false,
+    "malformed": [],
+    "joinBreaks": [],
+    "unmetRequires": []
+  },
+  "gateNonScope": "A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. A ratification trace records that someone declared answering the displayed evidence; runward cannot tell who, or whether a person answered at all, and it never proves they understood it.",
+  "committedJUnit": {
+    "rows": 1,
+    "reports": [
+      "code/reports/junit.xml"
+    ],
+    "freshness": "not verified by this command"
+  },
+  "next": {
+    "action": "assemble-evidence-pack",
+    "command": "runward compliance <regime>",
+    "rerun": null,
+    "text": "Assemble the evidence pack with runward compliance <regime> (iso-42001 · nist-ai-rmf · eu-ai-act), or runward status for a handover snapshot."
+  }
+}

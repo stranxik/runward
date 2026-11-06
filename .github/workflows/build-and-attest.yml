@@ -9,7 +9,8 @@ name: Build and attest (isolated builder)
 #   gh attestation verify runward-X.Y.Z.tgz --repo stranxik/runward \
 #     --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml
 #
-# (and the same for runward-forge-X.Y.Z.tgz and the qualification kit, attested here too).
+# (and the same for runward-forge-X.Y.Z.tgz, runward-fleet-X.Y.Z.tgz and the qualification kit,
+# attested here too).
 #
 # What the isolation buys, concretely: the provenance for the tarball is SIGNED HERE, in a workflow
 # whose steps the calling workflow cannot reach into. A step added to release.yml — the file the
@@ -52,6 +53,9 @@ on:
       forge:
         description: "Filename of the packed runward-forge tarball (packages/runward-forge, same version)"
         value: ${{ jobs.build.outputs.forge }}
+      fleet:
+        description: "Filename of the packed runward-fleet tarball (packages/runward-fleet, same version)"
+        value: ${{ jobs.build.outputs.fleet }}
 
 permissions: {}
 
@@ -65,9 +69,11 @@ jobs:
       tarball: ${{ steps.pack.outputs.tarball }}
       kit: ${{ steps.kit.outputs.kit }}
       forge: ${{ steps.forge_pack.outputs.forge }}
+      fleet: ${{ steps.fleet_pack.outputs.fleet }}
       tarball_sha256: ${{ steps.digests.outputs.tarball_sha256 }}
       kit_sha256: ${{ steps.digests.outputs.kit_sha256 }}
       forge_sha256: ${{ steps.digests.outputs.forge_sha256 }}
+      fleet_sha256: ${{ steps.digests.outputs.fleet_sha256 }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -121,6 +127,23 @@ jobs:
           test -s "$FORGE"
           echo "forge=$FORGE" >> "$GITHUB_OUTPUT"
 
+      # The third package (ADR-0093 D4): runward-fleet, the customer-run satellite, at the SAME
+      # version, from the same tag (test/unit/fleet-release.test.js refuses a version that differs).
+      # A release asset only: the package is private, npm refuses to publish it, and no step of this
+      # chain tries. Packed in its own directory like the forge tarball, attested by the signing job
+      # below, so `--signer-workflow` pins it too, and the caller packs it again and refuses a byte of
+      # difference.
+      - name: Pack the runward-fleet tarball
+        id: fleet_pack
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p 'require("./package.json").version')
+          FLEET=$(cd packages/runward-fleet && npm pack --silent --pack-destination "$GITHUB_WORKSPACE")
+          [ "$FLEET" = "runward-fleet-$VERSION.tgz" ] \
+            || { echo "::error::packed $FLEET, expected runward-fleet-$VERSION.tgz (the packages share one version)"; exit 1; }
+          test -s "$FLEET"
+          echo "fleet=$FLEET" >> "$GITHUB_OUTPUT"
+
       # The qualification kit (ADR-0087, decision 1): the cited tests, the runner, the requirements
       # and the open anomalies of this tree, plus the SHA-256 of every file of the tarball packed
       # above. Built from the commit through git, so nothing untracked enters it, and deterministic,
@@ -145,15 +168,17 @@ jobs:
           TARBALL: ${{ steps.pack.outputs.tarball }}
           KIT: ${{ steps.kit.outputs.kit }}
           FORGE: ${{ steps.forge_pack.outputs.forge }}
+          FLEET: ${{ steps.fleet_pack.outputs.fleet }}
         run: |
           set -euo pipefail
-          for v in TARBALL KIT FORGE; do test -s "${!v}"; done
+          for v in TARBALL KIT FORGE FLEET; do test -s "${!v}"; done
           {
             echo "tarball_sha256=$(sha256sum "$TARBALL" | cut -d' ' -f1)"
             echo "kit_sha256=$(sha256sum "$KIT" | cut -d' ' -f1)"
             echo "forge_sha256=$(sha256sum "$FORGE" | cut -d' ' -f1)"
+            echo "fleet_sha256=$(sha256sum "$FLEET" | cut -d' ' -f1)"
           } >> "$GITHUB_OUTPUT"
-          sha256sum "$TARBALL" "$KIT" "$FORGE"
+          sha256sum "$TARBALL" "$KIT" "$FORGE" "$FLEET"
 
       - name: Hand the unsigned tarballs and the kit to the signing job
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -163,6 +188,7 @@ jobs:
             ${{ steps.pack.outputs.tarball }}
             ${{ steps.kit.outputs.kit }}
             ${{ steps.forge_pack.outputs.forge }}
+            ${{ steps.fleet_pack.outputs.fleet }}
           if-no-files-found: error
           retention-days: 1
 
@@ -187,16 +213,18 @@ jobs:
           TARBALL: ${{ needs.build.outputs.tarball }}
           KIT: ${{ needs.build.outputs.kit }}
           FORGE: ${{ needs.build.outputs.forge }}
+          FLEET: ${{ needs.build.outputs.fleet }}
           TARBALL_SHA256: ${{ needs.build.outputs.tarball_sha256 }}
           KIT_SHA256: ${{ needs.build.outputs.kit_sha256 }}
           FORGE_SHA256: ${{ needs.build.outputs.forge_sha256 }}
+          FLEET_SHA256: ${{ needs.build.outputs.fleet_sha256 }}
         run: |
           set -euo pipefail
           [[ "$TARBALL" =~ ^runward-([0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?)\.tgz$ ]] \
             || { echo "::error::the build job declared the tarball '$TARBALL', not runward-X.Y.Z.tgz — refusing to sign"; exit 1; }
           VERSION="${BASH_REMATCH[1]}"
-          [ "$KIT" = "runward-qualification-kit-$VERSION.tgz" ] && [ "$FORGE" = "runward-forge-$VERSION.tgz" ] \
-            || { echo "::error::the build job declared '$KIT' and '$FORGE' beside runward-$VERSION.tgz — refusing to sign"; exit 1; }
+          [ "$KIT" = "runward-qualification-kit-$VERSION.tgz" ] && [ "$FORGE" = "runward-forge-$VERSION.tgz" ] && [ "$FLEET" = "runward-fleet-$VERSION.tgz" ] \
+            || { echo "::error::the build job declared '$KIT', '$FORGE' and '$FLEET' beside runward-$VERSION.tgz — refusing to sign"; exit 1; }
           check() {
             local got
             got=$(sha256sum "$1" | cut -d' ' -f1)
@@ -206,6 +234,7 @@ jobs:
           check "$TARBALL" "$TARBALL_SHA256"
           check "$KIT" "$KIT_SHA256"
           check "$FORGE" "$FORGE_SHA256"
+          check "$FLEET" "$FLEET_SHA256"
 
       - name: Attest build provenance for the tarball
         id: provenance
@@ -217,6 +246,11 @@ jobs:
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: ${{ needs.build.outputs.forge }}
+
+      - name: Attest build provenance for the runward-fleet tarball
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ needs.build.outputs.fleet }}
 
       - name: Attest build provenance for the qualification kit
         id: kit_provenance
@@ -248,5 +282,6 @@ jobs:
             ${{ needs.build.outputs.kit }}
             kit-provenance-bundle.jsonl
             ${{ needs.build.outputs.forge }}
+            ${{ needs.build.outputs.fleet }}
           if-no-files-found: error
           retention-days: 7

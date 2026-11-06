@@ -260,7 +260,8 @@ test("documented commands: every release verification of the guide and of verify
   assert.deepEqual(unpinnedVerifications(GUIDE_TEXT, WORKFLOW_TEXT), []);
   const counted = parseGuide(GUIDE_TEXT).filter((s) => PINNED_STEPS.includes(s.id))
     .flatMap((s) => s.blocks.flat()).filter((c) => /^gh attestation verify /.test(c.text)).length;
-  assert.equal(counted, 8, "the guide's pinned steps hold eight verifications");
+  // Nine since Step 9 verifies the runward-fleet tarball too (ADR-0093 D4).
+  assert.equal(counted, 9, "the guide's pinned steps hold nine verifications");
 });
 
 test("documented commands, control: a Step 8 verification without --source-ref fails, naming Step 8", () => {
