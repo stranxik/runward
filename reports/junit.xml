@@ -202,11 +202,11 @@
 	<testcase name="the additive keys are exactly what separates the located rows from the three-field ones" classname="test"/>
 	<testcase name="coverage counts the filled deliverables, not all of them, and names what is left to ratify" classname="test"/>
 	<testcase name="a deliverable row whose phase label is unknown gets a null phase id, and the rest keep theirs" classname="test"/>
-	<testcase name="--through with --freeze is refused: a seal certifies a full crossing, a horizon a prefix" classname="test"/>
+	<testcase name="--through with --freeze is refused: a seal is taken on a complete crossing, a horizon judges a prefix" classname="test"/>
 	<testcase name="--vsa without --resource-uri is refused rather than given a guessed name" classname="test"/>
 	<testcase name="--vsa with a resource URI is accepted" classname="test"/>
 	<testcase name="the combinations that mean something are not refused" classname="test"/>
-	<testcase name="--freeze implies --strict: a seal certifies a strict crossing, never a lenient one" classname="test"/>
+	<testcase name="--freeze implies --strict: a seal is taken on a strict crossing, never on a lenient one" classname="test"/>
 	<testcase name="every machine mode suppresses the human run, and no other flag does" classname="test"/>
 	<testcase name="the payload carries the verdict and the exit code a consumer branches on" classname="test"/>
 	<testcase name="the strict block is ABSENT without --strict, never empty" classname="test"/>
@@ -1492,6 +1492,31 @@
 	<testcase name="ADR-0093: runward-fleet imports nothing from runward, opens no connection, spawns nothing, and is not an SPAWN_ALLOWED entry" classname="test"/>
 	<testcase name="ADR-0093: the runward package imports nothing from runward-fleet, and does not ship it" classname="test"/>
 	<testcase name="ADR-0093, positive controls: a planted runward import, a planted spawn, a planted escape and a planted fetch in the satellite redden" classname="test"/>
+	<testcase name="every case carries a stable identifier the ledger pins to its name, and the ledger names no other" classname="test"/>
+	<testcase name="the two pinned limits are the ones ADR-0124 writes, quoted as the record says them" classname="test"/>
+	<testcase name="SC-001 control: the example as shipped: N exits 0, S exits 0" classname="test"/>
+	<testcase name="SC-002 a: the domain rewritten under the cited names, pg in the core, a live key, SQL joined to values: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-003 b: a cited core file replaced by one word: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-004 b2: the guard replaced by one word: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-005 d: a core file that asks a model for code and executes it: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-006 d2: the same executor, imported by the use case: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-007 e1: every assertion removed, the names kept: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-008 e2: every assertion removed, the report regenerated: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-009 f1: a case of the suite deleted, the report regenerated (sales request): N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-010 f2: the cited guard case deleted, the report regenerated: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-011 g1: ADR-0001 emptied: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-012 g2: ADR-0001 replaced by an accepted stub: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-013 g3: ADR-0002 emptied: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-014 g4: ADR-0002 replaced by an accepted stub: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-015 c3b: no code at all, every cited file a stub, every cited report forged: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-016 c4: no code at all, every row n/a: N exits 5, S exits 1" classname="test"/>
+	<testcase name="SC-017 b3: a cited core file replaced by one export under another name: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-018 b4: a cited core file keeps every imported name as a placeholder: N exits 0, S exits 1" classname="test"/>
+	<testcase name="SC-019 f3: another case deleted, the report regenerated (routing port idempotent): N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-020 g5: ADR-0003 replaced by an accepted stub: N exits 1, S exits 1" classname="test"/>
+	<testcase name="SC-021 g6: ADR-0002 rewritten as a well-formed record that reverses the decision: N exits 0, S exits 1" classname="test"/>
+	<testcase name="SC-022 x1: control, a decision kept in docs/adr in another tool's format, cited by a deviated row: N exits 0, S exits 1" classname="test"/>
+	<testcase name="with the example's hook: the control crosses, and b4, which no reading of the tree refuses, does not" classname="test"/>
 	<testcase name="sarif: a green mission emits a valid, EMPTY log — not an absent one" classname="test"/>
 	<testcase name="sarif: a violation is annotated on the manifest ROW that carries it, not the top of the file" classname="test"/>
 	<testcase name="sarif: the non-scope travels with the findings — dropping it has to be deliberate" classname="test"/>
@@ -1902,7 +1927,7 @@
 	<testcase name="computeVerdict runs nothing and writes nothing" classname="test"/>
 	<testcase name="the gate reports how much of the critical set it never asks about" classname="test"/>
 	<testcase name="`check --strict --json` carries what the terminal shows, and an empty mission is distinguishable" classname="test"/>
-	<testcase name="ADR-0053: a declared horizon certifies the prefix while the full arc still reds (the UX-hole-1 case)" classname="test"/>
+	<testcase name="ADR-0053: a declared horizon judges the prefix while the full arc still reds (the UX-hole-1 case)" classname="test"/>
 	<testcase name="ADR-0053: the horizon is a floor — a regression at or below it still reds" classname="test"/>
 	<testcase name="ADR-0053: the phase-global corpus check is never scoped by the horizon" classname="test"/>
 	<testcase name="ADR-0053: an unratified decision reds at any horizon" classname="test"/>
@@ -2026,9 +2051,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2020 -->
+	<!-- tests 2045 -->
 	<!-- suites 0 -->
-	<!-- pass 2018 -->
+	<!-- pass 2043 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 2 -->
