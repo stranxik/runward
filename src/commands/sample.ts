@@ -47,12 +47,24 @@ function stop(msg: string, code = 2): never {
   process.exit(code);
 }
 
+// RWD-2026-0202. In a partial clone, a read that needs a blob the clone lacks (`blame`, `show`, the
+// rename detection of `diff`) made git fetch it from the promisor remote on its own, and with no network
+// the failed read printed "the review is not committed yet". GIT_NO_LAZY_FETCH=1 makes git refuse the
+// fetch; a read that fails is reported unknown, and the draw refuses a population it cannot read whole.
+// Honoured from git 2.45.0; an older git ignores it (`runward doctor` says so in a partial clone).
+const GIT_ENV = { ...process.env, GIT_NO_LAZY_FETCH: "1" };
+const UNREADABLE = "unreadable" as const;
+
 function git(top: string, args: string[]): string {
   return execFileSync("git", ["-c", "core.quotepath=false", "-C", top, ...args],
-    { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], maxBuffer: 256 * 1024 * 1024 });
+    { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], maxBuffer: 256 * 1024 * 1024, env: GIT_ENV });
 }
 function gitOr(top: string, args: string[]): string | null {
   try { return git(top, args); } catch { return null; }
+}
+/** Is `path` in the tree of `ref`? `ls-tree` reads trees only, which a partial clone holds. */
+function inTree(top: string, ref: string, path: string): boolean {
+  return (gitOr(top, ["ls-tree", "--name-only", ref, "--", path]) ?? "").trim() !== "";
 }
 const posix = (p: string) => p.split(sep).join("/");
 /** `p` relative to the repository top, in git's spelling. Both sides are resolved first: on
@@ -119,7 +131,9 @@ function buildPopulation(top: string, root: string, branch: string, start: numbe
     const [sha, ct, an, subject] = line.split("\x1f");
     const day = utcDay(Number(ct));
     if (!inRange(day)) continue;
-    const touched = git(top, ["diff", "--name-only", `${sha}^1`, sha]).split("\n").filter(Boolean);
+    const diff = gitOr(top, ["diff", "--name-only", `${sha}^1`, sha]);
+    if (diff === null) stop(`unknown, git could not read the files merge ${sha.slice(0, 12)} touched: a population read in part is not drawn`);
+    const touched = diff.split("\n").filter(Boolean);
     const shipped = touched.some((p) => prefixes.some((x) => p === x || p.startsWith(`${x}/`)));
     pop.push({ stratum: "merge", ref: sha, date: dayString(day), actor: an, summary: subject ?? "", ...(shipped ? { shipped: true } : {}) });
   }
@@ -138,8 +152,12 @@ function buildPopulation(top: string, root: string, branch: string, start: numbe
   }
   const relMission = repoRelative(top, join(root, "runward"));
   for (const g of GATED_DELIVERABLES) {
-    const text = gitOr(top, ["show", `${branch}:${relMission}/${g.deliverable}`]);
-    if (text === null) continue;
+    const path = `${relMission}/${g.deliverable}`;
+    const text = gitOr(top, ["show", `${branch}:${path}`]);
+    if (text === null) {
+      if (inTree(top, branch, path)) stop(`unknown, git could not read ${branch}:${path}: a population read in part is not drawn`);
+      continue;
+    }
     for (const e of readRatification(text)) {
       const day = isoDay(e.date);
       if (day === null || !inRange(day)) continue;
@@ -312,10 +330,13 @@ function reveal(mission: string, top: string, charter: Charter, ledger: SampleLe
   console.log(`  ${c.white(commitHint(`sample: reveal for the period ending ${target.period}`, false))}`);
 }
 
-/** The commit that last wrote line `n` of the ledger, or null when it is not committed. */
-function lineCommit(top: string, file: string, n: number): string | null {
+/** The commit that last wrote line `n` of the ledger; null when it is not committed (the line, or the
+ *  whole file, which HEAD does not track); `unreadable` when HEAD tracks the file and git could not blame
+ *  it, which is unknown and never "not committed" (RWD-2026-0202). */
+function lineCommit(top: string, file: string, n: number): string | null | typeof UNREADABLE {
   const out = gitOr(top, ["blame", "--porcelain", "-L", `${n},${n}`, "--", file]);
-  const sha = out?.match(/^([0-9a-f]{40}) /)?.[1] ?? null;
+  if (out === null) return inTree(top, "HEAD", file) ? UNREADABLE : null;
+  const sha = out.match(/^([0-9a-f]{40}) /)?.[1] ?? null;
   return sha && !/^0+$/.test(sha) ? sha : null;
 }
 const strictlyBefore = (top: string, a: string, b: string) => a !== b && gitOr(top, ["merge-base", "--is-ancestor", a, b]) !== null;
@@ -342,18 +363,23 @@ function statusView(mission: string, top: string, charter: Charter, ledger: Samp
   if (checked.length) console.log(section("What git says (declared in stage 1: the signing key is within agent reach)"));
   for (const [period, t] of checked) {
     const reviewCommit = lineCommit(top, rel, t.review[0]);
+    if (reviewCommit === UNREADABLE) { console.log("  " + status.warning(`period ending ${period}: unknown, git could not read ${rel}:${t.review[0]}, so the review's commit and its signature are not established`)); continue; }
     if (!reviewCommit) { console.log("  " + status.warning(`period ending ${period}: the review is not committed yet`)); continue; }
     const [g, signer] = (gitOr(top, ["log", "-1", "--format=%G?%x1f%GS", reviewCommit]) ?? "N").trim().split("\x1f");
     const word = g === "G" ? `signed, good signature by ${signer} (allowedSigners)` : g === "U" ? `signed by ${signer || "a key"} of unknown validity` : g === "N" ? "NOT signed" : g === "E" ? "signed, not verifiable here (no gpg.ssh.allowedSignersFile, or the key is missing)" : `signature status ${g}`;
     console.log("  " + (g === "G" ? status.success : status.warning)(`period ending ${period}: review commit ${reviewCommit.slice(0, 12)} ${word}`));
     const seedCommits = (t.seed ?? []).map((n) => lineCommit(top, rel, n));
     const drawCommit = t.draw ? lineCommit(top, rel, t.draw[0]) : null;
-    if (drawCommit && seedCommits.length) {
+    if (drawCommit === UNREADABLE || seedCommits.includes(UNREADABLE)) {
+      console.log("  " + status.warning(`period ending ${period}: unknown, git could not read ${rel} for the seeds' and the draw's commits, so their order is not established`));
+    } else if (drawCommit && seedCommits.length) {
       const ok = seedCommits.every((s) => s !== null && strictlyBefore(top, s, drawCommit));
       console.log("  " + (ok ? status.success : status.warning)(`period ending ${period}: ${ok ? "every seed was committed before the draw" : "a seed was not committed strictly before the draw: the commitment did not precede the sample"}`));
     }
     const revealCommit = t.reveal ? lineCommit(top, rel, t.reveal[0]) : null;
-    if (revealCommit) {
+    if (revealCommit === UNREADABLE) {
+      console.log("  " + status.warning(`period ending ${period}: unknown, git could not read ${rel}:${t.reveal![0]}, so the reveal's order is not established`));
+    } else if (revealCommit) {
       const ok = strictlyBefore(top, reviewCommit, revealCommit);
       console.log("  " + (ok ? status.success : status.warning)(`period ending ${period}: ${ok ? "the seeds were revealed after the review commit" : "the reveal is not strictly after the review commit"}`));
     }

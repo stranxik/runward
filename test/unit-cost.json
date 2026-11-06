@@ -8,8 +8,8 @@
   ],
   "measuredOn": "2026-11-03",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 781.7,
-  "slowSeconds": 728.1,
+  "totalSeconds": 787.9,
+  "slowSeconds": 734.3,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
@@ -101,7 +101,8 @@
     "test/unit/analyze-gate.test.js",
     "test/unit/analyze-bench.test.js",
     "test/unit/example-machine-evidence.test.js",
-    "test/unit/package-sbom.test.js"
+    "test/unit/package-sbom.test.js",
+    "test/unit/partial-clone-no-fetch.test.js"
   ],
   "files": [
     {
@@ -1287,6 +1288,11 @@
     {
       "file": "test/unit/fleet-build.test.js",
       "seconds": 0.26,
+      "passed": true
+    },
+    {
+      "file": "test/unit/partial-clone-no-fetch.test.js",
+      "seconds": 6.22,
       "passed": true
     }
   ]

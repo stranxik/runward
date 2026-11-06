@@ -2,6 +2,104 @@
 
 ## Unreleased
 
+### The forbidden-claim list catches a national qualification, "sovereign", "tamper-proof", "platform" and "mathematical proof" said of runward
+
+An adversarial review of `docs/isolated-environments.md` wrote four sentences that
+`src/lib/claims-rules.ts` let through: "runward is certified by ANSSI", "SecNumCloud-ready", "a
+sovereign delivery gate" and "a tamper-proof platform". Six rules are added, each anchored on the claim
+rather than the word: a SecNumCloud or ANSSI qualification claimed for runward, "sovereign" said of a
+product, "tamper-proof", runward called a platform, a mathematical proof, and runward said to be
+certified or compliant. A cloud offer ANSSI has qualified, sovereignty by class of data (a design
+dimension the topology rules name) and a CI platform stay writable, and the test holds both
+directions. Against `main`'s list, the four sentences fired nothing. The list is read by
+`test/unit/no-overclaim.test.js` over runward's own surface and exported as `runward/claims`; no command
+applies it to a mission, so `init --example` and runward's own mission read the same. A site guard that
+consumes the export gains the rules when it moves its pin. "no human" is not added: the list's
+negation screen exempts every line holding the word "no", so a rule on it could never fire.
+
+### Changed: the `--through` help and the delivery report no longer say the verdict "certifies" a prefix
+
+`runward check --help` described `--through <phase-id>` as "construction gate: certify only phases up to
+and including <phase-id>", and the delivery report written by `runward report` under a declared horizon
+opened its third section with "This verdict certifies a declared prefix through …". Nothing certifies
+anything there: the verdict judges the phases up to the horizon and defers the rest (ADR-0053). The two
+now read "judge only the phases up to and including <phase-id>" and "This verdict covers a declared
+prefix through …". No golden or test quoted either sentence; the help, report and horizon tests pass.
+Other affirmative uses of the word remain in messages about the seal ("a seal certifies a crossing",
+`src/commands/check.ts`, `src/lib/check-contract.ts`, `src/lib/evidence.ts`), in pre-merge paths, and
+are left to their own change.
+
+### The regulated sheet says what reaches a network, and what the offline CI job runs
+
+`docs/compliance/regulated-adoption.md` said runward "makes no network call"; it now says the package
+opens no connection of its own and names, in the same sentence, what does reach a network: installing
+it, `npx` without a local install of the pinned version, the commands given to `check --hooks`, and,
+in a partial clone up to 0.46.0, the git that `characterize`, `doctor` and `sample` start
+(RWD-2026-0202), with a link to `docs/isolated-environments.md`. The vendor-control row no longer uses
+the word "sovereign" for hosting. The CI-hardening row said the offline job runs three things and that
+the drift guard does not check what runs inside the cut; it now lists what the job's test step runs
+under `sudo unshare -n`, says `npm ci` and the build run with the network, and that the guard reads the
+block. No ADR file is renamed.
+
+### The runtime-boundary test names `dns`, `http2` and `undici`, each with a planted control
+
+`test/unit/runtime-boundary.test.js` scanned the `runward` package for `http`, `https`, `http2`, `net`,
+`tls`, `dgram` and `undici` imports, and its walk of the verdict's import closure looked for
+`http`, `https`, `net`, `tls` and `dgram` among the sockets. `dns`, which reaches a resolver, was read
+only by the CI grep of `src/`, and the closure walk did not name `http2` or `undici`. Both lists now
+carry `dns` (and `dns/promises`), `http2` and `undici`; planted static and dynamic imports of each,
+in both spellings, must turn the package scan red, and anchored names (`dnsmasq`, `undici-types`) must
+not. Measured against `main`'s two expressions, the plants of `dns` were missed by both and those of
+`http2` and `undici` by the closure. No module of the package imports any of them: 12 tests of 12
+pass.
+
+### CI: `verify`, `report` and `ratify --agent` run with the network cut, and the posture guard reads the cut itself
+
+The `core tests, network-isolated` job of `.github/workflows/ci.yml` now also attests the example mission
+and verifies the attestation, writes its delivery report, and has an agent ratify a proposed row, all
+inside `sudo unshare -n`, on missions made inside the cut: the three commands `docs/isolated-environments.md`
+measured on a workstation and no CI job ran with the network cut. `test/unit/regulated-posture.test.js`
+read only that `unshare -n` and each command appeared somewhere in `ci.yml`; it now extracts the
+network-cut block and fails when one of the ten things the sheets cite (the route check, the smoke
+suite, the two schema tests, the self-gate, the corpus test, the attestation, `verify`, `report`,
+`ratify --agent`) is not inside it. A positive control moves `verify` out of the block, and removes the
+block, and both are caught. On `main`'s `ci.yml`, the same reading finds `verify`, `report` and
+`ratify --agent` missing from the cut.
+
+### Documented: running runward with no network, or inside a qualified cloud offer
+
+Documentation only. `docs/isolated-environments.md` answers "does anything leave the environment?" for
+the `runward` package on `main` (`382e2f0`, unreleased). Each command of its measurement table ran on
+2026-11-06 under `sandbox-exec` with the network denied and again with it open, on a full clone on macOS
+26.2 arm64, with the same exit codes, byte-identical output and byte-identical files; `check --strict
+--hooks` with a hook that needs the network was the one difference. It says what holds only under a
+condition (the VSA without `SOURCE_DATE_EPOCH`; `--whole-tree` and `verify`'s exit 2 on another build's
+attestation, which the published 0.46.0 does not have), what a partial clone does (RWD-2026-0202), and
+which steps reach a network, with what replaces each: installing, `npx` without a local install of the
+pinned version, a build from source, the Action, the GitLab template and the plugins fetched from
+GitHub, keyless signing, `check --hooks`, the `drand` round of `sample draw`, the online steps of release
+verification, the `gitlab` adapter of `runward-forge`. The routes measured: a tarball and an npm cache
+carried across, installed with `npm install --offline`, and Step 3 of `docs/verifying-a-release.md` on
+v0.46.0 with no `gh` login, whose trust root stays the public Sigstore instance's and GitHub's. It lists
+what was not measured, and claims no qualification for runward. `docs/compliance/README.md` links it.
+
+### Fixed: in a partial clone, no git runward starts fetches from the remote, and a read git cannot make is unknown, never "not committed" (RWD-2026-0202)
+
+In a clone made with `git clone --filter=blob:none`, three of runward's git reads needed blobs the
+clone did not hold, and git fetched them from the promisor remote on its own: the churn read of
+`characterize` (from 0.21.1), and the `git blame` reads of `doctor` and `sample` (from 0.43.0), with the
+`git show` and `git diff` of `sample draw`. With no network, the failed read was taken for a line not
+committed: `doctor` printed "N entr(ies) not committed yet" for committed entries, and `sample` "the
+review is not committed yet" instead of the review commit's signature status. Every git runward starts
+now runs with `GIT_NO_LAZY_FETCH=1`, honoured from git 2.45.0, so git refuses the fetch. A read that fails
+on a file git tracks is reported "unknown, git could not read <file>:<line>"; `sample draw` refuses a
+population it cannot read whole and writes nothing; `characterize` says the churn is unknown; `doctor`
+names a partial clone, and warns when its git is older than 2.45.0, which ignores the variable.
+`doctor --json` marks such an entry `"unreadable": true` (additive). The verdict path starts no process
+(ADR-0054): `check` and `verify` were not affected. `test/unit/partial-clone-no-fetch.test.js` builds a
+local partial clone over file://, shows first that a plain `git blame` there does fetch, then pins each
+behaviour; the register entry gives the versions, measured through `npx runward@<version>`.
+
 ### What you install is what the release tested: the tarball bundles its dependencies, and the SBOM is the package's (ADR-0116)
 
 Measured on 2026-11-05: installed into an empty project, the 0.46.0 tarball resolved 16 of its 27 runtime
@@ -316,7 +414,6 @@ the cited lines and the evals in a pinned container with the network cut, and wr
 Statement the operator's CI signs in another job, from a workflow the agent cannot write; the CLI still
 runs nothing and never verifies a signature, and the verification half of ADR-0093's D4 moves ahead of D2
 and D3. Documentation only: no CLI behaviour, output or verdict changes.
-
 ### runward-assess 0.1.0: the repeatable assessment grid, outside the verdict path and outside the tool it rates (ADR-0123)
 
 A new package, `packages/runward-assess`, holds `grille@1`: 35 criteria on seven axes (reliability,

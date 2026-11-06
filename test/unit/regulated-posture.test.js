@@ -64,6 +64,49 @@ test("posture: build provenance is signed in the isolated builder, and the calle
   assert.match(verify, /--signer-workflow/, "verify-release demands the builder identity on release runs");
 });
 
+/** The script `sudo unshare -n bash -c '…'` runs in ci.yml: a command written outside it runs with
+ *  the network, whatever the rest of the file says. null when there is no such block. */
+function unshareBlock(ci) {
+  const m = ci.match(/sudo unshare -n bash -c '\n([\s\S]*?)\n\s*'\n/);
+  return m ? m[1] : null;
+}
+/** What the network-cut block must run (docs/isolated-environments.md and regulated-adoption.md cite it). */
+const CUT = [
+  [/ip route \| grep -q "\^default"/, "the check that no default route is left"],
+  [/node test\/smoke\.js/, "the smoke suite"],
+  [/node test\/oscal-schema\.js/, "the OSCAL schema test"],
+  [/node test\/intoto-schema\.js/, "the in-toto schema test"],
+  [/node dist\/cli\.js check --strict\n/, "the self-gate"],
+  [/node --test test\/unit\/corpus-no-fetch\.test\.js/, "the vendored-corpus no-fetch test (ADR-0057)"],
+  [/check --strict --attest > verdict\.intoto\.json/, "an attestation emitted"],
+  [/cli\.js" verify verdict\.intoto\.json/, "verify"],
+  [/cli\.js" report\)/, "report"],
+  [/cli\.js" ratify --agent \S+ --for \S+ --accept /, "ratify --agent"],
+];
+const missingFromCut = (ci) => {
+  const block = unshareBlock(ci);
+  if (block === null) return ["the `sudo unshare -n bash -c` block itself"];
+  return CUT.filter(([re]) => !re.test(block)).map(([, what]) => what);
+};
+
+test("posture: what the sheets say runs with the network cut is INSIDE the unshare block, not merely in ci.yml", () => {
+  assert.deepEqual(missingFromCut(read(".github/workflows/ci.yml")), [],
+    "each of these must run inside `sudo unshare -n bash -c '…'` in ci.yml");
+});
+
+test("positive control: a command moved out of the unshare block, or the block removed, is caught", () => {
+  const ci = read(".github/workflows/ci.yml");
+  const block = unshareBlock(ci);
+  assert.ok(block, "the block is found in the real file");
+  // verify moved after the closing quote: still in ci.yml, no longer in the cut.
+  const verifyLine = block.split("\n").find((l) => /cli\.js" verify verdict\.intoto\.json/.test(l));
+  assert.ok(verifyLine, "the verify line exists in the block");
+  const moved = ci.replace(verifyLine + "\n", "").replace(/(\n\s*'\n)/, `$1          ${verifyLine.trim()}\n`);
+  assert.match(moved, /cli\.js" verify verdict\.intoto\.json/, "the command is still in the file");
+  assert.ok(missingFromCut(moved).includes("verify"), "and the guard sees it left the cut");
+  assert.deepEqual(missingFromCut(ci.replace("sudo unshare -n bash -c", "bash -c")), ["the `sudo unshare -n bash -c` block itself"]);
+});
+
 test("posture: CI runs core tests network-isolated, gates runward, and tracks SBOM drift", () => {
   const ci = read(".github/workflows/ci.yml");
   assert.match(ci, /unshare -n/, "network-isolated core tests (structural zero-network)");

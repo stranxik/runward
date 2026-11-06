@@ -84,8 +84,8 @@ program
   .option("--coverage", "advisory: report deliverable + decision-ratification coverage (does not gate)")
   // ADR-0053: a declared construction horizon. `choices()` rejects an unknown id as
   // `commander.invalidArgument` → exit 2 (misuse). The `--through`+`--freeze` conflict is guarded
-  // in checkCommand (a seal certifies a full crossing, never a prefix).
-  .addOption(new Option("--through <phase-id>", `construction gate: certify only phases up to and including <phase-id> (${THROUGH_PHASE_IDS.join(" | ")}) — a progress signal, never the sole release gate (ADR-0053)`).choices([...THROUGH_PHASE_IDS]))
+  // in checkCommand (a seal covers a full crossing, never a prefix).
+  .addOption(new Option("--through <phase-id>", `construction gate: judge only the phases up to and including <phase-id> (${THROUGH_PHASE_IDS.join(" | ")}) — a progress signal, never the sole release gate (ADR-0053)`).choices([...THROUGH_PHASE_IDS]))
   // ADR-0114: the level of proof the strict verdict demands. `choices()` makes an unknown level a
   // misuse (exit 2); without --strict the flag is refused in checkCommand (optionFault).
   .addOption(new Option("--require <level>", "with --strict: the level of proof the verdict demands of its rows — mechanical (the default: at least one applied row carries a pointer the gate opened and checked, else exit 5) or traced (a green that rests on judgment alone, accepted by name); a --through prefix requires traced unless told otherwise (ADR-0114). It lifts no gap: a row refused as requires-unmet, citing another kind of evidence than its rule requires, stays exit 1 under --require traced; its ways out are a report of that kind, a deviated row, or the nature declared uncarriable in an accepted ADR (ADR-0115)").choices([...REQUIRED_LEVELS]))

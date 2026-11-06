@@ -462,9 +462,14 @@ function detectTests(root: string): { dirs: string[]; files: number } {
 // (core.quotepath mangles non-ASCII paths into octal escapes; diff.renames alters
 // --name-only; log.showSignature injects signature lines into --format output).
 const GIT_CONFIG_PIN = ["-c", "core.quotepath=false", "-c", "diff.renames=true", "-c", "log.showSignature=false"];
+// RWD-2026-0202. In a partial clone, a read that needs a blob the clone lacks (rename detection here)
+// made git fetch it from the promisor remote on its own: a network call from a command that reads the
+// repository. GIT_NO_LAZY_FETCH=1 makes git refuse the fetch; the read fails and is reported unknown
+// (churnRead: false). Honoured from git 2.45.0; an older git ignores it (`doctor` says so).
+const GIT_ENV = { ...process.env, GIT_NO_LAZY_FETCH: "1" };
 
 function churnHotspots(root: string): Hotspot[] {
-  const git = (args: string[]): string => execFileSync("git", [...GIT_CONFIG_PIN, "-C", root, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], maxBuffer: GIT_MAX_BUFFER });
+  const git = (args: string[]): string => execFileSync("git", [...GIT_CONFIG_PIN, "-C", root, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], maxBuffer: GIT_MAX_BUFFER, env: GIT_ENV });
   const counts = new Map<string, number>();
   for (const line of git(["log", "--format=", "--name-only"]).split("\n")) {
     const p = line.trim();
@@ -483,7 +488,7 @@ function churnHotspots(root: string): Hotspot[] {
 }
 
 function gitShape(root: string): Inventory["git"] {
-  const git = (args: string[]): string => execFileSync("git", [...GIT_CONFIG_PIN, "-C", root, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+  const git = (args: string[]): string => execFileSync("git", [...GIT_CONFIG_PIN, "-C", root, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], env: GIT_ENV }).trim();
   try {
     git(["rev-parse", "--is-inside-work-tree"]); // throws if not a repo / git absent
     // A freshly `git init`-ed repo with zero commits is a REPO (an explicit brownfield target):
@@ -673,7 +678,7 @@ export function renderCharacterization(inv: Inventory, generatedAt: string): str
     L.push(`- Commits: **${inv.git.commits}** · Span: ${inv.git.first} → ${inv.git.last} · Distinct authors: **${inv.git.authors}**`);
     L.push("- Counts only — the log tells you *what* changed and *when*, rarely *why*. The *why* is a decision to reconstruct, not a fact to read.");
     if (!inv.git.churnRead) {
-      L.push("- _Churn could not be read (history too large, or a git error) — hotspots omitted, not empty._");
+      L.push("- _Churn unknown, git could not read the history (too large, a git error, or objects a partial clone does not hold) — hotspots omitted, not empty._");
     }
     if (inv.git.hotspots.length) {
       L.push("");
@@ -731,7 +736,7 @@ const DEP_FAMILIES: Array<{ match: RegExp; family: string }> = [
 
 function firstSeen(root: string, file: string): string | null {
   try {
-    const out = execFileSync("git", [...GIT_CONFIG_PIN, "-C", root, "log", "--diff-filter=A", "--reverse", "--format=%as", "--", file], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    const out = execFileSync("git", [...GIT_CONFIG_PIN, "-C", root, "log", "--diff-filter=A", "--reverse", "--format=%as", "--", file], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], env: GIT_ENV }).trim();
     return out.split("\n")[0] || null;
   } catch { return null; }
 }
