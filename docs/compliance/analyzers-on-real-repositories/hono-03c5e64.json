@@ -1,0 +1,986 @@
+[
+  {
+    "id": "hono-b6bde056b6",
+    "profile": "default",
+    "family": "capability",
+    "verdict": "TRUE",
+    "reason": "benchmarks/fetch/bench.mts:27 `await import(pathToFileURL(`${src}/index.ts`).href)`: src is makeApp's parameter, fed from process.env.HONO_SRC (bench.mts:21, call at :49); compare.sh:29 points it at a temporary worktree of another ref",
+    "pattern": "capability/computed-import: specifier built from an environment variable"
+  },
+  {
+    "id": "hono-df3e9c2f50",
+    "profile": "default",
+    "family": "capability",
+    "verdict": "TRUE",
+    "reason": "benchmarks/fetch/bench.mts:28 `await import(pathToFileURL(`${src}/router/reg-exp-router/index.ts`).href)`: same run-time src (process.env.HONO_SRC, bench.mts:21)",
+    "pattern": "capability/computed-import: specifier built from an environment variable"
+  },
+  {
+    "id": "hono-b3eb34d95d",
+    "profile": "default",
+    "family": "capability",
+    "verdict": "TRUE",
+    "reason": "benchmarks/http-server/benchmark.ts:17 `import { spawn } from 'node:child_process'`, used at :58 `spawn(parts[0], parts.slice(1), { cwd })`; no runward/analysis.md exists, so nothing allows it",
+    "pattern": "capability/process-execution: node:child_process imported and used"
+  },
+  {
+    "id": "hono-36e0b71b14",
+    "profile": "default",
+    "family": "capability",
+    "verdict": "FALSE",
+    "reason": "src/utils/color.ts:48 `await import(cfWorkers)` with `const cfWorkers = 'cloudflare:workers'` at :40 in the same function (comment :39: hidden from bundlers): the name is a literal, nothing is computed at run time, any reader can say it loads cloudflare:workers",
+    "pattern": "capability/computed-import: specifier is a const bound to a string literal"
+  },
+  {
+    "id": "hono-a9cf991ec9",
+    "profile": "default",
+    "family": "secret",
+    "verdict": "FALSE",
+    "reason": "src/utils/jwt/jwt.test.ts:1561 `const pem = `-----BEGIN PRIVATE KEY-----\\n${encodeBase64(exported)}\\n-----END PRIVATE KEY-----``: the body is an interpolation of a key exported at run time (crypto.subtle.exportKey at :1560 of keys from generateKey :1576-1613); not a key block at all, 27 chars = the BEGIN line alone",
+    "pattern": "secret/private-key-block: PEM armour around a key generated at run time (no key material)"
+  },
+  {
+    "id": "hono-93c2d056c0",
+    "profile": "default",
+    "family": "secret",
+    "verdict": "FALSE",
+    "reason": "src/utils/jwt/jwt.test.ts:1794 `const privateKey = `-----BEGIN PRIVATE KEY-----\\n${base64Key}\\n-----END PRIVATE KEY-----``: base64Key comes from crypto.subtle.generateKey (:1784) and exportKey (:1792-1793) at test run time; not a key block at all",
+    "pattern": "secret/private-key-block: PEM armour around a key generated at run time (no key material)"
+  },
+  {
+    "id": "hono-5e52c0502a",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:654: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :663; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-0eb28c602c",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:666: asserts at compile time with `type verify = Expect<Equal<Expected, Actual['query']>>` at :675; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-d05a7b3234",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:678: asserts at compile time with `type verify = Expect<Equal<Expected, Actual['header']>>` at :687; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-e3e4c8afaf",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:690: asserts at compile time with `type verify = Expect<Equal<Expected, Actual['cookie']>>` at :699; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-bfeb2a10a2",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:706: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :712; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-cd77d4611e",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:715: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :721; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-443cdd8aa9",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:864: asserts at compile time with `type verify = Expect<Equal<string, typeof datetime>>` at :871; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-f64d4f56d9",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:882: asserts at compile time with `type verify = Expect<Equal<string, typeof data.foo>>` at :885; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-d254e1cdfd",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:888: asserts at compile time with `type verify = Expect<Equal<number, typeof data.bar>>` at :891; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-4644a2d56a",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:1107: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1119; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-c47c4e3152",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:1122: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1129; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-d7a7df5ce8",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:1174: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1181; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-cf38411dfb",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:1184: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1191; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-01e5d2bdb2",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:1194: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1201; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-0485aebf8f",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:1204: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1213; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-2a07a9e530",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:1767: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1771; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-1baf48b078",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:1784: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1788; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-9a721ca492",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:1819: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1826; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-db05d32b94",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:2110: asserts at compile time with `type verify = Expect<Equal<ResponseType, Expected>>` at :2130; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-15c927eb47",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:2170: asserts at compile time with `type verify = Expect<Equal<ResponseType, Expected>>` at :2190; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-5752b441c8",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:2193: asserts at compile time with `type verify = Expect<Equal<ResponseType, Expected>>` at :2210; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-eb09f619d8",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:2215: asserts at compile time with `type verify = Expect<Equal<ResponseType, Expected>>` at :2231 (+2 more); Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-5286610fae",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:2238: asserts at compile time with `type verify = Expect<Equal<ResponseType, Expected>>` at :2262; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-22e8261a85",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:2265: asserts at compile time with `type verify = Expect<Equal<ResponseType, Expected>>` at :2282; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-54ffb02eb7",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/client.test.ts:2285: asserts at compile time with `type verify = Expect<Equal<ResponseType, Expected>>` at :2308; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-bc62ecfce0",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/utils.test.ts:373: asserts at compile time with `type _verify = Expect<Equal<Awaited<ResultType>, undefined>>` at :377; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-0372143f5a",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/utils.test.ts:379: asserts at compile time with `type _verify = Expect<Equal<ResultType, { data: { id: number }[] }>>` at :385; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-86b7ecd113",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/client/utils.test.ts:387: asserts at compile time with `type _verify = Expect<Equal<ResultType, { message: string }>>` at :395; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-8ed24847f4",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "TRUE",
+    "reason": "src/compose.test.ts:505-507: the body is only `await compose([])(new Context(...))` at :506; no assertion, no helper, no throw: the reading is right (it can fail only by rejecting)",
+    "pattern": "test-integrity: smoke call with no assertion (passes unless the call rejects)"
+  },
+  {
+    "id": "hono-7a4cde55ed",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/helper/factory/index.test.ts:67: asserts at compile time with `type _verify = Expect<Equal<Expected, typeof middleware>>` at :72; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-d27ac12f15",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/helper/factory/index.test.ts:386: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :396; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-e02dee5a8e",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/helper/factory/index.test.ts:399: asserts at compile time with `type _verify = Expect<Equal<Expected, typeof middleware>>` at :406; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-edea697994",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "TRUE",
+    "reason": "src/hono.test.ts:578-580: the body is only `const app = new Hono().route('/api', api2)` at :579; no runtime or type-level assertion (no Expect<>, no @ts-expect-error): the reading is right",
+    "pattern": "test-integrity: compile-only case, no explicit assertion (relies on tsc accepting the code)"
+  },
+  {
+    "id": "hono-8abd2f999e",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "TRUE",
+    "reason": "src/hono.test.ts:3745-3763: ten `app.get(...mw())` registrations and nothing else; no runtime or type-level assertion: the reading is right",
+    "pattern": "test-integrity: compile-only case, no explicit assertion (relies on tsc accepting the code)"
+  },
+  {
+    "id": "hono-34c77203b0",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/hono.test.ts:3801: 2 `// @ts-expect-error` directive(s) at :3803, :3805, a negative type assertion (tsc fails with TS2578 if the expected error disappears); tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)"
+  },
+  {
+    "id": "hono-ef4f6bd04b",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/middleware/compress/index.test.ts:121: its only statement calls testCompression (const arrow helper of this file, src/middleware/compress/index.test.ts:95), which asserts `expect(res.headers.get('Content-Encoding')).toBe(expectedEncoding)` at :105",
+    "pattern": "test-integrity: assertion inside a helper bound as `const name = async (...) => {...}` in the enclosing describe"
+  },
+  {
+    "id": "hono-2ae8c44928",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/middleware/compress/index.test.ts:130: its only statement calls testCompression (const arrow helper of this file, src/middleware/compress/index.test.ts:95), which asserts `expect(res.headers.get('Content-Encoding')).toBe(expectedEncoding)` at :105",
+    "pattern": "test-integrity: assertion inside a helper bound as `const name = async (...) => {...}` in the enclosing describe"
+  },
+  {
+    "id": "hono-f56ca7b3f3",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/middleware/compress/index.test.ts:394: its only statement calls testCompression (const arrow helper of this file, src/middleware/compress/index.test.ts:95), which asserts `expect(res.headers.get('Content-Encoding')).toBe(expectedEncoding)` at :105",
+    "pattern": "test-integrity: assertion inside a helper bound as `const name = async (...) => {...}` in the enclosing describe"
+  },
+  {
+    "id": "hono-b34fccbb43",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/middleware/jsx-renderer/index.test.tsx:69: 1 `// @ts-expect-error` directive(s) at :70, a negative type assertion (tsc fails with TS2578 if the expected error disappears); tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)"
+  },
+  {
+    "id": "hono-7a25563078",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:155: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :174; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-28c04224b2",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:206: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :243; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-488f75f92f",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:246: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :281; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-0705930617",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:323: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :349; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-4c33b0d4af",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:360: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :402; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-14c8d0a30c",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:405: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :414; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-3360b6a1fb",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:417: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :426; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-706d96fc9b",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:429: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :449; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-e3d9df305e",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:454: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :461; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-b118a8b18a",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:464: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :471; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-b6df360fae",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:474: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :481; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-6e7172c568",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:486: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :534; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-23f0afb536",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:539: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :554; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-37b75655d0",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:619: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :638; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-6ae8c109c7",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:641: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :663; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-6dfe04d415",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:668: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :671; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-d78d2fe819",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:675: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :678; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-d3e6ab5578",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:680: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :683; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-886e4fb95c",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:719: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :725; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-3885749ae1",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:728: asserts at compile time with `type verify = Expect<Equal<never, Actual>>` at :730; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-d5ea1778be",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:733: asserts at compile time with `type verify = Expect<Equal<'/animal/type', Actual>>` at :735; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-78aaf334e9",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:740: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :762; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-7e017f067c",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:767: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :791; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-abc5aef8be",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:796: asserts at compile time with `type verify1 = Expect<Equal<'/api/book', path1>>` at :798 (+7 more); Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-a1fbcd60ae",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:817: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :870; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-e27aee93a0",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:873: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :911; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-e9976a30a1",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:916: asserts at compile time with `type verify = Expect<Equal<'/', GetKey<Actual>>>` at :919; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-b16b7fa59c",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:922: asserts at compile time with `type verify = Expect<Equal<'/tags', GetKey<Actual>>>` at :925; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-9ac471ff7a",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:928: asserts at compile time with `type verify = Expect<Equal<'/tags', GetKey<Actual>>>` at :931; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-a2086b6a47",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:934: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :950; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-35bbf37a0d",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:953: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :971; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-b951709992",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:974: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :992; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-7261b9813d",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:995: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1041; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-38c91e1b7b",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:1049: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1096; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-2db3a4927e",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:1099: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1152; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-8d5a38cc94",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:1159: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1206; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-369c1d698c",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:1209: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1262; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-ac170b5229",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:1270: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1289; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-2f37b33037",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:1292: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1314; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-1d45c6c225",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "TRUE",
+    "reason": "src/types.test.ts:2007-2039: two route definitions (regression of issue 3027, \"test only types\"), no Expect<>, no @ts-expect-error, no expect: the reading is right",
+    "pattern": "test-integrity: compile-only case, no explicit assertion (relies on tsc accepting the code)"
+  },
+  {
+    "id": "hono-e465d9e646",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:2482: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :2486; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-f6a042ec6f",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:2536: 2 `// @ts-expect-error` directive(s) at :2537, :2542, a negative type assertion (tsc fails with TS2578 if the expected error disappears); tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)"
+  },
+  {
+    "id": "hono-d686c73eb6",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:2550: 2 `// @ts-expect-error` directive(s) at :2551, :2553, a negative type assertion (tsc fails with TS2578 if the expected error disappears); tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)"
+  },
+  {
+    "id": "hono-f1429a6ef3",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:2557: 2 `// @ts-expect-error` directive(s) at :2558, :2560, a negative type assertion (tsc fails with TS2578 if the expected error disappears); tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)"
+  },
+  {
+    "id": "hono-47ac8f77ab",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:2564: 2 `// @ts-expect-error` directive(s) at :2565, :2567, a negative type assertion (tsc fails with TS2578 if the expected error disappears); tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)"
+  },
+  {
+    "id": "hono-5d8591b224",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3291: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3294; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-5f889b87b1",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3297: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3300; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-78d2a8e929",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3303: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3306; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-691f49f6dd",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3309: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3312; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-0e8534f146",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3315: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3318; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-3803a8c015",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3321: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3332; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-3c8a54fad4",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3335: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3347; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-9256f466c4",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3350: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3363; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-675f574dea",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3366: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3380; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-001a3d11cd",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3383: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3398; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-33b56358e4",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3405: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3441; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-5b275b0930",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3444: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3498; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-eeebb0ba68",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3780: 1 `// @ts-expect-error` directive(s) at :3789, a negative type assertion (tsc fails with TS2578 if the expected error disappears); tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)"
+  },
+  {
+    "id": "hono-85b31305f6",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3793: 1 `// @ts-expect-error` directive(s) at :3800, a negative type assertion (tsc fails with TS2578 if the expected error disappears); tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)"
+  },
+  {
+    "id": "hono-56e9e05917",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3804: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3829; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-cfb6e5aa2c",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3832: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3867; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-0629d70511",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3870: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3905; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-ae22262c5b",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3908: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3949; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-d03af10330",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3952: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :3973; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-f36e762952",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:3976: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :4004; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-bee47a744d",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:4007: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :4030; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-876cb539eb",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:4036: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :4054; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-9ad018d31b",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:4057: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :4089; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-f668773303",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/types.test.ts:4109: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :4137; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-9f4beb6e66",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/validator/validator.test.ts:1003: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1043; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-2cf3c67344",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "FALSE",
+    "reason": "src/validator/validator.test.ts:1046: asserts at compile time with `type verify = Expect<Equal<Expected, Actual>>` at :1091; Expect<T extends true> (src/utils/types.ts:7) fails tsc when Equal is false, and tsc runs on every test file: package.json \"test\" = \"tsc -p tsconfig.spec.json && vp test --run\", run by CI (.github/workflows/ci.yml:61)",
+    "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)"
+  },
+  {
+    "id": "hono-ed14a2f76e",
+    "profile": "default",
+    "family": "test-integrity",
+    "verdict": "TRUE",
+    "reason": "src/validator/validator.test.ts:1094-1135: `type Actual` is computed at :1133 but its check is commented out at :1134 (`//type verify = Expect<Equal<Expected, Actual>>`, and no Expected is declared): the case asserts nothing",
+    "pattern": "test-integrity: the only assertion is commented out"
+  },
+  {
+    "id": "hono-e8525087ae",
+    "profile": "declared",
+    "family": "boundary",
+    "verdict": "TRUE",
+    "reason": "src/request.ts:3 (core by `src/*.ts`, territory.md:7) imports ./request/constants = src/request/constants.ts, matched by none of src/*.ts, src/router/**, src/utils/**: true against the harness's artificial declaration",
+    "pattern": "boundary/core-import-outside: core file imports a repo module outside the declared core (harness declaration)"
+  },
+  {
+    "id": "hono-deaa6ea14b",
+    "profile": "declared",
+    "family": "boundary",
+    "verdict": "TRUE",
+    "reason": "src/utils/ipaddr.ts:6 `import type { AddressType } from '../helper/conninfo'` (src/helper/conninfo/index.ts:6 re-exports types.ts:3): outside the declared core; the message rightly says type-only (erased at build): true against the harness's declaration",
+    "pattern": "boundary/core-import-outside: core file imports a repo module outside the declared core (harness declaration)"
+  },
+  {
+    "id": "hono-71345e27fa",
+    "profile": "declared",
+    "family": "boundary",
+    "verdict": "TRUE",
+    "reason": "src/utils/jwt/jws.ts:7 `import { getRuntimeKey } from '../../helper/adapter'` (src/helper/adapter/index.ts:50), outside the declared core: true against the harness's declaration",
+    "pattern": "boundary/core-import-outside: core file imports a repo module outside the declared core (harness declaration)"
+  },
+  {
+    "id": "hono-345d54752c",
+    "profile": "declared",
+    "family": "boundary",
+    "verdict": "TRUE",
+    "reason": "src/utils/mount.ts:2 `import { GET_MATCH_RESULT } from '../request/constants'` (src/request/constants.ts), outside the declared core: true against the harness's declaration",
+    "pattern": "boundary/core-import-outside: core file imports a repo module outside the declared core (harness declaration)"
+  },
+  {
+    "id": "hono-5b92eeff10",
+    "profile": "declared",
+    "family": "capability",
+    "verdict": "TRUE",
+    "reason": "src/utils/jwt/jwt.ts:238 `await fetch(options.jwks_uri, init)` is the global fetch (no local binding; imports :7-29) downloading a JWKS; jwt.ts is core by `src/utils/**` (territory.md:9)",
+    "pattern": "capability/network: global fetch in the declared core (harness declaration)"
+  },
+  {
+    "id": "hono-ffbb759bb2",
+    "profile": "declared",
+    "family": "symbol",
+    "verdict": "FALSE",
+    "reason": "src/router/reg-exp-router/matcher.ts:9 `export const emptyParam: string[] = []` is the router's shared no-params value, returned at matcher.ts:24 `return [[], emptyParam]` and stored at router.ts:133; the constant `[]` is right, \"a placeholder, not behaviour\" is not",
+    "pattern": "symbol/placeholder-constant: the empty literal is the behaviour (shared sentinel read by the router)"
+  }
+]

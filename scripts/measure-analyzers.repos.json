@@ -1,0 +1,46 @@
+{
+  "schema": "runward-c2-repos/1",
+  "purpose": "ADR-0117, What would settle it, criterion 2: run the built-in analyzers (ADR-0118) on real repositories that runward did not write, in the languages they claim to read (JavaScript and TypeScript), and collect every finding for a separate reviewer to classify.",
+  "declaredWhy": "declared by the measurement harness, not by this project, to exercise the boundary and symbol readings on real code",
+  "repositories": [
+    {
+      "name": "express",
+      "url": "https://github.com/expressjs/express",
+      "sha": "43fca52d28a422c8be48fd489cbd4f2d6152bab6",
+      "branch": "master",
+      "commitDate": "2026-11-02",
+      "license": "MIT",
+      "languages": ["JavaScript"],
+      "why": "The reference Node.js web framework: CommonJS JavaScript (142 .js files), mocha and supertest tests written in a chained-assertion style, runnable examples; MIT, last commit 2026-11-02.",
+      "declared": {
+        "core": ["index.js", "lib/**"]
+      }
+    },
+    {
+      "name": "fastify",
+      "url": "https://github.com/fastify/fastify",
+      "sha": "1b954e5602261115b67708c73a9729231d70d2a0",
+      "branch": "main",
+      "commitDate": "2026-11-04",
+      "license": "MIT",
+      "languages": ["JavaScript", "TypeScript"],
+      "why": "A widely used Node.js framework: CommonJS JavaScript with ES modules and TypeScript declaration tests, node:test suites with plan-based assertions (264 .js, 33 .ts, 6 .mjs files); MIT, last commit 2026-11-04.",
+      "declared": {
+        "core": ["fastify.js", "lib/**"]
+      }
+    },
+    {
+      "name": "hono",
+      "url": "https://github.com/honojs/hono",
+      "sha": "eb754bd5ef22c63f1634a4c374a86be086f85710",
+      "branch": "main",
+      "commitDate": "2026-11-05",
+      "license": "MIT",
+      "languages": ["TypeScript"],
+      "why": "A widely used TypeScript web framework built on Web Standards: ES-module TypeScript with TSX and .mts files, Vitest cases co-located with the sources (398 .ts, 32 .tsx, 27 .mts files); MIT, last commit 2026-11-05.",
+      "declared": {
+        "core": ["src/*.ts", "src/router/**", "src/utils/**"]
+      }
+    }
+  ]
+}
