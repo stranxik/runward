@@ -12,6 +12,7 @@ any GitLab code it is meant to test.
 |---|---|
 | Layer 1: fixtures and stub | in the tree; the 7 fixtures are still **GitLab documentation examples**, not recordings (`"source": "docs-example"`): no run has been asked to upload its recordings (`update_fixtures`) |
 | Layer 2: GitLab CE in CI | **runs**: first by hand on 2026-10-13 (run 38451580587), then on schedule every Wednesday (2026-10-14, 10-21, 10-28 and 11-04). All five passed, in 300 to 347 seconds: GitLab CE ready 240 to 276 seconds after the start, `gate-green` exiting 0 and `gate-red` exiting 1, every egress probe blocked and the positive control on the default bridge reachable |
+| The recipes of runward-integrations (ADR-0122) | **passed by hand** on 2026-11-06, on a self-hosted Linux machine (Fedora, SELinux enforcing), driven from a `node:24` container through the host's Docker socket: in 1086 seconds, GitLab CE ready 753 seconds after the start (capped to 3 CPUs there), the 15 jobs of the pipeline green, `gate-<recipe>-without-recipe` exiting 0, `gate-<recipe>-with-recipe` exiting 1 and `gate-healthy-with-recipes` 0 for `sarif`, `junit` and `coverage`, each recipe job writing its report, every egress probe blocked. Not yet run by the workflow with these jobs |
 | GitLab version | the bench pins GitLab CE 19.4.2 (`gitlab/gitlab-ce:19.4.2-ce.0`) and GitLab Runner 19.4.1 by digest in [`test/gitlab-bench/images.env`](../test/gitlab-bench/images.env), and each run read back `19.4.2 (ecff27ae760)`; no fixture is from that version yet |
 
 Read on 2026-11-05 in the five runs' logs (`gh run list -R stranxik/runward -w gitlab-bench.yml`, then
@@ -163,6 +164,13 @@ fixtures with the new version in the same pull request.
 `test/gitlab-bench/bench.sh <workdir>` runs the same bench locally (it needs `docker`, `jq`, `node`
 and `npm`, and the network for its first phase). Clean up with
 `docker rm -f gitlab runner pkgs; docker network rm rwbench`.
+
+On a host where SELinux is enforcing (Fedora, RHEL), the bench relabels the directory its package server
+reads (`-v …:ro,z`) and runs the GitLab Runner unlabelled (`--security-opt label=disable`), so that it may
+open the Docker socket; elsewhere Docker ignores both. Without them, measured on 2026-11-06, the package
+server reads nothing and the runner cannot start a job. A driver container that runs `bench.sh` there needs
+the same `label=disable` to reach the socket, and the bench's directories at the same path on the host
+and in the container, since `bench.sh` hands host paths to `docker run`.
 
 ## If GitLab CE cannot boot there
 

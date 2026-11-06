@@ -109,8 +109,10 @@ test, with its lockfile), with the example's dependencies installed and the reci
 | `coverage` | the event-sourced journal overwrites instead of appending, and the tests swapped it for a copy of their own, so every case stays green, still asserts and still imports the code it tests; the committed LCOV report still records the adapter as executed | exit 0: accepted | exit 1: `state-event-sourcing` in `runward/floor.md` refused | exit 0: accepted | `junit`'s: exit 0, not caught (the failing case still executes the guard: the regenerated coverage records it as before, and the step goes red on the failing suite while the gate reads the committed JUnit report); `sarif`'s: exit 0, not caught (the file holding the credential is loaded by no test and cited by no row: coverage has nothing to say about it) |
 <!-- /runward-integrations:controls -->
 
-Measured on 2026-11-06, Node.js 24.22.1 on macOS: every exit above, and on the healthy tree each
-regenerated report byte-identical to the one the example commits.
+Measured on 2026-11-06 under Node.js 24.22.1, on macOS and on Linux: every exit above, and on the
+healthy tree each regenerated report byte-identical to the one the example commits. The same exits through
+the GitLab steps, on GitLab CE 19.4.2 with the network cut (the GitLab bench of the repository,
+`docs/gitlab-bench.md`).
 
 Run them yourself from a checkout of this repository (they install the example's dependencies, so they
 need the network, and they run the example's code):
@@ -122,7 +124,8 @@ node packages/runward-integrations/src/cli.js count --check --results controls.j
 ```
 
 `control --record` writes the date and the runward version of a passing control into each recipe's
-manifest; `count --write` renders the blocks again. A recipe whose control fails is withdrawn with the
+manifest; `count --write` renders the blocks again; `count --json` prints the same count as data, for a
+surface that renders it elsewhere, each recipe counted or not with its reason. A recipe whose control fails is withdrawn with the
 manifest's `withdrawn` field and its reason, and reads "not counted" until it passes again.
 
 ## Declared, or attested

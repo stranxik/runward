@@ -24,7 +24,7 @@ GitLab project, at parity.
 Each control runs for real on the shipped example (`node packages/runward-integrations/src/cli.js
 control`): the healthy tree is accepted after the step; the planted sabotage is accepted by the gate on the
 committed reports, built-in analyzers included, and refused once the step regenerated them; and each other
-recipe's sabotage is not caught, as the manifest says. Measured on 2026-11-06 (Node.js 24.22.1, macOS):
+recipe's sabotage is not caught, as the manifest says. Measured on 2026-11-06 (Node.js 24.22.1, on macOS and on Linux):
 `sarif`, a bearer token in a new adapter no row cites, refused on `checklist-day-zero-project`; `junit`, a
 guard that promotes an unknown account reference as verified, refused on `frontier-deterministic-boundary`
 and `security-prompt-injection`; `coverage`, a journal that overwrites instead of appending while the tests
@@ -41,9 +41,12 @@ no total of recipes may be written outside the block (`count --check`, in the un
 `integrations`, runs the controls, refuses a text that counts a recipe whose control did not pass in that
 run, then runs each recipe's GitHub step on a sabotaged and a healthy copy of the example; the offline
 GitLab CE bench gains a job per recipe and tree, its template included from a second project at a pinned
-commit, and the gate's exit read back three ways. Not delivered: Jenkins, the agent harnesses and the
-consumers of in-toto attestations (the decision's next steps), a release asset for the package (the next
-release chain), and an adopter who installs a recipe from its manifest alone.
+commit, and the gate's exit read back three ways: it passed by hand on 2026-11-06 on a Linux machine with
+SELinux enforcing (GitLab CE 19.4.2, network cut, 15 jobs green, each recipe 0 without, 1 with, 0 healthy),
+after the bench learned to label its package server's mount and run its runner unlabelled there. Not
+delivered: Jenkins, the agent harnesses and the consumers of in-toto attestations (the decision's next
+steps), a release asset for the package (the next release chain), and an adopter who installs a recipe
+from its manifest alone.
 
 ### Fixed: the citable form `runward explain` prints for `junit` is a `test:` pointer (RWD-2026-0202)
 
