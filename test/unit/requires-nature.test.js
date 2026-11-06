@@ -83,6 +83,19 @@ test("ADR-0115: an applied row citing the wrong nature is refused under --strict
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
+test("beside ADR-0114: `--require traced` lifts no requires-unmet refusal, and its help says so", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-req-traced-"));
+  try {
+    execFileSync("git", ["init", "-q", "."], { cwd: dir });
+    run(dir, "--yes", "init", "--example");
+    withUnmetRow(dir);
+    const j = JSON.parse(run(dir, "check", "--strict", "--require", "traced", "--json").out);
+    assert.equal(j.exitCode, 1, "gaps come first: a level accepted by name lifts no gap");
+    assert.equal(j.conformance.filter((c) => c.kind === "requires-unmet").length, 1);
+    assert.match(run(dir, "check", "--help").out, /It lifts no gap:\s+a\s+row\s+refused\s+as\s+requires-unmet/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test("a committed green JUnit report satisfies the junit nature — content-detected, never by name", () => {
   const dir = mkdtempSync(join(tmpdir(), "rw-req2-"));
   try {

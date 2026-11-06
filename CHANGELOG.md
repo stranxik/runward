@@ -102,7 +102,9 @@ mechanically". `check --strict` now requires a level of proof: `mechanical` by d
 mechanically", and `--json` carries `verdict: "level-not-met"`, `exitCode: 5` and `require: { level, met }`.
 `--require traced` accepts a green that rests on judgment alone, by name, the shape ADR-0060 wrote for a
 refusal; a `--through` prefix requires `traced` unless told otherwise. Gaps come first: a red verdict exits
-1. The attestation, `verify` (an attestation that records no level was written by an earlier runward: sent
+1, so `--require traced` lifts no gap: a row refused as `requires-unmet` (ADR-0115) still exits 1, and its
+ways out are a cited report of that kind, a `deviated` row or a nature declared uncarriable, never the flag.
+The attestation, `verify` (an attestation that records no level was written by an earlier runward: sent
 back to it, exit 2, and read at `traced` as advisory, said; under this build a strict attestation without
 the block differs),
 the VSA (FAILED), the JUnit rendering, `report`, `status`, the compliance pack and `--freeze` (it refuses to
