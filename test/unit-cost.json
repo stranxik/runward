@@ -8,7 +8,7 @@
   ],
   "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 852.7,
+  "totalSeconds": 852.8,
   "slowSeconds": 792.9,
   "slow": [
     "test/unit/run-mutation.test.js",
@@ -1442,6 +1442,11 @@
     {
       "file": "test/unit/run-junit-reader.test.js",
       "seconds": 0.8,
+      "passed": true
+    },
+    {
+      "file": "test/unit/measure-analyzers-cells.test.js",
+      "seconds": 0.1,
       "passed": true
     }
   ]
