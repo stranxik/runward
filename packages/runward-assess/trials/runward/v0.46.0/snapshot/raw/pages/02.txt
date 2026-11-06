@@ -1,0 +1,147 @@
+ 
+ 
+ 
+ 
+ 
+ 
+ Docs · Runward 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+   
+           
+     runward 
+   
+   
+     Proof 
+     Entries 
+     After the spec 
+     Artifacts 
+     Install 
+     Docs 
+     News 
+   
+   
+     
+       FR  /  EN 
+    
+
+     RW™ · V0.46.0
+
+         
+  
+
+
+
+ 
+  
+    Start 
+     Overview 
+     Quickstart 
+   
+    Understand 
+     The perimeter 
+     After the spec 
+     Case study: dropyour 
+     Concepts: the gate 
+     The three tiers 
+     The six phases 
+     Evidence & integrity 
+     Architecture & rationale 
+   
+    Operate 
+     From an AI agent 
+     Wire the gate 
+     Wire your harness 
+     Resume an existing system 
+     Maintain & diagnose 
+     Rule territory 
+   
+    Compliance & regulated 
+     Compliance evidence 
+     Adopting in a regulated org 
+   
+    Reference 
+     CLI commands 
+     Rule catalog 
+     ADRs / decisions 
+   
+    Project 
+     The measured pilot 
+     What’s next 
+   
+  
+ 
+  Docs 
+
+ Documentation . 
+
+ runward’s documentation, for humans and agents alike: concepts, phases, operation, regulated environments, and the reference generated from the package’s sources of truth (so never stale about the version).
+
+ 
+     Start  Quickstart  One command, your agent, the gate that verifies.  
+
+     Concepts  The gate & evidence  What the gate verifies, and why it is deterministic.  
+
+     Understand  The six phases  From idea to production, each phase gated on evidence.  
+
+     Operate  From an AI agent  Drive runward end to end, no human at the keyboard.  
+
+     Compliance  Compliance evidence  Evidence about the system you deliver, feeding ISO 42001, NIST AI RMF, the EU AI Act, plus the OSCAL export.  
+
+     Reference  CLI commands  19 commands, generated from the package.  
+
+     Reference  Rule catalog  The 64 craft rules.  
+
+     Decisions  ADR journal  102 structural decisions, dated.  
+
+ 
+ Generated from  runward rules --json ,  --help , and the ADR journal · runward v0.46.0
+
+
+
+
+ 
+  
+            SON  
+ 
+
+ 
+        source code   
+    npm  
+   MIT tooling 
+   CC BY-ND canon 
+    Legal notice  
+    Privacy  
+    Terms  
+   v0.46.0 
+
+
+ 
+ 
+ 
+ 
+ 
+ 

@@ -1,0 +1,147 @@
+{
+  "format": "runward-assess-grid-lock/1",
+  "grid": "grille@1",
+  "criteria": {
+    "FIA-01": {
+      "rev": 1,
+      "normative": "5e542af013656da17ab733b717f248a59bee7b8bb8da72101b506ec2d22b8de2"
+    },
+    "FIA-02": {
+      "rev": 1,
+      "normative": "11cb99a101492b6265a775d133e2e982b2821668d305642f96332b62a2ed506b"
+    },
+    "FIA-03": {
+      "rev": 1,
+      "normative": "d572ad146ae83bce37470ba30c4afceecaae7df27850daead35a40389036ef34"
+    },
+    "FIA-04": {
+      "rev": 1,
+      "normative": "da0dae0a9303fe0cb2c80b22be5008f3e1c4386b21b120f6900c7d78d3069552"
+    },
+    "FIA-05": {
+      "rev": 1,
+      "normative": "6841825302193f37baa5fe259ee4a38d5fc8244ce6ce6aef345da3493d9d5ff0"
+    },
+    "FIA-06": {
+      "rev": 1,
+      "normative": "856d0c7f3d51888e676cbb4d14b9e4675c64504af05e3b6900c5bc86fef30609"
+    },
+    "FIA-07": {
+      "rev": 1,
+      "normative": "a6db0003bdd0073fcfa150c664d2a492ba1c354c5a5034971b240c7d74a46678"
+    },
+    "SEC-01": {
+      "rev": 1,
+      "normative": "e678cca2c86055436eacaca947b5c34dc33617c7fa6012b999bd9559b8c8a5a5"
+    },
+    "SEC-02": {
+      "rev": 1,
+      "normative": "d99ccd95319aac7362177139be30d7eb1c74ab39a79dbfb013b610be4a1bc215"
+    },
+    "SEC-03": {
+      "rev": 1,
+      "normative": "808688160a47eccc21f6a69efe6169201602ba00ebf0e77f9310d6ff899b6050"
+    },
+    "SEC-04": {
+      "rev": 1,
+      "normative": "e0f3b8b46ed6102ce1e36fd932bcb513db87b1ecd1b39f2351fb25c029b4cfcd"
+    },
+    "SEC-05": {
+      "rev": 1,
+      "normative": "83aa42c210aac59b0554520c93c49f2547141d9562c5d7ed71ffca8bb34ae224"
+    },
+    "SEC-06": {
+      "rev": 1,
+      "normative": "3d79a677e74ba8b694d9f72128823183fcdc397a064f927f961646a2f3707ee2"
+    },
+    "SEC-07": {
+      "rev": 1,
+      "normative": "e72018b1a06e0f42047f1e2cd77399bb331a61752e5745c42b8360ed3dbbfe78"
+    },
+    "SEC-08": {
+      "rev": 1,
+      "normative": "b8c0e0bb2655d5b338441cf16f77633cdf2768d16ef51509029a937d9922ad9e"
+    },
+    "GOU-01": {
+      "rev": 1,
+      "normative": "80f1fb65672d83d1eae1b00cc00791498c797970dfe96c9ff3aa2b70c221560c"
+    },
+    "GOU-02": {
+      "rev": 1,
+      "normative": "634f61484cfe187f402860761d11cac07c4d62afe95deaf8ec94f660906cae90"
+    },
+    "GOU-03": {
+      "rev": 1,
+      "normative": "40984322bd0f52d71798f7906237b408cfc637c22a9a43af6061ea8aeebab988"
+    },
+    "GOU-04": {
+      "rev": 1,
+      "normative": "d21e540ab1c1b3e4444ec337faae6c01ab6aac13ac71bc2146a1883d832da636"
+    },
+    "GOU-05": {
+      "rev": 1,
+      "normative": "8eae32efcf6abe1aa0154882dd6fc8ad3e8b275599a23673d61a81eb3769eda5"
+    },
+    "GOU-06": {
+      "rev": 1,
+      "normative": "a4152959e76e4452f58928ac38ddd7051f216883d86e440545bd43ca92be7d32"
+    },
+    "PRV-01": {
+      "rev": 1,
+      "normative": "0cdfa6a738a2414d6cd6513947634315f2c0d3f86844db69932f9cdf435693d6"
+    },
+    "PRV-02": {
+      "rev": 1,
+      "normative": "a73760e0b5ce4032929f04a533bf4dec792145b3090c47a7c16bb97e6ec200e6"
+    },
+    "PRV-03": {
+      "rev": 1,
+      "normative": "80d712a90ae386bf1f27cafd8220f3f3195339c59ef74a7d0f0062aecdef7aa2"
+    },
+    "PRV-04": {
+      "rev": 1,
+      "normative": "1570aa657bcad1ef853104414d3db9dfd6d1c986a882fa3f5eeaeba3dd7334a6"
+    },
+    "PRV-05": {
+      "rev": 1,
+      "normative": "f11af9446942eab5cbf01df8c0bb368ee8d00c7572f0c9048b8db9318fe9ed55"
+    },
+    "PRO-01": {
+      "rev": 1,
+      "normative": "a57e3a21158ad8f6df8bcd6225b011f88f85319e114303823c1700286f8b5b86"
+    },
+    "PRO-02": {
+      "rev": 1,
+      "normative": "0008ed53572be2de0e46b9e2b0ba4556d81c9933c1d42fcaf59b0c252aba25da"
+    },
+    "PRO-03": {
+      "rev": 1,
+      "normative": "6931191ea7f3c880f44090dce2d85e1b2e0025d6b395155028c2d21e47711d99"
+    },
+    "ADO-01": {
+      "rev": 1,
+      "normative": "a0a3cd349e43ca1fe3d8c4bed8ebb5553dcb7124cb653bdb9bb8319fff32dfd5"
+    },
+    "ADO-02": {
+      "rev": 1,
+      "normative": "9e97ba2ad11c5dfb042d17bcde7d837ed2bb5333d30a4c01c8c052d5b5f21aa6"
+    },
+    "ADO-03": {
+      "rev": 1,
+      "normative": "b77fd0a3dfd7e27f23332e5a448285d47f3c636b8676c9846b425e031cc6e1c0"
+    },
+    "ADO-04": {
+      "rev": 1,
+      "normative": "4b3b6738de280ae1b15eb04246a09f172998229ab184d0216bf3ea5de46f18ce"
+    },
+    "MAR-01": {
+      "rev": 1,
+      "normative": "75f875f909b1adc359061e53ea0685735adfc196a25d5dabe8133a8716ab854f"
+    },
+    "MAR-02": {
+      "rev": 1,
+      "normative": "2ee38fd68ac82884632c4e520cec624366afefba2b343182cd552941aabeb1fd"
+    }
+  },
+  "tables": "1b83533198c89517a7ed364f75401465fba3f819711cbd66104733ec8d09ccf7"
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "runward-assess-profile/1",
+  "repo": "stranxik/runward",
+  "declaredBy": "the assessor, for the trial of 2026-11-06; the repository carries no profile of its own yet",
+  "profiles": ["L"],
+  "facts": {
+    "publie_paquet": "runward",
+    "deploie_service": [],
+    "appelle_modele": false,
+    "gate_declare": "node dist/cli.js check --strict",
+    "docs_conformite": ["regimes/eu-ai-act@2024-1689.json", "regimes/iso-42001@2023.json", "regimes/nist-ai-rmf@1.0.json"],
+    "surfaces_publiques": {
+      "files": ["README.md", "SECURITY.md", "SUPPORT.md", "docs/positioning.md", "docs/when-to-use.md"],
+      "urls": ["https://runward.dev/", "https://runward.dev/en.html", "https://runward.dev/docs/", "https://runward.dev/llms.txt"]
+    },
+    "test_cmd": "npm test",
+    "build_cmd": "npm run build",
+    "perimetre_sabotage": null,
+    "perimetre_mutation": "stryker.config.json",
+    "defect_register": { "path": "docs/compliance/known-defects.md", "format": "runward-known-defects/1" },
+    "public_facts": [
+      { "id": "craft-rules-shipped", "truth": { "kind": "count-files", "pattern": "^templates/rules/[^/]+\\.md$" },
+        "pattern": "\\b(\\d{1,4})\\s+(?:engineering craft rules|engineering rules|craft rules|règles d['’]ingénierie|règles de craft|règles livrées)\\b" },
+      { "id": "pinned-version-in-commands", "truth": { "kind": "package-version", "path": "package.json" }, "pattern": "\\brunward@(\\d+\\.\\d+\\.\\d+)\\b" }
+    ],
+    "exceptions": [],
+    "repo_public": true,
+    "versions_published": true
+  }
+}
