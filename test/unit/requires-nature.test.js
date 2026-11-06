@@ -234,7 +234,9 @@ test("a red case in that report refuses the row — the report is read, not trus
 
 // ── ADR-0115 decision 4: the ways out are decisions the tree carries ─────────────────────────────────
 
-const DECLARATION = (status, nature = "junit") => `# ADR-0004: this delivery produces no ${nature} report\n\n**Status**: ${status}\n**Nature not carried**: ${nature} — a fixture of runward's own test suite, with no test runner to cite\n\n## Decision\n\nDeclared.\n\n## Reevaluation trigger\n\nA test runner is added.\n`;
+// The example opts into the structure contract, so a declaration is a decision record by its bar: a date,
+// a status, a trigger (ADR-0124 decision 1). The fixture carried no date until then.
+const DECLARATION = (status, nature = "junit") => `# ADR-0004: this delivery produces no ${nature} report\n\n**Date**: 2026-11-06\n**Status**: ${status}\n**Nature not carried**: ${nature} — a fixture of runward's own test suite, with no test runner to cite\n\n## Decision\n\nDeclared.\n\n## Reevaluation trigger\n\nA test runner is added.\n`;
 
 test("ADR-0115: a nature declared uncarriable in an accepted ADR is not refused, and is said; a proposed declaration declares nothing", () => {
   const dir = mkdtempSync(join(tmpdir(), "rw-req-declared-"));

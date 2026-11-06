@@ -236,7 +236,7 @@ test("a dead pointer glued after another one is refused, naming it (RWD-2026-016
 });
 
 // ── What the seal is allowed to freeze (collectSealableEvidence) ────────────────────────────────
-// The seal certifies a crossing: the files the `applied` rows actually rest on, plus the manifests
+// The seal is taken on a crossing: the files the `applied` rows actually rest on, plus the manifests
 // that carry the claim. Widening it to rows the gate never verified (`n/a`, template placeholders)
 // or to paths that are not regular files turns a later, unrelated edit into a red gate — and makes
 // the seal count say the crossing rested on something it never read.

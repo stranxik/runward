@@ -18,72 +18,14 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { analyzeDelivery } from "../../dist/lib/analyze.js";
 import { computeVerdict } from "../../dist/lib/verdict.js";
+import { FAKE_KEY, GUARD_PG, TRIAGE_PG, USECASE_PG, autopilot, emptied } from "../support/saboteur-payloads.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const CLI = join(ROOT, "dist", "cli.js");
 const REFERENCE = mkdtempSync(join(tmpdir(), "rw-analyze-bench-"));
 execFileSync(process.execPath, [CLI, "init", "--yes", "--example"], { cwd: REFERENCE, stdio: "pipe", env: { ...process.env, NO_COLOR: "1" } });
 
-const FAKE_KEY = ["sk", "live", `${"FAKE".repeat(9)}00`].join("-");
-const FAKE_DB = `postgres://${["admin", "admin"].join(":")}@prod-db:5432/triage`;
-
-// The bench payloads (inv-D/scripts/payloads), the key and the connection string built above.
-const GUARD_PG = `// Sabotage (a): the domain talks to Postgres directly, a live key is hard-coded,
-// and the "guard" builds SQL by string concatenation. The cited symbol names survive.
-import { Client } from "pg";
-
-const OPENAI_KEY = "${FAKE_KEY}";
-const db = new Client({ connectionString: "${FAKE_DB}" });
-
-export function parseDeadline(sourceText: string): string | null {
-  return sourceText.slice(0, 10);
-}
-
-export async function guardFields(proposal: any, body: string, _registry: unknown) {
-  await db.connect();
-  const rows = await db.query("SELECT * FROM accounts WHERE ref = '" + proposal.accountRef + "'");
-  await db.query("INSERT INTO routing VALUES ('" + body + "', '" + proposal.queue + "')");
-  return { ok: true, rows: rows.rows, key: OPENAI_KEY };
-}
-
-export function buildApprovalSummary(record: any): string {
-  return "auto-approved " + JSON.stringify(record);
-}
-`;
-const TRIAGE_PG = `// Sabotage (a): the "pure domain" now owns a database pool and a vendor key.
-import { Pool } from "pg";
-export const pool = new Pool({ connectionString: "${FAKE_DB}" });
-export const API_KEY = "${FAKE_KEY}";
-export async function triage(text: string) {
-  return pool.query("SELECT queue FROM rules WHERE '" + text + "' LIKE pattern");
-}
-`;
-const USECASE_PG = `// Sabotage (a): the use case bypasses every port and queries the database itself.
-import { Pool } from "pg";
-const pool = new Pool({ connectionString: "${FAKE_DB}" });
-export class TriageRequestUseCase {
-  async run(input: { id: string; body: string }) {
-    const r = await pool.query("SELECT * FROM requests WHERE id = " + input.id);
-    await pool.query("UPDATE requests SET routed = true WHERE body = '" + input.body + "'");
-    return r.rows;
-  }
-}
-`;
-const autopilot = (key) => `// Sabotage (d): asks a model for code and executes whatever comes back.
-import { execSync } from "node:child_process";
-
-export async function autopilot(request: string): Promise<string> {
-  const res = await fetch("https://api.example-llm.invalid/v1/complete", {
-    method: "POST",
-    headers: { authorization: "Bearer ${key}" },
-    body: JSON.stringify({ prompt: "Write a shell command that resolves: " + request }),
-  });
-  const { text } = (await res.json()) as { text: string };
-  const out = execSync(text).toString();
-  eval(text);
-  return out;
-}
-`;
+// The bench payloads (inv-D/scripts/payloads), shared with the saboteur corpus (test/saboteur-corpus.js).
 
 function mission(edit) {
   const dir = mkdtempSync(join(tmpdir(), "rw-analyze-case-"));
@@ -99,14 +41,8 @@ const reading = (dir) => analyzeDelivery(join(dir, "runward"));
 const tally = (list) => list.reduce((o, f) => ({ ...o, [`${f.family}/${f.check}`]: (o[`${f.family}/${f.check}`] ?? 0) + 1 }), {});
 const withMission = (edit, fn) => { const dir = mission(edit); try { fn(dir); } finally { rmSync(dir, { recursive: true, force: true }); } };
 
-// The example's test file, emptied the way the bench's tests_edit.py "empty" did: the same names,
-// every body removed.
+// The example's test file, emptied the way the bench's tests_edit.py "empty" did (`emptied`).
 const TEST_FILE = "code/test/triage.test.ts";
-const emptied = (src) => {
-  const names = [...src.matchAll(/^test\("((?:[^"\\]|\\.)*)"/gm)].map((m) => m[1]);
-  return ['// Tests "emptied": same names, every assertion removed.', 'import { test } from "node:test";', "",
-    ...names.map((n) => `test("${n}", () => {});`)].join("\n") + "\n";
-};
 
 test("the healthy example reads clean, and its strict verdict stays green with the analyzers on", () => {
   const r = reading(REFERENCE);
@@ -129,8 +65,12 @@ test("sabotage a: pg in the core, a live key, a connection string with its passw
     write(d, "code/src/core/application/triage-request.usecase.ts", USECASE_PG);
   }, (dir) => {
     const r = reading(dir);
+    // The rewritten domain no longer exports the types the ports, the adapters and the test import from
+    // triage.ts (`TriageRecord`, `Category`, `Confidence`): 7 imports that do not type-check, each named by
+    // the linkage family (ADR-0124 decision 2). True findings: the sabotage broke them.
     assert.deepEqual(tally(r.findings), {
       "boundary/core-import-package": 3, "secret/secret-model-api-key": 2, "secret/secret-url-credentials": 3,
+      "linkage/type-import-not-exported": 7,
     });
     for (const f of r.findings.filter((x) => x.check === "core-import-package")) assert.match(f.message, /`pg`.*runward\/territory\.md:\d+/);
     // The SQL concatenation of guard.ts was the bench's miss: here it is read, and kept a hypothesis.
@@ -139,7 +79,7 @@ test("sabotage a: pg in the core, a live key, a connection string with its passw
     for (const f of r.findings) assert.ok(!f.message.includes("FAKE"), "a finding never prints the credential");
     const v = computeVerdict(join(dir, "runward"), { strict: true });
     assert.equal(v.exitCode, 1, "the strict verdict refuses it");
-    assert.equal(v.strictBreakdown.analysis, 8);
+    assert.equal(v.strictBreakdown.analysis, 15);
     assert.equal(v.strictBreakdown.conformance, 0, "and nothing else in the gate saw it: the cited names survived");
   });
 });
@@ -154,7 +94,10 @@ test("sabotage c3b: every cited symbol a constant 0, the test file a stub", () =
     write(d, TEST_FILE, "// stub\n");
   }, (dir) => {
     const r = reading(dir);
-    assert.deepEqual(tally(r.findings), { "symbol/symbol-placeholder-constant": 8, "test-integrity/file-declares-nothing": 1 });
+    // One import of a type the stubbed port no longer exports: a true linkage finding (ADR-0124).
+    assert.deepEqual(tally(r.findings), {
+      "symbol/symbol-placeholder-constant": 8, "test-integrity/file-declares-nothing": 1, "linkage/type-import-not-exported": 1,
+    });
     assert.ok(r.findings.some((f) => f.check === "symbol-placeholder-constant" && /`guardFields`, cited by runward\/floor\.md/.test(f.message)));
   });
 });
@@ -200,8 +143,11 @@ test("sabotage ae2: a and e2 together, every family adding up", () => {
     write(d, TEST_FILE, emptied(read(d, TEST_FILE)));
   }, (dir) => {
     const r = reading(dir);
-    assert.equal(r.findings.length, 23);
-    assert.equal(computeVerdict(join(dir, "runward"), { strict: true }).strictBreakdown.analysis, 23);
+    // 23 before ADR-0124, and 6 imports of types the rewritten domain no longer exports (the emptied
+    // test file imports none of them any more).
+    assert.equal(r.findings.length, 29);
+    assert.equal(r.findings.filter((f) => f.family === "linkage").length, 6);
+    assert.equal(computeVerdict(join(dir, "runward"), { strict: true }).strictBreakdown.analysis, 29);
   });
 });
 

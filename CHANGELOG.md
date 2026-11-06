@@ -2,6 +2,71 @@
 
 ## Unreleased
 
+### The saboteur corpus joins the repository (ADR-0117, ADR-0124)
+
+`node test/saboteur-corpus.js` replays the sabotages of the shipped example that the investigation of
+2026-11-05 measured and the variants ADR-0124 wrote: 22 cases, each with a stable identifier, built on
+the fly from `init --example` and judged by the real CLI. Each asserts the exit code measured after
+ADR-0124, with no seal, sealed before the sabotage, and with the example's hook where an execution is
+what refuses it. Two sabotages are pinned green without a seal, a placeholder that keeps every name and a
+decision rewritten as a well-formed record, each with the limit ADR-0124 writes, so that the change
+that closes one of them flips its test knowingly. `test/unit/saboteur-corpus.test.js` runs it with the
+suite. The `--hooks` cases install the example's dependencies with npm; `--no-hooks` leaves them out.
+
+### Changed: runward says what a seal and `--through` do, and no longer that it certifies
+
+`docs/spec/witness.md` says that nothing in runward calls a verdict certified, and the gate still wrote
+it. The help of `check --through` now says that it judges only the phases up to the one you declare, a
+prefix of the arc; the refusal of `--through` with `--freeze`, the two refusals of `--freeze` (a red
+gate, a cited JUnit report that records failures) and the HTML report's deferred section say that a
+seal is taken on a complete crossing and that a declared horizon judges a prefix; so does the README's
+command table. Nothing else moves: the same refusals, exit codes and JSON. ADR-0053 keeps its file name,
+so links hold, and gets a dated note.
+
+### Changed: four sabotages that passed `check --strict` are refused (ADR-0124)
+
+Measured on 2026-11-06, on the integration train, with the saboteur corpus of 2026-11-05: four cases still
+exited 0 under `check --strict` with no seal. Each part below refuses one of them on `init --example`,
+sealed or not, and none moves runward's own mission or the example as shipped.
+
+- **One bar for a decision record.** An ADR of the example replaced by a 47-character stub (a title,
+  `**Status**: accepted`, "Nothing here.") passed every `adr:` pointer and every table that cites it,
+  because the evidence layer took any file over 40 characters whose status is accepted for a decision,
+  while the structure contract set the same file aside in the same run. Under the structure contract, an
+  `adr:` pointer, a deviated row's ADR, a declared uncarriable nature, and the tables of the architecture
+  note, the topology and the decision matrix that cite an ADR now refuse a record of the mission's own
+  `runward/adr/` that the journal sets aside (no `**Date**` line, a status outside proposed, accepted,
+  superseded and deprecated, no reevaluation trigger), with the reason; a table that cites a refused ADR
+  says why instead of saying that no journal holds it. A journal outside the mission (`docs/adr/`,
+  `doc/adr/`, `adr/`) and a mission without the opt-in read as before. A mission whose cited ADR lacks its
+  date or its trigger turns red, and the reason names the line to add; so does a status written with a
+  capital (`Accepted`), which the structure contract has always read as written, case included. Section 7.6 of
+  `docs/spec/witness.md` gives a checker the new condition.
+- **A linkage family in the built-in analyzers**, in `runward-analysis/1` before its first release. The
+  example's `code/src/core/domain/triage.ts`, cited bare, replaced by one word, kept every pointer
+  resolving and every committed report green. A name the delivered code imports, by a relative path, from
+  a file a manifest cites or from the declared core must now be exported by that file: the reading names
+  each import that does not link (a value) or does not type-check (a type), with its file and line. A
+  JavaScript file shipped with its declaration file exports what either declares; CommonJS, `export =`, a
+  destructured export and a re-export the reading cannot follow are never refused, and are listed as not
+  analysed. Like every family, it reads the delivered tree only. A placeholder that keeps every imported
+  name still links: what the code does needs an execution (`--hooks` today, `attested` with
+  `runward-run`).
+- **The example cites every case of its suite.** Deleting a case no row cites, and regenerating the
+  report, leaves a tree no reading can tell from an honest deletion: only a declaration or a baseline can.
+  The example's `provider-no-crash-missing-env` row says that every case of the suite runs the keyword
+  adapter, and cited one; it now cites the fourteen, so a deleted case is a cited case absent from the
+  report, which the evidence layer refuses. On your own mission, a case no row cites is still outside
+  the verdict unless a seal covers its test file. A line that says how many recorded cases no row cites
+  is decided and comes in a later release.
+- **The seal covers the decisions the manifests name.** The example's ADR-0002 is named by its rows, its
+  decision table and a link, never by `adr:`, so `check --freeze` left it out, and a stub, or a dated,
+  accepted record that reverses the decision, replaced it under an intact seal. `--freeze` now also seals
+  every ADR a gated manifest names by its id, found where `adr:` finds it; on the example the seal grows
+  by that one file. A lock written before verifies exactly the files it lists and stays intact; the next
+  `--freeze` widens it. A sealed mission turns red when a decision its manifests name changes, as for any
+  sealed file: seal what has stopped moving (ADR-0021).
+
 ### The forbidden-claim list catches a national qualification, "sovereign", "tamper-proof", "platform" and "mathematical proof" said of runward
 
 An adversarial review of `docs/isolated-environments.md` wrote four sentences that
@@ -99,7 +164,6 @@ names a partial clone, and warns when its git is older than 2.45.0, which ignore
 (ADR-0054): `check` and `verify` were not affected. `test/unit/partial-clone-no-fetch.test.js` builds a
 local partial clone over file://, shows first that a plain `git blame` there does fetch, then pins each
 behaviour; the register entry gives the versions, measured through `npx runward@<version>`.
-
 ### What you install is what the release tested: the tarball bundles its dependencies, and the SBOM is the package's (ADR-0116)
 
 Measured on 2026-11-05: installed into an empty project, the 0.46.0 tarball resolved 16 of its 27 runtime

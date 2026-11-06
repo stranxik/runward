@@ -230,6 +230,18 @@ when a pilot asks for a second language, when the attestation's subject binds th
 **Trigger set on**: 2026-11-05 · **Watched via**: `test/unit/analyze-bench.test.js` on every pull request, and
 the `undue-refusal` entries of `docs/compliance/known-defects.md` that name ADR-0118.
 
+## Note, 2026-11-06: a sixth family before the policy's first release (ADR-0124)
+
+[ADR-0124](ADR-0124-one-bar-for-a-decision-record-a-linkage-family-for-cited-files-the-seal-over-the-decisions-the-manifests-name-and-a-deleted-uncited-test-refused-only-where-declared.md)
+decision 2 adds the *linkage* family to `runward-analysis/1`: a name the delivered code imports, by a
+relative path, from a file an applied row cites or from the declared domain core, is exported by that
+file, and a form the reading does not settle (CommonJS, `export =`, a destructured export, a re-export it
+cannot follow) never refuses and is listed under `notAnalyzed`. It reads the delivered tree only, like
+every family since ADR-0113 decision 5. The policy has not shipped in a release on this date, so decision
+3 holds: had it shipped, the family would have been `runward-analysis/2`. Decision 1's list reads six
+families from this note. On the bench of this record, the family adds true findings to three plantings,
+whose payloads drop names other files of the example import: 7 to (a), 1 to (c3b), 6 to (ae2).
+
 ## References
 
 - `src/lib/analyze.ts`, `src/lib/analysis-policy.ts`, `src/lib/analysis-render.ts`.

@@ -393,7 +393,7 @@ function midConstruction(m) {
   revertToTemplate(m, "handover.md", "handover.md");
 }
 
-test("ADR-0053: a declared horizon certifies the prefix while the full arc still reds (the UX-hole-1 case)", () => {
+test("ADR-0053: a declared horizon judges the prefix while the full arc still reds (the UX-hole-1 case)", () => {
   const m = mission();
   midConstruction(m);
 

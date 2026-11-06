@@ -9,8 +9,8 @@ runward `<version>` · strict verdict · current gate: 6 · Hand over · 3 archi
 |---|---|---|
 | Verdict | **GAPS** | computed by `runward check --strict` on this tree; unsigned, re-derivable below |
 | Deliverable gaps | 1 | computed by the gate |
-| Rule-conformance gaps | 6 | computed by the gate |
-| Delivered-code analysis | 0 finding(s), 0 hypothesis(es), 0 item(s) not analysed | computed by the gate from the source text under `runward-analysis/1`, never run; findings are inside the conformance gaps |
+| Rule-conformance gaps | 7 | computed by the gate |
+| Delivered-code analysis | 1 finding(s), 0 hypothesis(es), 0 item(s) not analysed | computed by the gate from the source text under `runward-analysis/1`, never run; findings are inside the conformance gaps |
 | Evidence rows | 42: 20 applied, 0 deviated, 22 n/a | 19 typed pointer(s) resolved by the gate; 1 prose row(s) declared, never verified; 2 signature-checked |
 | Ratification | 0 traced: 0 line-by-line, 0 en bloc, 0 blind; 42 untraced | declared: names and dates as the tree writes them; runward cannot tell who answered |
 | Evidence seal | absent (opt-in) | nothing is compared with a previous state |
@@ -25,15 +25,17 @@ runward `<version>` · strict verdict · current gate: 6 · Hand over · 3 archi
 |---|---|---|---|
 | 6 · Hand over | Hand-over note (the kit, proven) | `runward/handover.md` | `missing` |
 
-**Rule conformance** (6 gap(s)), by kind:
+**Rule conformance** (7 gap(s)), by kind:
 
 | Kind | Count |
 |---|---|
+| `analysis-linkage` | 1 |
 | `deliverable-missing` | 4 |
 | `evidence-refused` | 2 |
 
 | Kind | Rule | Where | Problem |
 |---|---|---|---|
+| `analysis-linkage` | `import-not-exported` | `code/src/core/application/triage-request.usecase.ts:24` | code/src/core/application/triage-request.usecase.ts:24: imports \`guardFields\` from \`../domain/guard.js\` (code/src/core/domain/guard.ts), which exports no such name: as delivered, this file does not link |
 | `deliverable-missing` | `handover-agents-charter-final` | `runward/handover.md` | handover.md missing |
 | `deliverable-missing` | `handover-redone-task-proof` | `runward/handover.md` | handover.md missing |
 | `deliverable-missing` | `handover-runbook-executable` | `runward/handover.md` | handover.md missing |

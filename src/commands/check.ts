@@ -190,7 +190,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   }
 
   // ADR-0053: the declared-horizon banner, printed loud so a green prefix is never read as a
-  // completion. The verdict certifies phases up to `--through`; everything past it is deferred,
+  // completion. The verdict judges the phases up to `--through`; everything past it is deferred,
   // named here and in the JSON, never conflated with "crossed".
   if (verdict.horizon) {
     const deferredPhases = [...new Set(verdict.horizon.deferred.map((r) => r.phase))];
@@ -687,7 +687,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   if (opts.freeze) {
     log(section("Evidence seal — freeze (ADR-0021)"));
     if (gaps || strictGaps || hookFailed) {
-      log("  " + status.error("refusing to seal a red gate — a seal certifies a crossing, not a hope. Close the gaps above, then re-run `runward check --freeze`."));
+      log("  " + status.error("refusing to seal a red gate — a seal is taken on a complete crossing, not on a hope. Close the gaps above, then re-run `runward check --freeze`."));
     } else if (levelNotMet) {
       // ADR-0114: a run that exits 5 is not a crossing either. Nothing is written; the exit stays 5.
       log("  " + status.error(`refusing to seal: nothing was verified mechanically and this run requires \`${verdict.require?.level}\` (exit ${LEVEL_NOT_MET_EXIT}, runward ADR-0114). Nothing was written.`));
@@ -696,7 +696,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // froze a report that is not a crossing, and the next CI run, regenerating it without the
       // flaky failure, broke the seal for a defect unrelated to the change (RWD-2026-0182).
       // Nothing is written; exit 1, as for every other refused seal.
-      log("  " + status.error(`refusing to seal: ${junitNotGreen.length} JUnit report(s) cited by a \`test:\` pointer record failures or errors — a seal certifies a crossing; a report that says tests failed is not one (ADR-0102). Nothing was written.`));
+      log("  " + status.error(`refusing to seal: ${junitNotGreen.length} JUnit report(s) cited by a \`test:\` pointer record failures or errors — a seal is taken on a complete crossing; a report that says tests failed is not one (ADR-0102). Nothing was written.`));
       for (const j of junitNotGreen) {
         log(`  ${c.error("✗")} ${c.white(j.report)} — ${j.failures} failure(s) or error(s) at its root${j.citedCasesGreen ? ", even though the cited cases are green" : ""}`);
       }
@@ -710,7 +710,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       const projected = Object.keys(seal.hashKinds).length;
       // Sealing nothing produced `✓ sealed 0 evidence file(s)` and then `✓ seal intact — 0 file(s)`
       // on every later run: rendered identically to a real seal, one number apart. A seal over an
-      // empty set certifies nothing and reads like certification, which is the worst pair.
+      // empty set freezes nothing and reads like a seal, which is the worst pair.
       if (count === 0) {
         log("  " + status.error("refusing to seal zero files — nothing in this mission resolves to evidence, so there is nothing to freeze. A seal over an empty set reads like proof and is not."));
         process.exitCode = 1;

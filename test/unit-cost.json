@@ -6,10 +6,10 @@
     "is killed iff some test fails. A stale file therefore costs time and never truth.",
     "Re-measure with: node scripts/test-cost.mjs"
   ],
-  "measuredOn": "2026-11-03",
+  "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 787.9,
-  "slowSeconds": 734.3,
+  "totalSeconds": 828.3,
+  "slowSeconds": 774.7,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
@@ -102,7 +102,11 @@
     "test/unit/analyze-bench.test.js",
     "test/unit/example-machine-evidence.test.js",
     "test/unit/package-sbom.test.js",
-    "test/unit/partial-clone-no-fetch.test.js"
+    "test/unit/partial-clone-no-fetch.test.js",
+    "test/unit/adr-one-bar.test.js",
+    "test/unit/analyze-linkage.test.js",
+    "test/unit/seal-named-decisions.test.js",
+    "test/unit/saboteur-corpus.test.js"
   ],
   "files": [
     {
@@ -1293,6 +1297,26 @@
     {
       "file": "test/unit/partial-clone-no-fetch.test.js",
       "seconds": 6.22,
+      "passed": true
+    },
+    {
+      "file": "test/unit/adr-one-bar.test.js",
+      "seconds": 1.84,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-linkage.test.js",
+      "seconds": 3.38,
+      "passed": true
+    },
+    {
+      "file": "test/unit/seal-named-decisions.test.js",
+      "seconds": 3.82,
+      "passed": true
+    },
+    {
+      "file": "test/unit/saboteur-corpus.test.js",
+      "seconds": 31.44,
       "passed": true
     }
   ]

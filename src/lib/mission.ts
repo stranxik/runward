@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { TEMPLATES, MISSION_LAYOUT } from "./paths.js";
 import { ADR_MIN_CHARS } from "./constants.js";
-import { adrIdExists, manifestSections } from "./conformance.js";
+import { adrDecision, adrPath, manifestSections } from "./conformance.js";
 
 /**
  * Mission state reading — the gap analysis: which deliverable, expected at
@@ -130,6 +130,17 @@ export function declaredMissionName(missionDir: string): string {
 // which distinguishes it from cross-references like [ADR-0001] or [framing.md].
 // A closing bracket followed by "(" is a markdown link ([floor note](floor.md)) — never a placeholder.
 const PLACEHOLDER = /\[[^\]\n]*\s[^\]\n]{1,80}\](?!\()/g;
+
+/** Why a table of a deliverable may not cite this ADR, or null when it may: the reading of
+ *  `adrDecision`, so a table and a pointer give one answer (ADR-0124 decision 1). When no journal holds
+ *  the id the refusal keeps its words; when one holds a file that is not a decision, it says why. */
+function citedAdrProblem(missionDir: string, num: string): string | null {
+  const why = adrDecision(missionDir, `ADR-${num}`);
+  if (why === null) return null;
+  return adrPath(missionDir, `ADR-${num}`) === null
+    ? "which no decision journal holds (ADR-0074: runward/adr/, docs/adr/, doc/adr/, adr/)"
+    : `which cannot be cited: ${why}`;
+}
 
 /** A real ADR file: ADR-<n>-*.md, excluding the scaffolded template. Single source of
  *  truth so the mission, status, and conformance paths agree (they used to diverge:
@@ -410,7 +421,7 @@ export const STRUCTURE: Record<string, StructureSpec> = {
             if (/pending/i.test(adrCell)) continue;
             const id = adrCell.match(/ADR-(\d+)/);
             if (!id) return `"${cells[0]}" cites no ADR and does not say pending — a decision here is a pointer, never a claim`;
-            if (!adrIdExists(missionDir, `ADR-${id[1]}`)) return `"${cells[0]}" cites ADR-${id[1]}, which no decision journal holds (ADR-0074: runward/adr/, docs/adr/, doc/adr/, adr/)`;
+            { const problem = citedAdrProblem(missionDir, id[1]); if (problem) return `"${cells[0]}" cites ADR-${id[1]}, ${problem}`; }
           }
           return null;
         },
@@ -467,7 +478,7 @@ export const STRUCTURE: Record<string, StructureSpec> = {
             const adrCell = cells[5] ?? "";
             const id = adrCell.match(/ADR-(\d+)/);
             if (!id) return `"${port}" leaves In-app (${family.slice(0, 30)}) and its ADR cell cites no ADR — the template's own rule, now read`;
-            if (!adrIdExists(missionDir, `ADR-${id[1]}`)) return `"${port}" cites ADR-${id[1]}, which no decision journal holds (ADR-0074: runward/adr/, docs/adr/, doc/adr/, adr/)`;
+            { const problem = citedAdrProblem(missionDir, id[1]); if (problem) return `"${port}" cites ADR-${id[1]}, ${problem}`; }
           }
         }
         return null;
@@ -497,7 +508,7 @@ export const STRUCTURE: Record<string, StructureSpec> = {
           if (!/^switched\b/.test(pos)) continue;
           const id = (cells[2] ?? "").match(/ADR-(\d+)/);
           if (!id) return `"${cells[0]}" is switched and cites no ADR — a switch without its trigger traced is the drift this table exists to refuse`;
-          if (!adrIdExists(missionDir, `ADR-${id[1]}`)) return `"${cells[0]}" cites ADR-${id[1]}, which no decision journal holds (ADR-0074: runward/adr/, docs/adr/, doc/adr/, adr/)`;
+          { const problem = citedAdrProblem(missionDir, id[1]); if (problem) return `"${cells[0]}" cites ADR-${id[1]}, ${problem}`; }
         }
         return null;
       },

@@ -106,7 +106,7 @@ function secretlint(targets, cwd) {
  *  Three rather than one, because one firing rule proves one rule. And NOT the credentials AWS prints
  *  in its own documentation: measured 2026-09-12, `AKIAIOSFODNN7EXAMPLE` and its partner secret are
  *  deliberately exempted by the scanner (they appear in every tutorial on earth), so a control built
- *  from them reports zero and would have certified a blind scan as a clean one. The control caught
+ *  from them reports zero and would have passed a blind scan off as a clean one. The control caught
  *  that on its first run, which is what a control is for. */
 const PLANTED = [
   ["@secretlint/secretlint-rule-aws", "planted-aws.txt", "AKIA" + "3QK7ZR2VLXN8TMJD" + "\nAWS_SECRET_ACCESS_KEY=" + "kP7mXq2LbN4vZs9TrW1cYh6JdF8gA3eU5oI0nQxB"],

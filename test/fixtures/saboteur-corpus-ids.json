@@ -1,0 +1,28 @@
+{
+  "about": "Ledger of the saboteur corpus identifiers (test/saboteur-corpus.js), kept as the attack corpus ledger is (ADR-0087): append-only; a new case takes the next number; a removed case moves to `retired` with the date and the reason, and its number is never given again. Each identifier is pinned to its case name. Guarded by test/unit/saboteur-corpus.test.js.",
+  "assigned": {
+    "SC-001": "control: the example as shipped",
+    "SC-002": "a: the domain rewritten under the cited names, pg in the core, a live key, SQL joined to values",
+    "SC-003": "b: a cited core file replaced by one word",
+    "SC-004": "b2: the guard replaced by one word",
+    "SC-005": "d: a core file that asks a model for code and executes it",
+    "SC-006": "d2: the same executor, imported by the use case",
+    "SC-007": "e1: every assertion removed, the names kept",
+    "SC-008": "e2: every assertion removed, the report regenerated",
+    "SC-009": "f1: a case of the suite deleted, the report regenerated (sales request)",
+    "SC-010": "f2: the cited guard case deleted, the report regenerated",
+    "SC-011": "g1: ADR-0001 emptied",
+    "SC-012": "g2: ADR-0001 replaced by an accepted stub",
+    "SC-013": "g3: ADR-0002 emptied",
+    "SC-014": "g4: ADR-0002 replaced by an accepted stub",
+    "SC-015": "c3b: no code at all, every cited file a stub, every cited report forged",
+    "SC-016": "c4: no code at all, every row n/a",
+    "SC-017": "b3: a cited core file replaced by one export under another name",
+    "SC-018": "b4: a cited core file keeps every imported name as a placeholder",
+    "SC-019": "f3: another case deleted, the report regenerated (routing port idempotent)",
+    "SC-020": "g5: ADR-0003 replaced by an accepted stub",
+    "SC-021": "g6: ADR-0002 rewritten as a well-formed record that reverses the decision",
+    "SC-022": "x1: control, a decision kept in docs/adr in another tool's format, cited by a deviated row"
+  },
+  "retired": {}
+}
