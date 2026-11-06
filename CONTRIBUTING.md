@@ -13,6 +13,7 @@ The doctrine *"Designing and Running Agentic Systems"* is a separate work under 
 ## Before you open a PR
 
 - Run `npm test` (build + smoke test, including the gate audit of the example mission). It must pass.
+- New behaviour comes with tests in that suite: a fix brings a test that fails without it, a feature the tests that pin it.
 - Keep changes small and focused; one concern per PR.
 - A structural change to the method (a workflow's gates, a rule's default) needs a short rationale in the PR description — defaults move on evidence here too.
 

@@ -580,7 +580,12 @@ export function onDiskSpelling(abs: string, from?: string): string | null {
   // pointer says and are not the operator's to fix. Omitting `from` walks from the root as before —
   // the safe direction, since it checks MORE segments, never fewer.
   const base = from && (abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep)) ? from : null;
-  const parts = (base ? abs.slice(base.length).replace(new RegExp("^" + sep.replace("\\", "\\\\")), "") : abs).split(sep);
+  // Below the bound the remainder starts with a separator unless `from` ends with one, so its first
+  // segment may be empty, and the walk skips an empty segment wherever it sits (`if (!want) continue`).
+  // That made the strip this line carried until 2026-11-06, a RegExp built from `sep`, change nothing,
+  // as the mutation pass had measured; CodeQL read its `sep.replace("\\", "\\\\")` as an escape that
+  // misses a repeat (js/incomplete-sanitization), which a one-character `sep` cannot hold. Removed.
+  const parts = (base ? abs.slice(base.length) : abs).split(sep);
   // A bare drive letter ("D:") is a DRIVE-RELATIVE path on Windows — readdirSync("D:") lists the
   // drive's current directory, not its root, so the walk diverged and the whole check silently
   // returned null: the mis-spelled pointer the test plants was never flagged (found by the first

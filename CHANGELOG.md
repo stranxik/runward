@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### CodeQL's alert in `evidence.ts` closed with no answer changed, and contributions asked for tests
+
+`onDiskSpelling` stripped the separator off the remainder below the project bound with a RegExp built
+from `path.sep`, which CodeQL reads as an escape that replaces only the first backslash
+(js/incomplete-sanitization). `path.sep` is one character, so no input reached a wrong answer, and the
+strip changed nothing either: the walk skips an empty segment wherever it sits. It is removed. Twelve
+new cases drive the bounded walk directly, the bound spelled with and without a final separator; they
+pass on the code before and after the removal and fail on the two mutants the register filed as holes
+on that line. `CONTRIBUTING.md` and the pull request template say that new behaviour comes with tests,
+and the security scan's configuration states the count it measures (9 warnings on 2026-11-06, not 8).
+No CLI behaviour, output or verdict changes.
+
 ### runward-assess 0.1.0: the repeatable assessment grid, outside the verdict path and outside the tool it rates (ADR-0123)
 
 A new package, `packages/runward-assess`, holds `grille@1`: 35 criteria on seven axes (reliability,

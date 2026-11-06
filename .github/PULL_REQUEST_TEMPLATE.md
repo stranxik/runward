@@ -16,6 +16,7 @@
 ## Checks
 
 - [ ] `npm test` passes locally (build + smoke + OSCAL schema).
+- [ ] New behaviour comes with tests: a fix brings a test that fails without it, a feature the tests that pin it.
 - [ ] The gate is still deterministic, read-only and zero-LLM (no model call added to the check path).
 - [ ] No text from the doctrine "Designing and Running Agentic Systems" (CC BY-ND) is copied in; only original MIT prose, with short attributed quotes at most.
 - [ ] Docs / CHANGELOG updated if user-facing behavior changed.

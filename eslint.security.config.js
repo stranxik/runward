@@ -43,12 +43,12 @@
 //                                      planted U+3164 inside an identifier in a temporary src/ file
 //                                      was reported, so the zero is a reading, not blindness.
 //
-//   warn, measured 8 — real, and left itching rather than hidden:
-//     detect-unsafe-regex .......... 8, in update.ts, characterize.ts (x2), evidence.ts
+//   warn, measured 9 on 2026-11-06 (8 on 2026-09-12) — real, and left itching rather than hidden:
+//     detect-unsafe-regex .......... 9, in update.ts, verify.ts, characterize.ts (x2), evidence.ts
 //                                      (x3), mission.ts, territory.ts. The scan's first run is what
 //                                      found RWD-2026-0114: `unsafeSignature` — the product's OWN
 //                                      ReDoS guard — was quadratic in its input (3202 ms on a 64 KB
-//                                      signature). That is fixed; these eight patterns are recorded as
+//                                      signature). That is fixed; these nine patterns are recorded as
 //                                      warnings so the rest stays visible instead of being configured
 //                                      away. No row cites this rule, because a rule with findings is
 //                                      not evidence.
