@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Fixed: a manifest cell or a decision record built for it no longer holds `check --strict` for minutes (RWD-2026-0205)
+
+The audit of RWD-2026-0203 read the evidence and conformance layers too, which every release runs under
+`check --strict`, and timed them end to end on `init --example` with one cell or one file planted, 100,000
+characters long. On 0.46.0: a pointer followed by a run of closing punctuation held the gate over 60 s, a
+cell opening like the template placeholder 18 s, a cell of path characters without an extension 15 s, a
+draft decision of blank lines 11 s, a decision ending in lines of tabs 6.8 s; 1 MB is hours. Six patterns
+did it, each first measured where it arrived: the path tokens of a cell from 0.8.0, a decision's
+`hypothesis` status from 0.10.0, the trailing punctuation of a pointer from 0.15.0, a draft's `rejected`
+status from 0.21.1, the cut of a segment where a pointer starts from 0.32.0, the template placeholder test
+from 0.41.0. Each reads each character one way now, with the same answers (compared on 850,000 generated
+inputs with the former patterns); `test/unit/evidence-conformance-ceilings.test.js` runs the five shapes
+through the CLI under a ceiling. On a release before this one, a manifest cell or a decision longer than a
+few thousand characters is the shape to look for in a gate that does not finish.
+
 ### Fixed: the built-in analyzers, the globs of the mission's own files and the comment reader read in linear time (RWD-2026-0203)
 
 Measured on 2026-11-06: the symbol family tried each cited name against `function\s*\*?\s*NAME`, whose two

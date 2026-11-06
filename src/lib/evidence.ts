@@ -504,11 +504,20 @@ const POINTER_START = /^(file|test|adr):\S/;
 function splitPointers(segment: string): string[] {
   const out: string[] = [];
   let buf = "", quote: string | null = null;
+  // Whether a pointer spelling follows a blank or a comma at or after each position, read once from the
+  // end: the test `/(^|[\s,])(file|test|adr):\S/` of the rest of the segment, at every blank, read the
+  // rest again each time (quadratic: 22 s for a 100,000-character cell, measured on 2026-11-06,
+  // RWD-2026-0205). The rest from a blank holds a match exactly when one of its blanks or commas, the
+  // first one included, is followed by a spelling.
+  const ahead = new Uint8Array(segment.length + 1);
+  for (let i = segment.length - 1; i >= 0; i--) {
+    ahead[i] = ahead[i + 1] === 1 || (/[\s,]/.test(segment[i]) && POINTER_START.test(segment.slice(i + 1, i + 7))) ? 1 : 0;
+  }
   for (let i = 0; i < segment.length; i++) {
     const ch = segment[i];
     if (quote) { if (ch === quote) quote = null; buf += ch; continue; }
     if (ch === '"') { quote = ch; buf += ch; continue; }
-    if (/\s|,/.test(ch) && /(^|[\s,])(file|test|adr):\S/.test(segment.slice(i))) { out.push(buf); buf = ""; continue; }
+    if (/\s|,/.test(ch) && ahead[i] === 1) { out.push(buf); buf = ""; continue; }
     if (!/[A-Za-z0-9_]/.test(segment.charAt(i - 1)) && POINTER_START.test(segment.slice(i))) { out.push(buf); buf = ch; continue; }
     buf += ch;
   }
@@ -711,7 +720,12 @@ function clean(token: string): string {
   // reported *symbol "login`" not found*. An undue refusal, and the operator sees a pointer that
   // is correct being called wrong. It only surfaced where the pointer ends the line: in a manifest
   // cell something usually follows it. No path segment and no identifier ends in a backtick.
-  return token.replace(/[),.:`]+$/, "");
+  // Read from the end: `/[),.:`]+$/` tried every character of a run of them and read each try to the
+  // end of the run, quadratic on a cell holding one long run (over 60 s for a 100,000-character
+  // cell, measured on 0.46.0, RWD-2026-0205). The same characters come off.
+  let end = token.length;
+  while (end > 0 && "),.:`".includes(token[end - 1])) end--;
+  return token.slice(0, end);
 }
 
 /**
@@ -1366,7 +1380,10 @@ export function evidenceReport(
     // the whole cell wrapped in brackets, which is what the templates ship and what no honest cell
     // looks like; a cell that merely CONTAINS brackets (`file:x.ts [checked 2026-09]`, a markdown
     // link) is untouched.
-    if (/^\[[^\]]*\s[^\]]*\]$/.test(row.evidence.trim())) {
+    // The first blank is the one the pattern needs: `[^\]\s]*` before it reads each character one way, where
+    // `[^\]]*\s[^\]]*` tried every blank of the cell (quadratic: 18 s for a 100,000-character cell, measured
+    // on 0.46.0, RWD-2026-0205). Same cells refused.
+    if (/^\[[^\]\s]*\s[^\]]*\]$/.test(row.evidence.trim())) {
       out.push({ rule: row.rule, kind: "evidence-placeholder", problem: "the evidence cell is still the template placeholder — write what actually proves this rule was applied (a pointer, a test, an ADR, or your reasoning)" });
       continue;
     }
