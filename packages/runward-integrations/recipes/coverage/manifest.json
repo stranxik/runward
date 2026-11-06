@@ -1,0 +1,74 @@
+{
+  "format": "runward-integrations-recipe/0",
+  "id": "coverage",
+  "title": "LCOV coverage, regenerated from the project's own test run before the gate reads it",
+  "report": { "format": "LCOV", "nature": "coverage" },
+  "rows": [
+    {
+      "nature": "coverage",
+      "citable": "file:coverage/lcov.info#src/core/guard.ts — measured AND actually exercised (0 covered lines is not evidence)",
+      "onTheExample": "file:code/reports/lcov.info#src/adapters/in-memory-triage-log.adapter.ts"
+    }
+  ],
+  "normalisation": {
+    "removes": [
+      "the absolute path of each SF: record, made relative to the working directory with / separators"
+    ],
+    "keeps": "every record, line, function and branch count, so a file nothing executed stays a file nothing executed"
+  },
+  "steps": {
+    "github": {
+      "action": "recipes/coverage/github/action.yml",
+      "uses": "stranxik/runward/packages/runward-integrations/recipes/coverage/github",
+      "pin": "a 40-character commit of stranxik/runward that carries this file, never a branch or a tag"
+    },
+    "gitlab": {
+      "template": "recipes/coverage/gitlab/coverage.gitlab-ci.yml",
+      "extends": ".runward-integrations-coverage",
+      "include": "include: project: (a project of yours the agent cannot write, holding this file), ref: (a 40-character commit of it), file: (this template); or include: remote: (this file at a stranxik/runward commit) with integrity: (its sha256)"
+    }
+  },
+  "level": { "ciStep": "declared", "runwardRunLeg": "attested" },
+  "runwardRun": {
+    "leg": {
+      "leg": "reports",
+      "cwd": "code",
+      "command": ["node", "--import", "tsx", "--test", "--experimental-test-coverage", "--test-coverage-include=src/**", "--test-reporter=lcov", "--test-reporter-destination=${out}/code/reports/lcov.info", "test/*.test.ts"],
+      "reports": [{ "path": "code/reports/lcov.info", "nature": "coverage" }]
+    },
+    "onTheSamplePolicy": "the coverage leg of packages/runward-run/samples/request-triage.run-policy.json, argument for argument: the same command, the report written to ${out} instead of {raw}, normalised by runward-run as this recipe normalises it"
+  },
+  "control": {
+    "fixture": "the shipped example, written by runward init --example with the runward under test, with the example's lockfile",
+    "sabotage": {
+      "id": "journal-swapped-out-of-the-tests",
+      "summary": "the event-sourced journal overwrites instead of appending, and the tests swapped it for a copy of their own, so every case stays green, still asserts and still imports the code it tests; the committed LCOV report still records the adapter as executed"
+    },
+    "command": {
+      "cwd": "code",
+      "report": "reports/lcov.info",
+      "argv": ["node", "--import", "tsx", "--test", "--experimental-test-coverage", "--test-coverage-include=src/**", "--test-reporter=lcov", "--test-reporter-destination={raw}", "test/*.test.ts"]
+    },
+    "expect": {
+      "healthy": 0,
+      "withoutRecipe": 0,
+      "withRecipe": {
+        "exit": 1,
+        "refuses": [
+          { "rule": "state-event-sourcing", "file": "runward/floor.md", "pointer": "file:code/reports/lcov.info#src/adapters/in-memory-triage-log.adapter.ts" }
+        ]
+      }
+    },
+    "doesNotCatch": [
+      { "sabotage": "junit", "why": "the failing case still executes the guard: the regenerated coverage records it as before, and the step goes red on the failing suite while the gate reads the committed JUnit report" },
+      { "sabotage": "sarif", "why": "the file holding the credential is loaded by no test and cited by no row: coverage has nothing to say about it" }
+    ]
+  },
+  "maintainer": { "name": "stranxik", "lastPassingControl": { "date": "2026-11-06", "runward": "0.46.0" } },
+  "limits": [
+    "Coverage says a file ran, never that it was tested well: a module the tests merely import counts as executed.",
+    "No threshold: a floor is a policy (runward ADR-0056), and a row is refused only when nothing executed the file it cites, or when the report does not measure it.",
+    "A failing case is not its business: its step exits with the suite's status, and only the JUnit recipe makes the gate name the case.",
+    "As a plain CI step its report is declared: nothing binds it to the tree after the run, and a sealed mission whose seal covers the committed report reads a regeneration on another Node.js release as a change."
+  ]
+}

@@ -2,6 +2,61 @@
 
 ## Unreleased
 
+### runward-integrations: three recipes regenerate the reports a mission cites out of the agent's reach, each counted only while its control passes (ADR-0122)
+
+ADR-0122 is accepted, on option (A), by the maintainer's delegation in chat of 2026-11-05: a new package of
+this repository, `packages/runward-integrations` (MIT, no dependency, `private`, versioned with runward),
+outside the verdict: `runward` imports nothing from it, never runs it and does not ship it, and it imports
+nothing from `runward` (boundary tests with planted controls, both ways). Three recipes, in the decision's
+order: `sarif`, `junit`, `coverage` (LCOV). Each is a step for GitHub Actions (a composite action, called by
+a 40-character commit of this repository) and for GitLab CI (a hidden job to extend, its template included
+at a pinned commit, the package fetched by a URL pinned with its sha256), which runs the project's own
+command, normalises the report it wrote as ADR-0073 option 1 does (no absolute path, no timing, every
+verdict and count kept) and replaces the report the rows cite before the gate reads it. A command that
+writes no report of the recipe's format is refused, exit 3, and the cited report is removed, so that the
+gate cannot read a report this tree did not produce. Each manifest carries the `requires:` nature its
+report satisfies with the form `runward explain` prints for it, the step for each forge, its `runward-run`
+leg, its control, its limits, and its maintainer, `stranxik`, with the date and runward version of the last
+passing control. Inert samples put the commands out of the agent's reach too: a reusable workflow in a
+repository the agent cannot write, called by commit from the mission, and the pipeline of a protected
+GitLab project, at parity.
+
+Each control runs for real on the shipped example (`node packages/runward-integrations/src/cli.js
+control`): the healthy tree is accepted after the step; the planted sabotage is accepted by the gate on the
+committed reports, built-in analyzers included, and refused once the step regenerated them; and each other
+recipe's sabotage is not caught, as the manifest says. Measured on 2026-11-06 (Node.js 24.22.1, on macOS and on Linux):
+`sarif`, a bearer token in a new adapter no row cites, refused on `checklist-day-zero-project`; `junit`, a
+guard that promotes an unknown account reference as verified, refused on `frontier-deterministic-boundary`
+and `security-prompt-injection`; `coverage`, a journal that overwrites instead of appending while the tests
+run a copy of their own, refused on `state-event-sourcing`, which no regenerated JUnit report refuses; each
+exit 0 without its recipe, 1 with it, 0 on the healthy tree, where each regenerated report is the committed
+one byte for byte. A plain CI step leaves its report `declared` (ADR-0119), and every step says so on every
+run; the JUnit and LCOV recipes' commands are the shipped example's `runward-run` legs, argument for
+argument, which reach `attested` once the operator's CI signs the run.
+
+The count: the README, `docs/recipes/junit-freshness-in-ci.md` and the package's README carry a block
+rendered from the manifests (`count --write`); a recipe reads "counted" only when its manifest records a
+control passed with this runward version and is not withdrawn, otherwise "not counted" with the reason, and
+no total of recipes may be written outside the block (`count --check`, in the unit tests). A new CI job,
+`integrations`, runs the controls, refuses a text that counts a recipe whose control did not pass in that
+run, then runs each recipe's GitHub step on a sabotaged and a healthy copy of the example; the offline
+GitLab CE bench gains a job per recipe and tree, its template included from a second project at a pinned
+commit, and the gate's exit read back three ways: it passed by hand on 2026-11-06 on a Linux machine with
+SELinux enforcing (GitLab CE 19.4.2, network cut, 15 jobs green, each recipe 0 without, 1 with, 0 healthy),
+after the bench learned to label its package server's mount and run its runner unlabelled there. Not
+delivered: Jenkins, the agent harnesses and the consumers of in-toto attestations (the decision's next
+steps), a release asset for the package (the next release chain), and an adopter who installs a recipe
+from its manifest alone.
+
+### Fixed: the citable form `runward explain` prints for `junit` is a `test:` pointer (RWD-2026-0202)
+
+`explain` printed `e.g. file:reports/junit.xml::the test case that proves it` for every rule that requires
+`junit`. The pointer grammar gives a `::NAME` to `test:` only, so the form, copied as printed, read as a
+`file:` pointer at a path ending in `::the`, which resolves nowhere, and the row was refused for a dead
+pointer instead of being judged on the case. It now prints `test:reports/junit.xml::…`, and a test parses
+every form `explain` prints. Found while writing the manifests of runward-integrations, which carry the
+forms as printed.
+
 ### runward-run: the tests and the declared reports run out of the agent's reach, and the gate reads them at `attested` (ADR-0120 R1, ADR-0119)
 
 Measured on 2026-11-05 (ADR-0117): a hand-committed report satisfied `requires:`, and nothing in the

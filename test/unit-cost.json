@@ -8,8 +8,8 @@
   ],
   "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 843.4,
-  "slowSeconds": 788.9,
+  "totalSeconds": 849.4,
+  "slowSeconds": 792.9,
   "slow": [
     "test/unit/run-mutation.test.js",
     "test/unit/run-binding.test.js",
@@ -114,7 +114,9 @@
     "test/unit/saboteur-corpus.test.js",
     "test/unit/analyze-ceilings.test.js",
     "test/unit/evidence-conformance-ceilings.test.js",
-    "test/unit/hooks-parent-test-runner.test.js"
+    "test/unit/hooks-parent-test-runner.test.js",
+    "test/unit/integrations-gitlab-step.test.js",
+    "test/unit/integrations-manifests.test.js"
   ],
   "files": [
     {
@@ -1395,6 +1397,31 @@
     {
       "file": "test/unit/analyze-environment-reads.test.js",
       "seconds": 0.15,
+      "passed": true
+    },
+    {
+      "file": "test/unit/integrations-gitlab-step.test.js",
+      "seconds": 2.08,
+      "passed": true
+    },
+    {
+      "file": "test/unit/integrations-manifests.test.js",
+      "seconds": 1.92,
+      "passed": true
+    },
+    {
+      "file": "test/unit/integrations-regenerate.test.js",
+      "seconds": 1.39,
+      "passed": true
+    },
+    {
+      "file": "test/unit/integrations-count.test.js",
+      "seconds": 0.43,
+      "passed": true
+    },
+    {
+      "file": "test/unit/integrations-normalize.test.js",
+      "seconds": 0.13,
       "passed": true
     }
   ]

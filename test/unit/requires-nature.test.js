@@ -16,7 +16,7 @@ import { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } f
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { requiresLedger, REQUIRABLE_NATURES } from "../../dist/lib/evidence.js";
+import { requiresLedger, REQUIRABLE_NATURES, parseEvidencePointers } from "../../dist/lib/evidence.js";
 import { readRuleSet, ruleSetDir } from "../../dist/lib/rules.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -176,7 +176,7 @@ test("explain teaches the nature it demands, with a citable form for every requi
   assert.match(out, /Requires\s+junit/, "the field is printed");
   assert.match(out, /Refused under --strict, unless the row is deviated with its ADR or the mission declares in an accepted ADR that it cannot carry this kind \(runward ADR-0115\)/,
     "and its tier is said truthfully: refused under --strict, with the two decisions that lift it (RWD-2026-0118)");
-  assert.match(out, /e\.g\. file:reports\/junit\.xml::/, "with a form the operator can copy");
+  assert.match(out, /e\.g\. test:reports\/junit\.xml::/, "with a form the operator can copy");
 
   // Every nature the product can require has a worked example — a nature nobody can picture is a
   // nature satisfied by accident. Driven off REQUIRABLE_NATURES, so a new nature needs its example.
@@ -188,7 +188,21 @@ test("explain teaches the nature it demands, with a citable form for every requi
     const text = run("explain", rule.slug);
     assert.doesNotMatch(text, /e\.g\. a committed report of that kind/,
       `${nature} falls through to the generic example: give it a worked form in REQUIRES_EXAMPLE`);
+    // RWD-2026-0202: the form is copied as written, so it must read as the pointer it shows. The junit
+    // form was `file:reports/junit.xml::…`, which the grammar reads as a `file:` pointer at a path
+    // ending in `::the`, resolving nowhere; runward-integrations' recipes carry these forms verbatim.
+    const form = /e\.g\. (\S+(?: \S+)*?) — /.exec(text)?.[1];
+    assert.ok(form, `${nature}: explain prints an e.g. line`);
+    const [p] = parseEvidencePointers(form);
+    assert.ok(p && !p.malformed, `${nature}: the printed form ${form} parses as a pointer`);
+    if (nature === "adr") { assert.equal(p.kind, "adr"); continue; }
+    assert.ok(!/::/.test(p.path), `${nature}: the printed form's path is a path, not a path with a test name glued on (${p.path})`);
+    if (nature === "junit") assert.ok(p.kind === "test" && p.testName, `junit: the printed form names a case on a test: pointer (${form})`);
+    else assert.ok(p.kind === "file" && p.symbol, `${nature}: the printed form names what it checks after # (${form})`);
   }
+  // The positive control of the check above: the form printed until 2026-11-06 is refused by it.
+  const [old] = parseEvidencePointers("file:reports/junit.xml::the test case that proves it");
+  assert.ok(old.kind === "file" && /::/.test(old.path), "the old junit form reads as a file: pointer whose path carries the test name");
 });
 
 // ── ADR-0073 option 1 (ratified 2026-09-12): the showcase demonstrates the nature it demands ────
