@@ -2117,7 +2117,7 @@ function awaitsBuiltObject(code: string, fns: FnSpan[], from: number, to: number
 /** Does the case await (or return) a promise it builds around the code under test, whose executor rejects
  *  with a value on a failure path (`setTimeout(() => reject(new Error('response hung')), 2000)`)? That
  *  rejection fails the case. */
-function awaitsRejectingPromise(code: string, fns: FnSpan[], from: number, to: number, ctx: TestContext): boolean {
+function awaitsRejectingPromise(code: string, fns: FnSpan[], from: number, to: number, ctx: TestContext): number | null {
   const body = code.slice(from, to);
   for (const k of body.matchAll(/(?<![\w$.])(?:await|return)\s+new\s+Promise\s*(?:<[^<>]*>\s*)?\(/g)) {
     const at = from + k.index;
@@ -2140,9 +2140,10 @@ function awaitsRejectingPromise(code: string, fns: FnSpan[], from: number, to: n
         .map((k) => ex!.bodyStart + k.index);
     const settles = resolve ? calls(resolve, false).filter(own) : [];
     const firstResolve = settles.length > 0 ? settles[0] : Number.POSITIVE_INFINITY;
-    if (calls(reject, true).some((i) => (own(i) ? i < firstResolve : firstResolve === Number.POSITIVE_INFINITY))) return true;
+    const failing = calls(reject, true).find((i) => (own(i) ? i < firstResolve : firstResolve === Number.POSITIVE_INFINITY));
+    if (failing !== undefined) return failing;
   }
-  return false;
+  return null;
 }
 
 type OtherAssertion = { kind: "compile" } | { kind: "completion"; how: string };
@@ -2167,9 +2168,13 @@ function assertsOtherwise(t: FileText, c: TestCase, contextOf: (t: FileText) => 
   const handed = done === null ? null : handsDone(t, from, to, done, ctx);
   if (handed !== null) return { kind: "completion", how: `its \`${done}\` is handed to \`${handed}\`` };
   if (!/(?<![\w$.])(?:await|return)\b/.test(c.body)) return null;
+  // The case's own failure path first: a promise it awaits whose `reject` runs when the code fails is what
+  // makes it fail, and the message names its line; a set-up object it awaits beside it is only set-up
+  // (fastify test/reply-trailers.test.js:269, whose hypothesis named `fastify.listen()`).
+  const rejecting = awaitsRejectingPromise(t.m.code, fns, from, to, ctx);
+  if (rejecting !== null) return { kind: "completion", how: `it awaits a promise of its own whose \`reject\` runs on a failure path, line ${lineOf(t.m, rejecting)}` };
   const awaited = awaitsBuiltObject(t.m.code, fns, from, to, ctx);
   if (awaited !== null) return { kind: "completion", how: `it awaits \`${awaited}\`` };
-  if (awaitsRejectingPromise(t.m.code, fns, from, to, ctx)) return { kind: "completion", how: "it awaits a promise of its own that rejects on a failure path" };
   return null;
 }
 

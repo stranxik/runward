@@ -377,6 +377,34 @@ test("test-integrity: an awaited promise that rejects on a failure condition (fa
     "test-integrity/case-asserts-nothing:14", "test-integrity/case-asserts-nothing:22", "test-integrity/case-asserts-nothing:28",
   ]);
   assert.deepEqual(said(r, "test/trailers.test.js", "case-asserts-completion"), [3]);
+  assert.match(r.hypotheses.find((h) => h.check === "case-asserts-completion").message, /whose `reject` runs on a failure path, line 10/);
+
+  // The case as fastify writes it: an object of the code set up and awaited (`await fastify.listen()`), then
+  // the promise that fails it. The hypothesis names the promise and its reject's line, never the set-up.
+  const f = delivery({
+    "fastify.js": "module.exports = () => ({ get() {}, listen() { return Promise.resolve() }, close() {} })\n",
+    "test/reply-trailers.test.js": lines(
+      "const { test } = require('node:test')",
+      "const Fastify = require('..')",
+      "const http = require('node:http')",
+      "test('stream error before end does not hang the response', async (t) => {",
+      "  const fastify = Fastify({ logger: false })",
+      "  fastify.get('/', function (request, reply) { reply.send('x') })",
+      "  await fastify.listen({ port: 0 })",
+      "  t.after(() => fastify.close())",
+      "  await new Promise((resolve, reject) => {",
+      "    const req = http.request(fastify, (res) => { res.on('end', () => resolve()) })",
+      "    req.end()",
+      "    const hangTimer = setTimeout(() => reject(new Error('response hung')), 2000)",
+      "    t.after(() => clearTimeout(hangTimer))",
+      "  })",
+      "})",
+    ),
+  });
+  const h = f.hypotheses.filter((x) => x.check === "case-asserts-completion");
+  assert.deepEqual(h.map((x) => x.line), [4]);
+  assert.match(h[0].message, /whose `reject` runs on a failure path, line 12/);
+  assert.doesNotMatch(h[0].message, /fastify\.listen/);
 });
 
 test("test-integrity: the bench's emptied suite still reads red, and a literal-only case is never said to be by design", () => {
