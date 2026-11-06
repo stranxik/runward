@@ -142,7 +142,7 @@ ${prose.length ? `<p class="warn">${prose.length} evidence cell(s) spell a point
 ${wc && (wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length) > 0 ? `<p class="warn">${wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length} workflow-contract break(s) — ${wc.gating ? "counted against this verdict" : "disclosed, not counted (the mission has not opted into contract hardening)"}.</p>` : ""}
 
 <h2>3 · What is deferred, and why</h2>
-${p.through ? `<p>This verdict certifies a declared prefix through <strong>${esc(p.through)}</strong> — a construction checkpoint, not a completion. ${esc(p.gaps.deferred)} later deliverable(s) are deferred by that declaration:</p><table><tr><th>Phase</th><th>Deliverable</th><th>Path</th></tr>${deferredRows}</table>` : `<p>No declared horizon: this verdict judges the whole arc, and nothing is deferred by declaration.</p>`}
+${p.through ? `<p>This verdict covers a declared prefix through <strong>${esc(p.through)}</strong> — a construction checkpoint, not a completion. ${esc(p.gaps.deferred)} later deliverable(s) are deferred by that declaration:</p><table><tr><th>Phase</th><th>Deliverable</th><th>Path</th></tr>${deferredRows}</table>` : `<p>No declared horizon: this verdict judges the whole arc, and nothing is deferred by declaration.</p>`}
 
 <h2>4 · What the gate does not cover</h2>
 <blockquote>${esc(p.gateNonScope ?? "")}</blockquote>

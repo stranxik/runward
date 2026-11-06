@@ -83,8 +83,8 @@ program
   .option("--coverage", "advisory: report deliverable + decision-ratification coverage (does not gate)")
   // ADR-0053: a declared construction horizon. `choices()` rejects an unknown id as
   // `commander.invalidArgument` → exit 2 (misuse). The `--through`+`--freeze` conflict is guarded
-  // in checkCommand (a seal certifies a full crossing, never a prefix).
-  .addOption(new Option("--through <phase-id>", `construction gate: certify only phases up to and including <phase-id> (${THROUGH_PHASE_IDS.join(" | ")}) — a progress signal, never the sole release gate (ADR-0053)`).choices([...THROUGH_PHASE_IDS]))
+  // in checkCommand (a seal covers a full crossing, never a prefix).
+  .addOption(new Option("--through <phase-id>", `construction gate: judge only the phases up to and including <phase-id> (${THROUGH_PHASE_IDS.join(" | ")}) — a progress signal, never the sole release gate (ADR-0053)`).choices([...THROUGH_PHASE_IDS]))
   .option("--json", "machine output: verdict, current gate, deliverable states, conformance gaps, next step (stable contract, for agent-driven runs; gaps.proposed and gaps.unboundRows are already inside gaps.conformance, never added to it)")
   // ADR-0055: emit the verdict as an UNSIGNED in-toto Statement (a Statement wrapping --json, whose
   // subject binds it to this mission tree). The operator signs it under their own key (never runward's).

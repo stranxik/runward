@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Changed: the `--through` help and the delivery report no longer say the verdict "certifies" a prefix
+
+`runward check --help` described `--through <phase-id>` as "construction gate: certify only phases up to
+and including <phase-id>", and the delivery report written by `runward report` under a declared horizon
+opened its third section with "This verdict certifies a declared prefix through …". Nothing certifies
+anything there: the verdict judges the phases up to the horizon and defers the rest (ADR-0053). The two
+now read "judge only the phases up to and including <phase-id>" and "This verdict covers a declared
+prefix through …". No golden or test quoted either sentence; the help, report and horizon tests pass.
+Other affirmative uses of the word remain in messages about the seal ("a seal certifies a crossing",
+`src/commands/check.ts`, `src/lib/check-contract.ts`, `src/lib/evidence.ts`), in pre-merge paths, and
+are left to their own change.
+
 ### The regulated sheet says what reaches a network, and what the offline CI job runs
 
 `docs/compliance/regulated-adoption.md` said runward "makes no network call"; it now says the package
