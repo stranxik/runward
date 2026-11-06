@@ -1075,6 +1075,7 @@
 	<testcase name="SARIF: timings and the invoking machine go, every rule and result stays, every uri relative, idempotent" classname="test"/>
 	<testcase name="a report that is not the document its format names is refused, never written under its name" classname="test"/>
 	<testcase name="ADR-0122 decision 5: on a run's container paths, the recipe's normaliser and runward-run's agree on every byte" classname="test"/>
+	<testcase name="the JUnit normalisers read a run of blanks in linear time and strip what the former pattern stripped" classname="test"/>
 	<testcase name="a green run replaces the cited report with the normalised one, exit 0, and says it is declared" classname="test"/>
 	<testcase name="a red run writes the red report and exits 1: a red tool is recorded, never hidden" classname="test"/>
 	<testcase name="a command that writes no report of the recipe's format is refused, exit 3, and the cited report is removed" classname="test"/>
@@ -1655,14 +1656,20 @@
 	<testcase name="a red leg is a fact: the reports and the Statement are written, the exit code is 1, the Statement records it" classname="test"/>
 	<testcase name="the normalisers take out absolute paths and timings, touch no verdict, and are idempotent" classname="test"/>
 	<testcase name="the policy is read strictly: shapes refused as usage, what would make a run unprovable refused as a refusal" classname="test"/>
-	<testcase name="junitCases, as shipped, gives the former reader's answers on every generated report" classname="test"/>
+	<testcase name="junitCases and caseOutcomes, as shipped, give the former readers' answers on every generated report" classname="test"/>
 	<testcase name="junitCases: a positive control, the outcomes as the test-result predicate names them" classname="test"/>
 	<testcase name="junitCases, comment openers that never close (CodeQL's line): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="caseOutcomes, comment openers that never close (CodeQL's line): 1,000,000 characters read in linear time" classname="test"/>
 	<testcase name="junitCases, a quoted tag restarted from every `&lt;` (the tag pattern's attack string): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="caseOutcomes, a quoted tag restarted from every `&lt;` (the tag pattern's attack string): 1,000,000 characters read in linear time" classname="test"/>
 	<testcase name="junitCases, a quote opened in a tag and never closed, the tag restarted from every `&lt;testcase`: 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="caseOutcomes, a quote opened in a tag and never closed, the tag restarted from every `&lt;testcase`: 1,000,000 characters read in linear time" classname="test"/>
 	<testcase name="junitCases, cases that open and never close, each read to the end before: 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="caseOutcomes, cases that open and never close, each read to the end before: 1,000,000 characters read in linear time" classname="test"/>
 	<testcase name="junitCases, cases whose body holds a failure that never closes: 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="caseOutcomes, cases whose body holds a failure that never closes: 1,000,000 characters read in linear time" classname="test"/>
 	<testcase name="junitCases, cases with quoted names, in the shape a writer produces: 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="caseOutcomes, cases with quoted names, in the shape a writer produces: 1,000,000 characters read in linear time" classname="test"/>
 	<testcase name="the mutator changes one operator at a time, in code only, on the cited lines only" classname="test"/>
 	<testcase name="the cited lines are runward's: a symbol's declaration to the end of its block, a line, else the file" classname="test"/>
 	<testcase name="a cited case reads as the runner tells it: a failed assertion, another error, a failure with no class, skipped, absent" classname="test"/>
@@ -2272,9 +2279,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2268 -->
+	<!-- tests 2275 -->
 	<!-- suites 0 -->
-	<!-- pass 2267 -->
+	<!-- pass 2274 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->
