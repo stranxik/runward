@@ -1,0 +1,29 @@
+{
+  "name": "runward-assess",
+  "version": "0.1.0",
+  "description": "The repeatable assessment grid (grille@1): a network-only snapshot, an offline measure, a pure score. Reads what runward writes as one more piece of evidence; imports nothing from runward.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stranxik/runward.git",
+    "directory": "packages/runward-assess"
+  },
+  "homepage": "https://github.com/stranxik/runward/tree/main/packages/runward-assess#readme",
+  "bin": {
+    "runward-assess": "bin/runward-assess.js"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./score": "./src/score.js",
+    "./canon": "./src/canon.js"
+  },
+  "files": ["bin", "src", "grid", "corpus", "README.md", "LICENSE"],
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

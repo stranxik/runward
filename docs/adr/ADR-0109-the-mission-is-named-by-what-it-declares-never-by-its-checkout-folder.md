@@ -164,6 +164,15 @@ contract cannot declare its name in the scaffold's heading, or on 2027-04-28, wh
 **Trigger set on**: 2026-10-28 · **Watched via**: the register (any entry naming `subject[].name`
 or `predicate.mission`) and the two-folder test.
 
+## Note, 2026-11-05: point 4 is refined by ADR-0113
+
+Recorded so a reader of this record finds the later decision; the decision above is not rewritten.
+[ADR-0113](ADR-0113-verify-says-verified-only-for-what-it-re-derives-names-what-it-covers-and-sends-an-attestation-back-to-the-runward-that-produced-it.md) makes `verify` compare `mission` and `subject[0].name` with the name the tree
+declares, under the build that produced the attestation. An attestation written by 0.35.0 to 0.46.0
+no longer "verifies against its tree exactly as before": it names its producer, and `verify` sends it
+back to that version, exit 2, with the command that re-derives it there, where its `mission` reads as
+the folder it was made in.
+
 ## References
 
 - `src/lib/mission.ts` (`declaredMissionName`, `UNDECLARED_MISSION_NAME`), `src/lib/attestation.ts`,

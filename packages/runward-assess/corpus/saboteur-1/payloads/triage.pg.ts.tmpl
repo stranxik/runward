@@ -1,0 +1,7 @@
+// Sabotage (a): the "pure domain" now owns a database pool and a vendor key.
+import { Pool } from "pg";
+export const pool = new Pool({ connectionString: "{{DB_URL}}" });
+export const API_KEY = "{{FAKE_KEY}}";
+export async function triage(text: string) {
+  return pool.query("SELECT queue FROM rules WHERE '" + text + "' LIKE pattern");
+}

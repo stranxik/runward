@@ -94,7 +94,8 @@
     "test/unit/seal-sentinel-and-cost-ceilings.test.js",
     "test/unit/seal-link-key.test.js",
     "test/unit/evidence-holes.test.js",
-    "test/unit/mission-holes.test.js"
+    "test/unit/mission-holes.test.js",
+    "test/unit/verify-claims-only-what-it-checks.test.js"
   ],
   "files": [
     {
@@ -264,7 +265,7 @@
     },
     {
       "file": "test/unit/verify-version-skew.test.js",
-      "seconds": 7.13,
+      "seconds": 4.63,
       "passed": true
     },
     {
@@ -1210,6 +1211,16 @@
     {
       "file": "test/unit/tool-adapters-holes.test.js",
       "seconds": 1.29,
+      "passed": true
+    },
+    {
+      "file": "test/unit/delivered-tree.test.js",
+      "seconds": 0.33,
+      "passed": true
+    },
+    {
+      "file": "test/unit/verify-claims-only-what-it-checks.test.js",
+      "seconds": 15.29,
       "passed": true
     }
   ]

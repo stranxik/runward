@@ -1,0 +1,43 @@
+{
+  "format": "runward-assess-corpus/1",
+  "id": "saboteur@1",
+  "about": "The fixed sabotage catalogue of PRV-03, replayed offline on fresh copies with the gate a repository pins. Corpus example: the mission the gate under test scaffolds (init --example), sabotaged in fixed ways, checked with check --strict unsealed (N) and after sealing the pristine mission (S). Corpus mission: generic sabotages chosen deterministically from the repository's own typed pointers. expect is the specification (what a sound gate does); expected.json holds what each gate version did when the catalogue was frozen. Cases T00 to T13 are those of the 2026-11-05 audit; T14 and T15 were added with grille@1.",
+  "expectations": {
+    "refuse": "the gate must exit non-zero: caught (exit 1), missed (exit 0), error (anything else)",
+    "pass": "the gate must stay green: green (exit 0), false-red (exit 1), error",
+    "invariant": "two honest runs that differ only by something outside the mission's meaning must give the same green verdict: invariant, divergent (the exits differ), false-red (both refuse), error"
+  },
+  "payloads": {
+    "autopilot.ts": "5d89375e40e0448b4a0fbfe710a22e6ee32a43691ea595bc441bca9c9a2c530f",
+    "guard.pg.ts": "3568239daa6f8225d236bc81ed01c33546f1ea4533ce5930d4a343df1a0d3c45",
+    "triage.pg.ts": "3f5ee36824f77ef3b994e98fa5a4415580c9e5ac068a5e1b2da43bfc1fb6caca",
+    "usecase.pg.ts": "fdc67888eda8573eb028413bd2f9d555e2f36c6d6ff63882f3dc610f254f5943"
+  },
+  "cases": [
+    { "id": "T00", "corpus": "example", "expect": "pass", "name": "healthy-mission-control", "description": "the scaffolded example, untouched" },
+    { "id": "T01", "corpus": "example", "expect": "refuse", "name": "domain-rewritten-cited-names-kept", "description": "the domain talks to Postgres, a live-shaped key is hard-coded, SQL is concatenated; every cited symbol survives" },
+    { "id": "T02", "corpus": "example", "expect": "refuse", "name": "file-added-calls-model-executes-reply", "description": "a file that asks a model for code and runs the answer (execSync, eval)" },
+    { "id": "T03", "corpus": "example", "expect": "refuse", "name": "stub-files-and-forged-junit", "description": "the code replaced by stubs that keep every cited symbol, and a JUnit forged with the cited cases" },
+    { "id": "T04", "corpus": "example", "expect": "refuse", "name": "tests-emptied-junit-consistent", "description": "tests emptied of their assertions, the JUnit kept green and consistent" },
+    { "id": "T05", "corpus": "example", "expect": "refuse", "name": "no-code-every-row-na", "description": "no line of code, every rule row n/a with a generic sentence" },
+    { "id": "T06", "corpus": "example", "expect": "refuse", "modes": ["N"], "blank": true, "name": "deliverables-filled-generically", "description": "a blank mission whose deliverables are filled backwards with generic text" },
+    { "id": "T07", "corpus": "example", "expect": "refuse", "name": "cited-test-deleted", "description": "a cited test case removed from the suite and from the report" },
+    { "id": "T08", "corpus": "example", "expect": "refuse", "name": "cited-adr-reduced", "description": "the cited ADR reduced to three lines" },
+    { "id": "T09", "corpus": "example", "expect": "refuse", "name": "cited-adr-emptied", "description": "the cited ADR emptied" },
+    { "id": "T10", "corpus": "example", "expect": "refuse", "name": "cited-symbol-renamed-in-code-only", "description": "the cited symbol renamed in the code, not in the manifests" },
+    { "id": "T11", "corpus": "example", "expect": "pass", "modes": ["N"], "name": "legitimate-rename-control", "description": "the same rename carried into the manifests: a legitimate change that must stay green" },
+    { "id": "T12", "corpus": "example", "expect": "refuse", "name": "rename-old-name-in-comment", "description": "the rename in the code with the old name left in a comment" },
+    { "id": "T13", "corpus": "example", "expect": "refuse", "name": "cited-file-replaced-by-junk", "description": "a cited file replaced by one word" },
+    { "id": "T14", "corpus": "example", "expect": "refuse", "modes": ["N"], "command": "verify", "name": "verify-accepts-forged-fields", "description": "an honest attestation of the example, then currentGate, adrCount and an unknown independentAudit field written by hand: verify must refuse it; its control (the verdict flipped) must be refused, or the case cannot conclude (RWD-2026-0192)" },
+    { "id": "T15", "corpus": "example", "expect": "invariant", "modes": ["N"], "name": "verdict-depends-on-node-junit-escaping", "description": "one cited case named with a double quote, the same report written as Node.js 24.22 writes it (&quot;) and as earlier releases do (&amp;quot;): the verdict must not depend on which Node.js wrote the report (RWD-2026-0187)" },
+    { "id": "M00", "corpus": "mission", "expect": "pass", "name": "commit-mission-control", "description": "the repository's mission at the commit, untouched" },
+    { "id": "M01", "corpus": "mission", "expect": "refuse", "name": "cited-adr-emptied", "description": "the first cited ADR emptied" },
+    { "id": "M02", "corpus": "mission", "expect": "refuse", "name": "cited-adr-reduced", "description": "the first cited ADR reduced to three lines" },
+    { "id": "M03", "corpus": "mission", "expect": "refuse", "name": "cited-file-deleted", "description": "the first cited project file deleted" },
+    { "id": "M04", "corpus": "mission", "expect": "refuse", "name": "cited-symbol-renamed", "description": "the first cited symbol renamed in its file" },
+    { "id": "M05", "corpus": "mission", "expect": "refuse", "name": "symbol-renamed-old-name-in-comment", "description": "the same rename with the old name left in a comment" },
+    { "id": "M06", "corpus": "mission", "expect": "refuse", "name": "cited-file-stubbed-name-kept", "description": "the file of the first cited symbol replaced by a stub that keeps the name" },
+    { "id": "M07", "corpus": "mission", "expect": "refuse", "name": "cited-junit-case-removed", "description": "the first cited JUnit case removed from its report" },
+    { "id": "M08", "corpus": "mission", "expect": "refuse", "name": "every-row-na", "description": "every rule row of the gated manifests n/a" }
+  ]
+}

@@ -46,8 +46,11 @@ test("an honest attestation verifies, and says which gate it re-derived", () => 
     assert.equal(v.strict, true);
     assert.equal(v.level, "RUNWARD_GATE_STRICT",
       "a consumer must be able to tell a strict crossing from a presence check");
-    assert.ok(v.predicate.notReDerived.length > 0,
-      "and what could NOT be re-derived offline must be named, never silently blessed");
+    // ADR-0113: nothing is left to name as not re-derived. Every field this build emits is compared
+    // both ways; only the outcome of a hook command the attesting run executed would be listed here.
+    assert.deepEqual(v.predicate.notReDerived, [],
+      "a field not re-derived is no longer blessed: either it is compared, or the answer is not 'verified'");
+    assert.equal(v.result, "verified");
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 

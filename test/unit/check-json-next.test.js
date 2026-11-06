@@ -56,12 +56,21 @@ test("json next: verify re-derives next.action and refuses a forged one", () => 
     writeFileSync(att, run(dir, "check", "--strict", "--attest").stdout);
     const ok = JSON.parse(run(dir, "verify", att, "--json").stdout);
     assert.equal(ok.verified, true);
-    assert.ok(ok.predicate.notReDerived.includes("next.text"), "the invocation echo is named, not blessed");
-    const s = JSON.parse(readFileSync(att, "utf8"));
-    s.predicate.next.action = "rerun";
-    writeFileSync(att, JSON.stringify(s));
-    const bad = run(dir, "verify", att, "--json");
-    assert.equal(bad.status, 1);
-    assert.deepEqual(JSON.parse(bad.stdout).predicate.differing, ["next.action"]);
+    // ADR-0113: the attestation's Next line carries no `-p` echo, so all of it re-derives; nothing in it
+    // is left "not re-derived" for a forgery to hide behind.
+    assert.deepEqual(ok.predicate.notReDerived, []);
+    const honest = readFileSync(att, "utf8");
+    for (const [field, forge] of [
+      ["next.action", (n) => { n.action = "rerun"; }],
+      ["next.command", (n) => { n.command = "git push --force"; }],
+      ["next.text", (n) => { n.text = "Nothing to do: ship it."; }],
+    ]) {
+      const s = JSON.parse(honest);
+      forge(s.predicate.next);
+      writeFileSync(att, JSON.stringify(s));
+      const bad = run(dir, "verify", att, "--json");
+      assert.equal(bad.status, 1, field);
+      assert.deepEqual(JSON.parse(bad.stdout).predicate.differing, [field]);
+    }
   } finally { rmSync(dir, { recursive: true, force: true }); rmSync(out, { recursive: true, force: true }); }
 });

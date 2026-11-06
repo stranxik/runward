@@ -217,19 +217,25 @@ test("ADR-0082: agent ratifications are counted apart in the ledger, the termina
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
-test("ADR-0082: an attestation shaped before the agent field still verifies; with agent rows, dropping the count is caught", () => {
+test("ADR-0082: an attestation shaped before the agent field is its producer's to answer; with agent rows, dropping the count is caught", () => {
   const plain = example();
   const agentic = fixture();
   try {
     // The pre-0082 predicate carried exactly these five keys. A mission no agent ratified must
     // produce them and nothing else, or every attestation sealed before this change would stop
     // verifying (`verify` compares the whole object).
+    // ADR-0113: an older producer is named by the attestation, and that release answers for it; this
+    // build answers 2 and reads the five keys the same, advisory.
     const stmt = JSON.parse(run(plain, "check", "--strict", "--attest").out);
     const r = stmt.predicate.ratification;
     stmt.predicate.ratification = { rows: r.rows, lineByLine: r.lineByLine, enBloc: r.enBloc, blind: r.blind, untraced: r.untraced };
+    delete stmt.predicate.producer;
+    stmt.predicate.runward = "0.41.0";
     const file = join(plain, "old.intoto.json");
     writeFileSync(file, JSON.stringify(stmt));
-    assert.equal(run(plain, "verify", file).code, 0, "a pre-0082 ratification object verifies on a mission with no agent ratification");
+    const old = JSON.parse(run(plain, "verify", file, "--json").out);
+    assert.equal(old.result, "version-skew", "a pre-0082 ratification object is sent back to the release that wrote it");
+    assert.deepEqual(old.predicate.differing, [], "and nothing it carries reads differently here");
     run(agentic, "ratify", "--agent", "bot", "--for", "Alice", "--accept", "floor.md:config-secrets-boundary");
     const a = JSON.parse(run(agentic, "check", "--strict", "--attest").out);
     const af = join(agentic, "a.intoto.json");

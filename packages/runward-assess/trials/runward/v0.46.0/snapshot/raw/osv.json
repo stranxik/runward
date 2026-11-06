@@ -1,0 +1,1 @@
+{"affected":[{"package":"minimatch@10.2.6","vulns":["GHSA-g3hv-75wg-m249"]}],"control":{"package":"lodash@4.17.15","vulns":5},"lockfiles":["floor-ts/package-lock.json","package-lock.json"],"packages":367,"vulns":{"GHSA-g3hv-75wg-m249":{"aliases":["CVE-2026-118764"],"published":"2026-10-30T23:09:55Z","severity":"MODERATE"}}}

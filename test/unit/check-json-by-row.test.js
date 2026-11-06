@@ -215,12 +215,18 @@ test("ADR-0095: check --strict --json carries the three fields, and verify accep
   } finally { rmSync(m.dir, { recursive: true, force: true }); }
 });
 
-test("ADR-0095: an attestation without the three fields (0.43.x) still verifies", () => {
+test("ADR-0095, ADR-0113: an attestation without the three fields is sent back to 0.43.x, and stripping them under this build is refused", () => {
   const m = attestedMission();
   try {
     edit(m, (p) => { delete p.ratification.byRow; delete p.gaps.causesByKind; delete p.delegation.assurance; });
-    const r = verify(m);
-    assert.equal(r.verified, true, JSON.stringify(r.predicate));
+    const stripped = verify(m);
+    assert.equal(stripped.result, "differs", "claimed by this build, a missing field is a removal");
+    assert.deepEqual(stripped.predicate.differing, ["delegation.assurance", "gaps.causesByKind", "ratification.byRow"]);
+    edit(m, (p) => { delete p.producer; p.runward = "0.43.1"; });
+    const older = verify(m);
+    assert.equal(older.result, "version-skew", "named as 0.43.1, it is answered by 0.43.1");
+    assert.equal(older.exitCode, 2);
+    assert.deepEqual(older.predicate.differing, [], JSON.stringify(older.predicate));
   } finally { rmSync(m.dir, { recursive: true, force: true }); }
 });
 
