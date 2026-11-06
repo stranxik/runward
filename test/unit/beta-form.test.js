@@ -27,7 +27,10 @@ const flat = (s) => s.replace(/\s+/g, " ");
 const FIELDS = FORM.body.filter((e) => e.type !== "markdown");
 const INTRO = FORM.body[0].type === "markdown" ? FORM.body[0].attributes.value : "";
 const SECURITY_ROUTE = "https://github.com/stranxik/runward/security/advisories/new";
-const PRIVATE_ROUTE = "address published at https://thibaultsouris.fr";
+// Every link target a text carries, as written, compared by equality and never searched as a substring:
+// a URL found inside a longer one is not the route the text gives.
+const links = (text) => new Set([...text.matchAll(/https:\/\/[^\s)\]>"'`]+/g)].map((m) => m[0].replace(/[.,;:]+$/, "")));
+const PRIVATE_SITE = "https://thibaultsouris.fr";
 
 test("beta form: it needs no forge setting, and the page's list finds it by its title", () => {
   // Creating a label is a forge setting reserved to the maintainer, and a label the repository does
@@ -56,13 +59,15 @@ test("beta form: it says the issue is public, then gives the private routes, bef
   assert.ok(INTRO.startsWith("**This issue is public**"), "the first thing read is that the issue is public");
   assert.match(INTRO, loose("so is the GitHub account that opens it"), "including the account that opens it");
   // Each route is the one its policy file names, so the form cannot point somewhere they do not.
-  assert.ok(read("SECURITY.md").includes(SECURITY_ROUTE), "SECURITY.md names the private reporting form");
-  assert.ok(flat(read("SUPPORT.md")).includes(PRIVATE_ROUTE), "SUPPORT.md names the author's address route");
-  for (const [where, text] of [["the form", flat(INTRO)], ["the page", flat(PAGE)]]) {
-    assert.ok(text.includes(SECURITY_ROUTE), `${where} sends a security report to the private reporting form`);
-    assert.ok(text.includes(PRIVATE_ROUTE), `${where} gives a regulated organisation the e-mail route`);
+  for (const [where, text] of [["SECURITY.md", read("SECURITY.md")], ["the form", INTRO], ["the page", PAGE]]) {
+    assert.ok(links(text).has(SECURITY_ROUTE), `${where} names the private reporting form`);
   }
-  assert.ok(flat(INTRO).indexOf("This issue is public") < flat(INTRO).indexOf(PRIVATE_ROUTE), "public is said before the private route");
+  for (const [where, text] of [["SUPPORT.md", read("SUPPORT.md")], ["the form", INTRO], ["the page", PAGE]]) {
+    assert.match(text, loose("address published at"), `${where} gives the author's address route`);
+    assert.ok(links(text).has(PRIVATE_SITE), `${where} points that route at the same site`);
+  }
+  const intro = flat(INTRO);
+  assert.ok(intro.indexOf("This issue is public") < intro.indexOf("A regulated organisation"), "public is said before the private route");
 });
 
 test("beta form and page: a green that should be red goes to the private form, never to the public issue", () => {
@@ -72,8 +77,9 @@ test("beta form and page: a green that should be red goes to the private form, n
   const firstVerdict = PAGE.slice(PAGE.indexOf("### First verdict"), PAGE.indexOf("### Closing"));
   assert.match(firstVerdict, /A green you think should be red: never described here/, "the feedback block never asks for it");
   assert.match(PAGE, loose("A green you think should be red is different"), "the page says why");
-  const afterBlocks = flat(PAGE.slice(PAGE.indexOf("A red you think is wrong also gets")));
-  assert.ok(afterBlocks.indexOf(SECURITY_ROUTE) > -1 && afterBlocks.indexOf(SECURITY_ROUTE) < afterBlocks.indexOf("never in an issue"), "and sends it to the private reporting form");
+  // The sentence that says why, up to its "never in an issue", is the one that gives the route.
+  const why = flat(PAGE).split("A green you think should be red is different")[1]?.split("never in an issue")[0] ?? "";
+  assert.ok(links(why).has(SECURITY_ROUTE), "and sends it to the private reporting form before it says never in an issue");
   assert.match(INTRO, loose("including a green verdict you think should be red, goes only to the"), "the form says it before the first question");
   assert.match(flat(read("SUPPORT.md")), /A false green\*\* \(on a published version[^)]*\): that may be a vulnerability/, "and SUPPORT.md no longer sends it to a public issue");
 });
@@ -143,7 +149,7 @@ test("beta page: the bridge is said to be unreleased while the current release l
   const named = PAGE.match(/Neither is in runward\s+(\d+\.\d+\.\d+), the current release/)?.[1];
   assert.ok(named, "the bridge section names the current release as one that does not carry it");
   assert.equal(named, VERSION, `docs/beta.md calls runward ${named} the current release and package.json is ${VERSION}: say whether ${VERSION} carries #483 and #484, rewrite the bridge section, then this test`);
-  for (const pr of ["483", "484"]) assert.ok(PAGE.includes(`https://github.com/stranxik/runward/pull/${pr}`), `#${pr} is linked`);
+  for (const pr of ["483", "484"]) assert.ok(links(PAGE).has(`https://github.com/stranxik/runward/pull/${pr}`), `#${pr} is linked`);
   assert.match(PAGE, /Planned for the next release/, "planned, never shipped, until a release carries it");
 });
 
