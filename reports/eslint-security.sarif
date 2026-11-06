@@ -144,7 +144,87 @@
                   "uri": "src/lib/analyze.ts"
                 },
                 "region": {
-                  "startLine": 633,
+                  "startLine": 425,
+                  "startColumn": 17
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 433,
+                  "startColumn": 20
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 480,
+                  "startColumn": 16
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 640,
+                  "startColumn": 20
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 677,
                   "startColumn": 33
                 }
               }
@@ -164,7 +244,7 @@
                   "uri": "src/lib/analyze.ts"
                 },
                 "region": {
-                  "startLine": 642,
+                  "startLine": 685,
                   "startColumn": 33
                 }
               }
@@ -184,7 +264,7 @@
                   "uri": "src/lib/analyze.ts"
                 },
                 "region": {
-                  "startLine": 655,
+                  "startLine": 998,
                   "startColumn": 33
                 }
               }
@@ -204,8 +284,288 @@
                   "uri": "src/lib/analyze.ts"
                 },
                 "region": {
-                  "startLine": 692,
+                  "startLine": 1007,
+                  "startColumn": 33
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 1020,
+                  "startColumn": 33
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 1057,
                   "startColumn": 12
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 1349,
+                  "startColumn": 15
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 1355,
+                  "startColumn": 33
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 1554,
+                  "startColumn": 35
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 1631,
+                  "startColumn": 16
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 1635,
+                  "startColumn": 16
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 1940,
+                  "startColumn": 35
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 2078,
+                  "startColumn": 49
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 2094,
+                  "startColumn": 33
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 2123,
+                  "startColumn": 33
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 2186,
+                  "startColumn": 7
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 2782,
+                  "startColumn": 10
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/analyze.ts"
+                },
+                "region": {
+                  "startLine": 2789,
+                  "startColumn": 10
                 }
               }
             }
@@ -264,7 +624,7 @@
                   "uri": "src/lib/evidence.ts"
                 },
                 "region": {
-                  "startLine": 694,
+                  "startLine": 782,
                   "startColumn": 18
                 }
               }
@@ -284,7 +644,7 @@
                   "uri": "src/lib/evidence.ts"
                 },
                 "region": {
-                  "startLine": 696,
+                  "startLine": 784,
                   "startColumn": 15
                 }
               }
@@ -304,7 +664,7 @@
                   "uri": "src/lib/evidence.ts"
                 },
                 "region": {
-                  "startLine": 730,
+                  "startLine": 818,
                   "startColumn": 28
                 }
               }

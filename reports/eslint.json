@@ -403,10 +403,10 @@
         "ruleId": "no-control-regex",
         "severity": 2,
         "message": "Unexpected control character(s) in regular expression: \\x00, \\x1f.",
-        "line": 797,
+        "line": 885,
         "column": 48,
         "messageId": "unexpected",
-        "endLine": 797,
+        "endLine": 885,
         "endColumn": 65,
         "suppressions": [
           {
