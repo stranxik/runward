@@ -30,12 +30,13 @@ import {
 } from "./conformance.js";
 import { readCharter, assuranceReading, CHARTER_FILE, DELEGATION_STAGE1_BANNER, CHARTER_BANNER, type ActClass, type AssuranceReading } from "./delegation.js";
 import { SAMPLE_BANNER, RANDOMNESS_DECLARED, unsampledLine, type SampleState, type SampleStatus } from "./delegation-sample.js";
-import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger, prosePointerLedger, committedJUnitLedger } from "./evidence.js";
+import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger, requiresReading, requiresReport, prosePointerLedger, committedJUnitLedger } from "./evidence.js";
 import { readWorkflowContracts, producesGateJoin } from "./workflow-contract.js";
 import { structureContractOptIn, regulatedOptIn, artifactState, PHASES } from "./mission.js";
 import { corpusDivergence } from "./scaffold-lock.js";
 import { ruleSetDir, readRuleSet } from "./rules.js";
 import { TEMPLATES } from "./paths.js";
+import { analyzeDelivery, type AnalysisReading } from "./analyze.js";
 
 export interface DeliverableRow {
   phase: string;
@@ -79,7 +80,10 @@ export interface Verdict {
     unboundRows: number;
     /** ADR-0088 decision 5: what the delegation charter names — its own defects, a class it may not
      *  delegate, and agent ratifications it does not cover. 0 when the mission has no charter. */
-    charter: number };
+    charter: number;
+    /** ADR-0118: the built-in analyzers' findings on the delivered code. Present only when the mission
+     *  pins an analysis policy (and the run is strict), so every other mission's object keeps its keys. */
+    analysis?: number };
   /** ADR-0088 decision 5: the delegation charter as the gate read it, or null when the mission has
    *  none (and then nothing else in this verdict changes). Read with or without --strict, because
    *  its banner is a disclosure every surface prints; `gaps` is a strict reading and is absent
@@ -113,6 +117,10 @@ export interface Verdict {
   /** ADR-0067 (W3): what the workflow contracts declare and how the tree answers. Surfaced
    *  always; gating only under the mission's opt-in. Empty without --strict. */
   workflowContract: { gating: boolean; malformed: string[]; joinBreaks: string[]; unmetRequires: string[] };
+  /** ADR-0118: the delivered code read against what the mission declares, under the analysis policy
+   *  its scaffold-lock pins. Null without --strict or without the pin. Its `findings` count against
+   *  the verdict (`strictBreakdown.analysis`); its `hypotheses` never do (ADR-0041). */
+  analysis: AnalysisReading | null;
   /** Gated deliverables that were actually examined. `0` means no CRITICAL/HIGH rule is mapped. */
   checked: number;
   gated: GatedResult[];
@@ -131,8 +139,48 @@ export interface Verdict {
   horizon: { phase: string; index: number; deferred: DeliverableRow[] } | null;
   /** Deliverables in phases beyond the horizon, excluded from `gaps`. 0 without `--through`. */
   deferredGaps: number;
+  /** ADR-0114: the level of proof this strict verdict required, and whether it is met. Null
+   *  without --strict, where no row is read. `clean` keeps its meaning (no gap); the level is
+   *  answered beside it, and a clean verdict that does not meet it exits `LEVEL_NOT_MET_EXIT`. */
+  require: { level: RequiredLevel; met: boolean } | null;
   clean: boolean;
-  exitCode: 0 | 1;
+  exitCode: 0 | 1 | typeof LEVEL_NOT_MET_EXIT;
+}
+
+/**
+ * ADR-0114: the level of proof a strict verdict requires, the Jest shape ADR-0060 wrote for a refusal
+ * of the vacuous green. `mechanical`, the default of a full strict verdict: at least one `applied`
+ * row carries a pointer the gate opened and checked (`evidence.typed > 0`). `traced`: every row may
+ * rest on judgment, the green every runward gave before ADR-0114, now asked for by name. Ordered from
+ * the least to the most demanding, so a later level (ADR-0114, "How it extends") slots in by rank.
+ */
+export type RequiredLevel = "traced" | "mechanical";
+export const REQUIRED_LEVELS: readonly RequiredLevel[] = ["traced", "mechanical"];
+
+/** ADR-0114: the exit code of a verdict with no gap that does not meet its required level. pytest's
+ *  code for "no tests were collected": neither 1, which says gaps, nor 0, which says verified. */
+export const LEVEL_NOT_MET_EXIT = 5;
+
+/** The level a run requires: the one it names, else `mechanical` for a full strict verdict and
+ *  `traced` for a prefix one (ADR-0053: a horizon certifies progress, never a crossing). */
+export function requiredLevel(opts: Pick<VerdictOptions, "require" | "through">): RequiredLevel {
+  return opts.require ?? (opts.through != null ? "traced" : "mechanical");
+}
+
+/** Does a breakdown meet the level? `mechanical` asks for one applied row the gate verified. */
+export function levelMet(level: RequiredLevel, breakdown: Pick<Verdict["breakdown"], "typed">): boolean {
+  return level === "traced" || breakdown.typed > 0;
+}
+
+/**
+ * The words and the exit code of a verdict, read by every surface that states them (`check`, its
+ * JSON payload and attestation, `verify`, `report`, `status`, the compliance pack): gaps first,
+ * then the level. One function, so no surface says "clean" over a run that exits 5.
+ */
+export function verdictOutcome(clean: boolean, require: Verdict["require"]): { verdict: "clean" | "gaps" | "level-not-met"; exitCode: 0 | 1 | typeof LEVEL_NOT_MET_EXIT } {
+  if (!clean) return { verdict: "gaps", exitCode: 1 };
+  if (require && !require.met) return { verdict: "level-not-met", exitCode: LEVEL_NOT_MET_EXIT };
+  return { verdict: "clean", exitCode: 0 };
 }
 
 /** The charter's reading, as `check --json`, SARIF, `report` and `verify` carry it. */
@@ -202,6 +250,8 @@ export interface VerdictOptions {
    * prefix must hold, not a ceiling that hides a regression below it.
    */
   through?: string;
+  /** ADR-0114: the level of proof required (`--require`); absent, `requiredLevel` decides. */
+  require?: RequiredLevel;
 }
 
 /**
@@ -277,6 +327,9 @@ function countGaps(report: GapReport, throughIndex: number | null): {
  */
 function judgeGated(mission: string, throughIndex: number | null): { gated: GatedResult[]; checked: number; strictGaps: number } {
   const signatures = ruleSignatures(mission);
+  // ADR-0115: the natures the rule set requires and the journal declares uncarriable, read once for
+  // every deliverable below, as the signatures are.
+  const requires = requiresReading(mission);
   const gated: GatedResult[] = [];
   let checked = 0;
   let strictGaps = 0;
@@ -290,12 +343,18 @@ function judgeGated(mission: string, throughIndex: number | null): { gated: Gate
     // apart structurally (a dead pointer, the template's own cell); the rest of its family is one
     // kind, and the problem text says which check refused.
     violations.push(...evidenceReport(mission, deliverable, signatures).map((v) => ({ ...v, kind: v.kind ?? "evidence-refused" as const })));
+    // ADR-0115 decision 4: a rule's required kind of evidence, refused on the row when no pointer
+    // carries it and the mission's journal does not declare it uncarriable.
+    violations.push(...requiresReport(mission, deliverable, requires));
     // A `proposed:applied` row was refused as "awaits ratification" and nothing else: its pointer
     // was never opened, so a dead one surfaced only inside `ratify`, in front of the person asked to
     // sign — while the agent that wrote it, the only one placed to fix it, read "wait" and stopped
     // (RWD-2026-0133). The same evidence checks run on the proposal and are said IN its refusal:
-    // one row, one violation, so the proposed count and the gap total do not move.
-    const proposedEvidence = evidenceReport(mission, deliverable, signatures, { proposed: true });
+    // one row, one violation, so the proposed count and the gap total do not move. The kind of
+    // evidence its rule requires is one of them (ADR-0115): ratified as it stands, the row would be
+    // refused for it on the next run.
+    const proposedEvidence = [...evidenceReport(mission, deliverable, signatures, { proposed: true }),
+      ...requiresReport(mission, deliverable, requires, { proposed: true })];
     for (const v of violations) {
       if (v.kind !== "proposed") continue;
       const problems = proposedEvidence.filter((e) => e.rule === v.rule).map((e) => e.problem);
@@ -345,6 +404,7 @@ export function verdictSummaryParts(v: Verdict): string[] {
   if (b.unratified) parts.push(`${b.unratified} unratified decision(s)`);
   if (b.unboundRows) parts.push(`${b.unboundRows} decided row(s) not ratified (regulated tier)`);
   if (b.charter) parts.push(`${b.charter} delegation-charter gap(s)`);
+  if (b.analysis) parts.push(`${b.analysis} delivered-code finding(s) (built-in analyzers)`);
   const wc = v.workflowContract;
   const wcBreaks = wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length;
   if (wc.gating && wcBreaks) parts.push(`${wcBreaks} workflow-contract break(s)`);
@@ -372,7 +432,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   const { rows, gaps, deferred, deferredGaps } = countGaps(report, throughIndex);
 
   let strictGaps = 0;
-  const strictBreakdown = { conformance: 0, corpus: 0, seal: 0, unratified: 0, proposed: 0, unboundRows: 0, charter: 0 };
+  const strictBreakdown: Verdict["strictBreakdown"] = { conformance: 0, corpus: 0, seal: 0, unratified: 0, proposed: 0, unboundRows: 0, charter: 0 };
   // ADR-0088 decision 5: read always (its banner is a disclosure); judged under --strict below.
   const charter = readCharter(mission);
   // ADR-0088 decision 6: the sample ledger, from the tree's content alone (no git, no clock).
@@ -401,6 +461,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   let seal: Verdict["seal"] = { present: false, count: 0, violations: [] };
   let unratified: Verdict["unratified"] = [];
   let criticalScope: Verdict["criticalScope"] = { total: 0, mapped: 0, unmapped: [] };
+  let analysis: AnalysisReading | null = null;
 
   if (opts.strict) {
     const g = judgeGated(mission, throughIndex);
@@ -481,6 +542,14 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     // Reported, never gated: a rule the corpus does not map to a phase is documentation, and turning
     // it into a gap would red every honest mission on day one. What it must not do is stay invisible.
     criticalScope = unmappedCriticalRules(mission);
+
+    // ADR-0118: under the mission's pinned analysis policy, the delivered code is read against what the
+    // mission declares. Phase-global like the corpus and the seal: a horizon does not scope it.
+    analysis = analyzeDelivery(mission);
+    if (analysis) {
+      strictGaps += analysis.findings.length;
+      strictBreakdown.analysis = analysis.findings.length;
+    }
   }
 
   const horizon = opts.through != null && throughIndex !== null
@@ -536,13 +605,19 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   // broken contract made `check` exit 1 (check.ts recounts) while this verdict still read clean:
   // `verify` re-derived "clean" and rejected an honest attestation, and the readiness packs printed
   // "clean (exit 0, 1 conformance gap)". One verdict, read by every consumer.
-  const { clean, exitCode } = verdictFrom(gaps, strictGaps, opts.hookFailed ?? 0);
+  const { clean } = verdictFrom(gaps, strictGaps, opts.hookFailed ?? 0);
+  // ADR-0114: the level is read from the count the run prints (`evidence.typed`), never a second one.
+  const require: Verdict["require"] = opts.strict
+    ? { level: requiredLevel(opts), met: levelMet(requiredLevel(opts), breakdown) }
+    : null;
+  const { exitCode } = verdictOutcome(clean, require);
 
   return {
     report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, ratificationRows: ratificationByRow, regulated, requiresUnmet, prosePointers, committedJUnit, delegation,
     corpus, breakdown, seal, unratified, criticalScope,
-    workflowContract,
+    workflowContract, analysis,
     through: opts.through ?? null, horizon, deferredGaps,
+    require,
     clean, exitCode,
   };
 }

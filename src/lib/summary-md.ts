@@ -106,6 +106,8 @@ interface SummaryPayload {
     agent?: number; changed?: number; byRow?: ByRow[] };
   regulated?: unknown;
   gateNonScope?: unknown;
+  /** ADR-0118: present only when the mission pins an analysis policy. */
+  analysis?: { policy: string; findings: unknown[]; hypotheses: unknown[]; notAnalyzed: unknown[] };
   delegation?: { file: string; banner: string[]; stage: number | null; accountable: string | null; delegates: string[];
     assurance?: Assurance; sample?: { present: boolean; banner: string[] } };
   next?: { text: string; command: string };
@@ -121,6 +123,7 @@ export interface SummaryMeta {
 const EXIT_MEANING: Record<number, string> = {
   0: "clean: the job passes",
   1: "gaps: the job fails until they are closed",
+  5: "no gap, and the level of proof the run required is not met: nothing was verified mechanically; the job fails until a row is, or until the run asks for `--require traced` by name (runward ADR-0114)",
 };
 
 function table(head: string[], rows: string[][], more: boolean): string[] {
@@ -146,7 +149,7 @@ function assuranceLine(d: NonNullable<SummaryPayload["delegation"]>): { value: s
 export function renderSummaryMarkdown(payload: Record<string, unknown>, meta: SummaryMeta): string {
   const p = payload as unknown as SummaryPayload;
   const clean = p.verdict === "clean";
-  const word = clean ? "CLEAN" : "GAPS";
+  const word = clean ? "CLEAN" : p.verdict === "level-not-met" ? "LEVEL NOT MET" : "GAPS";
   const version = flat(p.runward, 40);
   const digest = /^[0-9a-f]{64}$/.test(meta.subjectDigest) ? meta.subjectDigest : "not-available";
   const L: string[] = [];
@@ -168,6 +171,9 @@ export function renderSummaryMarkdown(payload: Record<string, unknown>, meta: Su
   rows.push(["Deliverable gaps", String(p.gaps.deliverables), "computed by the gate"]);
   rows.push(["Rule-conformance gaps", String(p.gaps.conformance) + (p.gaps.proposed ? ` (of which ${p.gaps.proposed} proposed)` : ""), "computed by the gate"]);
   if (p.gaps.deferred) rows.push(["Deferred by a declared horizon", String(p.gaps.deferred), `declared: ${mdCode(`--through ${p.through ?? ""}`)}, outside the verdict`]);
+  // ADR-0118: the reading of the delivered code, inside the conformance gaps; its hypotheses never count.
+  if (p.analysis) rows.push(["Delivered-code analysis", `${p.analysis.findings.length} finding(s), ${p.analysis.hypotheses.length} hypothesis(es), ${p.analysis.notAnalyzed.length} item(s) not analysed`,
+    `computed by the gate from the source text under ${mdCode(p.analysis.policy)}, never run; findings are inside the conformance gaps`]);
   if (ev) {
     rows.push(["Evidence rows", `${ev.rows}: ${ev.applied} applied, ${ev.deviated} deviated, ${ev.na} n/a`,
       `${ev.typed} typed pointer(s) resolved by the gate; ${ev.prose} prose row(s) declared, never verified; ${ev.signed} signature-checked`]);

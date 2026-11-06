@@ -1,0 +1,84 @@
+# runward-fleet as a GitHub Action: build the static view of your runward missions from the files
+# runward wrote, with the signatures verified against your trust policy, and publish it on GitHub
+# Pages if you ask (ADR-0093 decision 10; the same interface a hosted deployment serves, ADR-0121).
+#
+#   permissions:
+#     contents: read
+#     pages: write       # only to publish
+#     id-token: write    # only to publish (deploy-pages proves the run to Pages)
+#   jobs:
+#     fleet:
+#       runs-on: ubuntu-latest
+#       environment:
+#         name: github-pages
+#       steps:
+#         - uses: actions/checkout@<sha>
+#         - uses: stranxik/runward/fleet@<sha>     # pin by commit SHA
+#           with:
+#             manifest: fleet/fleet.json
+#             pages: "true"
+#
+# It runs packages/runward-fleet from this repository, at the commit the step pins: nothing is
+# installed from npm, nothing is fetched, no secret is read. The build exits 1 and writes nothing when
+# fleet.json or the trust policy cannot be read, when a private path would reach the page, or when a
+# view rule breaks; a refused build publishes nothing. Needs Node.js 22.12 or later on the runner.
+name: runward fleet
+description: Build a static view of runward missions from the files runward writes, signatures verified against your trust policy, and optionally publish it on GitHub Pages.
+author: Thibault Souris
+branding:
+  icon: layers
+  color: gray-dark
+inputs:
+  manifest:
+    description: Path of fleet.json, the declared inventory (missions, exports, expectations), relative to the workspace.
+    required: true
+  out:
+    description: Directory the page is written to (index.html and index.json).
+    required: false
+    default: runward-fleet-site
+  pages:
+    description: "'true' to publish the page on GitHub Pages; the job then needs pages: write, id-token: write and the github-pages environment."
+    required: false
+    default: "false"
+outputs:
+  page:
+    description: Path of the written index.html.
+    value: ${{ steps.build.outputs.page }}
+  page_url:
+    description: The GitHub Pages URL, when the page was published.
+    value: ${{ steps.deploy.outputs.page_url }}
+runs:
+  using: composite
+  steps:
+    - name: Check the runner's Node.js
+      shell: bash
+      run: |
+        set -euo pipefail
+        V=$(node -p 'process.versions.node')
+        node -e 'const [a,b]=process.versions.node.split(".").map(Number); process.exit(a>22||(a===22&&b>=12)?0:1)' \
+          || { echo "::error::runward-fleet needs Node.js 22.12 or later (found $V): add actions/setup-node before this step"; exit 2; }
+
+    # Inputs reach the script through the environment, never interpolated into it (CWE-78).
+    - name: Build the fleet page
+      id: build
+      shell: bash
+      env:
+        FLEET_MANIFEST: ${{ inputs.manifest }}
+        FLEET_OUT: ${{ inputs.out }}
+        FLEET_CLI: ${{ github.action_path }}/../packages/runward-fleet/src/cli.js
+      run: |
+        set -euo pipefail
+        node "$FLEET_CLI" build "$FLEET_MANIFEST" --out "$FLEET_OUT"
+        echo "page=$FLEET_OUT/index.html" >> "$GITHUB_OUTPUT"
+        { echo "### runward-fleet"; echo; echo "Built \`$FLEET_OUT/index.html\` from \`$FLEET_MANIFEST\`."; } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Hand the page to GitHub Pages
+      if: inputs.pages == 'true'
+      uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+      with:
+        path: ${{ inputs.out }}
+
+    - name: Publish on GitHub Pages
+      if: inputs.pages == 'true'
+      id: deploy
+      uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

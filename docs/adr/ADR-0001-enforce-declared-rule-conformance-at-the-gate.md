@@ -72,6 +72,14 @@ the gate checks what the pointer names, not what the code does.
   written. Conditions (a) and (b) have no instrument that measured them. Next check: with the dated
   pass of 2027-05-05.
 
+## Note, 2026-11-05: amended by ADR-0118
+
+Recorded so a reader of this record finds what followed; the decision above is not rewritten.
+[ADR-0118](ADR-0118-built-in-analyzers-read-the-delivered-code-against-what-the-mission-declares-under-a-policy-it-pins.md) amends "it never opens project code": under an analysis policy the mission pins, the strict gate reads the
+delivered source text, without running it, against the invariants the mission declares. No model enters the
+gate path, the gate still runs nothing, and the discarded auto-blocking quality gate stays discarded: a finding
+is a declared invariant broken, and a heuristic never fails a build.
+
 ## References
 
 - `docs/operator-role.md` — the operator owns every gate; the method constrains the agent, not the reverse.

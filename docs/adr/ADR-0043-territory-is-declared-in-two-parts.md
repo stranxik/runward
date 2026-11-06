@@ -145,6 +145,12 @@ changes except that it is now observed where the mission actually looks.
 That is correct rather than regrettable — with no `runward/` there is no map, no `governs:` corpus,
 and nothing to be inert.
 
+## Note, 2026-11-05: the gate reads the map under a pinned analysis policy (ADR-0118)
+
+[ADR-0118](ADR-0118-built-in-analyzers-read-the-delivered-code-against-what-the-mission-declares-under-a-policy-it-pins.md) amends "the gate never reads the map": under an analysis policy the mission pins, `check --strict`
+reads `runward/territory.md` to know the declared domain core. No category is inferred from code, and
+`rules --for` is unchanged.
+
 ## References
 
 - [ADR-0041](ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md) — the decision this extends; its second amendment records the false premise and the measured ceiling, and its trigger (b) is the door this ADR walks through.

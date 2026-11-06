@@ -170,15 +170,22 @@ export function gatherComplianceInputs(missionDir: string): ComplianceInputs {
  * implementation for the three drafts, mirroring the OSCAL property's wording so the two surfaces
  * cannot phrase the same verdict differently.
  */
+/** ADR-0114: the verdict's word, `level not met` on exit 5 (no gap, nothing verified mechanically). */
+function gateWord(v: NonNullable<ComplianceInputs["verdict"]>): string {
+  return v.exitCode === 5 ? "level not met" : v.clean ? "clean" : "gaps";
+}
+
 function verdictBannerLines(inputs: ComplianceInputs): string[] {
   const v = inputs.verdict;
   if (!v) {
     return ["> **Gate verdict: not run for this pack.** Assembled without asking the gate; nothing below is tied to a verdict.", ""];
   }
-  const answer = `${v.clean ? "clean" : "gaps"} (${v.strict ? "--strict" : "presence"}, exit ${v.exitCode}, ${v.conformanceGaps} conformance gap(s))`;
+  const answer = `${gateWord(v)} (${v.strict ? "--strict" : "presence"}, exit ${v.exitCode}, ${v.conformanceGaps} conformance gap(s))`;
   return [
-    v.clean
+    v.clean && v.exitCode === 0
       ? `> **Gate verdict when this draft was assembled: ${answer}.**`
+      : v.clean
+      ? `> **Gate verdict when this draft was assembled: ${answer}.** Nothing was verified mechanically: this draft documents a traced mission, not a verified one (runward ADR-0114).`
       : `> **Gate verdict when this draft was assembled: ${answer}.** The gate REFUSED this tree — this draft documents readiness gaps, not readiness. Run \`runward check --strict\` for the refusals.`,
     "",
   ];
@@ -430,7 +437,7 @@ export function renderOscal(inputs: ComplianceInputs, missionName: string, gener
   // have accepted — anything else is `partial`, which is the honest word for "declared, not
   // verified". When no verdict was supplied the pack cannot claim more than `partial` either: an
   // unasked gate is not a passed one.
-  const gateAccepts = inputs.verdict?.clean === true && inputs.verdict?.strict === true;
+  const gateAccepts = inputs.verdict?.clean === true && inputs.verdict?.strict === true && inputs.verdict?.exitCode === 0;
   const irs = Object.keys(ASI_LABELS).map((id) => {
     const slugs = inputs.asiCoverage.get(id) ?? [];
     // Aggregate EVERY manifest row of EVERY rule mapping this ASI, across all gated deliverables —
@@ -467,7 +474,7 @@ export function renderOscal(inputs: ComplianceInputs, missionName: string, gener
         // assessor reading `implemented` can now see, in the same object, whether the gate ran, in
         // which mode, and whether it accepted.
         { name: "runward-gate-verdict", value: inputs.verdict
-            ? `${inputs.verdict.clean ? "clean" : "gaps"} (${inputs.verdict.strict ? "--strict" : "presence"}, exit ${inputs.verdict.exitCode}, ${inputs.verdict.conformanceGaps} conformance gap(s))`
+            ? `${gateWord(inputs.verdict)} (${inputs.verdict.strict ? "--strict" : "presence"}, exit ${inputs.verdict.exitCode}, ${inputs.verdict.conformanceGaps} conformance gap(s))`
             : "not run for this pack" },
         // The typed/prose distinction the verdict surface carries and this pack dropped. Four
         // states, not two: the first draft said "evidence opened and checked" on a FRESH mission

@@ -127,6 +127,10 @@ function example(pointer) {
   const path = join(dir, "code", "reports", "junit.xml");
   const original = readFileSync(path, "utf8");
   const write = (q) => writeFileSync(path, original.replace("</testsuites>", `\t<testcase name="a ${q}quoted${q} name" classname="test"/>\n</testsuites>`));
+  // The example reads its own code (ADR-0118), and its JUnit census refuses a report case that no test
+  // source declares: the tree that records `a "quoted" name` declares it too.
+  const tests = join(dir, "code", "test", "triage.test.ts");
+  writeFileSync(tests, `${readFileSync(tests, "utf8")}\ntest('a "quoted" name', () => { assert.ok(true); });\n`);
   return { dir, write, lock: join(dir, "runward", "evidence-lock.json") };
 }
 const check = (dir, ...a) => spawnSync("node", [CLI, "check", ...a], { cwd: dir, encoding: "utf8", env });

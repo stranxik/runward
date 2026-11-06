@@ -46,10 +46,10 @@ The review queue is prioritized (compliance deadline first) and summaries are un
 
 | Rule | Status | Evidence |
 |---|---|---|
-| eval-loop | applied | test:code/test/triage.test.ts — evaluation-rubric.md — abstention scenarios, guard-escalation rate watched off the hot path |
-| security-prompt-injection | applied | file:code/src/core/domain/guard.ts#guardFields — §3 guardrails — untrusted request text is data; deterministic guard before RoutingPort (ADR-0002) |
+| eval-loop | applied | test:code/test/triage.test.ts; test:code/reports/junit.xml::"unknown category: the system abstains, nothing is routed" — evaluation-rubric.md — abstention scenarios, guard-escalation rate watched off the hot path |
+| security-prompt-injection | applied | file:code/src/core/domain/guard.ts#guardFields; test:code/reports/junit.xml::"guard: a fabricated account reference never routes — escalated to review"; file:code/reports/eslint.sarif#no-eval; file:code/reports/eslint.sarif#no-new-func — §3 guardrails — untrusted request text is data, never code; deterministic guard before RoutingPort (ADR-0002) |
 | config-secrets-boundary | n/a | the illustrative floor reads no provider secret (deterministic keyword classifier) |
-| resilience-fail-open | applied | §3 — sensitive routing fails closed; the guard rejects on doubt (ADR-0002) |
+| resilience-fail-open | applied | test:code/reports/junit.xml::"routing port refuses, fail-closed, a record with model-proposed action-bearing fields"; file:code/reports/lcov.info#src/adapters/in-memory-routing.adapter.ts — §3 — sensitive routing fails closed; the guard rejects on doubt (ADR-0002) |
 | resilience-multi-provider-fallback | n/a | single deterministic classifier; no second provider in this floor |
 | resilience-retry-backoff | n/a | in-memory adapters; no external call to retry in the shipped floor |
 | async-job-guardrails | n/a | synchronous request triage; no background jobs at the floor |
@@ -57,7 +57,7 @@ The review queue is prioritized (compliance deadline first) and summaries are un
 | security-tool-change-reapproval | n/a | tools are in-process and deterministic; no signed external tool to re-approve |
 | data-memory-provenance | n/a | no persistent memory; each request is triaged independently (named deferral) |
 | security-code-execution-sandbox | n/a | the floor runs no model-generated or tool-invoked code; the classifier is deterministic in-process code and RoutingPort calls a typed ticketing API, not code |
-| security-human-agent-trust | applied | file:code/src/core/domain/guard.ts#buildApprovalSummary — §3 — each TriageRecord field carries a provenance marker (computed / verified / model-proposed); RoutingPort approval on a compliance-flagged record shows provenance before the human decides (ADR-0002) |
+| security-human-agent-trust | applied | file:code/src/core/domain/guard.ts#buildApprovalSummary; test:code/reports/junit.xml::"compliance: suspended awaiting approval, never routed silently" — §3 — each TriageRecord field carries a provenance marker (computed / verified / model-proposed); RoutingPort approval on a compliance-flagged record shows provenance before the human decides (ADR-0002) |
 | checklist-pre-production-observability | n/a | the floor ships baseline observability (structured logs, request id, per-call metrics) and stops before production by its framing; the pre-production pass belongs to the tier the deferrals name |
 | checklist-pre-production-performance | n/a | the floor's stopping tier is proven on real traffic, not deployed to production; the performance checklist is the gate the target tier will cross, with its trigger in the decision matrix |
 | checklist-pre-production-resilience | n/a | single-instance floor behind a human review step: retries, fallbacks and load posture are target-tier items, deferred with their triggers in the framing |

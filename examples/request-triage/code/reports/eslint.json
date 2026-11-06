@@ -1,0 +1,86 @@
+[
+  {
+    "filePath": "src/adapters/hardcoded-account-registry.adapter.ts",
+    "messages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0
+  },
+  {
+    "filePath": "src/adapters/in-memory-routing.adapter.ts",
+    "messages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0
+  },
+  {
+    "filePath": "src/adapters/in-memory-triage-log.adapter.ts",
+    "messages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0
+  },
+  {
+    "filePath": "src/adapters/keyword-model.adapter.ts",
+    "messages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0
+  },
+  {
+    "filePath": "src/core/application/triage-request.usecase.ts",
+    "messages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0
+  },
+  {
+    "filePath": "src/core/domain/guard.ts",
+    "messages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0
+  },
+  {
+    "filePath": "src/core/domain/triage.ts",
+    "messages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0
+  },
+  {
+    "filePath": "src/core/ports/account-registry.port.ts",
+    "messages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0
+  },
+  {
+    "filePath": "src/core/ports/model-provider.port.ts",
+    "messages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0
+  },
+  {
+    "filePath": "src/core/ports/routing.port.ts",
+    "messages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0
+  },
+  {
+    "filePath": "src/core/ports/triage-log.port.ts",
+    "messages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0
+  },
+  {
+    "filePath": "src/demo.ts",
+    "messages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0
+  }
+]

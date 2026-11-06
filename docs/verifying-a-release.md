@@ -19,7 +19,12 @@ against their attestation subjects; the Sigstore timestamps inside the bundles i
 the attestations to the original release day.
 From v0.43.0, a release also holds the qualification kit and its provenance bundle (Step 8).
 From the first release that carries it, a release also holds `runward-forge-X.Y.Z.tgz`, the second
-package of the repository, released at the same version (Step 9).
+package of the repository, released at the same version (Step 9), and, from the first release that
+carries it, `runward-fleet-X.Y.Z.tgz`, the third, a release asset only, never published to npm (Step 9).
+From the first release after [ADR-0116](adr/ADR-0116-what-a-user-installs-is-what-the-release-tested-the-tarball-bundles-its-dependencies-the-sbom-is-the-packages-and-no-signing-job-runs-the-build.md),
+the tarball carries its runtime dependencies at the versions of the tag's lockfile, and the SBOM is
+the package's own, which you derive again yourself (Step 10); until then it was a scan of the
+repository.
 
 Substitute the version you are verifying for `0.33.3` throughout.
 
@@ -27,7 +32,8 @@ The commands of Steps 0, 2, 2c, 3, 7 and 8 are read from this page and executed 
 published release on every pull request that touches it, and weekly
 (`.github/workflows/documented-commands.yml`, ADR-0090 M6), the offline lines with the network cut. That
 job checks the commands, not the sentences around them. Step 9 joins them once a published release
-carries runward-forge.
+carries runward-forge, Step 10 once one carries the package SBOM; `verify-release.yml` replays Step 10
+after every release.
 
 ## Step 0 — the two stores hold the same bytes (no tooling)
 
@@ -284,12 +290,15 @@ passed on your installation, of which kind, in which environment.
 your own tool classification; runward determines no class, level or outcome for anyone, and the
 report is evidence for your work, not a conclusion.
 
-## Step 9 — the runward-forge tarball (releases from the first that carries it)
+## Step 9 — the runward-forge and runward-fleet tarballs (releases from the first that carries each)
 
 `runward-forge`, the forge adapters (ADR-0094), is released with `runward`: same version, same tag,
 packed and attested by the same isolated builder, cross-checked byte for byte by the release workflow
 against its own pack, attached to the release as `runward-forge-X.Y.Z.tgz`, and published to npm by
-the same publish job, after `runward`, from that asset. No release up to v0.43.1 carries it. Its build
+the same publish job, after `runward`, from that asset, once the package exists on npm. Until its
+one-time bootstrap (`runward/runbook.md` §3.1) it does not: the publish job publishes `runward`, says
+in a warning and in its summary that `runward-forge` is not on npm, and ends green (ADR-0116), and the
+`curl` line below fails. No release up to v0.43.1 carries it. Its build
 provenance is in GitHub's attestation store; the release attaches no bundle for it and no SBOM (it has
 no dependency), so this step is online:
 
@@ -308,6 +317,49 @@ runward-forge-X.Y.Z.tgz --repo stranxik/runward` covers it as Step 7 covers the 
 **Does not prove**: anything about what the adapters do on your forge; their tests run against
 loopback stubs, not a recorded forge.
 
+`runward-fleet`, the fleet view (ADR-0093 D4), is packed, attested and cross-checked the same way and
+attached as `runward-fleet-X.Y.Z.tgz`. It is never published to npm (the package is private), so the
+release asset is the only file to verify:
+
+```sh
+gh attestation verify runward-fleet-X.Y.Z.tgz --repo stranxik/runward \
+  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml \
+  --source-ref refs/tags/vX.Y.Z \
+  --deny-self-hosted-runners
+```
+
+**Proves**: the file is the one the isolated builder packed from that tag. **Does not prove**: that a
+page it builds says more than the exports it read; that is what its view rules and their tests hold.
+
+## Step 10 — the SBOM is the package's, and the tarball carries the tested tree (releases from the first that carries it)
+
+From the first release after ADR-0116, `runward-sbom.cdx.json` is the package's own SBOM: CycloneDX
+1.6, with `metadata.component` the application `runward@X.Y.Z` and the SHA-256 and SHA-512 of the
+tarball, and one component per package the tarball bundles. The tarball bundles runward's runtime
+dependencies (`bundleDependencies`) at the versions of the tag's `package-lock.json`, the tree the
+release's tests ran on, so an install, online or offline, resolves nothing from the registry. The
+SBOM is a pure function of the tag and the tarball, so you derive it yourself and compare:
+
+```sh
+git clone --depth 1 --branch vX.Y.Z https://github.com/stranxik/runward runward-vX.Y.Z
+node runward-vX.Y.Z/scripts/package-sbom.mjs --tarball runward-X.Y.Z.tgz \
+  --lock runward-vX.Y.Z/package-lock.json \
+  --timestamp "$(git -C runward-vX.Y.Z show -s --format=%cI HEAD)" --out rederived-sbom.cdx.json
+cmp rederived-sbom.cdx.json runward-sbom.cdx.json
+```
+
+`cmp` prints nothing and exits 0. The script needs Node.js and nothing installed. It exits 1, and
+writes nothing, when the tarball's bundle is not the lockfile's runtime tree (a package missing or
+added, another path, version or declared licence), naming each difference. Releases up to v0.46.0
+attached a scan of the repository instead (Syft, `metadata.component` named `.`), which no derivation
+reproduces.
+**Proves**: the SBOM that Steps 2 and 3 verify the attestation of describes this tarball, and the
+tarball bundles exactly the packages, at exactly the versions, that the release's tests ran on.
+**Does not prove**: that the bundled files are byte for byte the registry tarballs the SBOM hashes
+(`npm ci` checked them against the lockfile when the release was built; the script compares names,
+paths, versions and licences, not file contents), nor anything about Node.js, npm or the operating
+system, which are not in the tarball.
+
 ## What none of this proves
 
 Every check above can pass and the software still be wrong. A signature establishes that the named
@@ -316,12 +368,15 @@ verifiable provenance. On runward today, coding agents run with the maintainer's
 maintainer's account" covers their acts too
 ([ADR-0088](adr/ADR-0088-runwards-own-delivery-runs-under-a-delegation-charter-the-gate-reads.md),
 stage 1): the publishing gesture is declared a person's, not proved one. None of it proves the code at the attested commit is sound, that the SBOM is
-accurate or complete, or that the package does what it says. `gh`, `cosign` and `slsa-verifier`
+complete beyond the tarball (Step 10 ties it to what the tarball bundles, not to what runs beside it),
+or that the package does what it says. `gh`, `cosign` and `slsa-verifier`
 share one trust root (GitHub OIDC plus the public Sigstore infrastructure); only npm's registry
 signatures rest on a different one.
 
 The only verification in this list that is independent of that chain is rebuilding: check out the
-attested commit, `npm ci && npm run build && npm pack`, and compare digests. Byte-for-byte identity
+attested commit, `npm ci && npm run build && npm pack`, and compare digests. From the first release
+after ADR-0116 the tarball bundles its runtime dependencies from the tree `npm ci` installed, so the
+same commands rebuild those bytes too. Byte-for-byte identity
 was established by hand, rebuilt on macOS against the tarball CI packed on Ubuntu, for two releases:
 0.33.0 on 2026-08-06 (`docs/compliance/regulated-adoption.md`, Reproducibility row) and 0.33.5 on
 2026-08-12 ([ADR-0049](adr/ADR-0049-the-build-is-isolated-from-the-publish.md), Consequences). From

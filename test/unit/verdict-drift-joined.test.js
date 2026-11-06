@@ -39,6 +39,10 @@ test("an applied bare pointer whose file vanished reddens the joined verdict (dr
     assert.equal(drift[0].rule, "hexa-move-deterministic-out");
     assert.equal(drift[0].label, "Floor");
     assert.match(drift[0].problem, /applied pointer does not resolve \(drift\): code\/src\/core\/domain\/deadline-rules\.ts/);
-    assert.equal(v.strictGaps, 1, "the drift violation is the only gap, and it is counted");
+    // ADR-0115: an untyped cell carries no pointer of the junit kind the rule requires, so the row is
+    // refused for that too; drift stays the only gap of its own kind, and both are counted.
+    assert.deepEqual(v.gated.flatMap((g) => g.violations).filter((x) => x.rule === "hexa-move-deterministic-out").map((x) => x.kind),
+      ["requires-unmet", "unresolved-pointer"]);
+    assert.equal(v.strictGaps, 2, "the drift violation is counted, beside the required kind of evidence the row no longer cites");
   } finally { rmSync(parent, { recursive: true, force: true }); }
 });

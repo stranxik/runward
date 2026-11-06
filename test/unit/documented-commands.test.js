@@ -30,7 +30,7 @@ const V = "<V>";
 
 // What verify-release.yml claims to replay: each of its steps named "Step <x> — …", mapped to the
 // guide's step. A workflow step named "Step …" that is not declared here fails.
-const WORKFLOW_TO_GUIDE = { "Step 0": "0", "Step 2": "2", "Step 2b": "2", "Step 2c": "2c", "Step 3": "3", "Step 7": "7" };
+const WORKFLOW_TO_GUIDE = { "Step 0": "0", "Step 2": "2", "Step 2b": "2", "Step 2c": "2c", "Step 3": "3", "Step 7": "7", "Step 10": "10" };
 // The guide's steps whose gh commands the workflow replays, command for command.
 const REPLAYED = ["2", "2c", "3", "7"];
 // Commands of a replayed step the workflow does not run, each with its reason. Matched in the
@@ -42,7 +42,10 @@ const GUIDE_ONLY = {
 // Step 0 is replayed in substance, not command for command: the workflow downloads with
 // `gh release download`, waits for npm, and compares with sha256sum. The guide's own block is executed,
 // as written, by documented-commands.yml.
-const SUBSTANCE_ONLY = { "0": "the workflow downloads with gh release download, waits for npm and compares with sha256sum" };
+const SUBSTANCE_ONLY = {
+  "0": "the workflow downloads with gh release download, waits for npm and compares with sha256sum",
+  "10": "the workflow checks out the tag with actions/checkout instead of git clone, then derives and compares with the guide's node and cmp commands",
+};
 
 /** The workflow's gh commands per step name, with the CI variables normalised to the guide's form. */
 function workflowCommands(text) {
@@ -153,7 +156,7 @@ function editStep(text, id, fn) {
 // ── the parity, on the tree ────────────────────────────────────────────────────────────────────
 test("documented commands: the parse is not empty (extraction floor)", () => {
   const steps = parseGuide(GUIDE_TEXT);
-  assert.deepEqual(steps.map((s) => s.id), ["0", "1", "2", "2c", "3", "4", "5", "6", "7", "8", "9"]);
+  assert.deepEqual(steps.map((s) => s.id), ["0", "1", "2", "2c", "3", "4", "5", "6", "7", "8", "9", "10"]);
   assert.ok(steps.flatMap((s) => s.blocks.flat()).length >= 15, "the guide's blocks parsed into commands");
   const wf = workflowCommands(WORKFLOW_TEXT);
   assert.deepEqual([...wf.keys()].sort(), Object.keys(WORKFLOW_TO_GUIDE).sort());
@@ -257,7 +260,8 @@ test("documented commands: every release verification of the guide and of verify
   assert.deepEqual(unpinnedVerifications(GUIDE_TEXT, WORKFLOW_TEXT), []);
   const counted = parseGuide(GUIDE_TEXT).filter((s) => PINNED_STEPS.includes(s.id))
     .flatMap((s) => s.blocks.flat()).filter((c) => /^gh attestation verify /.test(c.text)).length;
-  assert.equal(counted, 8, "the guide's pinned steps hold eight verifications");
+  // Nine since Step 9 verifies the runward-fleet tarball too (ADR-0093 D4).
+  assert.equal(counted, 9, "the guide's pinned steps hold nine verifications");
 });
 
 test("documented commands, control: a Step 8 verification without --source-ref fails, naming Step 8", () => {

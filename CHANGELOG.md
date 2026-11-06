@@ -2,6 +2,321 @@
 
 ## Unreleased
 
+### What you install is what the release tested: the tarball bundles its dependencies, and the SBOM is the package's (ADR-0116)
+
+Measured on 2026-11-05: installed into an empty project, the 0.46.0 tarball resolved 16 of its 27 runtime
+packages to other versions than the lockfile the release's tests ran on, and the release's SBOM was a Syft
+scan of the repository (`metadata.component` named `.`, 24 files and 26 libraries outside the runtime tree
+among its 117 components). The tarball now declares `bundleDependencies` and carries the 27 packages at the
+lockfile's versions: an install from the registry, from the file or fully offline resolves nothing, and a
+fresh install downloads one tarball of about 1.08 MB instead of 28 tarballs of about 1.11 MB. A shrinkwrap was
+measured and set aside: npm reads it only for registry installs that npmjs.org flags, and npm 12 reads none.
+`scripts/package-sbom.mjs` writes the release's SBOM from the tarball and the tag's lockfile: CycloneDX 1.6,
+runward at its version with the tarball's digests, each bundled package with its version, purl, declared
+licence and the SHA-512 of its registry tarball, the graph resolved inside the bundle. It is deterministic,
+refuses a bundle that is not the lockfile's runtime tree, and `docs/verifying-a-release.md` Step 10 derives
+it again from the tag. Validated against the official CycloneDX 1.6.1 schema (vendored under
+`test/fixtures/`) and by cyclonedx-python-lib's strict validator. You can no longer override a bundled
+package from your own project: a fix in one of them reaches you through a runward release.
+
+### No job that signs a release runs its build (ADR-0116)
+
+The job of `build-and-attest.yml` that held `id-token: write` also ran `npm ci` with install scripts, the
+whole suite and `npm pack`, and the job of `release.yml` that signs the SBOM attestation ran the suite and
+the qualification kit. Each is now two jobs: one that builds and tests with `contents: read` only (and
+`npm ci --ignore-scripts`), and one that checks out nothing, runs no npm, refuses a file whose digest is not
+the one the first declared, and signs. The draft job checks the tarball's and the SBOM's digests before it
+uploads anything. The signing identities are unchanged, so no verification command changes;
+`test/unit/release-signing-isolation.test.js` holds the rule for every job of the release chain.
+
+### A release whose runward-forge is not on npm stays green and says so (ADR-0116)
+
+From 0.44.0 to 0.46.0 the publish job ended red on `404 Not Found - PUT https://registry.npmjs.org/runward-forge`
+(the package's one-time bootstrap, runbook §3.1, is not done), so `verify-release.yml`, which follows a green
+publish only, last verified a release on 2026-10-11. The publish step now asks the registry for the package:
+absent, it writes a warning and a section of the job summary and ends green, runward being published; any
+other failure stays a failure. The kit now runs against the tarball installed offline with an empty cache,
+and its runner copies a bundled installation's compared `node_modules/` files into its work directory
+instead of linking them: on a bundled tarball it wrote its links into the installation and stopped
+before any test, and a linked bundle is packed by npm under paths that leave the package.
+
+### CI: Node.js 26, a hash-pinned Python tool, and the reference JUnit report as an artifact
+
+The unit tests run on Node.js 26, the active LTS line since 2026-10-28, beside 22 and 24. The OSCAL
+ingestion installs compliance-trestle from `test/oscal-ingest.requirements.txt`, its closure with every
+file's hash (`pip install --require-hashes --only-binary=:all:`). The `lint-and-reports` job keeps the
+`reports/junit.xml` it regenerated on macOS with the Node.js of `.nvmrc` as the artifact `junit-reference`,
+even on a red run, so it can be committed without running the suite elsewhere (refines ADR-0112).
+
+### Three CodeQL alerts fixed, in two places: a hand-escaped RegExp, a host checked as a substring
+
+`test/unit/check-contract.test.js` built a RegExp from a flag escaping only `-`; it checks a substring now. `floor-ts`' provider profile
+recognised Anthropic by `anthropic.com` anywhere in the URL; it compares the parsed host name now.
+
+### runward-fleet v1: the fleet view, built from the files runward writes, signatures verified offline (ADR-0093 D4)
+
+A third package of this repository, `packages/runward-fleet` (MIT, no dependency), the customer-run
+satellite of ADR-0093 decision 10, whose interface a hosted deployment serves too (ADR-0121).
+`runward-fleet build fleet.json --out site` is a pure function of the exports `fleet.json` declares: it
+writes `index.json` (the contract `runward-fleet-index/0`, specified in `docs/spec/runward-fleet-index.md`
+with its manifest and trust policy) and `index.html`, one page with the index, the seven views and the
+fonts inlined, a content security policy that loads nothing by default. It reads no clock, opens no
+connection, spawns nothing and imports nothing from `runward` (`test/unit/runtime-boundary.test.js`, with
+planted controls); a declared export that is absent is a finding, never a reason to stop. It verifies a
+Sigstore bundle (as `actions/attest` writes it) offline against a trusted root given as a file (log
+entry, inclusion proof, checkpoint, certificate chain, DSSE envelope), or a detached Ed25519 signature
+over a CI's evidence manifest, against `trust-policy.json`, and raises a cell from `ci-declared` to
+`machine-established` only when the signer is pinned for that repository with `refs/heads/main` (and,
+for a certificate, the workflow file digest), the signed commit is the declared landing commit, and what
+was signed covers the export: an unpinned policy raises nothing. The eighteen view rules of ADR-0093
+decision 11 are held by the build, which renders every view and refuses to write a page that breaks one,
+or by tests that plant a mutation of each (`test/unit/fleet-view-rules.test.js`); the three the satellite
+cannot hold are listed on the page as runward's. It ships as the Action `stranxik/runward/fleet` (builds
+the page and publishes it on GitHub Pages when asked), exercised in CI on this tree's own exports, and,
+from the next release, as `runward-fleet-X.Y.Z.tgz`, packed and attested by the isolated builder and
+byte-matched by the release workflow, the ninth asset of the release; never on npm. `scripts/fleet-demo.mjs` rebuilds the demonstration on three
+real sources: runward's own mission, the example mission, and the verdicts of 40 past revisions replayed
+by a prototype of `ledger replay`, with runward's v0.46.0 release provenance verified and not raised. The
+`runward` package, its CLI and its verdict do not change.
+
+### An open beta, free and self-service: `docs/beta.md` and a beta mission form
+
+Decided by the maintainer on 2026-11-06. `docs/beta.md` says what the beta is: runward run on a
+repository its maintainer did not write, by the team that owns it, with no application and no
+selection. It costs nothing in money. It asks a structured feedback in the participant's issue, after
+the first verdict and when the mission stops, and labels what participants report as declared. It gives
+a weekly support slot, whose day and time the maintainer writes at the top of the page (the beta opens
+that day), and which is time set aside, not a response-time guarantee; and the bridge recipe from what a
+mission declares to what its code does: the JUnit part works with 0.46.0, and the rest is planned for
+the next release (pull requests #483 and #484, in no release yet). The page states the criteria, the
+confidentiality rules (the issue is public; no name is published without written agreement; a
+regulated organisation writes to the author's address, published where SUPPORT.md says; a
+vulnerability, a green the participant thinks should be red included, goes only to the private
+reporting form), and how the beta relates to the ADR-0052 pilot, whose protocol, instruments and
+candidate form are unchanged: a repository that might serve the pilot opens the pilot form first, and
+the beta does not move the 2026-11-17 deadline. `.github/ISSUE_TEMPLATE/beta_mission.yml` opens a beta
+mission. It asks for nothing that identifies a person, an organisation or a system, and it sets no
+label: a label the repository does not have is not added to the issue, so beta missions are found by
+the title prefix the form pre-fills. The issue chooser links the page, and so do the README and
+SUPPORT.md. Corrected because it contradicted SECURITY.md: `SUPPORT.md` sent a false green to a public
+issue, while SECURITY.md classes a published version's false green as S1 and refuses public issues
+for it; a false green now goes the way SECURITY.md says. `test/unit/beta-form.test.js` keeps the form
+and the page in step, and reddens when `package.json` moves past the release the page says lacks the
+bridge; `docs/beta.md` joins the documents whose pinned version `test/unit/doc-version-pin.test.js`
+holds. Documentation only: no CLI behaviour, output or verdict changes.
+
+### CodeQL's alert in `evidence.ts` closed with no answer changed, and contributions asked for tests
+
+`onDiskSpelling` stripped the separator off the remainder below the project bound with a RegExp built
+from `path.sep`, which CodeQL reads as an escape that replaces only the first backslash
+(js/incomplete-sanitization). `path.sep` is one character, so no input reached a wrong answer, and the
+strip changed nothing either: the walk skips an empty segment wherever it sits. It is removed. Twelve
+new cases drive the bounded walk directly, the bound spelled with and without a final separator; they
+pass on the code before and after the removal and fail on the two mutants the register filed as holes
+on that line. `CONTRIBUTING.md` and the pull request template say that new behaviour comes with tests,
+and the security scan's configuration states the count it measures (9 warnings on 2026-11-06, not 8).
+No CLI behaviour, output or verdict changes.
+
+### The mutation register's notes read on GitHub as they are written
+
+Rendered with GitHub's own renderer on 2026-11-06, every code cell of `docs/compliance/mutation-register.md`
+read exactly and 41 of its 2,370 notes did not: GFM read their prose as markup, so a backslash before
+punctuation vanished (`^\\/` showed as `^\/`), a quoted `**Status**` turned bold and lost its asterisks,
+and `<string>` was removed as an HTML tag. `scripts/mutation-register.mjs` now escapes those characters
+in notes, outside code spans only, and leaves code spans and the code column as they were. The register
+is regenerated (71 rows) and all 2,370 rows render as written; a note that used `**…**` for emphasis now
+shows its asterisks. Eight rows of that measurement pin it in `test/unit/mutation-register.test.js`. The
+register's counts and filings are unchanged.
+
+### Changed: under `--strict`, a row that cites another kind of evidence than its rule requires is refused (ADR-0115)
+
+A rule's `requires:` (a JUnit report, a SARIF log, an ESLint report, a coverage report, an SBOM, an ADR or
+a load-test report) was reported on every strict run and never refused (ADR-0073 kept it so until the
+shipped example could carry its own evidence, which it now does). `check --strict` now refuses an
+`applied` row whose pointers resolve to no file of the required kind: one conformance gap on the row, kind
+`requires-unmet` in `conformance[]` and every rendering, counted in the exit code, re-derived by `verify`,
+folded by `--through` like every gap of a deferred deliverable. The refusal names the rule, the kind, a
+form to cite and the ways out: cite a report of that kind; mark the row `deviated` with the ADR that
+decides it; or, when the delivery cannot produce that kind at all, declare it in an accepted ADR
+(`**Nature not carried**: <kind> — why`, ADR-0075), which keeps it listed in `requiresUnmet` and printed
+on every strict run, and not refused. One declaration lifts the refusal of every row of its kind, so it is
+read with the bar the ADR of a deviated row meets: a proposed or set-aside decision, a near-empty file, the
+scaffolded template, or a number two files claim, declares nothing. A `proposed:applied` row that lacks its
+kind is told so inside its own refusal, before anyone ratifies it, and is counted once. No command-line
+flag accepts an unmet kind. The witness gains the
+`notWitnessed` family `requires` (a cause of kind `requires-unmet` is beyond `runward-witness/1`).
+runward's own mission stays green: its one unmet kind is the load test ADR-0075 declares.
+
+**Migration.** Run `runward check --strict --json` before upgrading and read `requiresUnmet`: each entry
+without `declaredIn` becomes a refusal. Cite the report, decide the row (`deviated` with its ADR), or
+declare the kind your delivery cannot produce. Your adapters keep running the version that wrote them
+until `runward update` moves them, which is the window to do it in. A copy of the example scaffolded
+before the previous entry has 17 such rows: lay down a fresh one with `runward init --example`.
+
+### Changed: the shipped example cites machine evidence, and the CI runward ships regenerates it before the gate (ADR-0115)
+
+`init --example` now lays down a mission whose rows cite four reports a tool writes, committed in
+`code/reports/`: the JUnit report, an LCOV coverage report, and one ESLint run written per file (ESLint JSON)
+and per rule (SARIF) under `code/eslint.config.mjs`, which encodes the floor's boundaries (the core imports
+its own modules and `zod` only, never an adapter; no network call or run-time loading in the core; no string
+run as code and no credential literal anywhere; no inline `eslint-disable`). The example's rows now carry
+every kind of evidence their rules require: `check --strict --json` reports `requiresUnmet: []` (17 before).
+`npm run reports` regenerates the four reports; `npm run reports:fresh` regenerates them into a scratch
+directory and compares what each one says (never its bytes) with the committed one, and
+`runward/hooks.json` runs it before the gate under `runward check --strict --hooks`. The CI samples `init`
+writes (`runward/adapters/github-actions.yml`, `gitlab-ci.yml`) now run `check --strict --hooks`, and the
+GitHub Action and the GitLab template gain a `hooks` input, default `true`, that does the same. A plain
+`runward check` still runs no hook (ADR-0008). Measured on the new example: a domain rewritten around a
+database driver with a key in it, a file added that executes a model's output, emptied tests (JUnit
+regenerated or not), and stub files with every cited report forged by hand each pass `check --strict` on the
+committed tree and are refused by `check --strict --hooks`; the healthy example and a legitimate rename
+pass both. What it does not catch is in ADR-0115 (the regeneration script and the lint configuration are
+files in the tree under review). `docs/recipes/junit-freshness-in-ci.md` covers every cited report.
+
+**Migration.** If your mission has a `runward/hooks.json`, the Action, the GitLab template and refreshed CI
+samples now run its `before` commands in CI: set `hooks: 'false'` (Action) or `hooks: false` (GitLab), or
+drop `--hooks` from your copy of a sample, if they only run on a workstation. A copy of the example scaffolded
+before this release keeps its old rows; `runward init --example` in an empty directory lays down the new one,
+and its `code/` needs `npm install` with Node.js 22.13 or later (ESLint 10's floor) for the lint and the
+reports.
+
+### Built-in analyzers read the delivered code against what the mission declares (ADR-0118)
+
+Under `--strict`, a mission that pins an analysis policy in its `runward/scaffold-lock.json`
+(`"analysis": "runward-analysis/1"`) now has its delivered TypeScript and JavaScript read, never run, by
+five deterministic families: the boundary of the domain core `runward/territory.md` declares (no package,
+Node.js built-in or module outside the core that `runward/analysis.md` does not allow); capabilities (code
+built at run time, `child_process`, a computed import, anywhere outside the tests; the network and the
+environment in the core); credentials of a known format; test integrity without running a test (a case that
+asserts nothing, a test file that cannot reach the code, a cited JUnit report recording a case no source
+declares); and cited symbols carried only by a comment or declared as a placeholder constant. A finding
+counts against the verdict and is named with its file and line in the terminal, `--json` (`gaps.analysis`,
+one `conformance` row each, an `analysis` block), SARIF, Code Quality, JUnit, the witness and `report`; what
+the reading cannot settle is a `hypothesis`, reported and never counted, and every language the policy does
+not read is listed as not analysed. A new mission and the example are born with the policy pinned; an existing
+mission keeps its lock until it adds the line, `update` never adds nor drops it, and deleting it disarms. The
+example carries `runward/analysis.md` with its two allowances. Measured on the bench of 2026-11-05: each of
+the seven sabotages is refused, the healthy example and an honest renaming read clean, and the renaming that
+leaves the old name in a comment is refused (the RWD-2026-0194 case, under the analyzers). The gate-wide
+non-scope gains one sentence (the reading can say a declared invariant is broken, never that the code is
+good), so an attestation written before this change is verified with the version that wrote it; the scale
+bench and the README now say that, with the analyzers on, the strict gate's cost also follows the size of the
+code it reads (on this repository's tree, 470 ms to about 800 ms). ADR-0118 amends ADR-0001, 0005, 0041 and
+0043, and leaves the thesis of ADR-0052 and the crossings of ADR-0054 as they are.
+
+### Changed: a `#SYMBOL` naming an identifier is looked for outside the file's comments (ADR-0114, RWD-2026-0194)
+
+The gate, `spec-check` and the `rules --for` reminder now search a pointer's symbol of identifier form in
+the file without its comments (a quoted sentence, a dotted name or an operator keeps the textual reading),
+for the languages the evidence layer knows by extension: TypeScript and JavaScript, Python,
+Markdown, HTML, JSON, YAML, TOML, Go, Rust, Java, Ruby, PHP, SQL, shell, CSS and SCSS. Any other file is
+read whole, as before. Measured on 2026-11-05: the README's rename demo with
+`// validateFields was called guardFields before the rename.` left in `guard.ts` exited 0, "all gates
+passed"; it now exits 1, names both pointers, and adds "it occurs only in a comment, and a comment is not
+code". Strings still count, because a string literal is code (a route, a rule id, a config key), and a
+comment marker inside a string opens nothing. **Migration**: a row whose symbol survives only in a comment
+turns red; point it at the identifier the code declares, or drop the `#SYMBOL` to keep the bare path. Pinned
+by `test/unit/symbols-outside-comments.test.js`, red with the lexer taken out.
+
+### Changed: under `--strict`, a mission none of whose applied rows the gate verified exits 5, and `--require traced` accepts it by name (ADR-0114)
+
+Measured on 2026-11-05 (case c4 of that day's witness): the example mission with its 46 manifest rows set to
+`n/a` with one sentence exited 0, "all gates passed", one section after "! nothing was verified
+mechanically". `check --strict` now requires a level of proof: `mechanical` by default, at least one
+`applied` row carrying a pointer the gate opened and checked. Below it, a verdict with no gap exits 5
+(pytest's code for "no tests were collected"), the summary reads "deliverables filled, nothing verified
+mechanically", and `--json` carries `verdict: "level-not-met"`, `exitCode: 5` and `require: { level, met }`.
+`--require traced` accepts a green that rests on judgment alone, by name, the shape ADR-0060 wrote for a
+refusal; a `--through` prefix requires `traced` unless told otherwise. Gaps come first: a red verdict exits
+1, so `--require traced` lifts no gap: a row refused as `requires-unmet` (ADR-0115) still exits 1, and its
+ways out are a cited report of that kind, a `deviated` row or a nature declared uncarriable, never the flag.
+The attestation, `verify` (an attestation that records no level was written by an earlier runward: sent
+back to it, exit 2, and read at `traced` as advisory, said; under this build a strict attestation without
+the block differs),
+the VSA (FAILED), the JUnit rendering, `report`, `status`, the compliance pack and `--freeze` (it refuses to
+seal) state the same outcome; the witness gains `verdict.require` and keeps its arithmetic. The shipped
+example and runward's own mission stay at exit 0. **Migration**: a strict mission that rests entirely on
+judgment (every row `n/a`, `deviated` or prose) now exits 5; point one `applied` row at the code, test or
+report that applies its rule, or add `--require traced` to the command your CI runs. A script that reads 1
+as red and 0 as green now meets 5. Pinned by `test/unit/required-level.test.js`. evidence, verdict,
+check-contract, spec-conformance, citations, witness and compliance change, so their mutation record is
+stale until they are re-measured (`npm run mutation:fresh` names them).
+
+### Six findings of 2026-11-05 and 2026-11-06 filed, and two entries marked fixed in the tree (RWD-2026-0192, RWD-2026-0193, RWD-2026-0196 to RWD-2026-0201)
+
+Found by the agent sessions that built ADR-0113, ADR-0115 and the fleet prototype of ADR-0121, each
+reproduced on 2026-11-06 on the published 0.46.0 and on `main` with a positive control, its first affected
+version measured on the versions npm serves. Fixed in the tree by ADR-0113 (#481), in no release yet:
+under a version skew, `verify` printed a command built from the attestation's unchecked `runward` field
+(RWD-2026-0196); a red attestation's bytes followed the `-p` it was typed with (RWD-2026-0197);
+`report --format md` said `verify` re-derives every field while `verify` listed ten it did not
+(RWD-2026-0200, fixed by what `verify` now does, the sentence unchanged). Not fixed: under `--hooks`,
+`--attest`, `--sarif` and `--vsa` carry the hooks' standard output and are not JSON (RWD-2026-0198);
+`check --json` carries the checkout's absolute path in `mission` (RWD-2026-0199, which ADR-0121, #485,
+names a defect, its fix undecided); a `**Nature not carried**` declaration is read with a looser bar than
+a deviated row's ADR, which from 0.41.0 to 0.46.0 moves the disclosure and never the verdict
+(RWD-2026-0201; the corrected reader is in #487). The false green the same reading gave on the first
+commit of #487 is not filed: it was closed before any merge. RWD-2026-0192 and RWD-2026-0193 now read
+`fixed-in=unreleased`, #481 having merged, and the runward-assess entry below names the commit at which it
+measured RWD-2026-0192 missed (`32d8425`, before #481). Documentation only: no CLI behaviour, output or
+verdict changes.
+
+### Decided: runward-fleet and the hosted product, one interface and two deployments (ADR-0121); proposed: integration recipes counted only when their control passes (ADR-0122)
+
+ADR-0121 was accepted on 2026-11-05 by the maintainer's delegation in chat, on the agent's recommendation;
+the maintainer did not review the text before acceptance, and as a class R record it lands when the
+maintainer approves its pull request. One interface: `runward-fleet`'s view, reading one index, deployed
+first as a static site the customer runs, then by the hosted product of a company that does not exist yet,
+which raises no cell of its own. Everything that judges, verifies or displays stays MIT; the first paid
+offer sells continuity and accountability (an entity, contractual support, a maintained line, advisories
+with CVE identifiers); the hosted product comes next under FSL-1.1-MIT and is never called open source; no
+euro is received before a legal entity exists and a lawyer has given an opinion. Re-execution is by a
+runner the customer designates, none operated by the company for now. `runward-fleet` and `runward-assess`
+become packages of this repository, `runward-fleet`'s import boundary held by a test, both shipped as an
+Action and release assets while npm is blocked. The fleet view has no red: a refusal is a basalt and chalk
+inversion with its word and mark. The fleet displays the run record of ADR-0120 beside the other records,
+every fleet record carries the declared mission name, and the fleet's success criterion is the median time
+to a first view on repositories never seen, five minutes the target. Measured on `main@32d8425`:
+`check --strict --json` carries the absolute path of the checkout in `mission`, the payload's only
+absolute path; ADR-0109 kept it for the local payload, and ADR-0121 amends that decision for an exported
+payload and names the field a defect to file. Dated notes: on ADR-0093, a hosted preview may run before D2
+to D5, operated by the maintainer for the maintainer's repositories only while no entity exists; the
+upload to the hosted product lives in the product's repository, never in the CLI, `action.yml` or
+`runward-forge`; the index contract `runward-fleet-index/0` lives in `runward-fleet`. On ADR-0052, the
+first euro follows the entity: branch A's first trigger becomes a buyer's written agreement to pay.
+ADR-0122 is proposed, to be decided next: `runward-integrations`, MIT recipes outside the verdict, each a
+CI step that regenerates its report out of the agent's reach, with its `requires:` rows, a
+planted-sabotage control and a named maintainer, in the order SARIF, JUnit, LCOV, then GitHub Actions,
+GitLab, Jenkins, then agent harnesses, then consumers of in-toto attestations, and counted only while its
+control passes. Documentation only: no CLI behaviour, output or verdict changes.
+
+### The perimeter widens: decisions, code and execution, each at a named level (ADR-0117, ADR-0119, ADR-0120)
+
+Three records, accepted on 2026-11-05 by the maintainer's delegation in chat, on the recommendation of the
+agent sessions that investigated; the maintainer did not review their text before acceptance, and the
+acceptance stands outside the delegation charter, which delegates no class R act. Nothing in them ships
+yet: they decide what the next pull requests build. ADR-0117 decides what the verdict will measure: the
+gap between what the accountable people declared and what the agent delivered, with evidence the agent
+could not have produced alone, across three objects: decisions, traced to evidence that resolves (the
+core, unchanged); code, confronted with the invariants the mission declares and re-derived by runward
+from the tree, with no model and no execution; and execution evidence, produced outside the agent's
+reach, bound to the tree by digests and attested under an identity the agent does not hold. It amends
+ADR-0001 by name (« never the quality » stands, « never opens project code » falls for the declared
+territory), ADR-0005, ADR-0041 and ADR-0043 (a `hypothesis` class for heuristics, never counted), and
+announces the amendment of `GATE_NON_SCOPE` and of the differentiator in `docs/positioning.md`, each to land
+with the code that makes it true; the locked thesis of ADR-0052 and the five crossings of ADR-0054 in the
+CLI are untouched. Its table maps twelve capabilities to their state on 2026-11-05 and to the records that
+carry them. ADR-0119 will grade the evidence of each applied row `re-derived`, `attested` or `declared`
+(decisions and ratifications are not graded), and extends the `--require` flag of ADR-0114 with two levels
+above `mechanical`: `re-derived`, which `init` will write for new missions once the built-in analyzers ship
+and their false reds are measured, and `attested`, never a default outside the regulated tier; a run with
+no gap below its level will exit 5, and no mission is refused by default for its language. ADR-0120 places
+the execution in a sibling package, `runward-run`, that will run the tests, the coverage and the mutation of
+the cited lines and the evals in a pinned container with the network cut, and write an unsigned in-toto
+Statement the operator's CI signs in another job, from a workflow the agent cannot write; the CLI still
+runs nothing and never verifies a signature, and the verification half of ADR-0093's D4 moves ahead of D2
+and D3. Documentation only: no CLI behaviour, output or verdict changes.
+
 ### runward-assess 0.1.0: the repeatable assessment grid, outside the verdict path and outside the tool it rates (ADR-0123)
 
 A new package, `packages/runward-assess`, holds `grille@1`: 35 criteria on seven axes (reliability,
@@ -18,12 +333,13 @@ from "not met". The same inputs give the same bytes under two time zones, two lo
 releases (`runward-assess selftest`). The package imports nothing from runward, which a test checks
 with planted controls; it reads runward's files as evidence and runs its CLI as a program for PRV-03,
 the sabotage catalogue `saboteur@1`, which gains two cases: `verify` accepting fields written by hand
-(RWD-2026-0192, still missed on `main`) and a verdict that depended on the Node.js release that wrote
+(RWD-2026-0192, missed on `main` at `32d8425` and refused since #481) and a verdict that depended on the Node.js release that wrote
 a JUnit report (RWD-2026-0187, invariant on `main`). First records, of runward at v0.37.1, v0.46.0 and
 `main`, are under `packages/runward-assess/trials/runward/`. The package's tests run with it
 (`node --test packages/runward-assess/test/*.test.js`), outside runward's suite, so `reports/junit.xml`
 is unchanged; no CI job runs them yet. A new package only: no CLI behaviour, output or verdict of
 runward changes.
+
 ### Fixed: `verify` says verified only for what it re-derives, names what it covers, and sends an older attestation back to the runward that produced it (RWD-2026-0192, RWD-2026-0193, ADR-0113)
 
 `verify` now rebuilds, with the functions `check` emits with, the Statement the producing build emits for

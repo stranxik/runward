@@ -1,6 +1,8 @@
 # Recipe: prove a committed JUnit report is fresh, in your CI
 
-**Status.** Option G of [ADR-0098](../adr/ADR-0098-whether-the-gate-says-how-old-a-committed-junit-report-is-and-what-it-may-read-to-say-it.md).
+**Status.** Option G of [ADR-0098](../adr/ADR-0098-whether-the-gate-says-how-old-a-committed-junit-report-is-and-what-it-may-read-to-say-it.md),
+extended to every report a mission cites by [ADR-0115](../adr/ADR-0115-the-shipped-example-cites-machine-evidence-the-ci-regenerates-it-before-the-gate-and-a-required-nature-refuses-under-strict.md)
+([below](#every-report-a-mission-cites-not-only-junit)).
 Documentation and a script to copy into **your** repository. Nothing here changes how the gate judges a
 row, and the gate never runs the script: freshness is proved where the tests run, outside the verdict
 path (ADR-0054).
@@ -191,3 +193,85 @@ When the gate's JUnit reader changes (how it decodes names, what counts as green
 it: it imports that reader. When a test runner in common use starts writing a commit or a source digest
 into its JUnit output, ADR-0098's reevaluation trigger reopens the question of reading it in the gate
 (option F).
+
+## Every report a mission cites, not only JUnit
+
+A JUnit report is one kind of evidence a row can cite. A lint report (ESLint JSON per file, SARIF per
+rule) and a coverage report (LCOV) have the same gap: the gate reads what the committed file records and
+never runs the tool, so a report written by hand reads as the tool's. Measured on 2026-11-05, a JSON file of
+93 bytes satisfied the `eslint` nature of a row. And they catch what JUnit cannot: empty every test body and
+keep the names, and the JUnit report is green case for case while the coverage report shows that the domain
+no longer runs; add a file that executes a model's output, and no cited file changes while the SARIF log
+records the rule it breaks.
+
+### The worked case: the shipped example
+
+`runward init --example` lays down a mission that does this end to end (ADR-0115):
+
+- `code/eslint.config.mjs` encodes the floor's boundaries as lint rules;
+- `code/scripts/` holds one script per report (`junit-committable.mjs`, `coverage-committable.mjs`,
+  `lint-committable.mjs`), each removing only what ties the output to the machine that ran it;
+- `npm run reports` writes `code/reports/` (JUnit, LCOV, ESLint JSON, SARIF), committed;
+- `npm run reports:fresh` (`scripts/reports.mjs --check`) regenerates the four into a scratch directory and
+  compares them with the committed ones; it never writes `reports/`;
+- `runward/hooks.json` runs it before the gate: `{ "before": ["cd code && npm install --no-audit --no-fund
+  --loglevel=error && npm run --silent reports:fresh"] }`.
+
+Copy what fits your stack. A project that already runs a linter, a coverage tool and a test runner adds the
+normalising step and the comparison; the scripts are short on purpose.
+
+### What the comparison reads, and why not bytes
+
+For each report: what the gate reads of it, and what else it records that does not depend on the machine.
+
+| Report | Compared | Not compared |
+|---|---|---|
+| JUnit | every case (suite, classname, name) and its verdict; failures anywhere | order, durations, host names, output |
+| LCOV | every file measured, and whether anything executed it | hit counts, function and branch detail |
+| ESLint JSON | every file linted, its error and warning counts, the rule and line of each message | message text, columns, order |
+| SARIF | every rule in force; the rule, level, file and line of each result | message text, order |
+
+Measured on the example: Node.js 22 and 24 write the same coverage with different hit counts on two lines.
+A byte comparison would refuse an honest pipeline the first time its Node.js differs from the one that
+wrote the committed report, and a guard that fails honest pipelines is switched off.
+
+### The CI job
+
+Run the gate with `--hooks`: the `before` commands of `runward/hooks.json` run first, a hook that fails
+fails the gate, and with no `hooks.json` nothing runs and the run says so. The samples `runward init` writes
+into `runward/adapters/` (GitHub Actions, GitLab CI) do it, and so do the GitHub Action and the GitLab
+template, whose `hooks` input defaults to `true`:
+
+```yaml
+      - uses: stranxik/runward@<sha>
+        with:
+          version: <x.y.z>
+          hooks: 'true'        # the default: runward/hooks.json `before` commands run, then the gate
+```
+
+```yaml
+include:
+  - remote: "https://github.com/stranxik/runward/releases/download/vX.Y.Z/runward-gitlab-gate-X.Y.Z.yml"
+    integrity: "sha256-<base64>"
+    inputs:
+      hooks: true            # the default
+```
+
+A plain `runward check` never runs a hook (ADR-0008); only `--hooks` does, and the CI integrations pass it.
+The commands are your repository's, run with the trust you give `npm test`: never run them under
+`pull_request_target` on an untrusted head.
+
+### What a green job says, and what it does not
+
+A green `check --strict --hooks` says: **on this tree, the tools produced reports that say what the committed
+ones say, and the gate judged the rows on them.** It does not say:
+
+- that the instrument was not changed. The scripts, the lint configuration, `hooks.json`, the `package.json`
+  scripts and the CI workflow are files in the tree under review. Measured: a domain rewritten around a
+  database driver, pushed with `reports.mjs` reduced to `process.exit(0)` and the token its pointer names
+  kept in a comment, is green. Put those paths and
+  `runward/` under CODEOWNERS (or a ruleset requiring review), and cite them from a row so that a sealed
+  mission's seal covers them (the example cites `file:code/eslint.config.mjs#no-restricted-imports`,
+  `file:code/scripts/reports.mjs#--check` and `file:runward/hooks.json#reports:fresh`);
+- that the code is right. A lint rule refuses the shapes it names; a coverage report says a file ran, never
+  that it was tested well.

@@ -107,8 +107,9 @@ export interface JUnitContext {
    *  path replaced by the mission's name (the `--attest` predicate). */
   payloadDigest: string;
   strict: boolean;
-  /** The run's exit code: the `runward gate` case fails exactly when it is 1. */
-  exitCode: 0 | 1;
+  /** The run's exit code: the `runward gate` case fails exactly when it is not 0 (1, or 5 under
+   *  ADR-0114: no gap, and the required level of proof not met). */
+  exitCode: 0 | 1 | 5;
   /** The declared horizon, or null. */
   through: string | null;
 }
@@ -166,8 +167,12 @@ export function buildJUnit(findings: readonly VerdictFinding[], ctx: JUnitContex
     ...body,
     "  </testsuite>",
   ];
-  const gateFailed = ctx.exitCode === 1;
-  const gateCase = gateFailed
+  const gateFailed = ctx.exitCode !== 0;
+  const gateCase = ctx.exitCode === 5
+    ? ["    <testcase name=\"runward gate\" classname=\"runward\">",
+       `      <failure message="nothing was verified mechanically (exit 5)" type="runward/gate">${xmlEscape(`runward check --strict exited 5: no gap, and no applied row carries a pointer the gate opened and checked, below the level of proof the run required (runward ADR-0114).\n${RENDERING_NON_SCOPE}`)}</failure>`,
+       "    </testcase>"]
+    : gateFailed
     ? ["    <testcase name=\"runward gate\" classname=\"runward\">",
        `      <failure message="the gate is red (exit 1)" type="runward/gate">${xmlEscape(`runward check${ctx.strict ? " --strict" : ""} exited 1: ${findings.filter((f) => f.level === "error").length} cause(s) listed in the suites below.\n${RENDERING_NON_SCOPE}`)}</failure>`,
        "    </testcase>"]

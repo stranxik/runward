@@ -12,8 +12,10 @@
 // commit like any other document.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
+import { tmpdir } from "node:os";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -146,6 +148,89 @@ test("the register matches the verdicts it is derived from", () => {
     assert.equal(inRegister, tally[filing],
       `${filing}: ${tally[filing]} on file, ${inRegister} in the register`);
   }
+});
+
+// THE CELLS, AS GITHUB SHOWS THEM. Measured 2026-11-06 by rendering the 2,370 rows of this register with
+// GitHub's own renderer (`POST /markdown`, mode `gfm`): every code cell read exactly and 41 notes did
+// not, because GFM reads markup in prose: a backslash before punctuation vanished, a quoted `**Status**`
+// turned bold, `<string>` was removed as an HTML tag. A first fix doubled every backslash and rendered
+// 33 notes and 5 code cells wrong the other way. Each case below is an excerpt of a verdict from that
+// measurement, run through the real generator, and each expected row was rendered by GitHub and read back
+// exactly. The first six fail on the generator before the fix; the last two pin cells that were right.
+const CELL_CASES = [
+  {
+    why: "a backslash before punctuation, in prose",
+    line: 575, mutator: "StringLiteral", filing: "equivalent",
+    key: "575|87|575|91|StringLiteral|\"\"",
+    argument: "Empties the search value, so on POSIX the regex source becomes ^\\\\/ (backslash-slash) instead of ^/ and the leading separator survives the strip.",
+    row: "| 575 | StringLiteral | `\"\"` | equivalent | Empties the search value, so on POSIX the regex source becomes ^\\\\\\\\/ (backslash-slash) instead of ^/ and the leading separator survives the strip. |",
+  },
+  {
+    why: "bold markers quoted in prose, and a backslash before a letter left single",
+    line: 524, mutator: "Regex", filing: "hole",
+    key: "524|29|524|79|Regex|/^\\s*(?:\\*\\*status\\*\\*|status)\\s:\\s*rejected\\b/im",
+    evidence: "\\s: requires exactly one whitespace between status and the colon: the corpus's CANONICAL form '**Status**: rejected' (zero whitespace before :) no longer",
+    row: "| 524 | Regex | `/^\\s*(?:\\*\\*status\\*\\*\\|status)\\s:\\s*rejecte…` | hole | \\s: requires exactly one whitespace between status and the colon: the corpus's CANONICAL form '\\*\\*Status\\*\\*: rejected' (zero whitespace before :) no longer |",
+  },
+  {
+    why: "an angle bracket GitHub would take for an HTML tag",
+    line: 1075, mutator: "ConditionalExpression", filing: "equivalent",
+    key: "1075|17|1075|20|ConditionalExpression|true",
+    argument: "adjudicated is a Set<string> written only here (adjudicated.add(abs))",
+    row: "| 1075 | ConditionalExpression | `true` | equivalent | adjudicated is a Set\\<string> written only here (adjudicated.add(abs)) |",
+  },
+  {
+    why: "escaped asterisks of a regex in prose",
+    line: 498, mutator: "BlockStatement", filing: "equivalent",
+    key: "498|15|500|10|BlockStatement|{}",
+    argument: "\"\" can match neither /^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*hypothesis\\b/im",
+    row: "| 498 | BlockStatement | `{}` | equivalent | \"\" can match neither /^\\s\\*(?:\\\\\\*\\\\\\*status\\\\\\*\\\\\\*\\|status)\\s\\*:\\s\\*hypothesis\\b/im |",
+  },
+  {
+    why: "an underscore next to punctuation",
+    line: 452, mutator: "Regex", filing: "equivalent",
+    key: "452|32|452|94|Regex|/\\((?:\\?[:=!]|\\?<[^>]>)?([^()]*)\\)([+*?]|\\{\\d+(?:,\\d*)?\\})?/g",
+    argument: "A group name is [A-Za-z0-9_$]",
+    row: "| 452 | Regex | `/\\((?:\\?[:=!]\\|\\?<[^>]>)?([^()]*)\\)([+*?]\\|\\{…` | equivalent | A group name is [A-Za-z0-9\\_$] |",
+  },
+  {
+    why: "bold written in a note shows as written",
+    line: 87, mutator: "Regex", filing: "hole",
+    key: "87|24|87|51|Regex|/\\b(file|test|adr):(\\S.*)/",
+    evidence: "`check --strict --json` went from **exit 0 to exit 1**",
+    row: "| 87 | Regex | `/\\b(file\\|test\\|adr):(\\S.*)/` | hole | `check --strict --json` went from \\*\\*exit 0 to exit 1\\*\\* |",
+  },
+  {
+    why: "backslashes inside a code span stay as they are",
+    line: 269, mutator: "StringLiteral", filing: "hole",
+    key: "269|65|269|68|StringLiteral|\"\"",
+    evidence: "Changing `.split(\"\\\\\").join(\"/\")` to `.join(\"\")` changed the derived path",
+    row: "| 269 | StringLiteral | `\"\"` | hole | Changing `.split(\"\\\\\").join(\"/\")` to `.join(\"\")` changed the derived path |",
+  },
+  {
+    why: "a backslash before a pipe in the code column stays as it is",
+    line: 574, mutator: "Regex", filing: "hole",
+    key: "574|32|574|37|Regex|/\\|/",
+    evidence: "COULD NOT CLEAR — filed as a hole because no measurement decided it",
+    row: "| 574 | Regex | `/\\\\|/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it |",
+  },
+];
+
+test("the register's cells read on GitHub exactly as the verdicts are written", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-register-cells-"));
+  try {
+    const survivors = join(dir, "docs", "compliance", "mutation-survivors");
+    mkdirSync(survivors, { recursive: true });
+    writeFileSync(join(dir, "docs", "compliance", "mutation-register.md"), "# Fixture register\n");
+    writeFileSync(join(survivors, "fixture.json"), JSON.stringify({ function: "fixture",
+      verdicts: CELL_CASES.map(({ why, row, ...v }) => ({ ...v, stableKey: ["fixture", "fixture", v.key].join(String.fromCharCode(1)) })) }));
+    execFileSync(process.execPath, [join(ROOT, "scripts", "mutation-register.mjs")], { cwd: dir, stdio: "pipe" });
+    const written = readFileSync(join(dir, "docs", "compliance", "mutation-register.md"), "utf8").split("\n");
+    const wrong = CELL_CASES
+      .map((c) => ({ why: c.why, want: c.row, got: written.find((l) => l.startsWith(`| ${c.line} | ${c.mutator} |`)) ?? "(no row)" }))
+      .filter((c) => c.got !== c.want);
+    assert.deepEqual(wrong, [], "rows GitHub would not show as the verdicts are written");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
 // Meta-guard, the same reflex as no-overclaim.test.js: a parser that quietly reads nothing turns

@@ -271,3 +271,60 @@ test("ADR-0094, positive controls: the guard reddens on a planted fetch, a plant
     assert.equal(networkIn("prose", "// in-tree, read-only, no fetch: fetch it with the URL").length, 0, "nor the word fetch in prose");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+// ── ADR-0093 decision 10: runward-fleet, the customer-run satellite, is a PACKAGE boundary too ─────
+// The satellite "imports no runward module, reads no repository" and makes "no outbound call": it
+// reads the files runward wrote and nothing else. Its own modules may use Node built-ins other than a
+// process spawner or a socket, and relative paths inside the package; the page it writes fetches
+// one thing, the same-origin index.json a hosted deployment serves next to it (ADR-0121), and only
+// when the index is not inlined. The other direction holds too: runward imports nothing of it and
+// ships none of it.
+const FLEET_PKG = join(ROOT, "packages", "runward-fleet");
+const FLEET_FILES = () => [...listFiles(join(FLEET_PKG, "src"), [".js"]), join(FLEET_PKG, "ui", "views.js")];
+/** The satellite's boundary, as a function, so the controls below run the very code the guard runs. */
+function fleetCrossings(file, src) {
+  const found = [];
+  for (const s of SPECIFIERS(src)) {
+    if (s.startsWith(".")) {
+      if (!resolve(dirname(file), s).startsWith(FLEET_PKG + sep)) found.push(`${file} reaches outside its package with "${s}"`);
+    } else if (!/^node:/.test(s)) found.push(`${file} imports "${s}": Node built-ins only, and never runward`);
+    else if (/child_process|worker_threads|cluster|repl/.test(s)) found.push(`${file} imports "${s}": the satellite spawns nothing`);
+  }
+  return [...found, ...networkIn(file, src)];
+}
+const fleetImportIn = (file, src) => SPECIFIERS(src).filter((s) => /(^|\/)runward-fleet(\/|$)|(^|\/)packages\//.test(s)).map((s) => `${file} imports "${s}"`);
+
+test("ADR-0093: runward-fleet imports nothing from runward, opens no connection, spawns nothing, and is not an SPAWN_ALLOWED entry", async () => {
+  const files = FLEET_FILES();
+  assert.ok(files.length >= 9, `the satellite was walked (${files.length} modules)`);
+  assert.deepEqual(files.flatMap((f) => fleetCrossings(f, readFileSync(f, "utf8"))), [], "the satellite crosses its boundary (ADR-0093 decision 10)");
+  const template = readFileSync(join(FLEET_PKG, "ui", "template.html"), "utf8");
+  assert.deepEqual([...template.matchAll(/fetch\(([^)]*)\)/g)].map((m) => m[1]), ['"index.json", { credentials: "same-origin" }'],
+    "the page's one fetch is the hosted deployment's same-origin index.json");
+  const { SPAWN_ALLOWED } = await import(pathToFileURL(join(ROOT, "eslint.security.config.js")).href);
+  assert.ok(!SPAWN_ALLOWED.some((p) => p.includes("runward-fleet")), "no satellite module is an SPAWN_ALLOWED entry");
+});
+
+test("ADR-0093: the runward package imports nothing from runward-fleet, and does not ship it", () => {
+  assert.deepEqual(RUNWARD_FILES().flatMap((f) => fleetImportIn(f, readFileSync(f, "utf8"))), [], "runward imports the satellite");
+  const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+  for (const k of ["dependencies", "optionalDependencies", "peerDependencies", "devDependencies"]) assert.ok(!pkg[k]?.["runward-fleet"], `runward-fleet is not a ${k} entry`);
+  for (const entry of [join(ROOT, "dist", "lib", "verdict.js"), join(ROOT, "dist", "commands", "check.js"), join(ROOT, "dist", "commands", "gate-hook.js")]) {
+    const { files } = importClosure(entry);
+    assert.ok(![...files].some((f) => f.startsWith(FLEET_PKG)), `${entry}: a satellite module is inside a verdict ring`);
+  }
+});
+
+test("ADR-0093, positive controls: a planted runward import, a planted spawn, a planted escape and a planted fetch in the satellite redden", () => {
+  const f = join(FLEET_PKG, "src", "planted.js");
+  for (const [plant, what] of [
+    ['import { computeVerdict } from "runward/dist/lib/verdict.js";', "a runward import"],
+    ['import { readConfig } from "../../../src/lib/config.js";', "a relative escape into runward"],
+    ['import { execFileSync } from "node:child_process";', "a spawn"],
+    ['export const x = async () => fetch("https://example.invalid/index.json");', "a fetch"],
+    ['import { request } from "node:https";', "a socket"],
+    ['const m = await import("chalk");', "a dynamic dependency import"],
+  ]) assert.equal(fleetCrossings(f, plant).length, 1, `${what} reddens`);
+  assert.equal(fleetCrossings(f, 'import { createHash } from "node:crypto";\nimport { group } from "./build.js";').length, 0, "but built-ins and the package's own modules do not");
+  assert.equal(fleetImportIn("x.js", 'import { buildIndex } from "runward-fleet";').length, 1, "a planted import of the satellite into runward reddens");
+});

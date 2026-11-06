@@ -35,9 +35,14 @@ export function renderDeliveryReport(
       agent?: number; agents?: Array<{ agent: string; for: string; rows: number }>;
       singleAccountable?: { rows: number; disclosure: string[] };
       changed?: number; changedRows?: Array<{ deliverable: string; rule: string }> };
-    requiresUnmet?: Array<{ deliverable: string; rule: string; requires: string }>;
+    requiresUnmet?: Array<{ deliverable: string; rule: string; requires: string; declaredIn?: string }>;
     prosePointers?: Array<{ deliverable: string; rule: string; spelling: string }>;
     workflowContract?: { gating: boolean; malformed: string[]; joinBreaks: string[]; unmetRequires: string[] };
+    analysis?: { policy: string; known: boolean; files: { analysed: number; tests: number; core: number; config: number };
+      findings: Array<{ family: string; check: string; path: string; line: number | null; message: string }>;
+      hypotheses: Array<{ family: string; check: string; path: string; line: number | null; message: string }>;
+      notAnalyzed: Array<{ what: string; files: number }>;
+      allowances: { file: string; present: boolean; used: unknown[]; inert: unknown[]; problems: unknown[] }; nonScope: string };
     gateNonScope?: unknown;
     delegation?: { file: string; banner: string[]; stage: number | null; accountable: string | null; delegates: string[];
       effective: string | null; expires: string | null; gaps?: Array<{ kind: string }>;
@@ -71,6 +76,7 @@ export function renderDeliveryReport(
   const unmet = p.requiresUnmet ?? [];
   const prose = p.prosePointers ?? [];
   const wc = p.workflowContract;
+  const an = p.analysis;
   const rat = p.ratification;
   const ev = p.evidence;
   const deferredRows = (p.horizon?.deferred ?? []).map((d) =>
@@ -116,9 +122,11 @@ export function renderDeliveryReport(
      says exactly that, so the pre-write value is a stated fact and never a silent one. -->
 <p class="meta">Subject digest <code>${esc(meta.subjectDigest)}</code>
 <br><small>Taken <strong>before this file was written</strong>: the report lives inside the mission tree, so writing it changes the tree's hash. To re-derive: delete <code>runward/governance/delivery-report.html</code> and run <code>runward check --attest</code> — the attestation's subject digest must equal the value above. An attestation produced with this file present covers this file too and will differ; produce the attestation first, or remove the report before attesting.</small></p>
-<p><span class="verdict ${clean ? "clean" : "gaps"}">${clean ? "CLEAN" : "GAPS"}</span>
+<p><span class="verdict ${clean ? "clean" : "gaps"}">${clean ? "CLEAN" : p.verdict === "level-not-met" ? "LEVEL NOT MET" : "GAPS"}</span>
 ${clean
     ? " — every expected deliverable is filled and, under strict, every CRITICAL/HIGH rule mapped to a crossed phase is accounted for."
+    : p.verdict === "level-not-met"
+    ? " — no gap, and nothing was verified mechanically: no applied row carries a pointer the gate opened and checked, below the level of proof the run required (exit 5, runward ADR-0114)."
     : ` — ${esc(p.gaps.deliverables)} deliverable gap(s), ${esc(p.gaps.conformance)} rule-conformance gap(s)${p.gaps.proposed ? ` (of which ${esc(p.gaps.proposed)} proposal(s) awaiting ratification)` : ""}.`}
 </p>
 
@@ -135,11 +143,12 @@ ${ev ? `<p>${esc(ev.rows)} manifest row(s): ${esc(ev.applied)} applied, ${esc(ev
 <tr><th>Scope</th><th>Rule</th><th>Open violation</th></tr>
 ${rowsConformance}
 </table>
-${unmet.length ? `<p class="warn">${unmet.length} applied row(s) cite a different kind of evidence than their rule requires (reported only: the gate does not refuse this yet; runward ADR-0073):</p><table><tr><th>Deliverable</th><th>Rule</th><th>Requires</th></tr>${unmet.map((u) => `<tr><td><code>${esc(u.deliverable)}</code></td><td><code>${esc(u.rule)}</code></td><td>${esc(u.requires)}</td></tr>`).join("")}</table>` : ""}
+${unmet.length ? `<p class="warn">${unmet.length} applied row(s) cite a different kind of evidence than their rule requires. Under --strict each is refused and listed in the table above, unless this delivery declares in its journal that it cannot carry that kind (runward ADR-0115):</p><table><tr><th>Deliverable</th><th>Rule</th><th>Requires</th><th>Declared uncarriable in</th></tr>${unmet.map((u) => `<tr><td><code>${esc(u.deliverable)}</code></td><td><code>${esc(u.rule)}</code></td><td>${esc(u.requires)}</td><td>${u.declaredIn ? esc(u.declaredIn) : "not declared: refused"}</td></tr>`).join("")}</table>` : ""}
 ${rat ? `<p>Ratification: ${esc(rat.rows)} row(s) traced (${esc(rat.lineByLine)} line-by-line, ${esc(rat.enBloc)} en bloc, ${esc(rat.blind)} blind${rat.agent ? `, ${esc(rat.agent)} by an agent: ${(rat.agents ?? []).map((a) => `${esc(a.agent)} for ${esc(a.for)} (${esc(a.rows)})`).join(", ")}` : ""}) · ${esc(rat.untraced)} decided row(s) with no trace${rat.blind > 0 ? ` — <strong class="warn">${esc(rat.blind)} row(s) were ratified without displayed evidence and are recorded as such</strong>` : ""}.</p>${rat.changed ? `<p class="warn">${esc(rat.changed)} row(s) changed since their ratification; re-ratify with <code>runward ratify --decided</code>. They are not counted as ratified above: ${(rat.changedRows ?? []).map((x) => `<code>${esc(x.rule)}</code> (${esc(x.deliverable)})`).join(", ")}.</p>` : ""}${rat.singleAccountable ? `<p class="warn">${esc(rat.singleAccountable.rows)} row(s) ratified as agent (single accountable): ${rat.singleAccountable.disclosure.map((d) => esc(d)).join("; ")}.</p>` : ""}` : ""}
 ${p.delegation ? `<p class="warn">Delegation charter <code>${esc(p.delegation.file)}</code> (stage ${esc(p.delegation.stage ?? "?")}, accountable ${esc(p.delegation.accountable ?? "undeclared")}, delegates ${esc(p.delegation.delegates.join(", ") || "none")}, effective ${esc(p.delegation.effective ?? "?")} to ${esc(p.delegation.expires ?? "?")}): ${p.delegation.banner.map((b) => esc(b)).join("; ")}.${(p.delegation.gaps ?? []).length > 0 ? ` <strong>${esc((p.delegation.gaps ?? []).length)} delegation-charter gap(s)</strong>, listed in the conformance table above.` : ""}${p.delegation.sample?.notice ? ` <strong>${esc(p.delegation.sample.notice)}</strong> (read against the latest date the tree declares).` : ""}${p.delegation.sample?.present ? ` Sample ledger <code>${esc(p.delegation.sample.file)}</code>, covered until ${esc(p.delegation.sample.coveredUntil ?? "?")}: ${p.delegation.sample.banner.map((b) => esc(b)).join("; ")}.` : ""}</p>\n` : ""}${p.seal?.present ? `<p>Evidence seal: ${esc(p.seal.count)} file(s) sealed on ${esc(p.seal.sealedAt)}, ${p.seal.violations === 0 ? '<span class="ok">intact</span>' : `<span class="warn">${esc(p.seal.violations)} violation(s)</span>`}.</p>` : `<p>No evidence seal — sealing is opt-in; nothing here is verified against a previous state.</p>`}
 ${prose.length ? `<p class="warn">${prose.length} evidence cell(s) spell a pointer whose operand is not a path, so the gate read prose and not a citation (disclosed, never gating). Harmless in a sentence that merely contains a colon; a file with no extension is cited as <code>file:./Makefile</code>:</p><table><tr><th>Deliverable</th><th>Rule</th><th>Read as prose</th></tr>${prose.map((u) => `<tr><td><code>${esc(u.deliverable)}</code></td><td><code>${esc(u.rule)}</code></td><td><code>${esc(u.spelling)}</code></td></tr>`).join("")}</table>` : ""}
 ${wc && (wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length) > 0 ? `<p class="warn">${wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length} workflow-contract break(s) — ${wc.gating ? "counted against this verdict" : "disclosed, not counted (the mission has not opted into contract hardening)"}.</p>` : ""}
+${an ? `<p${an.findings.length ? ' class="warn"' : ""}>Delivered code, read under the analysis policy <code>${esc(an.policy)}</code> the mission pins (ADR-0118): ${esc(an.files.analysed)} source file(s) (${esc(an.files.core)} in the declared domain core, ${esc(an.files.tests)} test file(s)) and ${esc(an.files.config)} configuration file(s) read, never run — <strong>${esc(an.findings.length)} finding(s)</strong>, counted against this verdict and listed in the table above${an.hypotheses.length ? `; ${esc(an.hypotheses.length)} hypothesis(es) the reading cannot settle, reported and never counted` : ""}${an.notAnalyzed.length ? `; not analysed: ${an.notAnalyzed.map((x) => `${esc(x.what)}${x.files ? ` (${esc(x.files)})` : ""}`).join("; ")}` : ""}${an.allowances.present ? `; allowances in <code>${esc(an.allowances.file)}</code>: ${esc(an.allowances.used.length)} in use, ${esc(an.allowances.inert.length)} setting aside nothing` : ""}.</p><p><small>${esc(an.nonScope)}</small></p>` : ""}
 
 <h2>3 · What is deferred, and why</h2>
 ${p.through ? `<p>This verdict certifies a declared prefix through <strong>${esc(p.through)}</strong> — a construction checkpoint, not a completion. ${esc(p.gaps.deferred)} later deliverable(s) are deferred by that declaration:</p><table><tr><th>Phase</th><th>Deliverable</th><th>Path</th></tr>${deferredRows}</table>` : `<p>No declared horizon: this verdict judges the whole arc, and nothing is deferred by declaration.</p>`}

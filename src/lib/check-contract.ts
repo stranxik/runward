@@ -19,8 +19,9 @@
 
 import { resolve } from "node:path";
 import { GATED_DELIVERABLES, UNBOUND_CAUSE_TEXT } from "./conformance.js";
-import type { Verdict } from "./verdict.js";
+import { requiredLevel, verdictOutcome, type Verdict } from "./verdict.js";
 import { PHASES, type GapReport } from "./mission.js";
+import { analysisPayload } from "./analyze.js";
 
 /** Everything `check` accepts, exactly as commander hands it over. */
 export interface CheckOptions {
@@ -43,6 +44,8 @@ export interface CheckOptions {
   junit?: string;
   /** ADR-0113 decision 5: with --attest, also bind the files the project delivers as a second subject. */
   wholeTree?: boolean;
+  /** ADR-0114: the level of proof the strict verdict requires (`mechanical` | `traced`). */
+  require?: string;
 }
 
 /**
@@ -86,6 +89,12 @@ export function optionFault(opts: CheckOptions): OptionFault | null {
   if (opts.witness !== undefined && !opts.strict) {
     return {
       message: "`--witness` records what a strict verdict relied on: add `--strict` (`runward check --strict --witness <file>`).",
+    };
+  }
+  // ADR-0114: the level of proof is asked of the rows a strict verdict reads; without --strict none is.
+  if (opts.require !== undefined && !opts.strict) {
+    return {
+      message: "`--require` sets the level of proof a strict verdict demands of its rows, and without `--strict` no row is read: add `--strict` (`runward check --strict --require traced`).",
     };
   }
   // ADR-0096: each rendering file is its own document. Two flags naming one path would leave one
@@ -145,8 +154,13 @@ export function impliesStrict(opts: CheckOptions): boolean {
  * flags that shape the verdict, which the predicate records (`strict`, `through`, the presence of
  * `hooks`), and never the path. `check` and `verify` both call it, so the two cannot disagree.
  */
-export function attestedQuestion(opts: Pick<CheckOptions, "strict" | "freeze" | "through" | "hooks">): CheckOptions {
-  return { strict: impliesStrict(opts), ...(opts.through ? { through: opts.through } : {}), ...(opts.hooks ? { hooks: true } : {}) };
+export function attestedQuestion(opts: Pick<CheckOptions, "strict" | "freeze" | "through" | "hooks" | "require">): CheckOptions {
+  // ADR-0114 beside ADR-0113: the level of proof shapes the verdict and the predicate records it
+  // (`require.level`), so it is part of the question; it is named only when it is not the level the
+  // question implies (`requiredLevel`), so `--require mechanical` typed or left out gives one attestation.
+  const strict = impliesStrict(opts);
+  const level = strict && opts.require && opts.require !== requiredLevel({ through: opts.through }) ? opts.require : undefined;
+  return { strict, ...(opts.through ? { through: opts.through } : {}), ...(level ? { require: level } : {}), ...(opts.hooks ? { hooks: true } : {}) };
 }
 
 /**
@@ -164,6 +178,7 @@ export function rerunCommand(opts: CheckOptions): string {
   if (opts.path) parts.push(`-p ${opts.path}`);
   if (impliesStrict(opts)) parts.push("--strict");
   if (opts.through) parts.push(`--through ${opts.through}`);
+  if (opts.require) parts.push(`--require ${opts.require}`);
   if (opts.hooks) parts.push("--hooks");
   return parts.join(" ");
 }
@@ -184,12 +199,23 @@ export interface NextSegment { text: string; tone?: "command" | "muted" }
 export interface NextStep { action: string; command: string; rerun: string | null; segments: NextSegment[] }
 
 export function nextStep(
-  v: { gaps: number; strictGaps: number; hookFailed: number; breakdown: Verdict["strictBreakdown"] },
+  v: { gaps: number; strictGaps: number; hookFailed: number; breakdown: Verdict["strictBreakdown"]; levelNotMet?: boolean },
   opts: CheckOptions,
 ): NextStep {
   const cmd = (text: string): NextSegment => ({ text, tone: "command" });
   const muted = (text: string): NextSegment => ({ text, tone: "muted" });
   const plain = (text: string): NextSegment => ({ text });
+  // ADR-0114: no gap, and nothing the gate verified reaches the required level. Two ways out, both
+  // named: give one row something the gate can open, or ask for the traced green by name.
+  if (v.levelNotMet && v.gaps === 0 && v.strictGaps === 0 && v.hookFailed === 0) {
+    const rerun = rerunCommand(opts);
+    const traced = rerunCommand({ ...opts, require: "traced" });
+    return {
+      action: "verify-a-row", command: rerun, rerun,
+      segments: [plain("Point at least one applied row at the code, test or report that applies its rule ("), cmd("file:PATH[:LINE][#SYMBOL]"), plain(", "), cmd("test:PATH[::NAME]"), plain(", "), cmd("adr:NNNN"),
+        plain("), then re-run "), cmd(rerun), plain("; or accept a green that rests on judgment alone, by name: "), cmd(traced), plain(".")],
+    };
+  }
   if (v.gaps === 0 && v.strictGaps === 0 && v.hookFailed === 0) {
     return {
       action: "assemble-evidence-pack", command: "runward compliance <regime>", rerun: null,
@@ -238,6 +264,10 @@ export function nextStep(
               // ratification it does not cover is re-ratified by a delegate or a person.
               : b.charter
                 ? then("Fix runward/delegation.md, run the period's sample (runward sample), or re-ratify the row(s) it does not cover, as named above (the charter is the maintainer's to change)", "fix-delegation-charter")
+                // ADR-0118: the code is what breaks the declared invariant, so the code is what changes;
+                // an allowance with its reason is the other honest answer, written where a reviewer reads it.
+                : b.analysis
+                  ? then("Change the code the analyzers named above, or allow it in runward/analysis.md with the reason it is legitimate", "fix-analysis-findings")
                 : v.hookFailed
                 ? then("Fix the failing hook(s) in runward/hooks.json", "fix-hooks")
                 : { action: "rerun", command: rerun, segments: [plain("Re-run "), cmd(rerun), plain(".")] };
@@ -274,7 +304,9 @@ export function nextPayload(n: NextStep): { action: string; command: string; rer
  * the JSON carried `currentGate: "all gates passed"` beside `verdict: "gaps"` (RWD-2026-0131). The
  * label now says what it measured whenever the verdict disagrees; the green keeps its bytes.
  */
-export function currentGateLabel(report: { currentPhase: string; steadyState: boolean }, clean: boolean, redAt: readonly string[] = []): string {
+export function currentGateLabel(report: { currentPhase: string; steadyState: boolean }, clean: boolean, redAt: readonly string[] = [], levelNotMet = false): string {
+  // ADR-0114: "all gates passed" above an exit 5 is the vacuous green this label must not print.
+  if (report.steadyState && clean && levelNotMet) return "deliverables filled, nothing verified mechanically";
   // "all deliverables filled (verdict: gaps)" was true and read as a contradiction: measured
   // 2026-10-13, a newcomer met "filled" one line above a red exit and had to scroll up to learn
   // where the gate was red. The label now says both halves, and names the phases when it can.
@@ -401,9 +433,14 @@ export function conformanceRows(verdict: Verdict): Array<{ scope: string; rule: 
  *             `corpus-missing` · `corpus-edited` · `corpus-extra` · `corpus-unrecorded` ·
  *             `seal-violation` · `unratified-decision` · `unbound-row` · and, under a delegation
  *             charter, `charter-malformed` · `charter-class-refused` · `charter-stage-unread` ·
- *             `charter-expired` · `agent-not-delegate`). Values are only ever added.
- * - `file`    repository-relative, `/`-separated, the artifact that carries the refusal.
- * - `line`    1-based line of the rule's row in that file, or null when the refusal has no row
+ *             `charter-expired` · `agent-not-delegate`; under a pinned analysis policy (ADR-0118),
+ *             `analysis-boundary` · `analysis-capability` · `analysis-secret` ·
+ *             `analysis-test-integrity` · `analysis-symbol` · `analysis-policy`, with the check id in
+ *             `rule`). Values are only ever added.
+ * - `file`    repository-relative, `/`-separated, the artifact that carries the refusal (for an
+ *             analysis finding, the code file).
+ * - `line`    1-based line of the rule's row in that file (for an analysis finding, of the code), or
+ *             null when the refusal has no row
  *             (a missing row, a whole-file fact, a rule the file does not list).
  * - `phaseId` the `rules --phase` id of the gated phase (`architect | topology | floor | govern |
  *             handover`), or null for a scope that is not a phase (corpus, seal, reconstruction).
@@ -429,7 +466,7 @@ export function conformanceFile(label: string): string {
 export function conformanceRowsLocated(verdict: Verdict, locate: LineLocator = () => null): ConformanceEntry[] {
   return conformanceEntries(verdict).map((e) => ({
     scope: e.scope, rule: e.rule, problem: e.problem, kind: e.kind, file: e.file,
-    line: e.rowed ? locate(e.file, e.rule) : null, phaseId: e.phaseId,
+    line: e.rowed ? locate(e.file, e.rule) : e.fixedLine ?? null, phaseId: e.phaseId,
   }));
 }
 
@@ -437,8 +474,8 @@ export function conformanceRowsLocated(verdict: Verdict, locate: LineLocator = (
  *  when an attestation was produced before them. */
 export const CONFORMANCE_ADDITIVE_KEYS = ["kind", "file", "line", "phaseId"] as const;
 
-function conformanceEntries(verdict: Verdict): Array<Omit<ConformanceEntry, "line"> & { rowed: boolean }> {
-  const rows: Array<Omit<ConformanceEntry, "line"> & { rowed: boolean }> = [];
+function conformanceEntries(verdict: Verdict): Array<Omit<ConformanceEntry, "line"> & { rowed: boolean; fixedLine?: number | null }> {
+  const rows: Array<Omit<ConformanceEntry, "line"> & { rowed: boolean; fixedLine?: number | null }> = [];
   for (const g of verdict.gated) {
     if (g.skipped) continue;
     const meta = GATED_DELIVERABLES.find((x) => x.label === g.label);
@@ -477,6 +514,12 @@ function conformanceEntries(verdict: Verdict): Array<Omit<ConformanceEntry, "lin
     const meta = GATED_DELIVERABLES.find((x) => x.deliverable === u.deliverable);
     rows.push({ scope: "ratification", rule: u.rule, problem: `${UNBOUND_CAUSE_TEXT[u.cause]} (${u.deliverable})`,
       kind: "unbound-row", file: `runward/${u.deliverable}`, rowed: true, phaseId: meta?.phase ?? null });
+  }
+  // ADR-0118: present only when the mission pins an analysis policy. Each finding lands on the file and
+  // line of the code that breaks the declared invariant, so `file`/`line` say where to look.
+  for (const f of verdict.analysis?.findings ?? []) {
+    rows.push({ scope: "analysis", rule: f.check, problem: `${f.path}${f.line ? `:${f.line}` : ""}: ${f.message}`,
+      kind: `analysis-${f.family}`, file: f.path, rowed: false, phaseId: null, fixedLine: f.line });
   }
   return rows;
 }
@@ -535,14 +578,16 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
     adrCount: ctx.adrCount,
     ...(ctx.adrSetAside && ctx.adrSetAside.length > 0 ? { adrSetAside: ctx.adrSetAside } : {}),
     strict: ctx.strict,
-    verdict: ctx.clean ? "clean" : "gaps",
-    exitCode: ctx.clean ? 0 : 1,
+    // ADR-0114: `verdictOutcome`, the one reading of the words and the code: `level-not-met`, exit 5,
+    // when no gap stands and the required level of proof (`require`, below) is not met.
+    verdict: verdictOutcome(ctx.clean, verdict.require).verdict,
+    exitCode: verdictOutcome(ctx.clean, verdict.require).exitCode,
     // HOW THE COUNTS ADD UP (RWD-2026-0146). `deliverables`, `conformance` and `hooks` are disjoint:
     // their sum is what stands between this run and a green. `conformance` is the WHOLE strict count
     // (rule violations, proposals, corpus divergences, seal drift, unratified reconstruction
-    // decisions, unbound regulated rows, gating workflow-contract breaks). `proposed` and
+    // decisions, unbound regulated rows, gating workflow-contract breaks, analysis findings). `proposed` and
     // `unboundRows` are SUBSETS of it, published apart so a consumer can tell which gesture closes
-    // them; adding them to `conformance` counts the same rows twice. `deferred` is outside the
+    // them; adding them to `conformance` counts the same rows twice. So are `charter` and `analysis`. `deferred` is outside the
     // verdict (ADR-0053: deliverables beyond a declared --through horizon).
     gaps: {
       deliverables: ctx.gaps,
@@ -559,6 +604,9 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       // ADR-0088 decision 5, additive and present only when the mission has a charter. INSIDE
       // `conformance`'s total too: each one is a `delegation` row of the `conformance` array.
       ...(verdict.delegation && ctx.strict ? { charter: verdict.strictBreakdown.charter } : {}),
+      // ADR-0118, additive and present only when the mission pins an analysis policy. INSIDE
+      // `conformance`'s total too: each finding is an `analysis` row of the `conformance` array.
+      ...(verdict.analysis && ctx.strict ? { analysis: verdict.strictBreakdown.analysis ?? 0 } : {}),
       // ADR-0095 decision 2, additive and strict only (like `conformance[]`): the causes grouped by
       // kind, each count with the indices of the `conformance` rows it counts. Last, so every key
       // before it keeps its place.
@@ -632,12 +680,19 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       // approval (part 2) is never judged here: this command has no forge to ask.
       ...(verdict.regulated.on ? { regulated: { unbound: verdict.regulated.unbound, forgeApproval: "not verified by this command" } } : {}),
       gateNonScope: ctx.gateNonScope,
+      // ADR-0114, additive and strict only: the level of proof this run required (`--require`, or its
+      // default) and whether the verdict meets it. `met: false` beside no gap is `level-not-met`, exit 5.
+      ...(verdict.require ? { require: verdict.require } : {}),
       // ADR-0098 option B, additive and present only when at least one applied row was judged on a
       // committed JUnit report, so every other payload keeps its bytes. Last in the strict block, so
       // every key before it keeps its place. `rows` counts rows, `reports` lists the reports they
       // cite; `freshness` is a constant: the gate reads the case a report records and never how old
       // the report is (ADR-0054: no git, no clock). Disclosed, never counted against the verdict.
       ...((verdict.committedJUnit?.rows.length ?? 0) > 0 ? { committedJUnit: committedJUnitPayload(verdict) } : {}),
+      // ADR-0118, additive and present only when the mission pins an analysis policy, so every other
+      // payload keeps its bytes. Last in the strict block. `findings` are counted (`gaps.analysis`, and
+      // one `conformance` row each); `hypotheses` and `notAnalyzed` never are.
+      ...(verdict.analysis ? { analysis: analysisPayload(verdict.analysis) } : {}),
     } : {}),
     // RWD-2026-0150, additive and present only under --coverage, so every other run keeps its bytes.
     ...(ctx.coverage ? { coverage: ctx.coverage } : {}),

@@ -8,7 +8,7 @@ runward is a deterministic CLI that traces and verifies delivery decisions for a
 
 ## 2. Boundaries
 
-- **The gate is a port.** runward's primary port is a process contract, not an API: argv in; exit code out (0 green, 1 gaps, 2 no mission or CLI misuse); human-readable report on stdout. Anything that can run a process and read an exit code — GitHub Actions, GitLab CI, a pre-commit hook, an agent harness — is an adapter of this port (ADR-0012). The adapters shipped in `templates/adapters/` are inert samples the operator copies and wires; runward never installs them, never writes into `.git/` or a CI config.
+- **The gate is a port.** runward's primary port is a process contract, not an API: argv in; exit code out (0 green, 1 gaps, 2 no mission or CLI misuse, 5 a strict verdict below its required level of proof, ADR-0114); human-readable report on stdout. Anything that can run a process and read an exit code — GitHub Actions, GitLab CI, a pre-commit hook, an agent harness — is an adapter of this port (ADR-0012). The adapters shipped in `templates/adapters/` are inert samples the operator copies and wires; runward never installs them, never writes into `.git/` or a CI config.
 - **Commands are adapters; the logic is a library.** `src/commands/` holds thin commander action handlers (parse options, format output, set the exit code). `src/lib/` holds the pure logic: manifest parsing, rule reading, evidence resolution, compliance rendering. Dependencies point inward — `commands` imports `lib`, never the reverse — so every check is testable without a terminal.
 - **The rule set is versioned data, not code.** `templates/rules/*.md` carries the rules (impact, phases, OWASP ASI mapping, optional evidence signature) as markdown with frontmatter; `templates/mission/` and `templates/workflows/` carry the scaffolds. Changing the gate's demands is a data change under maintainer review, with renames tracked as migrations (ADR-0006).
 
@@ -16,7 +16,7 @@ runward is a deterministic CLI that traces and verifies delivery decisions for a
 
 | Port | Direction | Intent | Contract version | Spec |
 |---|---|---|---|---|
-| Gate port (process contract) | primary | run a gate audit; verdict as exit code 0/1/2 | v1 (stable since 0.9) | [contracts/port-contract.md](contracts/port-contract.md) |
+| Gate port (process contract) | primary | run a gate audit; verdict as exit code 0/1/2/5 | v1 (stable since 0.9) | [contracts/port-contract.md](contracts/port-contract.md) |
 | Machine rule surface (`rules --json`) | primary | expose the effective rule set as versioned, additive JSON (ADR-0024) | v1 (additive) | [contracts/port-contract.md](contracts/port-contract.md) |
 | Compliance pack output (OSCAL) | primary | emit an OSCAL 1.2.3 component-definition plus regime-framed markdown (ADR-0016) | OSCAL 1.2.3 | [contracts/port-contract.md](contracts/port-contract.md) |
 | Filesystem | secondary | read the working tree; write `runward/` and explicitly requested files only | — | write layer: `src/lib/write.ts` |

@@ -4,6 +4,7 @@ import { UNBOUND_CAUSE_TEXT } from "./conformance.js";
 import { conformanceFile, type LineLocator } from "./check-contract.js";
 import { toPosix, VERSION } from "./paths.js";
 import type { Verdict } from "./verdict.js";
+import { ANALYSIS_NON_SCOPE } from "./analyze.js";
 
 /**
  * The gate's own verdict, as SARIF (ADR-0056 widening, the emission half).
@@ -194,6 +195,12 @@ export function verdictFindings(missionDir: string, verdict: Verdict, hookFailed
     }
   }
 
+  // ADR-0118: a finding of the built-in analyzers annotates the code that breaks the declared
+  // invariant, at its line: the one place a reviewer can act on it. Present only under a pinned policy.
+  for (const f of verdict.analysis?.findings ?? []) {
+    term(`runward/analysis-${f.check}`, f.path, f.message, f.check, "analysis", f.line ?? 1);
+  }
+
   if (hookFailed > 0) {
     term("runward/hook-failed", "runward/hooks.json", `${hookFailed} operator hook(s) failed; the gate cannot be crossed on a failing hook`, "(hooks)", "hooks");
   }
@@ -224,8 +231,10 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
           informationUri: "https://runward.dev",
           rules: [...ruleIds].sort().map((id) => ({
             id,
-            shortDescription: { text: id === "runward/deliverable-not-filled" ? "A gated deliverable is missing or unfilled" : `Craft rule ${id.slice("runward/".length)} is not accounted for` },
-            fullDescription: { text: GATE_NON_SCOPE_SARIF },
+            shortDescription: { text: id === "runward/deliverable-not-filled" ? "A gated deliverable is missing or unfilled"
+              : id.startsWith("runward/analysis-") ? `The delivered code breaks an invariant the mission declares (${id.slice("runward/analysis-".length)})`
+                : `Craft rule ${id.slice("runward/".length)} is not accounted for` },
+            fullDescription: { text: id.startsWith("runward/analysis-") ? ANALYSIS_NON_SCOPE : GATE_NON_SCOPE_SARIF },
             defaultConfiguration: { level: "error" },
           })),
         },

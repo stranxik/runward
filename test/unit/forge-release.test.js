@@ -7,8 +7,9 @@
 // placeholder can never carry code or reach `latest` by the runbook's command.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
-import { execFileSync } from "node:child_process";
+import { readFileSync, readdirSync, mkdtempSync, writeFileSync, chmodSync, rmSync, existsSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { load as loadYaml } from "js-yaml";
@@ -76,34 +77,46 @@ const indexOf = (texts, re, what) => {
 };
 
 test("release chain: the isolated builder packs runward-forge in its own directory and attests it", () => {
+  // ADR-0116 decision 3: the build job packs, the attest job signs, and the forge tarball crosses from
+  // one to the other by digest.
   const build = workflow("build-and-attest.yml");
   assert.match(build.on.workflow_call.outputs.forge.value, /jobs\.build\.outputs\.forge/);
   const steps = runOf(build.jobs.build.steps);
   const pack = indexOf(steps, /cd packages\/runward-forge && npm pack --silent/, "packs packages/runward-forge");
-  const attest = indexOf(steps, /attest-build-provenance@[0-9a-f]{40}[\s\S]*forge_pack\.outputs\.forge/, "attests the forge tarball");
+  const hashed = indexOf(steps, /forge_sha256=\$\(sha256sum "\$FORGE"/, "hashes the forge tarball for the signing job");
   assert.ok(indexOf(steps, /^Verify\nnpm test/, "runs npm test") < pack, "the builder tests before it packs");
-  assert.ok(pack < attest);
+  assert.ok(pack < hashed);
   assert.match(steps[pack], /runward-forge-\$VERSION\.tgz/, "the builder refuses a forge tarball at another version");
-  assert.match(steps.at(-1), /forge_pack\.outputs\.forge/, "the forge tarball is handed to the caller");
+  assert.match(steps.at(-1), /forge_pack\.outputs\.forge/, "the forge tarball is handed to the signing job");
+  const signing = runOf(build.jobs.attest.steps);
+  const checked = indexOf(signing, /check "\$FORGE" "\$FORGE_SHA256"/, "checks the forge tarball's digest");
+  const attest = indexOf(signing, /attest-build-provenance@[0-9a-f]{40}[\s\S]*needs\.build\.outputs\.forge/, "attests the forge tarball");
+  assert.ok(checked < attest, "the signing job checks the digest before it signs");
+  assert.match(signing.at(-1), /needs\.build\.outputs\.forge/, "the forge tarball is handed to the caller");
 });
 
 test("release chain: the forge tarball is byte-matched, attached as the eighth asset, and read back", () => {
+  // ADR-0116: the job that cross-checks and stages is `verify`, which holds no signing credential; the
+  // SBOM attestation joins the staged assets in the draft job.
   const rel = workflow("release.yml");
-  const attest = runOf(rel.jobs.attest.steps);
-  const cross = indexOf(attest, /builder's runward-forge tarball must byte-match a local pack/, "cross-checks the forge tarball");
-  assert.match(attest[cross], /BUILDER_FORGE[\s\S]*cd packages\/runward-forge && npm pack --silent[\s\S]*\[ "\$A" = "\$B" \][\s\S]*refusing to publish/);
-  const stage = indexOf(attest, /^Stage the eight release assets/, "stages eight assets");
+  const verify = runOf(rel.jobs.verify.steps);
+  const cross = indexOf(verify, /builder's runward-forge tarball must byte-match a local pack/, "cross-checks the forge tarball");
+  assert.match(verify[cross], /BUILDER_FORGE[\s\S]*cd packages\/runward-forge && npm pack --silent[\s\S]*\[ "\$A" = "\$B" \][\s\S]*refusing to publish/);
+  const stage = indexOf(verify, /^Stage the release assets under their published names/, "stages the assets");
   assert.ok(cross < stage);
-  assert.match(attest[stage], /cp "\$FORGE" "release-assets\/runward-forge-\$VERSION\.tgz"/);
+  assert.match(verify[stage], /cp "\$FORGE" "release-assets\/runward-forge-\$VERSION\.tgz"/);
   const draft = runOf(rel.jobs.draft.steps);
+  assert.ok(indexOf(draft, /sbom-attestation/, "downloads the SBOM attestation") < indexOf(draft, /gh release upload/, "uploads"),
+    "the eighth asset is in place before the upload");
   const names = (t) => [...t.matchAll(/"(runward-[^"]+)"/g)].map((m) => m[1]);
   const uploaded = names(draft[indexOf(draft, /gh release upload/, "uploads the assets")]);
   const readBack = names(draft[indexOf(draft, /held\.txt/, "reads the draft back")]);
-  assert.equal(new Set(uploaded).size, 8, `the draft uploads eight assets (${uploaded.join(", ")})`);
+  assert.equal(new Set(uploaded).size, 9, `the draft uploads nine assets, runward-fleet's the ninth (${uploaded.join(", ")})`);
   assert.deepEqual(readBack, uploaded, "the read-back checks exactly what was uploaded");
   assert.ok(uploaded.includes("runward-forge-$VERSION.tgz"));
-  assert.ok(!/\bseven\b/.test(readFileSync(join(ROOT, ".github/workflows/release.yml"), "utf8").replace(/seventh asset/g, "")),
-    "no step or message of release.yml still counts seven assets");
+  const releaseText = readFileSync(join(ROOT, ".github/workflows/release.yml"), "utf8");
+  assert.ok(!/\bseven\b/.test(releaseText.replace(/seventh asset/g, "")), "no step or message of release.yml still counts seven assets");
+  assert.ok(!/\beight\b/.test(releaseText), "nor eight, since runward-fleet's tarball is the ninth (ADR-0093 D4)");
 });
 
 test("release chain: the publish job publishes runward, then verifies and publishes runward-forge from the release", () => {
@@ -147,4 +160,79 @@ test("release chain: the publish job runs in the `release` environment, so a bra
     "the publish job must declare environment: release (its deployment rule admits only tags v*)");
   assert.equal(publish.if, "github.event_name == 'release'", "the publish job runs on the release event only");
   assert.equal(publish.permissions["id-token"], "write", "the OIDC exchange npm checks is the one the environment gates");
+});
+
+// ADR-0116 decision 4. From 0.44.0 to 0.46.0 the publish job ended red on `404 Not Found - PUT
+// https://registry.npmjs.org/runward-forge` (the package was never bootstrapped, runbook §3.1), so
+// verify-release.yml, which runs after a green publish only, never ran. The step itself is executed
+// here, with `curl`, `npm`, `openssl` and `base64` stubbed on the PATH: the package's absence warns and
+// ends green, and every other answer of the registry or of npm keeps the failure a failure.
+const FORGE_PUBLISH = "Publish the released runward-forge tarball with provenance (OIDC, no token)";
+// One stub directory for every run: each new executable costs a first-run scan on macOS.
+let STUBS = null;
+function stubs() {
+  if (STUBS) return STUBS;
+  STUBS = mkdtempSync(join(tmpdir(), "rw-forge-stubs-"));
+  const put = (name, body) => { writeFileSync(join(STUBS, name), `#!/bin/sh\n${body}\n`); chmodSync(join(STUBS, name), 0o755); };
+  put("curl", `printf '%s' "$STUB_CODE"; exit "\${STUB_CURL_EXIT:-0}"`);
+  put("npm", `case "$1" in view) printf '%s' "$STUB_HELD" ;; publish) echo "publish $*" >> "$STUB_LOG"; exit "\${STUB_PUBLISH_EXIT:-0}" ;; esac`);
+  put("openssl", "cat > /dev/null 2>&1; printf 'digest'");
+  put("base64", "cat > /dev/null; printf 'OWN'");
+  return STUBS;
+}
+function runForgePublish(stub) {
+  const step = workflow("release.yml").jobs.publish.steps.find((s) => s.name === FORGE_PUBLISH);
+  assert.ok(step?.run, "the publish job has the runward-forge publish step");
+  const dir = mkdtempSync(join(tmpdir(), "rw-forge-publish-"));
+  try {
+    const bin = stubs();
+    writeFileSync(join(dir, "runward-forge-9.9.9.tgz"), "x");
+    const summary = join(dir, "summary.md");
+    const log = join(dir, "npm.log");
+    const r = spawnSync("bash", ["-c", step.run], { cwd: dir, encoding: "utf8",
+      env: { PATH: `${bin}:${process.env.PATH}`, VERSION: "9.9.9", FORGE: "runward-forge-9.9.9.tgz", GITHUB_STEP_SUMMARY: summary,
+        STUB_LOG: log, STUB_CODE: "", STUB_HELD: "", ...stub } });
+    const read = (p) => (existsSync(p) ? readFileSync(p, "utf8") : "");
+    return { status: r.status, out: `${r.stdout}${r.stderr}`, summary: read(summary), published: read(log) };
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}
+
+test("release chain: a runward-forge absent from npm warns and leaves the publish green; every other failure stays red", () => {
+  // What the step says, read everywhere; what it does, executed where its shell runs (Linux, where the
+  // required test jobs run, and macOS). The Windows leg reads the text only.
+  const run = workflow("release.yml").jobs.publish.steps.find((s) => s.name === FORGE_PUBLISH)?.run ?? "";
+  assert.match(run, /curl [^\n]*-w '%\{http_code\}'[\s\S]*https:\/\/registry\.npmjs\.org\/runward-forge"\) \|\| CODE="unreachable"/,
+    "the registry is asked for the package, not for a version");
+  assert.match(run, /if \[ "\$CODE" = "404" \]; then[\s\S]*::warning[\s\S]*GITHUB_STEP_SUMMARY[\s\S]*exit 0\n\s*fi/, "absent: a warning, the summary, exit 0");
+  assert.match(run, /\[ "\$CODE" = "200" \] \\\n\s*\|\| \{ echo "::error::[^"]*"; exit 1; \}/, "any answer but 404 and 200 fails");
+  if (process.platform === "win32") return;
+
+  const absent = runForgePublish({ STUB_CODE: "404" });
+  assert.equal(absent.status, 0, absent.out);
+  assert.match(absent.out, /::warning title=runward-forge not published::runward-forge is not on npm[\s\S]*runbook\.md §3\.1/);
+  assert.match(absent.summary, /### runward-forge not published/, "the warning is in the job summary too, where a reader of the run sees it");
+  assert.equal(absent.published, "", "nothing is published when the package does not exist");
+
+  const fresh = runForgePublish({ STUB_CODE: "200" });
+  assert.equal(fresh.status, 0, fresh.out);
+  assert.match(fresh.published, /publish runward-forge-9\.9\.9\.tgz --provenance --access public/, "a package that exists is published");
+
+  const refused = runForgePublish({ STUB_CODE: "200", STUB_PUBLISH_EXIT: "1" });
+  assert.equal(refused.status, 1, "a failed publish of a package that exists is a failure, never a warning");
+  assert.doesNotMatch(refused.out, /::warning/);
+
+  const same = runForgePublish({ STUB_CODE: "200", STUB_HELD: "sha512-OWN" });
+  assert.equal(same.status, 0, same.out);
+  assert.match(same.out, /already published with this file's integrity/);
+  assert.equal(same.published, "");
+
+  const other = runForgePublish({ STUB_CODE: "200", STUB_HELD: "sha512-ANOTHER" });
+  assert.equal(other.status, 1, "npm holding another file at this version is a failure");
+
+  for (const [code, exit] of [["503", "0"], ["000", "6"]]) {
+    const r = runForgePublish({ STUB_CODE: code, STUB_CURL_EXIT: exit });
+    assert.equal(r.status, 1, `a registry answering ${code} (curl exit ${exit}) is a failure: ${r.out}`);
+    assert.match(r.out, /::error::the npm registry answered/);
+  }
+  rmSync(stubs(), { recursive: true, force: true });
 });

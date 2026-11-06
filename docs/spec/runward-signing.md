@@ -108,3 +108,15 @@ It does not decide *whether* to build layer 5 — that stays gated on a real dem
 edge in [ADR-0039](../adr/ADR-0039-the-operator-layer-stays-outside-the-cli.md)'s posture. It decides
 what layer 5 must look like **if** it is built, so the multi-maintainer question is answered before a
 flag makes it expensive to answer.
+
+## Note, 2026-11-06: the verifying party is the satellite (ADR-0093)
+
+By name, as [ADR-0093](../adr/ADR-0093-what-runward-shows-is-assembled-from-files-the-cli-writes-a-customer-run-satellite-verifies-a-hosted-product-is-separate.md)
+amends this specification: the CLI still never signs and never verifies; a verifying party (the
+satellite, an auditor) verifies against the operator's `trust-policy.json`, and the satellite alone may
+raise a cell on a verified signature. The satellite is `packages/runward-fleet`, a second MIT package of
+this repository that imports nothing from `runward`: it verifies a Sigstore bundle or a detached Ed25519
+signature offline, against a trusted root or a key the policy pins, and raises a cell to
+`machine-established` only under the pins of ADR-0093 decision 8
+([runward-fleet-index.md](runward-fleet-index.md) §2). Nothing above changes: `verify` reports
+`signatureVerified: false`, always.

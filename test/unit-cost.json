@@ -8,8 +8,8 @@
   ],
   "measuredOn": "2026-11-03",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 768.3,
-  "slowSeconds": 716.7,
+  "totalSeconds": 781.7,
+  "slowSeconds": 728.1,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
@@ -95,7 +95,13 @@
     "test/unit/seal-link-key.test.js",
     "test/unit/evidence-holes.test.js",
     "test/unit/mission-holes.test.js",
-    "test/unit/verify-claims-only-what-it-checks.test.js"
+    "test/unit/verify-claims-only-what-it-checks.test.js",
+    "test/unit/symbols-outside-comments.test.js",
+    "test/unit/required-level.test.js",
+    "test/unit/analyze-gate.test.js",
+    "test/unit/analyze-bench.test.js",
+    "test/unit/example-machine-evidence.test.js",
+    "test/unit/package-sbom.test.js"
   ],
   "files": [
     {
@@ -1216,6 +1222,71 @@
     {
       "file": "test/unit/verify-claims-only-what-it-checks.test.js",
       "seconds": 15.29,
+      "passed": true
+    },
+    {
+      "file": "test/unit/symbols-outside-comments.test.js",
+      "seconds": 3.32,
+      "passed": true
+    },
+    {
+      "file": "test/unit/required-level.test.js",
+      "seconds": 12.12,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-gate.test.js",
+      "seconds": 3.68,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-bench.test.js",
+      "seconds": 2.52,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-scanner.test.js",
+      "seconds": 0.16,
+      "passed": true
+    },
+    {
+      "file": "test/unit/example-machine-evidence.test.js",
+      "seconds": 5.22,
+      "passed": true
+    },
+    {
+      "file": "test/unit/beta-form.test.js",
+      "seconds": 0.16,
+      "passed": true
+    },
+    {
+      "file": "test/unit/package-sbom.test.js",
+      "seconds": 2.78,
+      "passed": true
+    },
+    {
+      "file": "test/unit/release-signing-isolation.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/fleet-release.test.js",
+      "seconds": 0.64,
+      "passed": true
+    },
+    {
+      "file": "test/unit/fleet-view-rules.test.js",
+      "seconds": 0.39,
+      "passed": true
+    },
+    {
+      "file": "test/unit/fleet-signatures.test.js",
+      "seconds": 0.34,
+      "passed": true
+    },
+    {
+      "file": "test/unit/fleet-build.test.js",
+      "seconds": 0.26,
       "passed": true
     }
   ]

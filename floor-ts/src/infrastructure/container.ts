@@ -176,8 +176,7 @@ export interface ProviderProfile {
 }
 
 export function resolveProviderProfile(baseUrl: string): ProviderProfile {
-  const url = baseUrl.toLowerCase();
-  if (url.includes("anthropic.com")) {
+  if (isAnthropicHost(baseUrl)) {
     // This provider requires an API version header, otherwise silent timeout.
     return {
       extraHeaders: { "anthropic-version": "2023-06-01" },
@@ -187,4 +186,18 @@ export function resolveProviderProfile(baseUrl: string): ProviderProfile {
   // Default case: any standard OpenAI-compatible proxy or provider (OpenAI,
   // LiteLLM, Novita, etc.). No special header.
   return { extraHeaders: {}, notes: "Standard OpenAI-compatible, no special header." };
+}
+
+// The host decides, never a substring of the whole URL: "anthropic.com" in a
+// path, in a query or at the start of another host's name is not Anthropic
+// (CodeQL js/incomplete-url-substring-sanitization). A base URL that does not
+// parse gets the default profile, as an unknown provider does.
+function isAnthropicHost(baseUrl: string): boolean {
+  let host: string;
+  try {
+    host = new URL(baseUrl).hostname.toLowerCase();
+  } catch {
+    return false;
+  }
+  return host === "anthropic.com" || host.endsWith(".anthropic.com");
 }

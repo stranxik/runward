@@ -212,26 +212,27 @@ compares two witnesses of different versions as if they were one.
 
 | Member | Type | Meaning |
 |---|---|---|
-| `result` | `"clean"` or `"gaps"` | the words `check --json` uses for its `verdict` |
-| `exitCode` | 0 or 1 | the exit code `check` exited with |
+| `result` | `"clean"` or `"gaps"` | the words `check --json` uses for its `verdict`, by the arithmetic below; where `require.met` is false, `check --json` says `level-not-met` (ADR-0114) |
+| `exitCode` | 0 or 1 | the exit code of the arithmetic below: the code `check` exited with, except when `require.met` is false, where `check` exited 5 (ADR-0114) |
 | `gaps` | integer | deliverables not filled, inside the horizon |
 | `strictGaps` | integer | every strict term (8.1) |
 | `hookFailed` | integer | failed hooks, an invalid `hooks.json` counting one |
 | `deferredGaps` | integer | deliverables not filled beyond the horizon; never counted |
 | `checked` | integer | gated manifests judged and not skipped (7.3) |
-| `strictBreakdown` | object | `strictGaps` by family: `conformance`, `proposed`, `corpus`, `seal`, `unratified`, `unboundRows`, `charter` (integers) |
+| `strictBreakdown` | object | `strictGaps` by family: `conformance`, `proposed`, `corpus`, `seal`, `unratified`, `unboundRows`, `charter` (integers), and `analysis` when the mission pins an analysis policy (ADR-0118) |
+| `require` | object | added after 0.46.0 (ADR-0114): `{ "level", "met" }`, the level of proof the run required (`mechanical` or `traced`) and whether the verdict meets it. Carried, not re-checked: family `required-level` (8.2). A witness without it was written by a runward that required no level |
 
 Arithmetic a checker re-checks (all of it, always):
 
 - `exitCode` is 0 if and only if `gaps + strictGaps + hookFailed` is 0, and `result` is `"clean"` if
   and only if `exitCode` is 0.
-- `strictGaps` equals the sum of the seven `strictBreakdown` members plus the number of causes of
-  family `workflow-contract`.
+- `strictGaps` equals the sum of the `strictBreakdown` members (seven, eight with `analysis`) plus the
+  number of causes of family `workflow-contract`.
 - The number of entries of `causes` equals `gaps + strictGaps + hookFailed`, and per family (8.1):
   `deliverable-state` causes = `gaps`; `conformance` causes = `strictBreakdown.conformance +
   strictBreakdown.proposed`, of which those of kind `proposed` = `strictBreakdown.proposed`; `corpus` =
   `corpus`; `seal` = `seal`; `unratified-decision` = `unratified`; `regulated` = `unboundRows`;
-  `charter` = `charter`; `hooks` = `hookFailed`.
+  `charter` = `charter`; `analysis` = `analysis` (0 when the member is absent); `hooks` = `hookFailed`.
 - `checked` equals the number of `gated` entries with `judged: true` and `skipped: false`.
 
 ### 6.3 `repository`
@@ -598,7 +599,7 @@ matches `why\s*:\s*UNKNOWN\b` (case-insensitive). A file that cannot be read is 
 One entry per unit the verdict counted, `{ "family", "path", "rule", "kind", "problem" }`, in this
 order: deliverables, gated manifests (in `gated` order, each in the order the verdict raised them),
 corpus (`missing`, `edited`, `extra`, or one `corpus-unrecorded`), seal, unratified decisions (sorted by
-path), regulated rows, charter, workflow contracts, hooks. `path` is the file the cause lands on (null
+path), regulated rows, charter, workflow contracts, analysis findings, hooks. `path` is the file the cause lands on (null
 when it has none), `rule` the rule slug or null, `kind` a stable identifier or null, `problem` the
 English sentence `check` prints (never compared word for word by a checker).
 
@@ -612,13 +613,14 @@ kind `corpus-unrecorded`, whatever the number of files; under `package`, none. S
 | `family` | Counts in | `kind` values | Witnessed? |
 |---|---|---|---|
 | `deliverable-state` | `gaps` | the state: `in-progress`, `untouched`, `missing` | `missing` only |
-| `conformance` | `strictBreakdown.conformance` (+ `proposed`) | `proposed`, `missing-row`, `empty-status`, `invalid-status`, `applied-without-evidence`, `deviated-without-adr`, `na-without-reason`, `unknown-rule`, `duplicate-row`, `deliverable-missing`, `manifest-unreadable`, `mapping-floor`, `unresolved-pointer`, `evidence-placeholder`, `evidence-refused` | yes, but `evidence-refused` only in part (9.8) |
+| `conformance` | `strictBreakdown.conformance` (+ `proposed`) | `proposed`, `missing-row`, `empty-status`, `invalid-status`, `applied-without-evidence`, `deviated-without-adr`, `na-without-reason`, `unknown-rule`, `duplicate-row`, `deliverable-missing`, `manifest-unreadable`, `mapping-floor`, `unresolved-pointer`, `evidence-placeholder`, `evidence-refused`, `requires-unmet` | yes, but `evidence-refused` only in part (9.8), and `requires-unmet` not at all (family `requires` of 8.2) |
 | `corpus` | `strictBreakdown.corpus` | `corpus-missing`, `corpus-edited`, `corpus-extra`, `corpus-unrecorded` | in part (7.2) |
 | `seal` | `strictBreakdown.seal` | `seal-violation` | no |
 | `unratified-decision` | `strictBreakdown.unratified` | `unratified-decision` | yes (7.7) |
 | `regulated` | `strictBreakdown.unboundRows` | the unbound cause (`no-trace`, `changed`, …) | no |
 | `charter` | `strictBreakdown.charter` | the charter gap kind | no |
 | `workflow-contract` | `strictGaps` only | null | no |
+| `analysis` | `strictBreakdown.analysis` | `analysis-boundary`, `analysis-capability`, `analysis-secret`, `analysis-test-integrity`, `analysis-symbol`, `analysis-policy`; `rule` is the check id, `path` the code file | no |
 | `hooks` | `hookFailed` | null | no |
 
 `check --json`'s `gaps.causesByKind` (ADR-0095) is a grouping of the payload's `conformance[]` by
@@ -637,7 +639,10 @@ The families of the verdict this version does not carry the facts of, each
 `{ "family", "why", "causes" }`, `causes` being how many of this run's causes are of that family (0 for
 a family that is not a cause family). In `runward-witness/1`: `deliverable-state`, `corpus-history`,
 `signatures`, `report-natures`, `on-disk-spelling`, `scaffold-identical`, `unreadable`, `seal`,
-`regulated`, `charter`, `workflow-contract`, `hooks`, `disclosures`. A checker that accepts a witness
+`regulated`, `charter`, `workflow-contract`, `analysis`, `hooks`, `requires`, `disclosures` (`requires` added with
+runward's ADR-0115: a `conformance` cause of kind `requires-unmet` is beyond the witness, since the
+witness carries neither a rule's `requires:` nor the natures a journal declares uncarriable), and, after
+0.46.0, `comments` and `required-level` (ADR-0114). A checker that accepts a witness
 says, beside its answer, that these were not re-checked; a cause of one of these families is reported
 as **beyond the witness**, never as a fact that holds.
 
@@ -832,7 +837,8 @@ the first of its first five tests that applies):
 
 A row the checker refuses must carry at least one witness cause of the `conformance` family on that
 `(path, rule)`. A row with an `evidence-refused` cause the checker does not refuse is **beyond the
-witness** (a signature, a report result, a spelling, a scaffolded or unreadable file: section 8.2),
+witness** (a signature, a report result, a spelling, a scaffolded or unreadable file, a symbol present only
+in a comment: section 8.2),
 reported and not a disagreement. Two more refusals of runward 0.44.1 land there, because no member of
 this version marks them: an unquoted test name followed by `;` and text that is not a pointer
 (RWD-2026-0168: the name may have been cut, so the pointer is refused), and a pointer at a JUnit report
@@ -862,12 +868,19 @@ mission: `runward/architecture.md` line 40 becomes
 
 ```json
 {"verdict":{"checked":5,"deferredGaps":0,"exitCode":1,"gaps":0,"hookFailed":0,"result":"gaps",
-  "strictBreakdown":{"charter":0,"conformance":1,"corpus":0,"proposed":0,"seal":0,"unboundRows":0,"unratified":0},
-  "strictGaps":1},
+  "strictBreakdown":{"charter":0,"conformance":2,"corpus":0,"proposed":0,"seal":0,"unboundRows":0,"unratified":0},
+  "strictGaps":2},
  "causes":[{"family":"conformance","kind":"evidence-refused","path":"runward/architecture.md",
   "problem":"typed pointer file:src/a.ts# — the `#` names nothing to look for (a symbol must be at least 2 characters); drop the `#` or name the symbol",
+  "rule":"hexa-architecture"},
+  {"family":"conformance","kind":"requires-unmet","path":"runward/architecture.md",
+  "problem":"the rule requires eslint evidence, and no pointer in this row resolves to an ESLint JSON report (file:<report>#<source file>) — …",
   "rule":"hexa-architecture"}]}
 ```
+
+(The second cause is runward's ADR-0115: the rule requires an ESLint report and the row cites a source
+file. Its kind is beyond this version of the witness, family `requires` of 8.2; on runward before
+ADR-0115 the run carried the first cause alone.)
 
 and, in `gated[0].rows`, the row at line 40 with the pointer
 `{"kind":"file","raw":"file:src/a.ts#","symbol":null,"symbolDeclared":true,"symbolAt":null,…,"target":{"base":"project","real":"src/a.ts"}}`.

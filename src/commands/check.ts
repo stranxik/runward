@@ -9,7 +9,7 @@ import { buildCodeQuality, buildJUnit, payloadDigest, renderCodeQuality, renderi
 import { buildVsaStatement } from "../lib/attestation.js";
 import { collectEvidenceSeal, renderEvidenceSeal, EVIDENCE_LOCK, citedJUnitNotGreen } from "../lib/evidence.js";
 import { attestedQuestion, conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, currentGateLabel, impliesStrict, isMachineRun, machinePayload, nextPayload, nextStep, optionFault, redPhases, rerunCommand } from "../lib/check-contract.js";
-import { computeVerdict, verdictFrom, verdictSummaryParts } from "../lib/verdict.js";
+import { computeVerdict, verdictFrom, verdictOutcome, verdictSummaryParts, LEVEL_NOT_MET_EXIT, type RequiredLevel } from "../lib/verdict.js";
 
 import { behavioralProof } from "../lib/behavioral-proof.js";
 import { manifestsDigest, verifyFindings, verifyFindingsPath } from "../lib/verify-findings.js";
@@ -19,6 +19,7 @@ import { c, createHeader, generationDate, section, status } from "../lib/styles.
 import { VERSION } from "../lib/paths.js";
 import { emitJson, errorPayload } from "../lib/machine-output.js";
 import { buildWitness, renderWitness, witnessPathFault, WITNESS_SCHEMA } from "../lib/witness.js";
+import { analysisLines } from "../lib/analysis-render.js";
 
 /**
  * Gate audit — the gap analysis: which deliverable, expected at which
@@ -33,9 +34,10 @@ import { buildWitness, renderWitness, witnessPathFault, WITNESS_SCHEMA } from ".
  * evidence files are hashed into runward/evidence-lock.json (ADR-0021).
  * With --json, the same verdict is emitted as a stable machine contract (ADR-0030)
  * so an agent drives on data, not scraped text — the exit-code contract is unchanged.
- * Exit codes: 0 = current gate clean, 1 = gaps, 2 = the question could not be asked (no mission, a usage error — ADR-0083).
+ * Exit codes: 0 = current gate clean, 1 = gaps, 2 = the question could not be asked (no mission, a usage error — ADR-0083),
+ * 5 = no gap, and the level of proof the strict verdict requires is not met (ADR-0114: `--require`).
  */
-export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean; sarif?: boolean; vsa?: boolean; resourceUri?: string; witness?: string; codequality?: string; junit?: string; wholeTree?: boolean }): Promise<void> {
+export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean; sarif?: boolean; vsa?: boolean; resourceUri?: string; witness?: string; codequality?: string; junit?: string; wholeTree?: boolean; require?: string }): Promise<void> {
   // The decisions live in check-contract.ts so a test can ask what a flag combination means without
   // spawning a process and reading stderr (ADR-0047, finished 2026-08-24). This function keeps what
   // only a command can do: print, and exit.
@@ -145,7 +147,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   // ADR-0047: the verdict is computed in src/lib/verdict.ts, which a unit test can import. Nothing
   // below re-decides anything — it renders `v` and, at the end, exits on `v.exitCode`. A second
   // opinion here would be the defect, not a safety net.
-  const verdict = computeVerdict(mission, { strict: opts.strict, freeze: opts.freeze, hookFailed, through: opts.through });
+  const verdict = computeVerdict(mission, { strict: opts.strict, freeze: opts.freeze, hookFailed, through: opts.through, require: opts.require as RequiredLevel | undefined });
   // The ADR-0030 machine tables, derived from the verdict ONCE and never pushed beside the render.
   // They were collectors populated inline as each section printed, which made them the one slice of
   // the predicate nothing else could recompute — so `verify` took them on trust, and an invented
@@ -285,8 +287,16 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     {
       log(section("What this gate verified"));
       log(`  ${c.darkGray(`${ev.applied} applied · ${ev.deviated} deviated · ${ev.na} n/a`)}`);
-      if (ev.applied === 0 && ev.rows > 0) {
-        log(`  ${c.warning("!")} ${c.white("nothing was verified mechanically")}${c.darkGray(" — every row was answered by judgment or set aside. That can be legitimate; it is not a machine-checked gate.")}`);
+      // ADR-0114: said whenever no applied row was verified, prose-only rows included, and with the
+      // posture of THIS run: refused at `mechanical` (exit 5), or accepted because the run asked for
+      // `traced` by name or is a prefix verdict.
+      if (ev.typed === 0 && ev.rows > 0) {
+        const posture = verdict.require?.level === "mechanical"
+          ? ` — no applied row carries a pointer the gate opened and checked: every row was answered by judgment or set aside. This run requires \`mechanical\`${opts.require === undefined ? ", the default of a full strict verdict" : ""}, so it exits 5 (runward ADR-0114).`
+          : verdict.through !== null && opts.require === undefined
+            ? " — every row was answered by judgment or set aside. A prefix verdict requires `traced` (ADR-0053); the full `runward check --strict` requires `mechanical` and exits 5 on it (runward ADR-0114)."
+            : " — every row was answered by judgment or set aside, and this run asked for that by name (`--require traced`): it is not a machine-checked gate (runward ADR-0114).";
+        log(`  ${c.warning("!")} ${c.white("nothing was verified mechanically")}${c.darkGray(posture)}`);
       }
       const pct = ev.applied === 0 ? 0 : Math.round((ev.typed / ev.applied) * 100);
       // The percentage is literally true and invites the opposite of the truth. Measured 2026-08-26:
@@ -338,23 +348,13 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // ADR-0066 disclosure, never gating (ADR-0060's shape): decided rows with no ratification
       // trace. The solo operator who decided their own rows by hand is the legitimate path and
       // pays nothing; an agent-built mission should show zero, and the armed tier may block on it.
-      // Chantier 7 disclosure, never gating today (blocking at the armed tier, ADR-0065): a rule
-      // that requires an evidence NATURE and an applied row that cites something else. The line
-      // exists so the difference between file:package.json and a dependency-analysis report is
-      // visible before it becomes refusable.
-      // ADR-0075: a gap you can close and a limit you have decided are not the same line. Both stay
-      // listed and both stay unmet — a declaration is a decision an auditor can read and challenge, never
-      // an exemption the tool grants — but an operator reading this needs to know which ones are work.
+      // ADR-0115 decision 4: an applied row that cites another kind of evidence than its rule requires
+      // is a conformance gap, refused on its row above (`requires-unmet`), so it is not repeated here.
+      // ADR-0075: a gap you can close and a limit you have decided are not the same line. A declared
+      // nature stays unmet and listed — a decision an auditor can read and challenge, never an
+      // exemption the tool grants — and it is the one this section still says.
       if (verdict.requiresUnmet.length > 0) {
-        const open = verdict.requiresUnmet.filter((u) => !u.declaredIn);
         const declared = verdict.requiresUnmet.filter((u) => u.declaredIn);
-        if (open.length > 0) {
-          // Plain words (RWD-2026-0159): "evidence nature" and "arming … waits on ADR-0073" named the
-          // design, not what the reader has to do; the ADR is runward's, not the mission's.
-          log(`  ${c.warning("◑")} ${c.darkGray(`${open.length} applied row(s) cite a different kind of evidence than their rule requires (e.g. a source file where a JUnit report, a lint report or an ADR is expected). Reported only: the gate does not refuse this yet (runward ADR-0073):`)}`);
-          for (const u of open.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} requires ${u.requires} (${u.deliverable})`)}`);
-          if (open.length > 5) log(`      ${c.darkGray(`… and ${open.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
-        }
         if (declared.length > 0) {
           log(`  ${c.warning("◑")} ${c.darkGray(`${declared.length} required kind(s) of evidence this delivery has DECLARED it cannot provide — still unmet, and the reason is a decision in your journal rather than a gap left open:`)}`);
           for (const u of declared.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} requires ${u.requires} — declared in ${u.declaredIn} (${u.deliverable})`)}`);
@@ -495,6 +495,11 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       }
       log("  " + c.darkGray("ratify each: write the real why + a re-evaluation trigger and set Status: accepted (rename DRAFT→ADR), or set Status: rejected and keep the file (a deleted DRAFT is re-proposed by the next --mine). A hypothesis is not a decision."));
     }
+    // ADR-0118: the delivered code read against what the mission declares, only under its pinned policy.
+    if (verdict.analysis) {
+      log(section("Delivered code (--strict, built-in analyzers)"));
+      for (const line of analysisLines(verdict.analysis)) log(line);
+    }
     if (checked > 0 && strictGaps === 0) {
       // The two proofs, made legible together: this gate is the DOCUMENTARY proof (decisions traced);
       // the BEHAVIORAL proof is the operator's test suite. runward reads the pointer, never runs the code.
@@ -587,6 +592,9 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   // Same arithmetic as computeVerdict, from the same function: the `after` hooks land after the
   // reading, so the count is only final here. There is no second definition of "clean".
   const { clean } = verdictFrom(gaps, strictGaps, hookFailed);
+  // ADR-0114: the level is answered beside the gaps, by the function every surface reads.
+  const outcome = verdictOutcome(clean, verdict.require);
+  const levelNotMet = outcome.exitCode === LEVEL_NOT_MET_EXIT;
 
   // ADR-0089: the witness of this verdict, assembled from the verdict object rendered above and the
   // exit code below — never a second computation. Written whole (a temporary file renamed into
@@ -638,13 +646,22 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
 
   log(section("Summary"));
   // What this line measures is the deliverables; under a red verdict it says so (RWD-2026-0131).
-  const gateLabel = currentGateLabel(report, clean, redPhases(verdict));
+  const gateLabel = currentGateLabel(report, clean, redPhases(verdict), levelNotMet);
   log(`  ${c.primaryBold("Current gate")}  ${c.white(gateLabel)}`);
   log(`  ${c.primaryBold("ADRs")}          ${c.white(String(report.adrCount))}${report.adrCount === 0 ? c.warning("  — no structural decision locked yet") : ""}${report.adrSetAside.length > 0 ? c.darkGray(`  (${report.adrSetAside.length} set aside, not counted)`) : ""}`);
-  if (clean && verdict.horizon) {
+  if (levelNotMet) {
+    // ADR-0114: neither a gap (1) nor a verified pass (0). The line says which level was required,
+    // what the gate verified, and the two ways out.
+    log("\n" + status.warning(`No gap, and nothing was verified mechanically: no applied row carries a pointer the gate opened and checked, and this run requires \`${verdict.require?.level}\` (exit ${LEVEL_NOT_MET_EXIT}, runward ADR-0114). Point a row at the code, test or report that applies its rule, or accept a green that rests on judgment alone with \`--require traced\`.`));
+    process.exitCode = LEVEL_NOT_MET_EXIT;
+  } else if (clean && verdict.horizon) {
     log("\n" + status.success(`In good standing through ${verdict.through}. ${verdict.horizon.deferred.length} later deliverable(s) remain — a construction checkpoint, not a completion verdict. Release stays behind the full \`runward check --strict\`.`));
   } else if (clean) {
     log("\n" + status.success("All expected deliverables are filled. Cross gates on evidence, not on paperwork."));
+    // ADR-0114: a traced green asked for by name is still said, in the summary as above.
+    if (opts.strict && verdict.breakdown.rows > 0 && verdict.breakdown.typed === 0) {
+      log(status.warning(`Nothing was verified mechanically: this green rests on judgment alone, accepted because this run requires \`${verdict.require?.level}\` (runward ADR-0114).`));
+    }
   } else {
     // NAME WHAT FAILED. `strictGaps` was rendered as "N floor rule-conformance gap(s)" whatever it
     // counted, so a broken seal printed a rule-conformance gap in a phase that has none — measured
@@ -671,6 +688,9 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     log(section("Evidence seal — freeze (ADR-0021)"));
     if (gaps || strictGaps || hookFailed) {
       log("  " + status.error("refusing to seal a red gate — a seal certifies a crossing, not a hope. Close the gaps above, then re-run `runward check --freeze`."));
+    } else if (levelNotMet) {
+      // ADR-0114: a run that exits 5 is not a crossing either. Nothing is written; the exit stays 5.
+      log("  " + status.error(`refusing to seal: nothing was verified mechanically and this run requires \`${verdict.require?.level}\` (exit ${LEVEL_NOT_MET_EXIT}, runward ADR-0114). Nothing was written.`));
     } else if (junitNotGreen.length) {
       // ADR-0102 D: the gate is green, but a JUnit report it cites says tests failed. Sealing it
       // froze a report that is not a crossing, and the next CI run, regenerating it without the
@@ -726,7 +746,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
 
   // Transmission surface: name the next gesture, so the operating agent can hand the human a decision.
   // ONE implementation (nextStep) for this line and the payload's `next` (RWD-2026-0145).
-  const next = nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown }, opts);
+  const next = nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown, levelNotMet }, opts);
   // WHY RED, AT THE END. Measured 2026-10-13 on the renaming demo: the two ✗ lines that made the
   // gate red sat at lines 40 and 41 of 78, above the disclosures, the seal note and the summary; the
   // reader at the bottom of the screen saw a count and had to scroll back for the reason. The lines
@@ -746,10 +766,11 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     for (const u of verdict.unratified) why.push(`runward/adr/${u.file} — ${u.reason}`);
     for (const u of verdict.regulated.unbound) why.push(`${u.deliverable} · ${u.rule} — decided, no ratification bound to its content (regulated tier)`);
     for (const g of verdict.delegation?.gaps ?? []) why.push(`delegation charter — ${g.problem}`);
+    for (const f of verdict.analysis?.findings ?? []) why.push(`${f.path}${f.line ? `:${f.line}` : ""} — ${f.message} (${f.family})`);
     // The corpus and the workflow contracts are named by kind in their own sections above; they are
     // repeated by kind, so no cause the summary counts is left out of this block.
     const b = verdict.strictBreakdown;
-    const others = verdictSummaryParts({ ...verdict, gaps: 0, strictBreakdown: { ...b, conformance: 0, proposed: 0, seal: 0, unratified: 0, unboundRows: 0, charter: 0 } });
+    const others = verdictSummaryParts({ ...verdict, gaps: 0, strictBreakdown: { ...b, conformance: 0, proposed: 0, seal: 0, unratified: 0, unboundRows: 0, charter: 0, analysis: 0 } });
     for (const part of others) why.push(`${part} (named above)`);
     for (const h of hooksFailedList) why.push(`hook (${h.phase}) failed: ${h.command}`);
     if (hooksCfg?.state === "invalid") why.push("runward/hooks.json is malformed, no hook ran");
@@ -798,7 +819,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     // a failed write is exit 2, the question could not be asked, and never a change of verdict.
     if (renderingOut.length) {
       const findings = verdictFindings(mission, verdict, hookFailed);
-      const exitCode: 0 | 1 = process.exitCode === 1 ? 1 : 0;
+      const exitCode: 0 | 1 | typeof LEVEL_NOT_MET_EXIT = process.exitCode === 1 ? 1 : process.exitCode === LEVEL_NOT_MET_EXIT ? LEVEL_NOT_MET_EXIT : 0;
       for (const r of renderingOut) {
         const text = r.flag === "--codequality"
           ? renderCodeQuality(buildCodeQuality(findings))
@@ -816,7 +837,8 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       const secs = epoch !== undefined && /^\d+$/.test(epoch) ? Number(epoch) : null;
       const timeVerified = new Date(secs !== null ? secs * 1000 : Date.now()).toISOString().replace(/\.\d{3}Z$/, "Z");
       const statement = buildVsaStatement(root, mission, {
-        resourceUri: opts.resourceUri!, passed: clean, strict: !!opts.strict,
+        // ADR-0114: PASSED only on exit 0; a level not met is not a pass.
+        resourceUri: opts.resourceUri!, passed: outcome.exitCode === 0, strict: !!opts.strict,
         timeVerified, through: verdict.through ?? null,
       });
       process.stdout.write(JSON.stringify(statement, null, 2) + "\n");
@@ -841,7 +863,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // never reads them.
       const predicate = {
         ...payload, mission: declaredMissionName(mission),
-        next: nextPayload(nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown }, attestedQuestion(opts))),
+        next: nextPayload(nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown, levelNotMet }, attestedQuestion(opts))),
       };
       const statement = buildVerdictStatement(root, mission, predicate, { deliveredTree: opts.wholeTree ? deliveredTreeOf(root) : undefined });
       process.stdout.write(JSON.stringify(statement, null, 2) + "\n");

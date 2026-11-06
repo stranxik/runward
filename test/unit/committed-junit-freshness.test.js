@@ -30,6 +30,25 @@ const tmp = (p) => { const d = mkdtempSync(join(tmpdir(), p)); dirs.push(d); ret
 
 const CITED = 'test:code/reports/junit.xml::"guard: a fabricated account reference never routes — escalated to review"';
 const LINE = /◌ (\d+) row\(s\) judged on a committed JUnit report \(([^)]*)\) — its freshness is not verified by this command/;
+const MANIFESTS = ["architecture.md", "execution-topology.md", "floor.md", "governance/threat-model.md", "handover.md"];
+const CASE_POINTER = /test:code\/reports\/junit\.xml::"[^"]*"/g;
+/** The applied rows that name a case of the committed report, read from the manifests themselves: since
+ *  ADR-0115 the example cites a case on most junit-requiring rows, and the count follows the example. */
+function rowsCitingACase(dir) {
+  let n = 0;
+  for (const m of MANIFESTS) {
+    const f = join(dir, "runward", m);
+    for (const line of readFileSync(f, "utf8").split("\n")) if (/\| applied \|/.test(line) && line.match(CASE_POINTER)) n++;
+  }
+  return n;
+}
+/** Every case pointer of every manifest replaced, the case name dropped or swapped. */
+function rewriteCasePointers(dir, to) {
+  for (const m of MANIFESTS) {
+    const f = join(dir, "runward", m);
+    writeFileSync(f, readFileSync(f, "utf8").replace(CASE_POINTER, to));
+  }
+}
 
 // One `init --example`, copied per test: each test edits its own copy.
 let template;
@@ -50,12 +69,14 @@ test("B: a row judged on a committed JUnit report is counted in the output and i
   const text = run(dir, "check", "--strict");
   const m = text.stdout.match(LINE);
   assert.ok(m, `the line must be printed:\n${text.stdout}`);
-  assert.equal(m[1], "1");
+  const rows = rowsCitingACase(dir);
+  assert.ok(rows > 1, "the example cites cases of its committed report on several rows (ADR-0115)");
+  assert.equal(m[1], String(rows));
   assert.equal(m[2], "code/reports/junit.xml");
   assert.match(text.stdout, /docs\/recipes\/junit-freshness-in-ci\.md/, "the line names where the guard belongs");
   const json = run(dir, "check", "--strict", "--json");
   const j = JSON.parse(json.stdout);
-  assert.deepEqual(j.committedJUnit, { rows: 1, reports: ["code/reports/junit.xml"], freshness: "not verified by this command" });
+  assert.deepEqual(j.committedJUnit, { rows, reports: ["code/reports/junit.xml"], freshness: "not verified by this command" });
   assert.equal(text.status, 0, "a disclosure is not a gap");
   assert.equal(json.status, 0);
   assert.equal(j.exitCode, 0);
@@ -67,9 +88,9 @@ test("B: a row judged on a committed JUnit report is counted in the output and i
 
 test("B: with no row citing a committed JUnit report, the line and the field are absent, and the exit code is the same", () => {
   const dir = example();
-  const f = join(dir, "runward", "floor.md");
-  // The same row, pointed at the test SOURCE file that carries the name: judged by name, not on a report.
-  writeFileSync(f, readFileSync(f, "utf8").replace(CITED, CITED.replace("code/reports/junit.xml", "code/test/triage.test.ts")));
+  // Every row keeps the report as a bare path (it still carries the junit nature its rule requires,
+  // ADR-0115) and names no case: no case is judged on the report.
+  rewriteCasePointers(dir, "test:code/reports/junit.xml");
   const text = run(dir, "check", "--strict");
   assert.doesNotMatch(text.stdout, LINE, "nothing rests on a committed report: nothing to say");
   assert.doesNotMatch(text.stdout, /committed JUnit report \(/);
@@ -82,22 +103,22 @@ test("B: with no row citing a committed JUnit report, the line and the field are
 
 test("B: a bare path at the report, with no case named, is not counted (no case was judged on it)", () => {
   const dir = example();
-  const f = join(dir, "runward", "floor.md");
-  writeFileSync(f, readFileSync(f, "utf8").replace(CITED, "test:code/reports/junit.xml"));
+  rewriteCasePointers(dir, "test:code/reports/junit.xml");
   assert.deepEqual(committedJUnitLedger(join(dir, "runward")), { rows: [], reports: [] });
 });
 
 test("B: a red cited case is still counted (it was judged on the report) and the gap is the evidence layer's, not this line's", () => {
   const dir = example();
   const f = join(dir, "runward", "floor.md");
+  const rows = rowsCitingACase(dir);
   writeFileSync(f, readFileSync(f, "utf8").replace(CITED, 'test:code/reports/junit.xml::"a case the report never recorded"'));
   const led = committedJUnitLedger(join(dir, "runward"));
-  assert.equal(led.rows.length, 1);
-  assert.deepEqual(led.rows[0], { deliverable: "floor.md", rule: "frontier-deterministic-boundary", reports: ["code/reports/junit.xml"] });
+  assert.equal(led.rows.length, rows, "the row is still counted: it was judged on the report");
+  assert.ok(led.rows.some((r) => JSON.stringify(r) === JSON.stringify({ deliverable: "floor.md", rule: "frontier-deterministic-boundary", reports: ["code/reports/junit.xml"] })));
   const r = run(dir, "check", "--strict", "--json");
   const j = JSON.parse(r.stdout);
   assert.equal(r.status, 1, "the absent case reddens the gate, as before");
-  assert.equal(j.committedJUnit.rows, 1);
+  assert.equal(j.committedJUnit.rows, rows);
 });
 
 test("B: the payload carries the block only when the count is above zero, inside the strict block", () => {

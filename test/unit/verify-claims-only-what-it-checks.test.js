@@ -68,7 +68,8 @@ test("ADR-0113: a removal is a difference — prosePointers emptied, a key delet
   try {
     // One evidence cell that spells a pointer in prose: the tree has one prosePointers entry.
     const floor = join(m.dir, "runward", "floor.md");
-    writeFileSync(floor, readFileSync(floor, "utf8").replace("file:code/src/core/domain/guard.ts#parseDeadline — ", "file:code/src/core/domain/guard.ts#parseDeadline — produced by npm run test:junit — "));
+    // The example's row cites its JUnit case since ADR-0115: the prose goes after that pointer.
+    writeFileSync(floor, readFileSync(floor, "utf8").replace("the model's proposal is discarded\" — ", "the model's proposal is discarded\" — produced by npm run test:junit — "));
     assert.equal(run(m.dir, "check", "--strict").status, 0, "the fixture stays green");
     const att = attest(m.dir, "--strict");
     assert.equal(att.predicate.prosePointers.length, 1, "the fixture carries the disclosure");
@@ -105,14 +106,23 @@ test("ADR-0113: verify names what the digest covers, and an uncited file is said
   const m = mission();
   try {
     const name = save(m.dir, "att.json", attest(m.dir, "--strict"));
-    mkdirSync(join(m.dir, "code", "src"), { recursive: true });
-    writeFileSync(join(m.dir, "code", "src", "added.ts"), "export const run = (s: string) => s;\n");
+    mkdirSync(join(m.dir, "code", "docs"), { recursive: true });
+    writeFileSync(join(m.dir, "code", "docs", "added.txt"), "a note nothing cites and nothing reads\n");
     appendFileSync(join(m.dir, "code", "README.md"), "\nedited\n");
     const v = verify(m.dir, name);
     assert.equal(v.code, 0, "outside the perimeter, as the output now says");
     assert.ok(v.digest.covers.missionFiles > 0);
     assert.ok(v.digest.covers.citedOutside.includes("code/src/core/domain/guard.ts"), JSON.stringify(v.digest.covers));
-    assert.ok(!v.digest.covers.citedOutside.includes("code/src/added.ts"));
+    assert.ok(!v.digest.covers.citedOutside.includes("code/docs/added.txt"));
+    // Beside the built-in analyzers (ADR-0118, pinned by the example): a source file they read is an
+    // input of the verdict, so verify names the re-derived block, not the digest.
+    mkdirSync(join(m.dir, "code", "src"), { recursive: true });
+    writeFileSync(join(m.dir, "code", "src", "added.ts"), "export const run = (s: string) => s;\n");
+    const a = verify(m.dir, name);
+    assert.equal(a.code, 1, "the analyzers read it");
+    assert.deepEqual(a.predicate.differing, ["analysis"]);
+    assert.equal(a.digest.matches, true, "not bound by the digest: re-derived");
+    rmSync(join(m.dir, "code", "src", "added.ts"));
     assert.match(v.digest.notCovered, /outside runward\/ that the manifests do not cite/);
     const h = human(m.dir, name);
     assert.doesNotMatch(h.out, /exact tree/, "the sentence that said more than the digest binds is gone");
@@ -193,7 +203,9 @@ test("ADR-0113: hook outcomes are the attesting run's record — exit 2 when a c
   const m = mission();
   try {
     const name = (n) => save(m.dir, n, attest(m.dir, "--strict", "--hooks"));
-    // No hooks.json: nothing ran, so nothing is taken on trust.
+    // No hooks.json: nothing ran, so nothing is taken on trust. The example ships one since ADR-0115
+    // (its reports' regeneration, which runs npm): this case removes it.
+    rmSync(join(m.dir, "runward", "hooks.json"), { force: true });
     assert.equal(verify(m.dir, name("absent.json")).result, "verified");
     writeFileSync(join(m.dir, "runward", "hooks.json"), JSON.stringify({ before: ["node -e \"process.exit(0)\""] }));
     const v = verify(m.dir, name("ran.json"));
@@ -230,3 +242,24 @@ test("ADR-0113: verify reads hooks.json and runs nothing — no hook runner and 
 });
 
 process.on("exit", () => rmSync(REFERENCE, { recursive: true, force: true }));
+
+test("ADR-0113 beside ADR-0118: the analyzers read only the tree the project delivers; an ignored output emptied by a redirection changes nothing, a delivered file changed does", () => {
+  const m = mission();
+  try {
+    // `runward verify att.json --json > out.json`: the shell empties out.json before verify reads the tree.
+    appendFileSync(join(m.dir, ".gitignore"), "out.json\n");
+    writeFileSync(join(m.dir, "out.json"), "{\"a\":1}\n");
+    const name = save(m.dir, "att.json", attest(m.dir, "--strict"));
+    writeFileSync(join(m.dir, "out.json"), "");
+    const v = verify(m.dir, name);
+    assert.equal(v.code, 0, `a file the project does not deliver is never read: ${JSON.stringify(v.predicate?.differing)}`);
+    // The control: a file the project delivers, uncited and read by the analyzers, changed between the
+    // two runs, still makes the verdict differ.
+    appendFileSync(join(m.dir, "code", "src", "demo.ts"), "\nexport const run = (s: string) => eval(s);\n");
+    const w = verify(m.dir, name);
+    assert.equal(w.code, 1);
+    assert.ok(w.predicate.differing.includes("analysis"), JSON.stringify(w.predicate.differing));
+    assert.equal(w.verdict.matches, false, "the new capability finding is a gap: the re-derived verdict is red");
+    assert.equal(w.digest.matches, true, "uncited: not bound by the digest, re-derived");
+  } finally { m.drop(); }
+});

@@ -24,7 +24,13 @@ jobs:
           node-version: 22
       # Use --strict to also enforce the floor rule-conformance manifest.
       # Drop --strict for the deliverable audit only.
+      # --hooks first runs the `before` commands of runward/hooks.json: that is where a mission says
+      # how to regenerate the reports it cites (JUnit, lint, coverage) and compare them with the ones
+      # committed, so the gate never vouches for a report this tree does not produce (runward
+      # ADR-0115). A hook that fails fails the gate. With no hooks.json nothing runs, and the run says
+      # so. The commands are your repository's, trusted as `npm test` is: never run this job under
+      # `pull_request_target` on an untrusted head.
       # The runward version that wrote this file (`runward init` / `runward update` stamp it): the
       # check runs that release whatever is published since. Raise it deliberately.
       - name: runward check
-        run: npx --yes runward@{{RUNWARD_VERSION}} check --strict
+        run: npx --yes runward@{{RUNWARD_VERSION}} check --strict --hooks

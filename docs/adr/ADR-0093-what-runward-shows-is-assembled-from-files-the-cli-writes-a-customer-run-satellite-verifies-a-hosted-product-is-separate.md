@@ -367,6 +367,31 @@ and golden tests, the claims guard on rendered HTML, the offline GitLab CE bench
   command, no event-stream writer, `SPAWN_ALLOWED` unchanged at four files, the forge's network code
   in `packages/runward-forge` only, `runtime-boundary.test.js` 12 of 12 (ADR-0054, note of the same
   day). This trigger stays as written (2027-01-13).
+- **2026-11-06, a hosted preview may run before D2 to D5, on the maintainer's repositories only.**
+  Decided by the maintainer's delegation in chat on 2026-11-05, on the agent's recommendation; the
+  maintainer did not review this text before acceptance ([ADR-0121](ADR-0121-runward-fleet-and-the-hosted-product-one-interface-two-deployments.md)).
+  A first version of the hosted product may run before D2 to D5 are delivered. This amends, by name and
+  for a preview only, the maintainer's answer 2 above (« built in D6 ») and the order of decision 12; the
+  hosted product itself still comes after them. The preview is operated by the maintainer, for the
+  maintainer's own repositories only, as long as no legal entity exists to contract with anyone else
+  (ADR-0121 decision 2). It serves `runward-fleet`'s view (ADR-0121 decision 1), every cell those
+  deliveries would fill reading `not-available`, and it raises no cell (decisions 6, 8 and 11).
+  Decision 10 stands for it: its own repository, record and licence, and nothing in the core depends on
+  it.
+- **2026-11-06, the upload to the hosted product lives in the product's repository.** Decided by the
+  maintainer's delegation in chat on 2026-11-05, on the agent's recommendation; the maintainer did not
+  review this text before acceptance (ADR-0121). The step that sends exports to the hosted product is
+  published from the hosted product's repository, never from the CLI, `action.yml` or `runward-forge`.
+  `runward-fleet` keeps decision 10's « no outbound call », and the CLI still knows neither the product's
+  URL nor its existence.
+- **2026-11-06, the index contract lives in `runward-fleet`.** Decided by the maintainer's delegation in
+  chat on 2026-11-05, on the agent's recommendation; the maintainer did not review this text before
+  acceptance (ADR-0121). `runward-fleet-index/0`, the one document the view reads, is defined and versioned
+  in `runward-fleet`, expand-only like the contracts of decision 6. `runward-fleet` is a package of this
+  repository, `packages/runward-fleet`, which ADR-0121 decision 5 puts in place of « its own repository »
+  in decision 10; the other conditions of decision 10 stand. The hosted product serves that document and
+  adds no field of its own: a field it needs lands first in `runward-fleet`, under MIT, so an export
+  replayed in a customer's container gives the same site (the D6 acceptance).
 
 ## References
 

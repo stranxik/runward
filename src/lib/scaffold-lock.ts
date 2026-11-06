@@ -125,6 +125,9 @@ export function renderScaffoldLock(
   /** ADR-0088 decision 4: the declared identities and the single-accountable exception, carried
    *  through as the operator wrote them (never repaired, never dropped by a refresh). */
   independence?: { identities?: unknown; singleAccountable?: unknown },
+  /** ADR-0118: the analysis policy the mission pins, carried through as written (never repaired, never
+   *  dropped by a refresh, never written by `update` on its own). Undefined: the mission has none. */
+  analysis?: unknown,
 ): string {
   const sorted: Record<string, string> = {};
   for (const k of Object.keys(files).sort()) sorted[k] = files[k];
@@ -134,6 +137,9 @@ export function renderScaffoldLock(
   // the whole object: before it was one, `update` rebuilt the lock and silently DISARMED every
   // opted-in mission (RWD-2026-0106) — the flag the operator set was dropped on refresh.
   if (structureContract) obj.structureContract = true;
+  // ADR-0118: the analysis pin rides the lock the same way (ADR-0069's precedent), and is preserved
+  // the same way: a refresh that dropped it would silently stop reading the mission's code.
+  if (analysis !== undefined) obj.analysis = analysis;
   // ADR-0080: the regulated tier rides the lock the same way, and is preserved the same way.
   if (regulated) obj.regulated = true;
   // ADR-0082: whether the regulated tier counts an agent's ratification. Preserved the same way, or
