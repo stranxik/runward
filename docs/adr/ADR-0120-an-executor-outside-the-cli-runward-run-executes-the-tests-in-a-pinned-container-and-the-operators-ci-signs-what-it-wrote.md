@@ -324,6 +324,16 @@ repository's runs, the offline GitLab CE bench, and the release runs of `runward
     under a policy that pins it. On GitHub the mission's commit is the certificate's; for a pipeline run
     in the signer's own project (the GitLab runner project) or a key, it is the signed Statement's
     `mission` claim, which that signer vouches for.
+  - **Two of these choices decided, 2026-11-06.** Taken under the maintainer's delegation of 2026-11-05
+    ("carry it out each time instead of asking me"), on the recommendation of the agent session that built
+    R1 and D4a, and recorded by the session that merged them into the second integration train; the
+    maintainer did not review them before they were written, and each stands until he reverses it.
+    `verify-run` refuses a Statement signed from a workflow of the mission's own repository even when the
+    trust policy pins that workflow: a pin names a commit, and the agent the verdict judges can write the
+    commits of that repository, so only a workflow in a repository the agent cannot write (decision 5) is a
+    signer. The `levels` block of `check --json` appears only when the run requires `re-derived` or
+    `attested`: every other payload stays byte for byte what it was, so no consumer of the contract
+    (ADR-0024) meets a new field unless it asked for a level that needs it.
   - **Two limits found.** A reusable workflow cannot read its own commit from its context
     (`github.job_workflow_sha` is reported empty inside it, actions/runner issue 2417), so a trust policy
     cannot live in the workflow file it pins: the samples read it from a repository of the operator's,
