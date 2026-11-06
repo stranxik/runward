@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### The analyzers' classification at the second train's head: zero false reds (ADR-0117 criterion 2)
+
+`docs/compliance/analyzers-on-real-repositories.md` publishes the measurement of `51675dc` on express,
+fastify and hono at their pinned commits, with its commands, and its classification by two reviewer
+sessions that wrote neither the analyzers, nor their correction, nor the harness: 98 findings (12 in a new
+mission's default, 86 more with the declared core), every one classified true, and 129 hypotheses, which
+never count. Against `9004563`, 225 of 227 ids are kept with their verdicts, one finding is new (hono's
+process environment read in the declared core, true) and one hypothesis was reworded. The reviewers' two
+files join the published classification data. ADR-0117's criterion 2 holds: zero false reds on three
+repositories runward did not write, and no family had to stay opt-in. The head of the third integration
+train, which changes no analyzer, writes the same 227 ids with the same fields.
+
 ### runward-integrations is released with runward, as a verified release asset (ADR-0122, ADR-0116)
 
 The isolated builder packs `packages/runward-integrations` in its own directory after the suite has
