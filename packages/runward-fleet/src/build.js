@@ -213,7 +213,7 @@ function projectRecords(text, src) {
       judgedBy: judges,
       size: records.length,
       records,
-      byVerdict: group(records, (x) => x.verdict, (x) => x.ref ?? x.commit, ["clean", "gaps", "not-observed"]),
+      byVerdict: group(records, (x) => x.verdict, (x) => x.ref ?? x.commit, ["clean", "gaps", "level-not-met", "not-observed"]),
       maxConformanceGaps: Math.max(0, ...records.map((x) => x.conformanceGaps ?? 0)),
     };
   });
@@ -346,7 +346,7 @@ export function buildIndex({ manifest: given, read, version }) {
   const allSignatures = missions.flatMap((m) => m.signatures);
   const fleet = {
     declared: missions.length,
-    byVerdict: group(missions, (m) => (m.latest === "not-observed" ? "not-observed" : m.latest.verdict), (m) => m.id, ["clean", "gaps", "not-observed"]),
+    byVerdict: group(missions, (m) => (m.latest === "not-observed" ? "not-observed" : m.latest.verdict), (m) => m.id, ["clean", "gaps", "level-not-met", "not-observed"]),
     byImplemented: group(missions, (m) => (m.latest === "not-observed" ? "not-observed" : m.latest.implemented), (m) => m.id, ["machine-established", "ci-declared", "not-observed"]),
     sealed: group(observed, (m) => (m.latest.seal !== "not-observed" && m.latest.seal.present ? "sealed" : "unsealed"), (m) => m.id, ["sealed", "unsealed"]),
     signatures: {

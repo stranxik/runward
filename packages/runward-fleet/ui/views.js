@@ -12,7 +12,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 // ------------------------------------------------------------------ words
 const WORDS = {
   en: {
-    clean: "clean", gaps: "refused", "not-observed": "not observed", "not-available": "not available", observed: "present",
+    clean: "clean", gaps: "refused", "level-not-met": "not crossed", "not-observed": "not observed", "not-available": "not available", observed: "present",
     filled: "filled", missing: "missing", ratified: "ratified", changed: "changed since", untraced: "untraced", blind: "blind",
     sealed: "sealed", unsealed: "unsealed", declared: "declared", undetermined: "origin undetermined", replayed: "replayed",
     "machine-established": "machine-established", "ci-declared": "ci-declared", verified: "verified", "outside-policy": "outside the policy",
@@ -20,7 +20,7 @@ const WORDS = {
     pinned: "pinned", unpinned: "unpinned",
   },
   fr: {
-    clean: "sans écart", gaps: "refusé", "not-observed": "non observé", "not-available": "non disponible", observed: "présent",
+    clean: "sans écart", gaps: "refusé", "level-not-met": "non franchi", "not-observed": "non observé", "not-available": "non disponible", observed: "présent",
     filled: "rempli", missing: "manquant", ratified: "ratifié", changed: "modifié depuis", untraced: "sans trace", blind: "à l'aveugle",
     sealed: "scellé", unsealed: "non scellé", declared: "déclaré", undetermined: "origine indéterminée", replayed: "rejoué",
     "machine-established": "machine-established", "ci-declared": "ci-declared", verified: "vérifiée", "outside-policy": "hors politique",
@@ -31,7 +31,7 @@ const WORDS = {
 // The shape of a mark carries the state with its word, never a colour alone; a refusal inverts.
 const SHAPE = {
   clean: "full", filled: "full", ratified: "full", sealed: "full", observed: "full", verified: "full", "machine-established": "full", raised: "full", pinned: "full",
-  gaps: "inv", missing: "inv", refused: "inv",
+  gaps: "inv", "level-not-met": "inv", missing: "inv", refused: "inv",
   changed: "half", untraced: "half", blind: "half", declared: "half", undetermined: "half", replayed: "half", "ci-declared": "half", "outside-policy": "half",
   unsealed: "void", "not-observed": "void", "not-available": "void", absent: "void", "not-verifiable": "void", "not-raised": "void", unpinned: "void",
 };
@@ -45,7 +45,7 @@ const TEXT = {
     fleetHead: (asOf, fmt) => `as of <b>${asOf}</b> · ${fmt}`,
     inventory: (name) => `inventory: <b>${name}</b>`,
     fleetTitle: "What the fleet proves.",
-    fleetFace: (N, one, clean, gaps, silent, me, ci) => `${N} ${one ? "mission" : "missions"} declared: ${clean} clean, ${gaps} refused, ${silent} silent. ${me} machine-established, ${ci} ci-declared.`,
+    fleetFace: (N, one, clean, gaps, silent, me, ci, notCrossed) => `${N} ${one ? "mission" : "missions"} declared: ${clean} clean, ${gaps} refused, ${notCrossed ? `${notCrossed} not crossed (nothing verified mechanically), ` : ""}${silent} silent. ${me} machine-established, ${ci} ci-declared.`,
     silentRow: "No export received for this declared mission: a finding, not a filter.",
     exit: "exit",
     historyOf: (o) => `history ${o}`,
@@ -103,10 +103,10 @@ const TEXT = {
     subject: "subject",
     keyHolder: "A key names its holder, not the workflow that used it.",
     histTitle: "The same judge, on every past tree.",
-    histFace: (size, name, judge, clean, gaps) => `${size} revisions of ${name}, judged again by ${judge}: ${clean} clean, ${gaps} refused.`,
+    histFace: (size, name, judge, clean, gaps, notCrossed) => `${size} revisions of ${name}, judged again by ${judge}: ${clean} clean, ${gaps} refused${notCrossed ? `, ${notCrossed} not crossed (nothing verified mechanically)` : ""}.`,
     histNone: "No history in the exports: no record of a past tree reached this page.",
     histNote: "This replay prefigures ledger replay (ADR-0093, D2, not delivered): each past tree judged by one version, read from git, writing nothing in the repository. It is not what the CI said at the time, and a past green carries no present state. No record of a replay is ever raised.",
-    legendBars: "bars: conformance gaps", legendClean: "● clean", legendRefused: "◆ refused", judgedBy: (j) => `judged by ${j}`,
+    legendBars: "bars: conformance gaps", legendClean: "● clean", legendRefused: "◆ refused or not crossed", judgedBy: (j) => `judged by ${j}`,
     otherJudge: "⧉ judged by another version: not comparable without this marker",
     skew: (a, b) => `The latest export was judged by runward ${a}; this history by ${b}. The two are not compared.`,
     cols: { ref: "Ref.", commit: "Commit", date: "Commit date", verdict: "Verdict", gaps: "Gaps", assurance: "Assurance", digest: "Export digest" },
@@ -188,7 +188,7 @@ const TEXT = {
     fleetHead: (asOf, fmt) => `relevé du <b>${asOf}</b> · ${fmt}`,
     inventory: (name) => `inventaire : <b>${name}</b>`,
     fleetTitle: "Ce que la flotte prouve.",
-    fleetFace: (N, one, clean, gaps, silent, me, ci) => `${N} ${one ? "mission déclarée" : "missions déclarées"} : ${clean} sans écart, ${gaps} refusées, ${silent} silencieuses. ${me} machine-established, ${ci} ci-declared.`,
+    fleetFace: (N, one, clean, gaps, silent, me, ci, notCrossed) => `${N} ${one ? "mission déclarée" : "missions déclarées"} : ${clean} sans écart, ${gaps} refusées, ${notCrossed ? `${notCrossed} non franchies (rien de vérifié mécaniquement), ` : ""}${silent} silencieuses. ${me} machine-established, ${ci} ci-declared.`,
     silentRow: "Aucun export reçu pour cette mission déclarée : c'est un constat, pas un filtre.",
     exit: "sortie",
     historyOf: (o) => `historique ${o}`,
@@ -250,10 +250,10 @@ const TEXT = {
     subject: "sujet",
     keyHolder: "Une clé désigne son détenteur, pas le workflow qui l'a utilisée.",
     histTitle: "Le même juge, sur chaque arbre passé.",
-    histFace: (size, name, judge, clean, gaps) => `${size} révisions de ${name}, rejugées par ${judge} : ${clean} sans écart, ${gaps} refusées.`,
+    histFace: (size, name, judge, clean, gaps, notCrossed) => `${size} révisions de ${name}, rejugées par ${judge} : ${clean} sans écart, ${gaps} refusées${notCrossed ? `, ${notCrossed} non franchies (rien de vérifié mécaniquement)` : ""}.`,
     histNone: "Aucun historique dans les exports : aucun relevé d'un arbre passé n'a atteint cette page.",
     histNote: "Ce rejeu préfigure ledger replay (ADR-0093, D2, non livré) : chaque arbre passé jugé par une même version, lu depuis git, sans rien écrire dans le dépôt. Ce n'est pas ce que la CI a dit à l'époque, et un vert passé ne porte aucun état présent. Aucun relevé de rejeu n'est jamais élevé.",
-    legendBars: "barres : écarts de conformité", legendClean: "● sans écart", legendRefused: "◆ refusé", judgedBy: (j) => `jugé par ${j}`,
+    legendBars: "barres : écarts de conformité", legendClean: "● sans écart", legendRefused: "◆ refusé ou non franchi", judgedBy: (j) => `jugé par ${j}`,
     otherJudge: "⧉ jugé par une autre version : non comparable sans ce marqueur",
     skew: (a, b) => `Le dernier export a été jugé par runward ${a} ; cet historique par ${b}. Les deux ne sont pas comparés.`,
     cols: { ref: "Réf.", commit: "Commit", date: "Date du commit", verdict: "Verdict", gaps: "Écarts", assurance: "Assurance", digest: "Empreinte de l'export" },
@@ -378,6 +378,9 @@ function frac(g, src, ip, gold) {
   return `<span class="${cls}" data-index="${esc(ip)}" title="${esc((g.list ?? []).join(" · "))}">${n(g.n, src, null, `${ip}.n`)} / ${n(g.N, src, null, `${ip}.N`)}</span>`;
 }
 const find = (arr, state) => (arr ?? []).find((x) => x.state === state);
+/** The count of exit 5 (runward ADR-0114) for a face: n / N whenever a mission or revision is in it, else
+ *  nothing, so a face without one keeps its words. Read from the index, never counted here. */
+const notCrossed = (arr, src, ip) => { const g = find(arr, "level-not-met"); return g && g.n > 0 ? frac(g, src, gp(ip, "level-not-met")) : ""; };
 const gp = (base, state) => `${base}[state=${state}]`;
 const verb = (s) => `<span data-verbatim>${esc(s)}</span>`;
 const code = (s) => `<code>${esc(s)}</code>`;
@@ -441,7 +444,7 @@ function viewFleet() {
   return `${head(t.fleetHead(esc(IDX.asOf.label ?? t.asOfMissing), esc(IDX.format)), `${t.inventory(esc(IDX.sources[0]?.path ?? "fleet.json"))} · ${srcRef(s0)}`)}
     <h1 class="v">${esc(t.fleetTitle)}</h1>
     <p class="face" data-face="fleet">${t.fleetFace(n(F.declared, s0, "missions.length", "fleet.declared"), F.declared === 1, frac(find(F.byVerdict, "clean"), s0, gp(BV, "clean")), frac(find(F.byVerdict, "gaps"), s0, gp(BV, "gaps")), frac(find(F.byVerdict, "not-observed"), s0, gp(BV, "not-observed")),
-      frac(me, s0, gp(BI, "machine-established"), me && me.n > 0), frac(find(F.byImplemented, "ci-declared"), s0, gp(BI, "ci-declared")))}</p>
+      frac(me, s0, gp(BI, "machine-established"), me && me.n > 0), frac(find(F.byImplemented, "ci-declared"), s0, gp(BI, "ci-declared")), notCrossed(F.byVerdict, s0, BV))}</p>
     <section class="blk" aria-label="missions">${rows}</section>
     <section class="blk"><h2>${esc(t.notThere)}</h2>
       <div class="tw"><table class="t"><thead><tr><th>${esc(t.object)}</th><th>${esc(t.state)}</th><th>${esc(t.whyCol)}</th></tr></thead><tbody>${[...findings, ...absent].join("")}</tbody></table></div>
@@ -551,7 +554,7 @@ function seriesView(m, S, k) {
   const skew = latestV && hv.length && hv.some((v) => v !== latestV) ? `<p class="small" data-marker="version-skew">${esc(t.skew(latestV, hv.join(", ")))}</p>` : "";
   return `${head(`${esc(t.nav.history)} · <b>${verb(m.name)}</b>`, `${st(S.origin)} · ${srcRef(s)}`)}
     <h1 class="v">${esc(t.histTitle)}</h1>
-    <p class="face" data-face="history">${t.histFace(n(S.size, s, "records.length", `${base}.size`), verb(m.name), verb(judges.join(", ")), frac(find(S.byVerdict, "clean"), s, gp(BV, "clean")), frac(find(S.byVerdict, "gaps"), s, gp(BV, "gaps")))}</p>
+    <p class="face" data-face="history">${t.histFace(n(S.size, s, "records.length", `${base}.size`), verb(m.name), verb(judges.join(", ")), frac(find(S.byVerdict, "clean"), s, gp(BV, "clean")), frac(find(S.byVerdict, "gaps"), s, gp(BV, "gaps")), notCrossed(S.byVerdict, s, BV))}</p>
     <section class="blk panel"><svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(t.legendBars)}">${axis}${bars}${labels}</svg>
       <div class="legend"><span>${esc(t.legendBars)}</span><span>${esc(t.legendClean)}</span><span>${esc(t.legendRefused)}</span>${judges.length > 1 ? `<span data-marker="other-judge">${esc(t.otherJudge)}</span>` : ""}<span>${rv(esc(t.judgedBy(judges[0])))}</span></div></section>
     ${skew}

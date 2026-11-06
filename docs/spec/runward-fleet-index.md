@@ -141,7 +141,7 @@ Unknown values read `not-observed`. A grouping is always `{ state, n, N, list }`
 | `asOf` | `{ label, source }`: the declared date and the sentence that says no clock was read |
 | `manifest` | `{ src }`, the manifest's source id |
 | `policy` | `null`, or `{ src, trustedRoots[], signers[] }`: each signer with `pinned` and `unpinned[]` (`ref`, `workflow-digest`) |
-| `fleet` | `declared`; groupings `byVerdict`, `byImplemented`, `sealed`, `findings`; `signatures` with `declared`, `byState`, `raised` |
+| `fleet` | `declared`; groupings `byVerdict` (`clean`, `gaps`, `level-not-met`, `not-observed`, each always present; `level-not-met` is a strict gate with no gap below its required level of proof, exit 5, runward ADR-0114), `byImplemented`, `sealed`, `findings`; `signatures` with `declared`, `byState`, `raised` |
 | `missions[]` | one per declared mission, in declaration order |
 | `absent[]` | what runward does not produce yet: `{ what, state, contract, delivery }` |
 | `sources[]` | every file read: `{ id, path, sha256, bytes, kind, producedBy, at, origin, declaredIn }` |

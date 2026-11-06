@@ -43,7 +43,7 @@ test("the index of real exports: the contract, the groupings with their lists, a
   const { manifest, files } = realFleet();
   const index = indexFrom(manifest, files);
   assert.equal(index.format, "runward-fleet-index/0");
-  assert.deepEqual(index.fleet.byVerdict.map((g) => [g.state, g.n, g.N, g.list]), [["clean", 2, 2, ["runward", "example"]], ["gaps", 0, 2, []], ["not-observed", 0, 2, []]]);
+  assert.deepEqual(index.fleet.byVerdict.map((g) => [g.state, g.n, g.N, g.list]), [["clean", 2, 2, ["runward", "example"]], ["gaps", 0, 2, []], ["level-not-met", 0, 2, []], ["not-observed", 0, 2, []]]);
   const [rw, ex] = index.missions;
   assert.equal(rw.latest.from, "check");
   assert.equal(rw.latest.implemented, "ci-declared", "no signature: a CLI record reads ci-declared at most");
@@ -55,7 +55,7 @@ test("the index of real exports: the contract, the groupings with their lists, a
   assert.equal(series.length, 1);
   assert.equal(series[0].origin, "replayed");
   assert.equal(series[0].size, 40);
-  assert.deepEqual(series[0].byVerdict.map((g) => [g.state, g.n]), [["clean", 34], ["gaps", 6], ["not-observed", 0]]);
+  assert.deepEqual(series[0].byVerdict.map((g) => [g.state, g.n]), [["clean", 34], ["gaps", 6], ["level-not-met", 0], ["not-observed", 0]]);
   assert.ok(series[0].records.every((r) => r.signatureVerified === false));
   assert.equal(ex.latest.verdict, "clean");
   for (const s of index.sources) assert.match(s.sha256, /^[0-9a-f]{64}$/, `${s.id} carries its digest`);

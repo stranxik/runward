@@ -240,3 +240,20 @@ test("a view that cannot be built from the index stops the build; the page alone
   const args = { template: readFileSync(join(PKG, "ui", "template.html"), "utf8"), views: SRC, api: broken, fonts: [] };
   assert.throws(() => site.renderSite(idx, args), (e) => e instanceof build.BuildError && /#\/proof: the view cannot be built/.test(e.message));
 });
+
+test("rule 4, exit 5: a mission whose gate did not cross with no gap (level-not-met, runward ADR-0114) is counted and shown, never omitted", () => {
+  const ex = JSON.parse(exampleCheck().toString("utf8"));
+  const five = { ...ex, verdict: "level-not-met", exitCode: 5 };
+  const idx = indexFrom(manifestOf([missionWith("a"), missionWith("b")]), { "exports/a/check.json": ex, "exports/b/check.json": five });
+  const g = idx.fleet.byVerdict.find((x) => x.state === "level-not-met");
+  assert.deepEqual([g?.n, g?.N, g?.list], [1, 2, ["b"]], "the index counts it, in its own state");
+  assert.equal(idx.fleet.byVerdict.reduce((t, x) => t + x.n, 0), 2, "the states partition the fleet");
+  const html = views.renderView(idx, "");
+  assert.equal(own(face(html, "fleet")), "2 missions declared: 1 / 2 clean, 0 / 2 refused, 1 / 2 not crossed (nothing verified mechanically), 0 / 2 silent. 0 / 2 machine-established, 2 / 2 ci-declared.");
+  assert.match(html, /data-mission="b"[\s\S]*?data-state="level-not-met"[^>]*><span class="mk mk-full"[^>]*><\/span>not crossed/, "its row says its state, inverted like a refusal");
+  const fr = indexFrom(manifestOf([missionWith("a"), missionWith("b")], { lang: "fr" }), { "exports/a/check.json": ex, "exports/b/check.json": five });
+  assert.match(own(face(views.renderView(fr, ""), "fleet")), /1 \/ 2 non franchies \(rien de vérifié mécaniquement\), 0 \/ 2 silencieuses/);
+  // Control: a fleet with no mission at exit 5 keeps its face, word for word.
+  const none = indexFrom(manifestOf([missionWith("a")]), { "exports/a/check.json": ex });
+  assert.equal(own(face(views.renderView(none, ""), "fleet")), "1 mission declared: 1 / 1 clean, 0 / 1 refused, 0 / 1 silent. 0 / 1 machine-established, 1 / 1 ci-declared.");
+});
