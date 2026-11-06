@@ -204,7 +204,7 @@ export async function snapshot({ repo, rev, slug, profile, since = null, out, tr
   const pkg = prof.publie_paquet ?? null;
   let registryDoc = null;
   if (pkg) {
-    const doc = await t.get(`https://registry.npmjs.org/${pkg.replace("/", "%2F")}`);
+    const doc = await t.get(`https://registry.npmjs.org/${pkg.replace(/\//g, "%2F")}`);
     ev.registry[pkg] = doc.status === "ok";
     if (doc.status === "ok") {
       registryDoc = doc.value;

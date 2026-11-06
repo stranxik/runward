@@ -106,7 +106,7 @@ export function resolvePointer(tree, p) {
   if (p.suffix.startsWith("#")) {
     const sym = p.suffix.slice(1);
     if (!/^[A-Za-z_$][\w$]*$/.test(sym)) return text.includes(sym);
-    return new RegExp(`(?<![\\w$])${sym.replace(/[$]/g, "\\$")}(?![\\w$])`).test(text);
+    return new RegExp(`(?<![\\w$])${sym.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w$])`).test(text);
   }
   if (/^:\d+$/.test(p.suffix)) return text.split("\n").length >= Number(p.suffix.slice(1));
   if (p.suffix.startsWith("::")) {

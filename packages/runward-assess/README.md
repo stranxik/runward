@@ -3,7 +3,7 @@
 The repeatable assessment grid, `grille@1`: 35 criteria on seven axes, read the same way on every
 repository and every commit, so that two records of one project compare and a record of today can be
 re-scored tomorrow to the same bytes. It lives outside runward's verdict path and outside the tool it
-evaluates ([ADR-0122](../../docs/adr/ADR-0122-the-repeatable-assessment-grid-lives-outside-the-verdict-path-and-outside-the-evaluated-tool.md)):
+evaluates ([ADR-0123](../../docs/adr/ADR-0123-the-repeatable-assessment-grid-lives-outside-the-verdict-path-and-outside-the-evaluated-tool.md)):
 it imports nothing from runward (`test/no-runward-import.test.js` checks it, with planted controls),
 reads what runward writes as one more piece of evidence, and runs runward's CLI as a program when it
 tests the gate a repository declares. It sits in this repository's `packages/` until it moves to its

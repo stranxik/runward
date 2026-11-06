@@ -1,4 +1,4 @@
-# ADR-0122 — The repeatable assessment grid lives outside the verdict path and outside the evaluated tool
+# ADR-0123 — The repeatable assessment grid lives outside the verdict path and outside the evaluated tool
 
 **Date**: 2026-11-06
 **Status**: accepted (2026-11-05) — by the maintainer's delegation, given in the chat of 2026-11-05

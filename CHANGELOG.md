@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### runward-assess 0.1.0: the repeatable assessment grid, outside the verdict path and outside the tool it rates (ADR-0122)
+### runward-assess 0.1.0: the repeatable assessment grid, outside the verdict path and outside the tool it rates (ADR-0123)
 
 A new package, `packages/runward-assess`, holds `grille@1`: 35 criteria on seven axes (reliability,
 security and supply chain, governance, evidence, public promises, adoption, market), each with a

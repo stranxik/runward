@@ -11,7 +11,7 @@ reports. `evolution.*` compares the three records. The snapshots were all taken 
 `main` pointed at `32d8425`: for the two tags, every repository setting the snapshot read is "not
 observed", and the external part says why.
 
-These records illustrate the method; they are not kept records (ADR-0122, decision 6).
+These records illustrate the method; they are not kept records (ADR-0123, decision 6).
 
 Re-score one of them, anywhere, to the same bytes:
 

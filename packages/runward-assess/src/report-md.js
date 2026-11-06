@@ -4,7 +4,7 @@ import { percentText } from "./canon.js";
 
 const W = { met: "met", "not-met": "not met", na: "n/a", "not-observed": "not observed", error: "error", indicator: "indicator" };
 const MARK = { met: "●", "not-met": "◆", na: "○", "not-observed": "◌", error: "✕", indicator: "·" };
-const esc = (s) => String(s ?? "").replace(/\|/g, "\\|").replace(/\n/g, " ");
+const esc = (s) => String(s ?? "").replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\n/g, " ");
 const cut = (s, n = 140) => { s = String(s ?? ""); return s.length > n ? s.slice(0, n - 1) + "…" : s; };
 const short = (h) => (h ? String(h).slice(0, 12) : "none");
 
