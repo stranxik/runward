@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+### The perimeter widens: decisions, code and execution, each at a named level (ADR-0117, ADR-0119, ADR-0120)
+
+Three records, accepted on 2026-11-05 by the maintainer's delegation in chat, on the recommendation of the
+agent sessions that investigated; the maintainer did not review their text before acceptance, and the
+acceptance stands outside the delegation charter, which delegates no class R act. Nothing in them ships
+yet: they decide what the next pull requests build. ADR-0117 decides what the verdict will measure: the
+gap between what the accountable people declared and what the agent delivered, with evidence the agent
+could not have produced alone, across three objects: decisions, traced to evidence that resolves (the
+core, unchanged); code, confronted with the invariants the mission declares and re-derived by runward
+from the tree, with no model and no execution; and execution evidence, produced outside the agent's
+reach, bound to the tree by digests and attested under an identity the agent does not hold. It amends
+ADR-0001 by name (« never the quality » stands, « never opens project code » falls for the declared
+territory), ADR-0005, ADR-0041 and ADR-0043 (a `hypothesis` class for heuristics, never counted), and
+announces the amendment of `GATE_NON_SCOPE` and of the differentiator in `docs/positioning.md`, each to land
+with the code that makes it true; the locked thesis of ADR-0052 and the five crossings of ADR-0054 in the
+CLI are untouched. Its table maps twelve capabilities to their state on 2026-11-05 and to the records that
+carry them. ADR-0119 will grade the evidence of each applied row `re-derived`, `attested` or `declared`
+(decisions and ratifications are not graded), and extends the `--require` flag of ADR-0114 with two levels
+above `mechanical`: `re-derived`, which `init` will write for new missions once the built-in analyzers ship
+and their false reds are measured, and `attested`, never a default outside the regulated tier; a run with
+no gap below its level will exit 5, and no mission is refused by default for its language. ADR-0120 places
+the execution in a sibling package, `runward-run`, that will run the tests, the coverage and the mutation of
+the cited lines and the evals in a pinned container with the network cut, and write an unsigned in-toto
+Statement the operator's CI signs in another job, from a workflow the agent cannot write; the CLI still
+runs nothing and never verifies a signature, and the verification half of ADR-0093's D4 moves ahead of D2
+and D3. Documentation only: no CLI behaviour, output or verdict changes.
 ### runward-assess 0.1.0: the repeatable assessment grid, outside the verdict path and outside the tool it rates (ADR-0123)
 
 A new package, `packages/runward-assess`, holds `grille@1`: 35 criteria on seven axes (reliability,
