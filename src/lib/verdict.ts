@@ -36,6 +36,7 @@ import { structureContractOptIn, regulatedOptIn, artifactState, PHASES } from ".
 import { corpusDivergence } from "./scaffold-lock.js";
 import { ruleSetDir, readRuleSet } from "./rules.js";
 import { TEMPLATES } from "./paths.js";
+import { analyzeDelivery, type AnalysisReading } from "./analyze.js";
 
 export interface DeliverableRow {
   phase: string;
@@ -79,7 +80,10 @@ export interface Verdict {
     unboundRows: number;
     /** ADR-0088 decision 5: what the delegation charter names — its own defects, a class it may not
      *  delegate, and agent ratifications it does not cover. 0 when the mission has no charter. */
-    charter: number };
+    charter: number;
+    /** ADR-0118: the built-in analyzers' findings on the delivered code. Present only when the mission
+     *  pins an analysis policy (and the run is strict), so every other mission's object keeps its keys. */
+    analysis?: number };
   /** ADR-0088 decision 5: the delegation charter as the gate read it, or null when the mission has
    *  none (and then nothing else in this verdict changes). Read with or without --strict, because
    *  its banner is a disclosure every surface prints; `gaps` is a strict reading and is absent
@@ -113,6 +117,10 @@ export interface Verdict {
   /** ADR-0067 (W3): what the workflow contracts declare and how the tree answers. Surfaced
    *  always; gating only under the mission's opt-in. Empty without --strict. */
   workflowContract: { gating: boolean; malformed: string[]; joinBreaks: string[]; unmetRequires: string[] };
+  /** ADR-0118: the delivered code read against what the mission declares, under the analysis policy
+   *  its scaffold-lock pins. Null without --strict or without the pin. Its `findings` count against
+   *  the verdict (`strictBreakdown.analysis`); its `hypotheses` never do (ADR-0041). */
+  analysis: AnalysisReading | null;
   /** Gated deliverables that were actually examined. `0` means no CRITICAL/HIGH rule is mapped. */
   checked: number;
   gated: GatedResult[];
@@ -387,6 +395,7 @@ export function verdictSummaryParts(v: Verdict): string[] {
   if (b.unratified) parts.push(`${b.unratified} unratified decision(s)`);
   if (b.unboundRows) parts.push(`${b.unboundRows} decided row(s) not ratified (regulated tier)`);
   if (b.charter) parts.push(`${b.charter} delegation-charter gap(s)`);
+  if (b.analysis) parts.push(`${b.analysis} delivered-code finding(s) (built-in analyzers)`);
   const wc = v.workflowContract;
   const wcBreaks = wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length;
   if (wc.gating && wcBreaks) parts.push(`${wcBreaks} workflow-contract break(s)`);
@@ -414,7 +423,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   const { rows, gaps, deferred, deferredGaps } = countGaps(report, throughIndex);
 
   let strictGaps = 0;
-  const strictBreakdown = { conformance: 0, corpus: 0, seal: 0, unratified: 0, proposed: 0, unboundRows: 0, charter: 0 };
+  const strictBreakdown: Verdict["strictBreakdown"] = { conformance: 0, corpus: 0, seal: 0, unratified: 0, proposed: 0, unboundRows: 0, charter: 0 };
   // ADR-0088 decision 5: read always (its banner is a disclosure); judged under --strict below.
   const charter = readCharter(mission);
   // ADR-0088 decision 6: the sample ledger, from the tree's content alone (no git, no clock).
@@ -443,6 +452,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   let seal: Verdict["seal"] = { present: false, count: 0, violations: [] };
   let unratified: Verdict["unratified"] = [];
   let criticalScope: Verdict["criticalScope"] = { total: 0, mapped: 0, unmapped: [] };
+  let analysis: AnalysisReading | null = null;
 
   if (opts.strict) {
     const g = judgeGated(mission, throughIndex);
@@ -523,6 +533,14 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     // Reported, never gated: a rule the corpus does not map to a phase is documentation, and turning
     // it into a gap would red every honest mission on day one. What it must not do is stay invisible.
     criticalScope = unmappedCriticalRules(mission);
+
+    // ADR-0118: under the mission's pinned analysis policy, the delivered code is read against what the
+    // mission declares. Phase-global like the corpus and the seal: a horizon does not scope it.
+    analysis = analyzeDelivery(mission);
+    if (analysis) {
+      strictGaps += analysis.findings.length;
+      strictBreakdown.analysis = analysis.findings.length;
+    }
   }
 
   const horizon = opts.through != null && throughIndex !== null
@@ -588,7 +606,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   return {
     report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, ratificationRows: ratificationByRow, regulated, requiresUnmet, prosePointers, committedJUnit, delegation,
     corpus, breakdown, seal, unratified, criticalScope,
-    workflowContract,
+    workflowContract, analysis,
     through: opts.through ?? null, horizon, deferredGaps,
     require,
     clean, exitCode,

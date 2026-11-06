@@ -2,14 +2,19 @@
 //
 // The claim to prove on YOUR machine (`npm run bench`): the gate's cost follows what it actually
 // opens — the mission tree and the CITED evidence — never the size of the repository around it.
-// `check --strict` walks no source tree: it reads the mission deliverables, the rule corpus, and
-// every typed pointer's target. A 10 000-file monorepo around the same mission must therefore gate
-// in roughly the same time as the bare reference mission.
+// Without an analysis policy, `check --strict` walks no source tree: it reads the mission
+// deliverables, the rule corpus, and every typed pointer's target. A 10 000-file monorepo around the
+// same mission must therefore gate in roughly the same time as the bare reference mission.
+//
+// ADR-0118 amends the claim, and this bench measures the amendment instead of hiding it: under a
+// pinned analysis policy (the default of a new mission and of the example), the strict gate ALSO
+// reads every source file of the delivered tree, so its cost follows the size of the code it reads
+// (never the dependencies, the build output or what the mission sets aside). Scenario B prints both.
 //
 // This is a measurement harness, not a test: it prints a table and exits 0. It asserts nothing
 // about milliseconds (machine-dependent), and it is deliberately NOT in the `npm test` path.
 // The fixture is deterministic: same file names, same bytes, every run.
-import { mkdtempSync, rmSync, writeFileSync, mkdirSync, readFileSync, appendFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync, mkdirSync, readFileSync, appendFileSync, cpSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { execFileSync } from "node:child_process";
@@ -36,23 +41,39 @@ const bench = (label, cwd, args) => {
 
 console.log(`runward bench — median of ${RUNS} runs (after 1 warm-up), Node ${process.version}`);
 
+// ADR-0118: the analyzers run when the mission's lock pins a policy. `off` is the same mission with
+// the pin removed, so the difference between the two lines is what reading the code costs.
+const setPin = (missionRoot, on) => {
+  const f = join(missionRoot, "runward", "scaffold-lock.json");
+  const j = JSON.parse(readFileSync(f, "utf8"));
+  if (on) j.analysis = "runward-analysis/1"; else delete j.analysis;
+  writeFileSync(f, `${JSON.stringify(j, null, 2)}\n`);
+};
+
 // A: the bare reference mission.
 const dir = mkdtempSync(join(tmpdir(), "rw-bench-"));
 execFileSync(process.execPath, [CLI, "init", "--yes", "--example"], { cwd: dir, stdio: "pipe" });
+const off = mkdtempSync(join(tmpdir(), "rw-bench-off-"));
+cpSync(dir, off, { recursive: true });
+setPin(off, false);
 console.log(`\nScenario A — reference mission, as scaffolded`);
-const a = bench("check --strict", dir, ["check", "--strict", "-p", "."]);
-const aAtt = bench("check --strict --attest (digest over mission ∪ cited)", dir, ["check", "--strict", "--attest", "-p", "."]);
+const a = bench("check --strict (analyzers off: no policy pinned)", off, ["check", "--strict", "-p", "."]);
+const aOn = bench("check --strict (analyzers on, as scaffolded: ADR-0118)", dir, ["check", "--strict", "-p", "."]);
+const aAtt = bench("check --strict --attest (digest over mission ∪ cited)", off, ["check", "--strict", "--attest", "-p", "."]);
 
 // B: the same mission buried in an uncited monorepo. Deterministic bytes, ~2 KB per file.
 console.log(`\nScenario B — same mission + ${FILES.toLocaleString("en-US")} uncited repo files (~${Math.round(FILES * 2048 / 1e6)} MB)`);
 const pad = "// filler line — deterministic bench content\n".repeat(40);
-for (let i = 0; i < FILES; i++) {
-  const sub = join(dir, "bulk", `mod-${String(i % 100).padStart(3, "0")}`);
-  if (i % 100 === i) mkdirSync(sub, { recursive: true });
-  writeFileSync(join(sub, `file-${String(i).padStart(5, "0")}.ts`), `export const unit${i} = ${i};\n${pad}`);
+for (const root of [dir, off]) {
+  for (let i = 0; i < FILES; i++) {
+    const sub = join(root, "bulk", `mod-${String(i % 100).padStart(3, "0")}`);
+    if (i % 100 === i) mkdirSync(sub, { recursive: true });
+    writeFileSync(join(sub, `file-${String(i).padStart(5, "0")}.ts`), `export const unit${i} = ${i};\n${pad}`);
+  }
 }
-const b = bench("check --strict (must stay ~flat: nothing here is opened)", dir, ["check", "--strict", "-p", "."]);
-const bAtt = bench("check --strict --attest (uncited files are not hashed)", dir, ["check", "--strict", "--attest", "-p", "."]);
+const b = bench("check --strict, analyzers off (must stay ~flat: nothing here is opened)", off, ["check", "--strict", "-p", "."]);
+const bOn = bench("check --strict, analyzers on (every source file is read, never run)", dir, ["check", "--strict", "-p", "."]);
+const bAtt = bench("check --strict --attest (uncited files are not hashed)", off, ["check", "--strict", "--attest", "-p", "."]);
 
 // C: what DOES scale — the cited evidence itself. Inflate every file the manifests cite ×~50.
 console.log(`\nScenario C — the cited evidence inflated (each cited file +100 KB)`);
@@ -66,14 +87,16 @@ for (const m of manifests) {
 const filler = `\n// appended bench padding — never cited, changes no symbol\n${"// x\n".repeat(25_000)}`;
 let inflated = 0;
 for (const rel of cited) {
-  try { appendFileSync(join(dir, rel), filler); inflated++; } catch { /* pointer into a non-file — skip */ }
+  try { appendFileSync(join(off, rel), filler); inflated++; } catch { /* pointer into a non-file — skip */ }
 }
 console.log(`  (${inflated} cited file(s) inflated)`);
-const c = bench("check --strict (opens and scans every cited file)", dir, ["check", "--strict", "-p", "."]);
+const c = bench("check --strict, analyzers off (opens and scans every cited file)", off, ["check", "--strict", "-p", "."]);
 
 console.log(`\nShape of the cost`);
 console.log(`  repo grew ×${FILES.toLocaleString("en-US")} files  → gate ${a ? (b / a).toFixed(2) : "?"}× baseline (flat ⇒ O(cited evidence), not O(repo))`);
+console.log(`  the same, analyzers on  → gate ${aOn ? (bOn / aOn).toFixed(2) : "?"}× its own baseline (ADR-0118: O(source read), what reading the code costs)`);
 console.log(`  attest on the same     → ${aAtt ? (bAtt / aAtt).toFixed(2) : "?"}× baseline (uncited files are outside the digest)`);
 console.log(`  cited evidence ×50     → gate ${a ? (c / a).toFixed(2) : "?"}× baseline (what you cite is what you pay)`);
 
 rmSync(dir, { recursive: true, force: true });
+rmSync(off, { recursive: true, force: true });

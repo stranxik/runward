@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+### Built-in analyzers read the delivered code against what the mission declares (ADR-0118)
+
+Under `--strict`, a mission that pins an analysis policy in its `runward/scaffold-lock.json`
+(`"analysis": "runward-analysis/1"`) now has its delivered TypeScript and JavaScript read, never run, by
+five deterministic families: the boundary of the domain core `runward/territory.md` declares (no package,
+Node.js built-in or module outside the core that `runward/analysis.md` does not allow); capabilities (code
+built at run time, `child_process`, a computed import, anywhere outside the tests; the network and the
+environment in the core); credentials of a known format; test integrity without running a test (a case that
+asserts nothing, a test file that cannot reach the code, a cited JUnit report recording a case no source
+declares); and cited symbols carried only by a comment or declared as a placeholder constant. A finding
+counts against the verdict and is named with its file and line in the terminal, `--json` (`gaps.analysis`,
+one `conformance` row each, an `analysis` block), SARIF, Code Quality, JUnit, the witness and `report`; what
+the reading cannot settle is a `hypothesis`, reported and never counted, and every language the policy does
+not read is listed as not analysed. A new mission and the example are born with the policy pinned; an existing
+mission keeps its lock until it adds the line, `update` never adds nor drops it, and deleting it disarms. The
+example carries `runward/analysis.md` with its two allowances. Measured on the bench of 2026-11-05: each of
+the seven sabotages is refused, the healthy example and an honest renaming read clean, and the renaming that
+leaves the old name in a comment is refused (the RWD-2026-0194 case, under the analyzers). The gate-wide
+non-scope gains one sentence (the reading can say a declared invariant is broken, never that the code is
+good), so an attestation written before this change is verified with the version that wrote it; the scale
+bench and the README now say that, with the analyzers on, the strict gate's cost also follows the size of the
+code it reads (on this repository's tree, 470 ms to about 800 ms). ADR-0118 amends ADR-0001, 0005, 0041 and
+0043, and leaves the thesis of ADR-0052 and the crossings of ADR-0054 as they are.
+
 ### Changed: a `#SYMBOL` naming an identifier is looked for outside the file's comments (ADR-0114, RWD-2026-0194)
 
 The gate, `spec-check` and the `rules --for` reminder now search a pointer's symbol of identifier form in

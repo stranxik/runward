@@ -21,6 +21,7 @@ import { resolve } from "node:path";
 import { GATED_DELIVERABLES, UNBOUND_CAUSE_TEXT } from "./conformance.js";
 import { requiredLevel, verdictOutcome, type Verdict } from "./verdict.js";
 import { PHASES, type GapReport } from "./mission.js";
+import { analysisPayload } from "./analyze.js";
 
 /** Everything `check` accepts, exactly as commander hands it over. */
 export interface CheckOptions {
@@ -263,6 +264,10 @@ export function nextStep(
               // ratification it does not cover is re-ratified by a delegate or a person.
               : b.charter
                 ? then("Fix runward/delegation.md, run the period's sample (runward sample), or re-ratify the row(s) it does not cover, as named above (the charter is the maintainer's to change)", "fix-delegation-charter")
+                // ADR-0118: the code is what breaks the declared invariant, so the code is what changes;
+                // an allowance with its reason is the other honest answer, written where a reviewer reads it.
+                : b.analysis
+                  ? then("Change the code the analyzers named above, or allow it in runward/analysis.md with the reason it is legitimate", "fix-analysis-findings")
                 : v.hookFailed
                 ? then("Fix the failing hook(s) in runward/hooks.json", "fix-hooks")
                 : { action: "rerun", command: rerun, segments: [plain("Re-run "), cmd(rerun), plain(".")] };
@@ -428,9 +433,14 @@ export function conformanceRows(verdict: Verdict): Array<{ scope: string; rule: 
  *             `corpus-missing` · `corpus-edited` · `corpus-extra` · `corpus-unrecorded` ·
  *             `seal-violation` · `unratified-decision` · `unbound-row` · and, under a delegation
  *             charter, `charter-malformed` · `charter-class-refused` · `charter-stage-unread` ·
- *             `charter-expired` · `agent-not-delegate`). Values are only ever added.
- * - `file`    repository-relative, `/`-separated, the artifact that carries the refusal.
- * - `line`    1-based line of the rule's row in that file, or null when the refusal has no row
+ *             `charter-expired` · `agent-not-delegate`; under a pinned analysis policy (ADR-0118),
+ *             `analysis-boundary` · `analysis-capability` · `analysis-secret` ·
+ *             `analysis-test-integrity` · `analysis-symbol` · `analysis-policy`, with the check id in
+ *             `rule`). Values are only ever added.
+ * - `file`    repository-relative, `/`-separated, the artifact that carries the refusal (for an
+ *             analysis finding, the code file).
+ * - `line`    1-based line of the rule's row in that file (for an analysis finding, of the code), or
+ *             null when the refusal has no row
  *             (a missing row, a whole-file fact, a rule the file does not list).
  * - `phaseId` the `rules --phase` id of the gated phase (`architect | topology | floor | govern |
  *             handover`), or null for a scope that is not a phase (corpus, seal, reconstruction).
@@ -456,7 +466,7 @@ export function conformanceFile(label: string): string {
 export function conformanceRowsLocated(verdict: Verdict, locate: LineLocator = () => null): ConformanceEntry[] {
   return conformanceEntries(verdict).map((e) => ({
     scope: e.scope, rule: e.rule, problem: e.problem, kind: e.kind, file: e.file,
-    line: e.rowed ? locate(e.file, e.rule) : null, phaseId: e.phaseId,
+    line: e.rowed ? locate(e.file, e.rule) : e.fixedLine ?? null, phaseId: e.phaseId,
   }));
 }
 
@@ -464,8 +474,8 @@ export function conformanceRowsLocated(verdict: Verdict, locate: LineLocator = (
  *  when an attestation was produced before them. */
 export const CONFORMANCE_ADDITIVE_KEYS = ["kind", "file", "line", "phaseId"] as const;
 
-function conformanceEntries(verdict: Verdict): Array<Omit<ConformanceEntry, "line"> & { rowed: boolean }> {
-  const rows: Array<Omit<ConformanceEntry, "line"> & { rowed: boolean }> = [];
+function conformanceEntries(verdict: Verdict): Array<Omit<ConformanceEntry, "line"> & { rowed: boolean; fixedLine?: number | null }> {
+  const rows: Array<Omit<ConformanceEntry, "line"> & { rowed: boolean; fixedLine?: number | null }> = [];
   for (const g of verdict.gated) {
     if (g.skipped) continue;
     const meta = GATED_DELIVERABLES.find((x) => x.label === g.label);
@@ -504,6 +514,12 @@ function conformanceEntries(verdict: Verdict): Array<Omit<ConformanceEntry, "lin
     const meta = GATED_DELIVERABLES.find((x) => x.deliverable === u.deliverable);
     rows.push({ scope: "ratification", rule: u.rule, problem: `${UNBOUND_CAUSE_TEXT[u.cause]} (${u.deliverable})`,
       kind: "unbound-row", file: `runward/${u.deliverable}`, rowed: true, phaseId: meta?.phase ?? null });
+  }
+  // ADR-0118: present only when the mission pins an analysis policy. Each finding lands on the file and
+  // line of the code that breaks the declared invariant, so `file`/`line` say where to look.
+  for (const f of verdict.analysis?.findings ?? []) {
+    rows.push({ scope: "analysis", rule: f.check, problem: `${f.path}${f.line ? `:${f.line}` : ""}: ${f.message}`,
+      kind: `analysis-${f.family}`, file: f.path, rowed: false, phaseId: null, fixedLine: f.line });
   }
   return rows;
 }
@@ -569,9 +585,9 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
     // HOW THE COUNTS ADD UP (RWD-2026-0146). `deliverables`, `conformance` and `hooks` are disjoint:
     // their sum is what stands between this run and a green. `conformance` is the WHOLE strict count
     // (rule violations, proposals, corpus divergences, seal drift, unratified reconstruction
-    // decisions, unbound regulated rows, gating workflow-contract breaks). `proposed` and
+    // decisions, unbound regulated rows, gating workflow-contract breaks, analysis findings). `proposed` and
     // `unboundRows` are SUBSETS of it, published apart so a consumer can tell which gesture closes
-    // them; adding them to `conformance` counts the same rows twice. `deferred` is outside the
+    // them; adding them to `conformance` counts the same rows twice. So are `charter` and `analysis`. `deferred` is outside the
     // verdict (ADR-0053: deliverables beyond a declared --through horizon).
     gaps: {
       deliverables: ctx.gaps,
@@ -588,6 +604,9 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       // ADR-0088 decision 5, additive and present only when the mission has a charter. INSIDE
       // `conformance`'s total too: each one is a `delegation` row of the `conformance` array.
       ...(verdict.delegation && ctx.strict ? { charter: verdict.strictBreakdown.charter } : {}),
+      // ADR-0118, additive and present only when the mission pins an analysis policy. INSIDE
+      // `conformance`'s total too: each finding is an `analysis` row of the `conformance` array.
+      ...(verdict.analysis && ctx.strict ? { analysis: verdict.strictBreakdown.analysis ?? 0 } : {}),
       // ADR-0095 decision 2, additive and strict only (like `conformance[]`): the causes grouped by
       // kind, each count with the indices of the `conformance` rows it counts. Last, so every key
       // before it keeps its place.
@@ -670,6 +689,10 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       // cite; `freshness` is a constant: the gate reads the case a report records and never how old
       // the report is (ADR-0054: no git, no clock). Disclosed, never counted against the verdict.
       ...((verdict.committedJUnit?.rows.length ?? 0) > 0 ? { committedJUnit: committedJUnitPayload(verdict) } : {}),
+      // ADR-0118, additive and present only when the mission pins an analysis policy, so every other
+      // payload keeps its bytes. Last in the strict block. `findings` are counted (`gaps.analysis`, and
+      // one `conformance` row each); `hypotheses` and `notAnalyzed` never are.
+      ...(verdict.analysis ? { analysis: analysisPayload(verdict.analysis) } : {}),
     } : {}),
     // RWD-2026-0150, additive and present only under --coverage, so every other run keeps its bytes.
     ...(ctx.coverage ? { coverage: ctx.coverage } : {}),

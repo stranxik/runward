@@ -76,9 +76,11 @@ wrongly often enough, or are new enough, to be said here:
   `evidence-placeholder`, `applied-without-evidence`, `deviated-without-adr`, `na-without-reason`,
   `unknown-rule`, `duplicate-row`, `deliverable-missing`, `manifest-unreadable`, `mapping-floor`,
   `corpus-missing`, `corpus-edited`, `corpus-extra`, `corpus-unrecorded`, `seal-violation`,
-  `unratified-decision`, `unbound-row`; values are only ever added), `file` (repository-relative,
-  `/`-separated), `line` (the rule's row in that file, or `null` when the refusal has no row) and
-  `phaseId`. File and line come from the locator `--sarif` uses, so the two documents agree.
+  `unratified-decision`, `unbound-row`, and under a pinned analysis policy `analysis-boundary`,
+  `analysis-capability`, `analysis-secret`, `analysis-test-integrity`, `analysis-symbol`,
+  `analysis-policy`; values are only ever added), `file` (repository-relative,
+  `/`-separated), `line` (the rule's row in that file, or `null` when the refusal has no row; for an
+  analysis finding, the line of the code) and `phaseId`. File and line come from the locator `--sarif` uses, so the two documents agree.
   `runward verify` re-derives all four; an attestation made before they existed is another build's,
   answered by that build (ADR-0113).
 - **`ratification`: the ledger, disclosed and never gating outside the regulated tier.** A row is
@@ -103,6 +105,16 @@ wrongly often enough, or are new enough, to be said here:
   attestation sealed before it (0.43.x) is answered by 0.43.x (ADR-0113).
 - **`gaps.causesByKind`** (strict, additive, ADR-0095): for each `kind` present in `conformance[]`,
   sorted by kind, `{ count, indices }`, the indices pointing into `conformance[]`. `{}` on a green.
+- **`analysis` and `gaps.analysis`** (strict, additive, ADR-0118, present only when the mission's lock
+  pins an analysis policy): the built-in analyzers' reading of the delivered code. `gaps.analysis`
+  counts the findings, inside `gaps.conformance` like `proposed`; each finding is also one
+  `conformance[]` row (`scope: "analysis"`, `rule` the check id, `kind` `analysis-<family>`, `file` and
+  `line` the code's). The block is `{ policy, known, files, findings, hypotheses, notAnalyzed,
+  excluded, allowances, nonScope }`: `findings[]` are `{ family, check, path, line, message }` and count
+  against the verdict; `hypotheses[]` have the same shape and never count (ADR-0041); `notAnalyzed[]`
+  says what the policy did not read (`{ what, files, examples }`); `allowances` reports the rows of
+  `runward/analysis.md` in use, setting nothing aside, or unreadable. `runward verify` does not
+  re-derive the block yet, and the attestation's subject does not bind the files it reads.
 - **`delegation.assurance`** (with a charter, additive, ADR-0095 for the shape, ADR-0090 for the
   computation): `{ declared, inForce, degraded, notInForce, sentence }`. `declared` is the charter's
   `mode:` as written, null when absent; `inForce` is that mode, `sampled` when the field is absent,

@@ -57,6 +57,13 @@ between this file's letter and the shipped adapter; this amendment records it. T
 remains in force: runward never RUNS a test, never spins a worktree, never separates pre-existing
 from introduced failures — that baseline mechanism stays out of the gate, exactly as decided.
 
+## Note, 2026-11-05: amended by ADR-0118
+
+[ADR-0118](ADR-0118-built-in-analyzers-read-the-delivered-code-against-what-the-mission-declares-under-a-policy-it-pins.md) reads test sources, never runs them: whether each case asserts something, and whether a cited
+JUnit report records a case no source declares. "The gate RUNS nothing" stands; the language neutrality is
+amended to "no language is judged as if covered": the policy reads TypeScript and JavaScript and lists the
+others as not analysed.
+
 ## References
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the zero-run, deterministic invariant this decision protects.

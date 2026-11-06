@@ -6,6 +6,7 @@ import { TEMPLATES, EXAMPLE_MISSION, EXAMPLE_CODE, MISSION_LAYOUT, VERSION } fro
 import { TOOL_PROFILES, TOOL_IDS, PACKAGED_WITHOUT_PROFILE, baselineSkills } from "../lib/tools.js";
 import { makeWriter } from "../lib/write.js";
 import { hashText, renderScaffoldLock, SCAFFOLD_LOCK } from "../lib/scaffold-lock.js";
+import { DEFAULT_ANALYSIS_POLICY } from "../lib/analysis-policy.js";
 import { stampAdapterVersion } from "../lib/adapter-version.js";
 import { checkCommand } from "./check.js";
 import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
@@ -191,7 +192,9 @@ export async function initCommand(opts: InitOptions): Promise<void> {
     // ADR-0069 (D3, the maintainer's call of 2026-09-09): a NEW mission is born with the
     // structure contract armed. Existing missions never move — update preserves what the lock
     // says, it never writes this flag on its own.
-    w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, files, undefined, true));
+    // ADR-0118: and with the built-in analyzers on, pinned to the current policy, for the same reason
+    // and on the same terms: an existing mission opts in by adding the line, never by an update.
+    w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, files, undefined, true, undefined, undefined, undefined, DEFAULT_ANALYSIS_POLICY));
   }
 
   // ── Summary ───────────────────────────────────────────────────────

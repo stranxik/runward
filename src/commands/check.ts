@@ -19,6 +19,7 @@ import { c, createHeader, generationDate, section, status } from "../lib/styles.
 import { VERSION } from "../lib/paths.js";
 import { emitJson, errorPayload } from "../lib/machine-output.js";
 import { buildWitness, renderWitness, witnessPathFault, WITNESS_SCHEMA } from "../lib/witness.js";
+import { analysisLines } from "../lib/analysis-render.js";
 
 /**
  * Gate audit — the gap analysis: which deliverable, expected at which
@@ -504,6 +505,11 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       }
       log("  " + c.darkGray("ratify each: write the real why + a re-evaluation trigger and set Status: accepted (rename DRAFT→ADR), or set Status: rejected and keep the file (a deleted DRAFT is re-proposed by the next --mine). A hypothesis is not a decision."));
     }
+    // ADR-0118: the delivered code read against what the mission declares, only under its pinned policy.
+    if (verdict.analysis) {
+      log(section("Delivered code (--strict, built-in analyzers)"));
+      for (const line of analysisLines(verdict.analysis)) log(line);
+    }
     if (checked > 0 && strictGaps === 0) {
       // The two proofs, made legible together: this gate is the DOCUMENTARY proof (decisions traced);
       // the BEHAVIORAL proof is the operator's test suite. runward reads the pointer, never runs the code.
@@ -770,10 +776,11 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     for (const u of verdict.unratified) why.push(`runward/adr/${u.file} — ${u.reason}`);
     for (const u of verdict.regulated.unbound) why.push(`${u.deliverable} · ${u.rule} — decided, no ratification bound to its content (regulated tier)`);
     for (const g of verdict.delegation?.gaps ?? []) why.push(`delegation charter — ${g.problem}`);
+    for (const f of verdict.analysis?.findings ?? []) why.push(`${f.path}${f.line ? `:${f.line}` : ""} — ${f.message} (${f.family})`);
     // The corpus and the workflow contracts are named by kind in their own sections above; they are
     // repeated by kind, so no cause the summary counts is left out of this block.
     const b = verdict.strictBreakdown;
-    const others = verdictSummaryParts({ ...verdict, gaps: 0, strictBreakdown: { ...b, conformance: 0, proposed: 0, seal: 0, unratified: 0, unboundRows: 0, charter: 0 } });
+    const others = verdictSummaryParts({ ...verdict, gaps: 0, strictBreakdown: { ...b, conformance: 0, proposed: 0, seal: 0, unratified: 0, unboundRows: 0, charter: 0, analysis: 0 } });
     for (const part of others) why.push(`${part} (named above)`);
     for (const h of hooksFailedList) why.push(`hook (${h.phase}) failed: ${h.command}`);
     if (hooksCfg?.state === "invalid") why.push("runward/hooks.json is malformed, no hook ran");
