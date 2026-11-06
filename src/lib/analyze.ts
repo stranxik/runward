@@ -16,8 +16,8 @@
  *   secret          no file holds a credential of a known format;
  *   test-integrity  every test case asserts something, a test file can reach the code it tests, and a
  *                   cited JUnit report records no case its sources do not declare;
- *   symbol          a symbol a manifest cites is carried by code, not only by a comment, and is not a
- *                   placeholder constant.
+ *   symbol          a symbol a manifest cites is carried by code, not only by strings, and is not a
+ *                   placeholder constant (a name only in comments is the evidence layer's refusal, ADR-0114).
  *
  * WHAT IT NEVER SAYS. That the code is good. A finding is an invariant the mission declared and the
  * code breaks; an empty list is the absence of those findings, nothing more. What the reading cannot
@@ -29,7 +29,7 @@ import { ANALYSIS_POLICIES, type AnalysisPolicy } from "./analysis-policy.js";
 import { applyTerritoryMap, readTerritoryMap, type TerritoryMap } from "./territory-map.js";
 import { globToRegExp, normalizeForPath } from "./rules.js";
 import { GATED_DELIVERABLES, readManifest } from "./conformance.js";
-import { committedJUnitLedger, parseEvidencePointers, resolutionBases, resolveEvidencePath } from "./evidence.js";
+import { committedJUnitLedger, parseEvidencePointers, resolutionBases, resolveEvidencePath, symbolPresent } from "./evidence.js";
 import { junitProjection } from "./tool-adapters.js";
 import { toPosix } from "./paths.js";
 
@@ -974,6 +974,10 @@ export function analyzeDelivery(missionDir: string): AnalysisReading | null {
         if (!t) { if (policy.otherLanguages[extOf(rel)] !== undefined) citedElsewhere++; continue; }
         const id = new RegExp(`(?<![\\w$])${p.symbol.replace(RE_SPECIAL, "\\$&")}(?![\\w$])`);
         if (!id.test(t.src)) continue; // absent from the file altogether: the evidence layer refuses it already
+        // Present only inside comments: the evidence layer refuses the pointer itself, one violation on
+        // its row (ADR-0114, RWD-2026-0194); a finding here would count the same comment twice. What this
+        // family keeps is the name carried only by strings, which ADR-0114 reads as code and accepts.
+        if (!symbolPresent(t.src, p.symbol, rel)) continue;
         const cited = `runward/${deliverable} (row ${row.rule})`;
         if (!id.test(t.m.code)) {
           const k = id.exec(t.src);

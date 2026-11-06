@@ -223,11 +223,25 @@ test("an honest renaming, the manifests following the code, reads clean", () => 
   });
 });
 
-test("a renaming that leaves the old name in a comment is refused on the cited symbol", () => {
+test("a renaming that leaves the old name in a comment is refused once, by the evidence layer (ADR-0114), never twice", () => {
   withMission((d) => rename(d, true), (dir) => {
+    const r = reading(dir);
+    assert.deepEqual(tally(r.findings), {}, "a name only in comments is the evidence layer's refusal, not a second finding");
+    const v = computeVerdict(join(dir, "runward"), { strict: true });
+    assert.equal(v.strictBreakdown.analysis, 0);
+    assert.ok(v.strictBreakdown.conformance >= 1, "the cited pointer itself is refused");
+  });
+});
+
+test("a cited name carried only by a string is the symbol family's finding: ADR-0114 reads a string as code", () => {
+  withMission((d) => {
+    rename(d, true);
+    write(d, "code/src/core/domain/guard.ts", read(d, "code/src/core/domain/guard.ts").replace("// guardFields was the former name of validateFields\n", 'export const FORMER_NAME = "guardFields";\n'));
+  }, (dir) => {
     const r = reading(dir);
     assert.deepEqual(tally(r.findings), { "symbol/symbol-only-in-comments": 1 });
     assert.match(r.findings[0].message, /`guardFields`, cited by runward\/floor\.md .*only inside comments or strings/);
+    assert.equal(computeVerdict(join(dir, "runward"), { strict: true }).strictBreakdown.analysis, 1, "counted once, by the analyzers alone");
   });
 });
 
