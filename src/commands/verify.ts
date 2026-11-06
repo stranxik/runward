@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { declaredMissionName, findMissionRoot, THROUGH_PHASE_IDS } from "../lib/mission.js";
-import { computeVerdict } from "../lib/verdict.js";
+import { computeVerdict, verdictOutcome, LEVEL_NOT_MET_EXIT, REQUIRED_LEVELS, type RequiredLevel } from "../lib/verdict.js";
 import {
   buildVerdictStatement, deliveredTreeOf, digestOfFiles, missionStateFiles, missionStateScope, producerIdentity, rawFileSha256,
   DELIVERED_TREE_RULE, DELIVERED_TREE_SUBJECT_SUFFIX, IN_TOTO_STATEMENT_TYPE, RUNWARD_PREDICATE_TYPE, RUNWARD_BUNDLE_PREDICATE_TYPE,
@@ -233,6 +233,11 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   // drops the block is the honest attestation of the run without the flag, and is compared as one.
   const hooksAsked = p.hooks !== undefined;
   const coverageAsked = p.coverage !== undefined;
+  // ADR-0114: re-derive at the level the attestation records. One that records none was written by
+  // a runward that required no level, which is `traced`; an unknown level is re-derived at
+  // `traced` too, and its `require` block then differs below.
+  const attestedLevel = isObj(p.require) ? p.require.level : undefined;
+  const level: RequiredLevel = REQUIRED_LEVELS.includes(attestedLevel as RequiredLevel) ? attestedLevel as RequiredLevel : "traced";
 
   // The one input no offline reading can give: which of the operator's hook commands failed. The file
   // is re-read (pure, nothing runs); the attesting run's record of the failures is taken only when each
@@ -262,7 +267,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   // The SAME functions `check` publishes with (machinePayload, nextStep, buildVerdictStatement): there
   // is no second assembly to drift from check.ts, and a field added to one side only stops an honest
   // attestation from verifying the day it lands, which the tests read.
-  const verdict = computeVerdict(mission, { strict, through, hookFailed });
+  const verdict = computeVerdict(mission, { strict, through, hookFailed, require: level });
   const question = attestedQuestion({ strict, through, hooks: hooksAsked });
   const payload = machinePayload(verdict, {
     version: VERSION,
@@ -281,7 +286,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     corpusPin: corpusStamp(rulesDir(mission)),
     corpusDrift: corpusDrift(mission, rulesDir(mission)),
     gateNonScope: GATE_NON_SCOPE,
-    next: nextPayload(nextStep({ gaps: verdict.gaps, strictGaps: verdict.strictGaps, hookFailed, breakdown: verdict.strictBreakdown }, question)),
+    next: nextPayload(nextStep({ gaps: verdict.gaps, strictGaps: verdict.strictGaps, hookFailed, breakdown: verdict.strictBreakdown, levelNotMet: verdict.exitCode === LEVEL_NOT_MET_EXIT }, question)),
     coverage: coverageAsked ? coverageSummary(verdict.report, decisionCoverage(mission)) : undefined,
     junitNotGreen: citedJUnitNotGreen(mission),
   });
@@ -306,7 +311,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   const mode = versionSkew ? "subset" : "exact";
 
   const digestMatches = claimedDigest === currentDigest;
-  const currentVerdict = verdict.clean ? "clean" : "gaps";
+  const currentVerdict = verdictOutcome(verdict.clean, verdict.require).verdict;
   const verdictMatches = p.verdict === currentVerdict && p.exitCode === verdict.exitCode;
   const tree = currentTree ? compareTree(subjects, p.deliveredTree, `${declaredMissionName(mission)}${DELIVERED_TREE_SUBJECT_SUFFIX}`, currentTree, mode) : null;
   const differing = [
@@ -409,13 +414,18 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   }
   if (!versionSkew && hooksExecuted > 0) console.log(`  ${c.warning("◑")} ${c.darkGray(`hook outcomes not re-derived — the attesting run executed ${plural(hooksExecuted, "command")} of runward/hooks.json, ${expectedHooks!.failed.length} failed by its record; this command runs nothing`)}`);
   if (through) console.log(`  ${c.warning("◑")} ${c.darkGray(`PREFIX attestation through ${through} — NOT a completion verdict; ${deferredCount} later deliverable(s) deferred`)}`);
+  // ADR-0114: an attestation that records no level was re-derived at `traced`; said, never silent.
+  if (strict && attestedLevel === undefined) console.log(`  ${c.warning("◑")} ${c.darkGray("this attestation records no level of proof (`require`): its verdict was re-derived at `traced`, the level every runward applied before ADR-0114. A consumer that requires `mechanical` reads `require.level`.")}`);
 
   console.log(section("Result"));
   const covered = tree ? `, and the whole delivered tree matches (${plural(tree.files, "file")})` : `, from ${scopeWords}. Any other file of the project is not covered`;
   if (result === "verified" && attestedVerdict !== "clean") {
     // Exit 0 stays for an honest record of a refused crossing (RWD-2026-0132): `verify` answers whether
     // the attestation is AUTHENTIC. The first word the reader meets names the colour.
-    console.log("  " + status.warning(`verified: this attestation honestly records a RED gate (verdict: ${attestedVerdict}). The delivery did not cross.`));
+    // ADR-0114: exit 5 is not red (no gap) and not a crossing; the sentence says which.
+    console.log("  " + status.warning(attestedVerdict === "level-not-met"
+      ? "verified: this attestation honestly records a gate that did not cross: no gap, and nothing was verified mechanically, below the level of proof the run required (verdict: level-not-met)."
+      : `verified: this attestation honestly records a RED gate (verdict: ${attestedVerdict}). The delivery did not cross.`));
     console.log("  " + c.darkGray(`authentic, not passing: exit 0 says the record is true to this tree, not that the gate was crossed. Every field re-derives under the build that produced it${covered}.`));
   } else if (result === "verified") {
     console.log("  " + status.success(`verified — every field of this attestation re-derives under the build that produced it${covered}.`));

@@ -121,6 +121,7 @@ export interface SummaryMeta {
 const EXIT_MEANING: Record<number, string> = {
   0: "clean: the job passes",
   1: "gaps: the job fails until they are closed",
+  5: "no gap, and the level of proof the run required is not met: nothing was verified mechanically; the job fails until a row is, or until the run asks for `--require traced` by name (runward ADR-0114)",
 };
 
 function table(head: string[], rows: string[][], more: boolean): string[] {
@@ -146,7 +147,7 @@ function assuranceLine(d: NonNullable<SummaryPayload["delegation"]>): { value: s
 export function renderSummaryMarkdown(payload: Record<string, unknown>, meta: SummaryMeta): string {
   const p = payload as unknown as SummaryPayload;
   const clean = p.verdict === "clean";
-  const word = clean ? "CLEAN" : "GAPS";
+  const word = clean ? "CLEAN" : p.verdict === "level-not-met" ? "LEVEL NOT MET" : "GAPS";
   const version = flat(p.runward, 40);
   const digest = /^[0-9a-f]{64}$/.test(meta.subjectDigest) ? meta.subjectDigest : "not-available";
   const L: string[] = [];

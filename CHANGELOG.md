@@ -2,6 +2,40 @@
 
 ## Unreleased
 
+### Changed: a `#SYMBOL` naming an identifier is looked for outside the file's comments (ADR-0114, RWD-2026-0194)
+
+The gate, `spec-check` and the `rules --for` reminder now search a pointer's symbol of identifier form in
+the file without its comments (a quoted sentence, a dotted name or an operator keeps the textual reading),
+for the languages the evidence layer knows by extension: TypeScript and JavaScript, Python,
+Markdown, HTML, JSON, YAML, TOML, Go, Rust, Java, Ruby, PHP, SQL, shell, CSS and SCSS. Any other file is
+read whole, as before. Measured on 2026-11-05: the README's rename demo with
+`// validateFields was called guardFields before the rename.` left in `guard.ts` exited 0, "all gates
+passed"; it now exits 1, names both pointers, and adds "it occurs only in a comment, and a comment is not
+code". Strings still count, because a string literal is code (a route, a rule id, a config key), and a
+comment marker inside a string opens nothing. **Migration**: a row whose symbol survives only in a comment
+turns red; point it at the identifier the code declares, or drop the `#SYMBOL` to keep the bare path. Pinned
+by `test/unit/symbols-outside-comments.test.js`, red with the lexer taken out.
+
+### Changed: under `--strict`, a mission none of whose applied rows the gate verified exits 5, and `--require traced` accepts it by name (ADR-0114)
+
+Measured on 2026-11-05 (case c4 of that day's witness): the example mission with its 46 manifest rows set to
+`n/a` with one sentence exited 0, "all gates passed", one section after "! nothing was verified
+mechanically". `check --strict` now requires a level of proof: `mechanical` by default, at least one
+`applied` row carrying a pointer the gate opened and checked. Below it, a verdict with no gap exits 5
+(pytest's code for "no tests were collected"), the summary reads "deliverables filled, nothing verified
+mechanically", and `--json` carries `verdict: "level-not-met"`, `exitCode: 5` and `require: { level, met }`.
+`--require traced` accepts a green that rests on judgment alone, by name, the shape ADR-0060 wrote for a
+refusal; a `--through` prefix requires `traced` unless told otherwise. Gaps come first: a red verdict exits
+1. The attestation, `verify` (an attestation that records no level is re-derived at `traced`, and says so),
+the VSA (FAILED), the JUnit rendering, `report`, `status`, the compliance pack and `--freeze` (it refuses to
+seal) state the same outcome; the witness gains `verdict.require` and keeps its arithmetic. The shipped
+example and runward's own mission stay at exit 0. **Migration**: a strict mission that rests entirely on
+judgment (every row `n/a`, `deviated` or prose) now exits 5; point one `applied` row at the code, test or
+report that applies its rule, or add `--require traced` to the command your CI runs. A script that reads 1
+as red and 0 as green now meets 5. Pinned by `test/unit/required-level.test.js`. evidence, verdict,
+check-contract, spec-conformance, citations, witness and compliance change, so their mutation record is
+stale until they are re-measured (`npm run mutation:fresh` names them).
+
 ### Six findings of 2026-11-05 and 2026-11-06 filed, and two entries marked fixed in the tree (RWD-2026-0192, RWD-2026-0193, RWD-2026-0196 to RWD-2026-0201)
 
 Found by the agent sessions that built ADR-0113, ADR-0115 and the fleet prototype of ADR-0121, each

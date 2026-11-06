@@ -19,7 +19,7 @@
 
 import { resolve } from "node:path";
 import { GATED_DELIVERABLES, UNBOUND_CAUSE_TEXT } from "./conformance.js";
-import type { Verdict } from "./verdict.js";
+import { verdictOutcome, type Verdict } from "./verdict.js";
 import { PHASES, type GapReport } from "./mission.js";
 
 /** Everything `check` accepts, exactly as commander hands it over. */
@@ -43,6 +43,8 @@ export interface CheckOptions {
   junit?: string;
   /** ADR-0113 decision 5: with --attest, also bind the files the project delivers as a second subject. */
   wholeTree?: boolean;
+  /** ADR-0114: the level of proof the strict verdict requires (`mechanical` | `traced`). */
+  require?: string;
 }
 
 /**
@@ -86,6 +88,12 @@ export function optionFault(opts: CheckOptions): OptionFault | null {
   if (opts.witness !== undefined && !opts.strict) {
     return {
       message: "`--witness` records what a strict verdict relied on: add `--strict` (`runward check --strict --witness <file>`).",
+    };
+  }
+  // ADR-0114: the level of proof is asked of the rows a strict verdict reads; without --strict none is.
+  if (opts.require !== undefined && !opts.strict) {
+    return {
+      message: "`--require` sets the level of proof a strict verdict demands of its rows, and without `--strict` no row is read: add `--strict` (`runward check --strict --require traced`).",
     };
   }
   // ADR-0096: each rendering file is its own document. Two flags naming one path would leave one
@@ -164,6 +172,7 @@ export function rerunCommand(opts: CheckOptions): string {
   if (opts.path) parts.push(`-p ${opts.path}`);
   if (impliesStrict(opts)) parts.push("--strict");
   if (opts.through) parts.push(`--through ${opts.through}`);
+  if (opts.require) parts.push(`--require ${opts.require}`);
   if (opts.hooks) parts.push("--hooks");
   return parts.join(" ");
 }
@@ -184,12 +193,23 @@ export interface NextSegment { text: string; tone?: "command" | "muted" }
 export interface NextStep { action: string; command: string; rerun: string | null; segments: NextSegment[] }
 
 export function nextStep(
-  v: { gaps: number; strictGaps: number; hookFailed: number; breakdown: Verdict["strictBreakdown"] },
+  v: { gaps: number; strictGaps: number; hookFailed: number; breakdown: Verdict["strictBreakdown"]; levelNotMet?: boolean },
   opts: CheckOptions,
 ): NextStep {
   const cmd = (text: string): NextSegment => ({ text, tone: "command" });
   const muted = (text: string): NextSegment => ({ text, tone: "muted" });
   const plain = (text: string): NextSegment => ({ text });
+  // ADR-0114: no gap, and nothing the gate verified reaches the required level. Two ways out, both
+  // named: give one row something the gate can open, or ask for the traced green by name.
+  if (v.levelNotMet && v.gaps === 0 && v.strictGaps === 0 && v.hookFailed === 0) {
+    const rerun = rerunCommand(opts);
+    const traced = rerunCommand({ ...opts, require: "traced" });
+    return {
+      action: "verify-a-row", command: rerun, rerun,
+      segments: [plain("Point at least one applied row at the code, test or report that applies its rule ("), cmd("file:PATH[:LINE][#SYMBOL]"), plain(", "), cmd("test:PATH[::NAME]"), plain(", "), cmd("adr:NNNN"),
+        plain("), then re-run "), cmd(rerun), plain("; or accept a green that rests on judgment alone, by name: "), cmd(traced), plain(".")],
+    };
+  }
   if (v.gaps === 0 && v.strictGaps === 0 && v.hookFailed === 0) {
     return {
       action: "assemble-evidence-pack", command: "runward compliance <regime>", rerun: null,
@@ -274,7 +294,9 @@ export function nextPayload(n: NextStep): { action: string; command: string; rer
  * the JSON carried `currentGate: "all gates passed"` beside `verdict: "gaps"` (RWD-2026-0131). The
  * label now says what it measured whenever the verdict disagrees; the green keeps its bytes.
  */
-export function currentGateLabel(report: { currentPhase: string; steadyState: boolean }, clean: boolean, redAt: readonly string[] = []): string {
+export function currentGateLabel(report: { currentPhase: string; steadyState: boolean }, clean: boolean, redAt: readonly string[] = [], levelNotMet = false): string {
+  // ADR-0114: "all gates passed" above an exit 5 is the vacuous green this label must not print.
+  if (report.steadyState && clean && levelNotMet) return "deliverables filled, nothing verified mechanically";
   // "all deliverables filled (verdict: gaps)" was true and read as a contradiction: measured
   // 2026-10-13, a newcomer met "filled" one line above a red exit and had to scroll up to learn
   // where the gate was red. The label now says both halves, and names the phases when it can.
@@ -535,8 +557,10 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
     adrCount: ctx.adrCount,
     ...(ctx.adrSetAside && ctx.adrSetAside.length > 0 ? { adrSetAside: ctx.adrSetAside } : {}),
     strict: ctx.strict,
-    verdict: ctx.clean ? "clean" : "gaps",
-    exitCode: ctx.clean ? 0 : 1,
+    // ADR-0114: `verdictOutcome`, the one reading of the words and the code: `level-not-met`, exit 5,
+    // when no gap stands and the required level of proof (`require`, below) is not met.
+    verdict: verdictOutcome(ctx.clean, verdict.require).verdict,
+    exitCode: verdictOutcome(ctx.clean, verdict.require).exitCode,
     // HOW THE COUNTS ADD UP (RWD-2026-0146). `deliverables`, `conformance` and `hooks` are disjoint:
     // their sum is what stands between this run and a green. `conformance` is the WHOLE strict count
     // (rule violations, proposals, corpus divergences, seal drift, unratified reconstruction
@@ -632,6 +656,9 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       // approval (part 2) is never judged here: this command has no forge to ask.
       ...(verdict.regulated.on ? { regulated: { unbound: verdict.regulated.unbound, forgeApproval: "not verified by this command" } } : {}),
       gateNonScope: ctx.gateNonScope,
+      // ADR-0114, additive and strict only: the level of proof this run required (`--require`, or its
+      // default) and whether the verdict meets it. `met: false` beside no gap is `level-not-met`, exit 5.
+      ...(verdict.require ? { require: verdict.require } : {}),
       // ADR-0098 option B, additive and present only when at least one applied row was judged on a
       // committed JUnit report, so every other payload keeps its bytes. Last in the strict block, so
       // every key before it keeps its place. `rows` counts rows, `reports` lists the reports they

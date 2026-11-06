@@ -95,7 +95,9 @@
     "test/unit/seal-link-key.test.js",
     "test/unit/evidence-holes.test.js",
     "test/unit/mission-holes.test.js",
-    "test/unit/verify-claims-only-what-it-checks.test.js"
+    "test/unit/verify-claims-only-what-it-checks.test.js",
+    "test/unit/symbols-outside-comments.test.js",
+    "test/unit/required-level.test.js"
   ],
   "files": [
     {
@@ -1216,6 +1218,16 @@
     {
       "file": "test/unit/verify-claims-only-what-it-checks.test.js",
       "seconds": 15.29,
+      "passed": true
+    },
+    {
+      "file": "test/unit/symbols-outside-comments.test.js",
+      "seconds": 3.32,
+      "passed": true
+    },
+    {
+      "file": "test/unit/required-level.test.js",
+      "seconds": 12.12,
       "passed": true
     }
   ]
