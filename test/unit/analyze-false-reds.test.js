@@ -4,8 +4,10 @@
 //
 // Each test below is built from a minimal excerpt of a case the reviewer classified FALSE, with the file
 // and line it comes from, and fails on the reading that raised it. Beside each one, a case the reviewer
-// classified TRUE, or a sabotage the bench of 2026-11-05 planted, still reads red: a false red is fixed
-// by reading the code better, never by reading less of it.
+// classified TRUE, a sabotage the bench of 2026-11-05 planted, or an evasion a second review built
+// against this very reading (an assertion deleted the way each repository writes its tests, a stub kept
+// with its callers, a real key in a comment) still reads red: a false red is fixed by reading the code
+// better, never by reading less of it.
 //
 // No credential-looking string sits in this file: the PEM armour is built at run time from fragments,
 // and its body is a fake (AAAA…).
@@ -29,12 +31,18 @@ const core = (...patterns) => ["# Territory", "", "| Pattern | Category | Effect
 const cites = (...pointers) => ["# Architecture", "", "## Rule conformance", "", "| Rule | Status | Evidence |", "|---|---|---|",
   `| cited-symbols | applied | ${pointers.map((p) => `file:${p}`).join("; ")} |`, ""].join("\n");
 const at = (r, path) => r.findings.filter((f) => f.path === path).map((f) => `${f.family}/${f.check}:${f.line}`);
+const said = (r, path, check) => r.hypotheses.filter((h) => h.path === path && h.check === check).map((h) => h.line);
 const lines = (...l) => `${l.join("\n")}\n`;
+const without = (files, ...names) => Object.fromEntries(Object.entries(files).filter(([k]) => !names.includes(k)));
+// What a project declares about its tests: a type-checker it runs, a runner that hands `done`.
+const TYPE_CHECKED = JSON.stringify({ scripts: { test: "tsc -p tsconfig.spec.json && vitest run" } });
+const MOCHA = JSON.stringify({ scripts: { test: "mocha test/" }, devDependencies: { mocha: "^10.0.0" } });
 
 // ── test-integrity ────────────────────────────────────────────────────────────────────────────────
 
 test("test-integrity: a type alias instantiating an assertion type constrained `extends true` asserts (hono src/client/client.test.ts:654)", () => {
-  const r = delivery({
+  const files = {
+    "package.json": TYPE_CHECKED,
     "src/utils/types.ts": lines(
       "export type Expect<T extends true> = T",
       "export type Equal<X, Y> =",
@@ -73,16 +81,26 @@ test("test-integrity: a type alias instantiating an assertion type constrained `
       "  it('instantiates a type that asserts nothing', () => {",
       "    type verify = Loose<Equal<1, 2>>",
       "  })",
+      "",
+      // A type assertion on literals and operators alone is a tautology.
+      "  it('asserts on literals only', () => {",
+      "    hc<{ a: 1 }>('/')",
+      "    type verify = Expect<Equal<1, 1>>",
+      "  })",
       "})",
     ),
-  });
-  assert.deepEqual(at(r, "src/client/client.test.ts"), [
-    "test-integrity/case-asserts-nothing:15", "test-integrity/case-asserts-nothing:21", "test-integrity/case-asserts-nothing:25",
-  ], "the type assertion clears its case; the commented one, the compile-only one and an unconstrained generic do not");
+  };
+  assert.deepEqual(at(delivery(files), "src/client/client.test.ts"), [
+    "test-integrity/case-asserts-nothing:15", "test-integrity/case-asserts-nothing:21",
+    "test-integrity/case-asserts-nothing:25", "test-integrity/case-asserts-nothing:29",
+  ], "the type assertion on the code clears its case; a commented one, a compile-only case, an unconstrained generic and a tautology do not");
+  assert.ok(at(delivery(without(files, "package.json")), "src/client/client.test.ts").includes("test-integrity/case-asserts-nothing:5"),
+    "with nothing in the project that type-checks the tests, a type assertion checks nothing");
 });
 
 test("test-integrity: a `// @ts-expect-error` directive inside the case asserts, in a TypeScript file (hono src/middleware/jsx-renderer/index.test.tsx:69)", () => {
-  const r = delivery({
+  const files = {
+    "package.json": TYPE_CHECKED,
     "src/jsx-renderer.ts": "export const jsxRenderer = (f: () => string) => f\n",
     "src/jsx-renderer.test.tsx": lines(
       "import { jsxRenderer } from './jsx-renderer'",
@@ -95,6 +113,11 @@ test("test-integrity: a `// @ts-expect-error` directive inside the case asserts,
       "    const s = '// @ts-expect-error'",
       "    jsxRenderer(() => s)",
       "  })",
+      "  it('expects an error of a line written for it alone', () => {",
+      "    jsxRenderer(() => 'x')",
+      "    // @ts-expect-error",
+      "    const n: number = ''",
+      "  })",
       "})",
     ),
     // A JavaScript file is not type-checked by the directive's compiler unless it opts in: not read as one.
@@ -105,9 +128,12 @@ test("test-integrity: a `// @ts-expect-error` directive inside the case asserts,
       "  jsxRenderer(() => null)",
       "})",
     ),
-  });
-  assert.deepEqual(at(r, "src/jsx-renderer.test.tsx"), ["test-integrity/case-asserts-nothing:7"]);
+  };
+  const r = delivery(files);
+  assert.deepEqual(at(r, "src/jsx-renderer.test.tsx"), ["test-integrity/case-asserts-nothing:7", "test-integrity/case-asserts-nothing:11"]);
   assert.deepEqual(at(r, "src/plain.test.js"), ["test-integrity/case-asserts-nothing:2"]);
+  assert.ok(at(delivery(without(files, "package.json")), "src/jsx-renderer.test.tsx").includes("test-integrity/case-asserts-nothing:3"),
+    "a directive nothing type-checks expects nothing");
 });
 
 test("test-integrity: an assertion inside a `const` arrow helper whose parameters span lines (hono src/middleware/compress/index.test.ts:121)", () => {
@@ -149,11 +175,13 @@ test("test-integrity: an assertion inside a `const` arrow helper whose parameter
 });
 
 test("test-integrity: mocha's done handed to the code under test, as an argument, a property value or a listener (express test/Route.js:10, Router.js:19, app.js:8, app.listen.js:7 and :38)", () => {
-  const r = delivery({
+  const files = {
+    "package.json": MOCHA,
     "lib/express.js": "module.exports = function express() { return {} }\n",
     "test/done.js": lines(
       "var express = require('../lib/express')",
-      "var assert = require('node:assert')",
+      "var request = require('supertest')",
+      "var { nextTick } = require('node:process')",
       "describe('done', function(){",
       "  it('should work without handlers', function(done) {",
       "    var req = { method: 'GET', url: '/' }",
@@ -180,7 +208,9 @@ test("test-integrity: mocha's done handed to the code under test, as an argument
       "    const server = app.listen();",
       "    server.close(done);",
       "  });",
-      // What hands done to nothing under test: a direct call, a timer, a helper of this file.
+      // What hands done to nothing of the code under test: a direct call, a timer, a helper of this file,
+      // a timer of the runtime under another name, an object nothing receives, and a package's request
+      // whose `.expect()` was deleted (supertest's `.end(done)` passes whatever the status).
       "  it('calls done itself', function (done) {",
       "    express();",
       "    done();",
@@ -192,6 +222,18 @@ test("test-integrity: mocha's done handed to the code under test, as an argument
       "  it('hands done to a helper of this file', function (done) {",
       "    later(done);",
       "  });",
+      "  it('hands done to a timer of the runtime, by another name', function (done) {",
+      "    express();",
+      "    nextTick(done);",
+      "  });",
+      "  it('keeps done in an object nothing receives', function (done) {",
+      "    const o = { cb: done };",
+      "    o.cb();",
+      "  });",
+      "  it('should respond with 200 and the body', function (done) {",
+      "    var app = express()",
+      "    request(app).get('/').end(done)",
+      "  })",
       // express test/Router.js:202, classified TRUE: a synchronous call and nothing else.
       "  it('should not throw if all callbacks are functions', function () {",
       "    var router = new express.Router();",
@@ -200,11 +242,17 @@ test("test-integrity: mocha's done handed to the code under test, as an argument
       "})",
       "function later(cb) { setImmediate(cb) }",
     ),
-  });
+  };
+  const r = delivery(files);
   assert.deepEqual(at(r, "test/done.js"), [
-    "test-integrity/case-asserts-nothing:29", "test-integrity/case-asserts-nothing:33",
-    "test-integrity/case-asserts-nothing:37", "test-integrity/case-asserts-nothing:40",
+    "test-integrity/case-asserts-nothing:30", "test-integrity/case-asserts-nothing:34", "test-integrity/case-asserts-nothing:38",
+    "test-integrity/case-asserts-nothing:41", "test-integrity/case-asserts-nothing:45", "test-integrity/case-asserts-nothing:49",
+    "test-integrity/case-asserts-nothing:53",
   ]);
+  assert.deepEqual(said(r, "test/done.js", "case-asserts-completion"), [5, 10, 14, 19, 25], "what such a case checks is said, never counted");
+  assert.match(r.hypotheses.find((h) => h.line === 5).message, /completes without error \(its `done` is handed to `route\.dispatch`\)/);
+  assert.ok(at(delivery(without(files, "package.json")), "test/done.js").includes("test-integrity/case-asserts-nothing:5"),
+    "with no runner known, a first parameter may as well be a context: no done is inferred");
 });
 
 test("test-integrity: an awaited method of an object the case built and set up, the promise form of done (fastify test/schema-special-usage.test.js:423, test/http2/closing.test.js:118)", () => {
@@ -214,6 +262,7 @@ test("test-integrity: an awaited method of an object the case built and set up, 
     "test/schema.test.js": lines(
       "'use strict'",
       "const { test } = require('node:test')",
+      "const http = require('node:http')",
       "const Fastify = require('..')",
       "const { compose } = require('../lib/compose')",
       "test('side effect on schema let the server crash', async t => {",
@@ -260,13 +309,27 @@ test("test-integrity: an awaited method of an object the case built and set up, 
       "  fastify.addSchema({ $id: 'x' })",
       "  const out = await fastify.ready()",
       "})",
+      "test('returns the user', async (t) => {",
+      "  const fastify = Fastify()",
+      "  fastify.get('/user', async () => ({ id: 1 }))",
+      "  const res = await fastify.inject({ url: '/user' })",
+      "  await fastify.close()",
+      "})",
+      // An object of the runtime, not of the code under test.
+      "test('awaits a server of the runtime', async () => {",
+      "  const server = http.createServer()",
+      "  server.listen(0)",
+      "  await server.close()",
+      "})",
     ),
   });
   assert.deepEqual(at(r, "test/schema.test.js"), [
-    "test-integrity/case-asserts-nothing:16", "test-integrity/case-asserts-nothing:19",
-    "test-integrity/case-asserts-nothing:26", "test-integrity/case-asserts-nothing:30",
-    "test-integrity/case-asserts-nothing:35", "test-integrity/case-asserts-nothing:39",
+    "test-integrity/case-asserts-nothing:17", "test-integrity/case-asserts-nothing:20", "test-integrity/case-asserts-nothing:27",
+    "test-integrity/case-asserts-nothing:31", "test-integrity/case-asserts-nothing:36", "test-integrity/case-asserts-nothing:40",
+    "test-integrity/case-asserts-nothing:45", "test-integrity/case-asserts-nothing:51",
   ]);
+  assert.deepEqual(said(r, "test/schema.test.js", "case-asserts-completion"), [6, 12]);
+  assert.match(r.hypotheses.find((h) => h.line === 6).message, /\(it awaits `fastify\.ready\(\)`\): what it computes is not checked/);
 });
 
 test("test-integrity: an awaited promise that rejects on a failure condition (fastify test/reply-trailers.test.js:269)", () => {
@@ -294,9 +357,22 @@ test("test-integrity: an awaited promise that rejects on a failure condition (fa
       "    req.end()",
       "  })",
       "})",
+      "test('a promise that rejects around nothing of the code', async () => {",
+      "  await new Promise((resolve, reject) => {",
+      "    setTimeout(() => reject(new Error('late')), 10)",
+      "    resolve()",
+      "  })",
+      "})",
+      // Resolved by the executor itself before a reject that cannot fire: no failure path is left.
+      "test('resolves on its own before a reject that cannot fire', async () => {",
+      "  await new Promise((resolve, reject) => { http.request('http://localhost/', () => {}); resolve(); if (false) reject(new Error('never')) })",
+      "})",
     ),
   });
-  assert.deepEqual(at(r, "test/trailers.test.js"), ["test-integrity/case-asserts-nothing:14"]);
+  assert.deepEqual(at(r, "test/trailers.test.js"), [
+    "test-integrity/case-asserts-nothing:14", "test-integrity/case-asserts-nothing:22", "test-integrity/case-asserts-nothing:28",
+  ]);
+  assert.deepEqual(said(r, "test/trailers.test.js", "case-asserts-completion"), [3]);
 });
 
 test("test-integrity: the bench's emptied suite still reads red, and a literal-only case is never said to be by design", () => {
@@ -362,11 +438,19 @@ test("capability: a loader whose name is a `const` bound to a literal in its sco
       "module.exports = View",
     ),
     "src/let.ts": "let name = 'cloudflare:workers'\nexport const load = () => import(name)\n",
+    // A literal the next line carries on, a destructuring, a parameter and a `catch` that rebind the name.
+    "src/concat.ts": lines("const name = './plugins/'", "  + process.env.PLUGIN", "export const load = () => import(name)"),
+    "src/shadow.ts": lines("const name = './harmless'", "export async function load(input: { name: string }) { const { name } = input; return import(name) }"),
+    "src/param.ts": lines("const target = 'lodash'", "export const load = ({ target }: { target: string }) => import(target)"),
+    "src/catch.js": lines("const target = './a'", "module.exports = function load () { try { return require('./b') } catch (target) { return require(target) } }"),
   });
   assert.deepEqual(at(r, "src/utils/color.ts"), []);
   assert.deepEqual(at(r, "benchmarks/bench.mts"), ["capability/computed-import:4"]);
   assert.deepEqual(at(r, "lib/view.js"), ["capability/computed-import:4"]);
   assert.deepEqual(at(r, "src/let.ts"), ["capability/computed-import:2"], "a `let` may be reassigned: not read as a literal");
+  for (const [path, line] of [["src/concat.ts", 3], ["src/shadow.ts", 2], ["src/param.ts", 2], ["src/catch.js", 2]]) {
+    assert.deepEqual(at(r, path), [`capability/computed-import:${line}`], `${path}: the name is not the literal everywhere it is loaded`);
+  }
   // The module it loads is judged like a literal one: in a declared core, the boundary reads it.
   const inCore = delivery({ "runward/territory.md": core("src/utils/**"), "src/utils/color.ts": color });
   assert.deepEqual(inCore.findings.map((f) => `${f.family}/${f.check}:${f.line}`), ["boundary/core-import-package:10"]);
@@ -391,6 +475,14 @@ test("capability: `require(param)` of a local function that is not exported and 
     "examples/content-negotiation/index.js": negotiation([]),
     "examples/exported/index.js": negotiation(["exports.format = format;"]),
     "examples/computed/index.js": negotiation(["app.get('/other', format(process.argv[2]));"]),
+    "examples/reassigned/index.js": lines(
+      "'use strict'",
+      "function format(path) {",
+      "  ({ path } = globalThis.cfg);",
+      "  return require(path);",
+      "}",
+      "module.exports.users = format('./users');",
+    ),
     // express examples/mvc/lib/boot.js:18, classified TRUE: every directory found at run time.
     "examples/mvc/lib/boot.js": lines(
       "var fs = require('node:fs')",
@@ -408,6 +500,7 @@ test("capability: `require(param)` of a local function that is not exported and 
   assert.deepEqual(at(r, "examples/content-negotiation/index.js"), []);
   assert.deepEqual(at(r, "examples/exported/index.js"), ["capability/computed-import:5"], "an exported function is called from elsewhere");
   assert.deepEqual(at(r, "examples/computed/index.js"), ["capability/computed-import:5"], "one call passes a value computed at run time");
+  assert.deepEqual(at(r, "examples/reassigned/index.js"), ["capability/computed-import:4"], "a pattern reassigns the parameter");
   assert.deepEqual(at(r, "examples/mvc/lib/boot.js"), ["capability/computed-import:7"]);
 });
 
@@ -457,6 +550,8 @@ test("capability: a network module bound only for its constants is a built-in im
       "module.exports = (host, cb) => dns.lookup(host, cb)",
     ),
     "lib/passes-it-on.js": "const http = require('node:http')\nmodule.exports = { http }\n",
+    // `import type, { request }` binds a default export named `type` and the value `request`.
+    "lib/default-type.ts": "import type, { request } from 'node:http'\nexport const go = (u: string) => request(u)\n",
   });
   assert.deepEqual(at(r, "lib/request.js"), ["boundary/core-import-builtin:1", "capability/network:2"],
     "isIP is a string predicate; http.IncomingMessage is the connection");
@@ -468,6 +563,16 @@ test("capability: a network module bound only for its constants is a built-in im
   assert.deepEqual(at(r, "lib/application.js"), ["boundary/core-import-package:1", "capability/network:2", "capability/environment:8"]);
   assert.deepEqual(at(r, "lib/server.js"), ["capability/network:1"]);
   assert.deepEqual(at(r, "lib/passes-it-on.js"), ["capability/network:1"], "a module handed on whole is judged by what it can reach");
+  assert.deepEqual(at(r, "lib/default-type.ts"), ["capability/network:1"], "the type-only form is read from the statement's syntax");
+  // A mission that allowed the network in the file keeps that allowance in use: no new red after the reading moves.
+  const allowed = delivery({
+    "runward/territory.md": core("lib/**"),
+    "runward/analysis.md": lines("# Analysis", "", "## Allowed capabilities", "", "| Path | Capability | Why |", "|---|---|---|",
+      "| `lib/utils.js` | `network` | the HTTP methods table, read once when the module loads |"),
+    "lib/utils.js": lines("var { METHODS } = require('node:http');", "exports.methods = METHODS.map((method) => method.toLowerCase());"),
+  });
+  assert.deepEqual(allowed.findings, []);
+  assert.deepEqual(allowed.allowances.inert, []);
 });
 
 // ── secret ────────────────────────────────────────────────────────────────────────────────────────
@@ -478,6 +583,7 @@ test("secret: a PEM private key block needs a body; armour around an interpolati
   const rsaBegin = `-----BEGIN ${"RSA PRIVATE"} KEY-----`;
   const rsaEnd = `-----END ${"RSA PRIVATE"} KEY-----`;
   const body = (n) => `MII${"A".repeat(61)}`.repeat(n).slice(0, 64 * n);
+  const slashed = `MII${"A".repeat(29)}/${"B".repeat(31)}`;
   const r = delivery({
     "src/jwt.test.ts": lines(
       "import { test } from 'node:test'",
@@ -495,14 +601,24 @@ test("secret: a PEM private key block needs a body; armour around an interpolati
     // A parser that names the armour, and a documentation placeholder: no key either.
     "src/pem.ts": lines(`export const isKey = (line: string) => line === '${rsaBegin}'`, `export const doc = '${begin}\\n...\\n${end}'`),
     // A key, written the ways a repository holds one: JSON with escaped newlines, concatenated strings,
-    // a template literal, and a block whose END line was lost.
+    // a template literal, a block whose END line was lost, comments, line continuations, `\/` and
+    // double escapes, an XML entity, a key flattened onto one line.
     "config/service-account.json": JSON.stringify({ private_key: `${begin}\n${body(3)}\n${end}\n` }, null, 2),
     "src/key.js": lines(`module.exports = '${rsaBegin}\\n' +`, `  '${body(1)}\\n' +`, `  '${body(1)}\\n' +`, `  '${rsaEnd}'`),
     "src/key-template.ts": lines(`export const key = \`${begin}`, body(2), `${end}\``),
     "src/key-truncated.ts": lines(`export const key = \`${rsaBegin}`, body(2), "`"),
+    "src/key-comment.js": lines(`// ${rsaBegin}`, `// ${body(1)}`, `// ${body(1)}`, `// ${rsaEnd}`, "module.exports = {}"),
+    "src/key-continued.js": lines(`module.exports = '${rsaBegin}\\n\\`, `${body(1)}\\n\\`, `${rsaEnd}'`),
+    "config/escaped.json": `{ "key": "${begin}\\n${slashed.replace(/\//g, "\\/")}\\n${end}" }\n`,
+    "src/double.js": `module.exports = '${begin}\\\\n${body(2)}\\\\n${end}'\n`,
+    "config/key.xml": `<key>${begin}&#10;${body(1)}&#10;${end}</key>\n`,
+    "config/flat.yml": `key: ${begin} ${body(1)} ${body(1)} ${end}\n`,
   });
   const found = r.findings.filter((f) => f.check === "secret-private-key-block").map((f) => `${f.path}:${f.line}`);
-  assert.deepEqual(found, ["config/service-account.json:2", "src/key-template.ts:1", "src/key-truncated.ts:1", "src/key.js:1"]);
+  assert.deepEqual(found, [
+    "config/escaped.json:1", "config/flat.yml:1", "config/key.xml:1", "config/service-account.json:2", "src/double.js:1",
+    "src/key-comment.js:1", "src/key-continued.js:1", "src/key-template.ts:1", "src/key-truncated.ts:1", "src/key.js:1",
+  ]);
   for (const f of r.findings) assert.ok(!f.message.includes("AAAA"), "the value is never printed");
 });
 
@@ -513,6 +629,8 @@ test("symbol: an empty constant the code reads as a value is a sentinel, not a p
     "runward/architecture.md": cites(
       "src/router/matcher.ts#emptyParam", "src/router/empty.ts#noValues",
       "src/core/guard.ts#guardFields", "src/core/guard.ts#parseDeadline",
+      "src/core/cjs.js#parseDeadline", "src/core/cjs.js#guardFields", "src/core/stub.ts#runRule",
+      "src/core/typed.ts#deadline", "src/core/default.ts#empty",
     ),
     "src/router/matcher.ts": lines(
       "export const emptyParam: string[] = []",
@@ -529,9 +647,18 @@ test("symbol: an empty constant the code reads as a value is a sentinel, not a p
     "src/router/use.ts": "import { noValues } from './empty'\nexport const valuesOf = (v?: object) => v ?? noValues\n",
     // The bench's c3b: every cited symbol a constant, and nothing reads it.
     "src/core/guard.ts": "// stub\nexport const guardFields = 0;\nexport const parseDeadline = [];\n",
+    // A stub is exported, called or typed, never read: it stays a placeholder.
+    "src/core/cjs.js": lines("'use strict'", "const parseDeadline = []", "const guardFields = {}", "module.exports = { parseDeadline, guardFields }"),
+    "src/core/stub.ts": "export const runRule = {}\n",
+    "src/core/usecase.ts": "import { runRule } from './stub'\nexport function run(p: unknown) { return (runRule as any)(p) }\n",
+    "src/core/typed.ts": "export const deadline = []\nexport type Deadline = typeof deadline\n",
+    "src/core/default.ts": "export const empty = ''\nexport default { empty }\n",
   });
   assert.deepEqual(r.findings.map((f) => `${f.path}:${f.check}:${f.line}`), [
-    "src/core/guard.ts:symbol-placeholder-constant:2", "src/core/guard.ts:symbol-placeholder-constant:3",
+    "src/core/cjs.js:symbol-placeholder-constant:2", "src/core/cjs.js:symbol-placeholder-constant:3",
+    "src/core/default.ts:symbol-placeholder-constant:1", "src/core/guard.ts:symbol-placeholder-constant:2",
+    "src/core/guard.ts:symbol-placeholder-constant:3", "src/core/stub.ts:symbol-placeholder-constant:1",
+    "src/core/typed.ts:symbol-placeholder-constant:1",
   ]);
   const h = r.hypotheses.filter((x) => x.family === "symbol").map((x) => `${x.path}:${x.check}:${x.line}`);
   assert.deepEqual(h, ["src/router/empty.ts:symbol-sentinel-constant:2", "src/router/matcher.ts:symbol-sentinel-constant:1"],
@@ -540,7 +667,7 @@ test("symbol: an empty constant the code reads as a value is a sentinel, not a p
 
 test("symbol: a cited name resolves to the module's declaration, never to a block's local of the same name (fastify lib/reply.js:606)", () => {
   const r = delivery({
-    "runward/architecture.md": cites("lib/reply.js#header", "lib/other.js#header"),
+    "runward/architecture.md": cites("lib/reply.js#header", "lib/other.js#header", "lib/iife.js#parseDeadline", "lib/block.js#guardFields", "src/view.tsx#parseDeadline"),
     "lib/reply.js": lines(
       "'use strict'",
       "function Reply () {}",
@@ -561,6 +688,16 @@ test("symbol: a cited name resolves to the module's declaration, never to a bloc
       "module.exports = { Reply, onSendEnd }",
     ),
     "lib/other.js": "'use strict'\nconst header = ''\nmodule.exports = {}\n",
+    // A module wrapper and a bare block are the module's scope; a masking that loses a brace falls back.
+    "lib/iife.js": lines("(function () {", "  const parseDeadline = null", "  module.exports.parseDeadline = parseDeadline", "})()"),
+    "lib/block.js": lines("'use strict'", "{", "  var guardFields = 0", "}", "module.exports = guardFields"),
+    "src/view.tsx": lines(
+      "export const View = (p: { items: string[] }) => <ul>{p.items.map((i) => <li>it is {i}</li>)}</ul>",
+      "export const parseDeadline = null;",
+    ),
   });
-  assert.deepEqual(r.findings.map((f) => `${f.path}:${f.check}:${f.line}`), ["lib/other.js:symbol-placeholder-constant:2"]);
+  assert.deepEqual(r.findings.map((f) => `${f.path}:${f.check}:${f.line}`), [
+    "lib/block.js:symbol-placeholder-constant:3", "lib/iife.js:symbol-placeholder-constant:2",
+    "lib/other.js:symbol-placeholder-constant:2", "src/view.tsx:symbol-placeholder-constant:2",
+  ]);
 });

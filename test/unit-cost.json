@@ -620,13 +620,13 @@
       "passed": true
     },
     {
-      "file": "test/unit/open-anomalies.test.js",
-      "seconds": 0.52,
+      "file": "test/unit/analyze-false-reds.test.js",
+      "seconds": 0.53,
       "passed": true
     },
     {
-      "file": "test/unit/analyze-false-reds.test.js",
-      "seconds": 0.51,
+      "file": "test/unit/open-anomalies.test.js",
+      "seconds": 0.52,
       "passed": true
     },
     {

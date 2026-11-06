@@ -366,6 +366,9 @@ interface ImportBinding {
   members: Array<{ name: string; local: string | null; type: boolean }>;
   /** [start, end) of the statement that binds them: a name met there is the binding, not a use. */
   clause: [number, number];
+  /** The statement binds types only (`import type { T } from`), read from its syntax: `import type, { x }`
+   *  binds a default export named `type`, a value. */
+  typeOnly: boolean;
 }
 
 /** What an import of a literal module binds, read from its statement; null when this reading cannot
@@ -373,18 +376,20 @@ interface ImportBinding {
  *  to an existing name, a rest or nested pattern). */
 function bindingsOf(m: Masked, imp: ImportRef): ImportBinding | null {
   const code = m.code;
-  const lit = imp.spec === null ? undefined : m.literals.find((l) => l.start === imp.index);
+  const lit = imp.spec === null ? undefined : literalStartingAt(m, imp.index);
   if (!lit) return null;
   if (imp.how === "static") {
     const from = Math.max(0, imp.index - 4000);
     let stmt = -1;
     for (const k of code.slice(from, imp.index).matchAll(/(?<![\w$.])(?:import|export)\b/g)) stmt = k.index;
     const text = stmt === -1 ? "" : code.slice(from + stmt, imp.index);
-    const lead = /^import\s+(?:type\s+)?/.exec(text);
+    const lead = /^import\s+/.exec(text);
     const tail = /(?<![\w$.])from\s*$/.exec(text);
     if (!lead || !tail || tail.index < lead[0].length) return null; // `export … from`, `import 'x'`
-    const out: ImportBinding = { wholes: [], members: [], clause: [from + stmt, lit.end] };
-    const clause = text.slice(lead[0].length, tail.index).trim();
+    let clause = text.slice(lead[0].length, tail.index).trim();
+    const typed = /^type\s+(?=[{*A-Za-z_$])/.exec(clause);
+    if (typed) clause = clause.slice(typed[0].length);
+    const out: ImportBinding = { wholes: [], members: [], clause: [from + stmt, lit.end], typeOnly: typed !== null };
     const brace = clause.indexOf("{");
     for (const part of (brace === -1 ? clause : clause.slice(0, brace)).split(",").map((s) => s.trim()).filter(Boolean)) {
       const w = /^(?:\*\s*as\s+)?([A-Za-z_$][\w$]*)$/.exec(part);
@@ -398,7 +403,7 @@ function bindingsOf(m: Masked, imp: ImportRef): ImportBinding | null {
         const it = /^(type\s+)?([A-Za-z_$][\w$]*)(?:\s+as\s+([A-Za-z_$][\w$]*))?$/.exec(item);
         if (!it) return null;
         if (it[2] === "default") { if (!it[1]) out.wholes.push(it[3] ?? it[2]); continue; }
-        out.members.push({ name: it[2], local: it[3] ?? it[2], type: imp.typeOnly || it[1] !== undefined });
+        out.members.push({ name: it[2], local: it[3] ?? it[2], type: out.typeOnly || it[1] !== undefined });
       }
     }
     return out;
@@ -414,7 +419,7 @@ function bindingsOf(m: Masked, imp: ImportRef): ImportBinding | null {
   const end = e + 1 + (member ? member[0].length : 0);
   const r = skipBack(code, req.start - 1);
   if (code[r] !== "=" || "=!<>".includes(code[r - 1] ?? "")) {
-    return member ? { wholes: [], members: [{ name: member[1], local: null, type: false }], clause: [req.start, end] } : null;
+    return member ? { wholes: [], members: [{ name: member[1], local: null, type: false }], clause: [req.start, end], typeOnly: false } : null;
   }
   const t = skipBack(code, r - 1);
   let pattern: string | null = null;
@@ -430,11 +435,14 @@ function bindingsOf(m: Masked, imp: ImportRef): ImportBinding | null {
     name = w.word;
     start = w.start;
   }
-  const kw = wordEndingAt(code, skipBack(code, start - 1) + 1);
-  if (!kw || !/^(?:const|let|var|import)$/.test(kw.word)) return null;
-  const clause: [number, number] = [kw.start, end];
+  // `const x =`, `import x =`, or a declarator after a comma at the top of a statement (`var a = …, x =`).
+  const before = skipBack(code, start - 1);
+  const kw = wordEndingAt(code, before + 1);
+  const declarator = code[before] === "," && [-1, "{"].includes(code[unmatchedOpener(code, before - 1)] ?? -1);
+  if (!declarator && (!kw || !/^(?:const|let|var|import)$/.test(kw.word))) return null;
+  const clause: [number, number] = [declarator ? before : kw!.start, end];
   if (name !== null) {
-    return member ? { wholes: [], members: [{ name: member[1], local: name, type: false }], clause } : { wholes: [name], members: [], clause };
+    return member ? { wholes: [], members: [{ name: member[1], local: name, type: false }], clause, typeOnly: false } : { wholes: [name], members: [], clause, typeOnly: false };
   }
   if (member || pattern === null) return null;
   const members: ImportBinding["members"] = [];
@@ -443,7 +451,7 @@ function bindingsOf(m: Masked, imp: ImportRef): ImportBinding | null {
     if (!it) return null;
     members.push({ name: it[1], local: it[2] ?? it[1], type: false });
   }
-  return { wholes: [], members, clause };
+  return { wholes: [], members, clause, typeOnly: false };
 }
 
 /** The members of a whole-module binding the file reads (`http.METHODS`); null when the binding is used
@@ -472,9 +480,9 @@ const NETWORK_INERT: Readonly<Record<string, readonly string[]>> = {
  *  reads: a type-only import binds no value, `{ METHODS }` or `http.STATUS_CODES` reads a table. What the
  *  reading cannot follow is judged by what it could reach: the network. */
 function opensNetwork(m: Masked, imp: ImportRef, module: string): boolean {
-  if (imp.typeOnly) return false;
   const b = bindingsOf(m, imp);
   if (b === null) return true;
+  if (b.typeOnly) return false;
   const used = b.members.filter((x) => !x.type).map((x) => x.name);
   for (const w of b.wholes) {
     const reads = memberReads(m.code, w, b.clause);
@@ -509,25 +517,66 @@ function standsAlone(code: string, head: number): boolean {
   return ";{})".includes(code[p]);
 }
 
+/** The literal that starts at `at`, by binary search: `maskSource` records literals in the order they open. */
+function literalStartingAt(m: Masked, at: number): Literal | undefined {
+  let lo = 0;
+  let hi = m.literals.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    const s = m.literals[mid].start;
+    if (s === at) return m.literals[mid];
+    if (s < at) lo = mid + 1; else hi = mid - 1;
+  }
+  return undefined;
+}
+
+/** Is the identifier at `index` the whole argument of a loader (an `import` or a `require` of that name)? */
+function loaderArgument(code: string, index: number, length: number): boolean {
+  const p = skipBack(code, index - 1);
+  if (code[p] !== "(") return false;
+  const w = wordEndingAt(code, skipBack(code, p - 1) + 1);
+  if (!w || (w.word !== "import" && w.word !== "require") || memberBefore(code, w.start)) return false;
+  const q = skipAhead(code, index + length);
+  return code[q] === ")" || code[q] === ",";
+}
+
+const PARAM_CACHE = new WeakMap<Masked, Map<string, FnSpan[]>>();
+const DECL_CACHE = new WeakMap<Masked, Map<string, Array<{ kind: string; at: number; end: number }>>>();
+/** Every `const`, `let`, `var`, `function` and `class` declaration of a file, by name. */
+function declarationsIn(m: Masked): Map<string, Array<{ kind: string; at: number; end: number }>> {
+  let index = DECL_CACHE.get(m);
+  if (index) return index;
+  index = new Map();
+  for (const k of m.code.matchAll(/(?<![\w$.])(const|let|var|function|class)\s+([A-Za-z_$][\w$]*)/g)) {
+    const list = index.get(k[2]) ?? [];
+    list.push({ kind: k[1], at: k.index, end: k.index + k[0].length });
+    index.set(k[2], list);
+  }
+  DECL_CACHE.set(m, index);
+  return index;
+}
+
 /** The literal each call of `f` passes at parameter `pos`, when `f` is not exported, is only ever called by
- *  its name in this file (never handed on, never read), and never reassigns that parameter; null otherwise. */
+ *  its name in this file (never handed on, never read), and its body uses the parameter only as the name a
+ *  loader loads (nothing reassigns, destructures or shadows it); null otherwise. */
 function literalCalls(src: string, m: Masked, f: FnSpan, pos: number, param: string): string[] | null {
   const code = m.code;
   if (f.name === null || f.nameAt < 0 || pos < 0 || !standsAlone(code, f.head)) return null;
-  const p = param.replace(RE_SPECIAL, "\\$&");
-  if (new RegExp(`(?<![\\w$.])(?:const|let|var)\\s+${p}(?![\\w$])|(?<![\\w$.])${p}\\s*(?:\\*\\*|<<|>>>?|&&|\\|\\||\\?\\?|[-+*/%&|^])?=(?![=>])`)
-    .test(code.slice(f.bodyStart, f.bodyEnd))) return null;
+  const ids = identifierIndex(m);
+  for (const at of ids.get(param) ?? []) {
+    if (at >= f.bodyStart && at < f.bodyEnd && !loaderArgument(code, at, param.length)) return null;
+  }
   const values = new Set<string>();
-  for (const k of code.matchAll(new RegExp(`(?<![\\w$.])${f.name.replace(RE_SPECIAL, "\\$&")}(?![\\w$])`, "g"))) {
-    if (k.index === f.nameAt) continue;
-    const open = skipAhead(code, k.index + f.name.length);
+  for (const at of ids.get(f.name) ?? []) {
+    if (at === f.nameAt) continue;
+    const open = skipAhead(code, at + f.name.length);
     if (code[open] !== "(") return null; // handed on, exported or read: its callers are not all here
     const close = closing(code, open);
     const item = close === -1 ? undefined : topLevelItems(code.slice(open + 1, close))[pos];
     if (!item) return null;
-    const at = open + 1 + item.at;
-    const lit = m.literals.find((l) => l.start === at);
-    const v = lit && lit.kind !== "regex" && lit.end === at + item.text.length ? literalValue(src, lit) : null;
+    const start = open + 1 + item.at;
+    const lit = literalStartingAt(m, start);
+    const v = lit && lit.kind !== "regex" && lit.end === start + item.text.length ? literalValue(src, lit) : null;
     if (v === null) return null;
     values.add(v);
   }
@@ -535,32 +584,45 @@ function literalCalls(src: string, m: Masked, f: FnSpan, pos: number, param: str
 }
 
 /** The modules a loader at `at` (a dynamic `import` or a `require` call) loads when its argument is a name the
- *  file binds to a literal: a `const` initialised with one in a scope that holds the call (`const cfWorkers =
- *  'cloudflare:workers'`, then the import of `cfWorkers`), or the parameter of a local function only ever
- *  called with one (`function format(path)` loading `path`, called only as `format('./users')`). Null when it
- *  is computed at run time, or when this reading cannot follow the name. */
+ *  file binds to a literal: a `const` whose initialiser is that literal alone, in a scope that holds the call
+ *  (`const cfWorkers = 'cloudflare:workers'`, then the import of `cfWorkers`), or the parameter of a local
+ *  function only ever called with one (`function format(path)` loading `path`, called only as
+ *  `format('./users')`). The name may occur where it is declared and where it is loaded, nowhere else: a
+ *  pattern, a parameter, a `catch` or a `for` head could bind it to something computed. Null when it is
+ *  computed at run time, or when this reading cannot follow the name. */
 function boundLoad(src: string, m: Masked, at: number): string[] | null {
   const code = m.code;
   const arg = /^(?:import|require)\s*\(\s*([A-Za-z_$][\w$]*)\s*[,)]/.exec(code.slice(at, at + 200));
   if (!arg) return null;
   const name = arg[1];
-  const esc = name.replace(RE_SPECIAL, "\\$&");
-  const fns = functionsIn(m);
-  const decls = [...code.matchAll(new RegExp(`(?<![\\w$.])(const|let|var|function|class)\\s+${esc}(?![\\w$])`, "g"))];
-  if (decls.length === 1 && decls[0][1] === "const") {
+  const decls = declarationsIn(m).get(name) ?? [];
+  if (decls.length === 1 && decls[0].kind === "const") {
     const d = decls[0];
-    const after = d.index + d[0].length;
-    const init = /^\s*(?::[^=;\n]{1,200})?=\s*/.exec(code.slice(after, after + 260));
-    const lit = init ? m.literals.find((l) => l.start === after + init[0].length) : undefined;
-    if (!lit || lit.kind === "regex" || lit.dynamic || d.index > at) return null;
-    if (!/^[ \t]*(?:[;,\r\n]|$)/.test(code.slice(lit.end, lit.end + 40))) return null; // `'x' + y`: not the literal alone
-    if (at >= blockAround(code, d.index).end) return null;
-    if (fns.some((f) => f.bodyStart > d.index && f.bodyStart <= at && at < f.bodyEnd && f.params.includes(name))) return null;
+    if (d.at > at || at >= blockAround(code, d.at).end) return null;
+    const init = /^\s*(?::[^=;\n]{1,200})?=\s*/.exec(code.slice(d.end, d.end + 260));
+    const lit = init ? literalStartingAt(m, d.end + init[0].length) : undefined;
+    if (!lit || lit.kind === "regex" || lit.dynamic) return null;
+    if (skipBack(code, expressionEnd(code, lit.start) - 1) + 1 !== lit.end) return null; // `'x'\n + y` is not the literal
+    for (const u of identifierIndex(m).get(name) ?? []) {
+      if (u !== d.end - name.length && !loaderArgument(code, u, name.length)) return null;
+    }
     const v = literalValue(src, lit);
     return v === null ? null : [v];
   }
   if (decls.length > 0) return null;
-  const holders = fns.filter((f) => f.bodyStart <= at && at < f.bodyEnd && f.params.includes(name));
+  let byParam = PARAM_CACHE.get(m);
+  if (!byParam) {
+    byParam = new Map();
+    for (const f of functionsIn(m)) {
+      for (const p of f.params) {
+        if (!p) continue;
+        const list = byParam.get(p);
+        if (list) list.push(f); else byParam.set(p, [f]);
+      }
+    }
+    PARAM_CACHE.set(m, byParam);
+  }
+  const holders = (byParam.get(name) ?? []).filter((f) => f.bodyStart <= at && at < f.bodyEnd);
   if (holders.length === 0) return null;
   const f = holders.reduce((a, b) => (b.bodyStart > a.bodyStart ? b : a));
   return literalCalls(src, m, f, f.params.indexOf(name), name);
@@ -876,22 +938,44 @@ function paramNames(list: string): string[] {
   return out;
 }
 
-/** Where an arrow's expression body ends: at a `,` `;` or closing bracket of its own level, or at a line
- *  break that no operator carries on. */
+/** Where an expression starting at `from` ends: at a `,` `;` or closing bracket of its own level, or at a
+ *  line break that no operator carries on. Linear: a run of blanks is read once. */
 function expressionEnd(code: string, from: number): number {
   let depth = 0;
+  let last = -1; // the last character of code met, for a line break to look back at
   for (let k = from; k < code.length; k++) {
     const ch = code[k];
-    if (ch === "(" || ch === "{" || ch === "[") depth++;
-    else if (ch === ")" || ch === "}" || ch === "]") { if (depth === 0) return k; depth--; }
-    else if (depth === 0 && (ch === "," || ch === ";")) return k;
-    else if (depth === 0 && ch === "\n") {
-      const before = code[skipBack(code, k - 1)] ?? "";
-      const after = code[skipAhead(code, k + 1)] ?? "";
-      if (!/[-+*/%&|^!=<>?:,(.]/.test(before) && !/[-+*/%&|^=<>?:.]/.test(after)) return k;
+    if (ch === "\n" && depth === 0) {
+      const q = skipAhead(code, k + 1);
+      const before = last === -1 ? "" : code[last];
+      if (!/[-+*/%&|^!=<>?:,(.]/.test(before) && !/[-+*/%&|^=<>?:.]/.test(code[q] ?? "")) return k;
+      k = q - 1;
+      continue;
     }
+    if (isSpaceCode(code.charCodeAt(k))) continue;
+    if (ch === ")" || ch === "}" || ch === "]") { if (depth === 0) return k; depth--; }
+    else if (ch === "(" || ch === "{" || ch === "[") depth++;
+    else if (depth === 0 && (ch === "," || ch === ";")) return k;
+    last = k;
   }
   return code.length;
+}
+
+/** Every identifier of a text that is not a member (`a.b` gives `a`), for a reading of what it mentions. */
+const mentioned = (text: string): string[] => [...text.matchAll(/(?<![\w$.])[A-Za-z_$][\w$]*/g)].map((k) => k[0]);
+
+const IDENT_CACHE = new WeakMap<Masked, Map<string, number[]>>();
+/** Where each identifier of a file occurs, members (`.name`) and private names (`#name`) left out. */
+function identifierIndex(m: Masked): Map<string, number[]> {
+  let index = IDENT_CACHE.get(m);
+  if (index) return index;
+  index = new Map();
+  for (const k of m.code.matchAll(/(?<![\w$.#])[A-Za-z_$][\w$]*/g)) {
+    const list = index.get(k[0]);
+    if (list) list.push(k.index); else index.set(k[0], [k.index]);
+  }
+  IDENT_CACHE.set(m, index);
+  return index;
 }
 
 /** The `{` of a body after a parameter list closing at `close`, a return type between them allowed; -1. */
@@ -989,14 +1073,28 @@ function functionsIn(m: Masked): FnSpan[] {
     if (end === -1) continue;
     push(k[1], k.index, k.index, paramNames(code.slice(open + 1, close)), brace, end + 1);
   }
+  out.sort((a, b) => a.bodyStart - b.bodyStart || b.bodyEnd - a.bodyEnd);
   FN_CACHE.set(m, out);
   return out;
 }
 
+/** The first function of `fns` (ordered by where their bodies start) whose body starts after `at`; its index. */
+function firstBodyAfter(fns: FnSpan[], at: number): number {
+  let lo = 0;
+  let hi = fns.length;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (fns[mid].bodyStart <= at) lo = mid + 1; else hi = mid; }
+  return lo;
+}
+
 /** Is `index`, in a body spanning [from, to), inside a function nested in that body (a handler the code
- *  registers, a callback it hands on) rather than in the body's own code? */
-const nestedIn = (fns: FnSpan[], from: number, to: number, index: number): boolean =>
-  fns.some((f) => f.bodyStart > from && f.bodyStart < to && f.bodyStart <= index && index < f.bodyEnd);
+ *  registers, a callback it hands on) rather than in the body's own code? Only the functions whose bodies
+ *  start inside that body are looked at. */
+function nestedIn(fns: FnSpan[], from: number, to: number, index: number): boolean {
+  for (let i = firstBodyAfter(fns, from); i < fns.length && fns[i].bodyStart < to; i++) {
+    if (fns[i].bodyStart <= index && index < fns[i].bodyEnd) return true;
+  }
+  return false;
+}
 
 interface TestCase {
   name: string | null; line: number; skipped: boolean; body: string | null;
@@ -1142,59 +1240,173 @@ function arrowAfterParams(code: string, from: number): string | null {
 /** A type whose parameter is constrained to `true` (`type Expect<T extends true> = T`): instantiating it
  *  with a type that is not `true` (`Expect<Equal<A, B>>` when A and B differ) fails the compiler. */
 const ASSERTION_TYPE = /(?<![\w$.])type\s+([A-Za-z_$][\w$]*)\s*<\s*[A-Za-z_$][\w$]*\s+extends\s+true\s*[,=>]/g;
+const GENERIC_TYPE = /(?<![\w$.])type\s+([A-Za-z_$][\w$]*)\s*</g;
 const TYPESCRIPT = /\.[cm]?tsx?$/;
+/** A script that type-checks: the compiler, or a runner of type tests. */
+const TYPE_CHECK = /(?:^|[\s;&|(])(?:tsc|vue-tsc|tsd|tstyche)(?=$|[\s;&|)])|--typecheck\b/;
+/** A runner that hands a case its `done` as the first parameter. */
+const DONE_RUNNER = /(?:^|[\s;&|(/])(?:mocha|jest|jasmine)(?=$|[\s;&|)/])/;
 
-/** The assertion types each test file can instantiate: declared in it, or imported by name from a file of
- *  the project that declares them. Built once per reading, read lazily. */
-function assertionTypeScope(texts: FileText[], resolves: (from: string, spec: string) => string | null): (t: FileText) => Set<string> {
+/** What the cases of a test file are read against, built once per file and only when a case needs it. */
+interface TestContext {
+  /** Names bound to the code under test: imported from a delivered module that is not a test, then every
+   *  name declared or assigned from an expression that mentions one, to a fixpoint (`const app =
+   *  express()`, `var server = app.listen()`, `type Actual = InferResponseType<typeof req>`). */
+  code: Set<string>;
+  /** The assertion types in scope, and the generic types declared beside them (`Equal`): an operator
+   *  alone says nothing about the code. */
+  assertionTypes: Set<string>;
+  typeOperators: Set<string>;
+  /** A package.json on the file's path runs a type-checker, or a runner whose first parameter is `done`. */
+  typeChecked: boolean;
+  doneRunner: boolean;
+}
+
+function testContexts(texts: FileText[], config: ScopeFile[], isTest: (rel: string) => boolean,
+  resolves: (from: string, spec: string) => string | null): (t: FileText) => TestContext {
   let byRel: Map<string, FileText> | null = null;
-  const declared = new Map<string, Set<string>>();
-  const declaredIn = (rel: string): Set<string> => {
-    let s = declared.get(rel);
+  const types = new Map<string, { asserts: Set<string>; generics: Set<string> }>();
+  const typesOf = (rel: string): { asserts: Set<string>; generics: Set<string> } => {
+    let s = types.get(rel);
     if (s === undefined) {
-      s = new Set();
+      s = { asserts: new Set(), generics: new Set() };
       const u = (byRel ??= new Map(texts.map((x) => [x.file.rel, x]))).get(rel);
-      if (u && /extends\s+true\b/.test(u.m.code)) for (const k of u.m.code.matchAll(ASSERTION_TYPE)) s.add(k[1]);
-      declared.set(rel, s);
+      if (u && /extends\s+true\b/.test(u.m.code)) {
+        for (const k of u.m.code.matchAll(ASSERTION_TYPE)) s.asserts.add(k[1]);
+        if (s.asserts.size > 0) for (const k of u.m.code.matchAll(GENERIC_TYPE)) if (!s.asserts.has(k[1])) s.generics.add(k[1]);
+      }
+      types.set(rel, s);
     }
     return s;
   };
-  return (t) => {
-    const out = new Set(declaredIn(t.file.rel));
-    for (const imp of t.imports) {
-      if (imp.spec === null || imp.how !== "static" || !imp.spec.startsWith(".")) continue;
-      const target = resolves(t.file.rel, imp.spec);
-      const there = target === null ? null : declaredIn(target);
-      if (!there || there.size === 0) continue;
-      for (const x of bindingsOf(t.m, imp)?.members ?? []) if (there.has(x.name) && x.local) out.add(x.local);
+  const manifests = new Map(config.filter((c) => posix.basename(c.rel) === "package.json").map((c) => [posix.dirname(c.rel), c]));
+  const evidence = new Map<string, { typeChecked: boolean; doneRunner: boolean } | null>();
+  const evidenceAt = (dir: string): { typeChecked: boolean; doneRunner: boolean } | null => {
+    if (evidence.has(dir)) return evidence.get(dir) ?? null;
+    let v: { typeChecked: boolean; doneRunner: boolean } | null = null;
+    const f = manifests.get(dir);
+    if (f) {
+      try {
+        const j = JSON.parse(readFileSync(f.abs, "utf8")) as { scripts?: Record<string, unknown>; dependencies?: object; devDependencies?: object } | null;
+        const scripts = Object.values(j?.scripts ?? {}).filter((x): x is string => typeof x === "string");
+        const deps = [...Object.keys(j?.devDependencies ?? {}), ...Object.keys(j?.dependencies ?? {})];
+        v = {
+          typeChecked: scripts.some((x) => TYPE_CHECK.test(x)),
+          doneRunner: scripts.some((x) => DONE_RUNNER.test(x)) || deps.some((d) => /^(?:mocha|jest|jasmine|@jest\/globals)$/.test(d)),
+        };
+      } catch { v = null; }
     }
-    return out;
+    evidence.set(dir, v);
+    return v;
+  };
+  const built = new Map<FileText, TestContext>();
+  return (t) => {
+    const known = built.get(t);
+    if (known) return known;
+    let typeChecked = false;
+    let doneRunner = false;
+    for (let dir = posix.dirname(t.file.rel); ; dir = posix.dirname(dir)) {
+      const e = evidenceAt(dir);
+      if (e) { typeChecked ||= e.typeChecked; doneRunner ||= e.doneRunner; }
+      if (dir === "." || dir === "/" || dir === "") break;
+    }
+    const own = typesOf(t.file.rel);
+    const ctx: TestContext = { code: new Set(), assertionTypes: new Set(own.asserts), typeOperators: new Set(own.generics), typeChecked, doneRunner };
+    for (const imp of t.imports) {
+      if (imp.spec === null || !imp.spec.startsWith(".")) continue;
+      const target = resolves(t.file.rel, imp.spec);
+      if (target !== null && isTest(target)) continue; // a helper of the tests, not the code under test
+      const b = bindingsOf(t.m, imp);
+      if (b === null) continue;
+      const there = target === null ? null : typesOf(target);
+      for (const w of b.wholes) ctx.code.add(w);
+      for (const x of b.members) {
+        if (x.local === null) continue;
+        if (there?.asserts.has(x.name)) ctx.assertionTypes.add(x.local);
+        else if (there?.generics.has(x.name)) ctx.typeOperators.add(x.local);
+        else ctx.code.add(x.local);
+      }
+    }
+    // What is declared or assigned from the code under test is of it too, to a fixpoint.
+    const code = t.m.code;
+    const assigned: Array<{ names: string[]; mentions: string[] }> = [];
+    const initOf = (at: number): string[] => mentioned(code.slice(at, Math.min(expressionEnd(code, at), at + 4000)));
+    for (const k of code.matchAll(/(?<![\w$.#])([A-Za-z_$][\w$]*)\s*(?::[^=;\n]{1,200})?=(?![=>])/g)) {
+      assigned.push({ names: [k[1]], mentions: initOf(k.index + k[0].length) });
+    }
+    for (const k of code.matchAll(/(?<![\w$.])(?:const|let|var)\s*[{[]/g)) {
+      const open = k.index + k[0].length - 1;
+      const close = closing(code, open);
+      const eq = close === -1 ? -1 : skipAhead(code, close + 1);
+      if (eq === -1 || code[eq] !== "=" || code[eq + 1] === "=") continue;
+      assigned.push({ names: mentioned(code.slice(open + 1, close)), mentions: initOf(eq + 1) });
+    }
+    for (let changed = true, round = 0; changed && round < 8; round++) {
+      changed = false;
+      for (const a of assigned) {
+        if (a.names.every((n) => ctx.code.has(n)) || !a.mentions.some((n) => ctx.code.has(n))) continue;
+        for (const n of a.names) if (!ctx.code.has(n)) { ctx.code.add(n); changed = true; }
+      }
+    }
+    built.set(t, ctx);
+    return ctx;
   };
 }
 
-/** A `// @ts-expect-error` (or `/* @ts-expect-error *\/`) directive in a comment between `from` and `to`:
- *  the compiler fails when the error it expects is gone, a negative type assertion. */
-function expectsTypeError(t: FileText, from: number, to: number): boolean {
-  for (const k of t.src.slice(from, to).matchAll(/\/\/\s*@ts-expect-error\b|\/\*+\s*@ts-expect-error\b/g)) {
-    const at = from + k.index;
-    if (t.m.code[at] !== " ") continue; // still code: not a comment
-    if (t.m.literals.some((l) => l.start < at && at < l.end)) continue; // inside a string, a template or a regex
-    return true;
+/** The index of the `>` that closes the `<` at `open` (an arrow's `=>` is not one); -1 within 4000 characters. */
+function angleClose(code: string, open: number): number {
+  let depth = 0;
+  for (let k = open; k < code.length && k < open + 4000; k++) {
+    if (code[k] === "<") depth++;
+    else if (code[k] === ">" && code[k - 1] !== "=" && --depth === 0) return k;
+    else if (code[k] === ";") return -1;
+  }
+  return -1;
+}
+
+/** Does the case instantiate an assertion type on something of the code under test (`Expect<Equal<Expected,
+ *  Actual>>` where `Actual` comes from it), never on literals or operators alone (`Expect<Equal<1, 1>>`)? */
+function assertsTypes(code: string, from: number, to: number, ctx: TestContext): boolean {
+  if (ctx.assertionTypes.size === 0) return false;
+  const re = new RegExp(`(?<![\\w$.])(?:${[...ctx.assertionTypes].map((n) => n.replace(RE_SPECIAL, "\\$&")).join("|")})\\s*<`, "g");
+  for (const k of code.slice(from, to).matchAll(re)) {
+    const open = from + k.index + k[0].length - 1;
+    const close = angleClose(code, open);
+    if (close !== -1 && mentioned(code.slice(open + 1, close)).some((n) => ctx.code.has(n) && !ctx.typeOperators.has(n))) return true;
   }
   return false;
 }
 
-/** The parameter a runner hands a case as its completion callback: the second under node:test, which
- *  hands the test context first; none under the runners whose first parameter is a context (Vitest, tap,
- *  AVA, uvu); the first under Mocha, Jest and Jasmine. */
-function doneParam(t: FileText, c: TestCase): string | null {
-  const specs = t.imports.map((i) => i.spec ?? "");
-  const name = specs.some((s) => s === "node:test" || s === "test") ? c.params[1]
-    : specs.some((s) => /^(?:vitest|tap|ava|uvu)(?:\/|$)/.test(s)) ? undefined : c.params[0];
-  return name ? name : null;
+/** A `// @ts-expect-error` (or `/* @ts-expect-error *\/`) directive in the case, over a line that uses the
+ *  code under test: the compiler fails when the error it expects there is gone, a negative type assertion.
+ *  Over a line the case wrote for it alone (`const n: number = ""`), it checks nothing of the code. */
+function expectsTypeError(t: FileText, from: number, to: number, ctx: TestContext): boolean {
+  for (const k of t.src.slice(from, to).matchAll(/\/\/\s*@ts-expect-error\b|\/\*+\s*@ts-expect-error\b/g)) {
+    const at = from + k.index;
+    if (t.m.code[at] !== " ") continue; // still code: not a comment
+    if (t.m.literals.some((l) => l.start < at && at < l.end)) continue; // inside a string, a template or a regex
+    // The line it covers: the next one that holds code (comments are blank in the masked text).
+    for (let s = t.m.code.indexOf("\n", at) + 1; s > 0 && s < to;) {
+      const e = t.m.code.indexOf("\n", s);
+      const line = t.m.code.slice(s, e === -1 ? to : Math.min(e, to));
+      if (line.trim() !== "") { if (mentioned(line).some((n) => ctx.code.has(n))) return true; break; }
+      s = e + 1;
+    }
+  }
+  return false;
 }
 
-const TIMER = /^(?:(?:globalThis|window|global|self)\.)?(?:setTimeout|setImmediate|setInterval|queueMicrotask|requestAnimationFrame)$|^process\.nextTick$/;
+/** The parameter a runner hands a case as its completion callback: the second under node:test, which hands
+ *  the test context first; none under the runners whose first parameter is a context (Vitest, tap, AVA,
+ *  uvu); the first under Mocha, Jest and Jasmine, imported or declared by the project. With no runner
+ *  known, none: a first parameter may as well be a context. */
+function doneParam(t: FileText, c: TestCase, ctx: TestContext): string | null {
+  const specs = t.imports.map((i) => i.spec ?? "");
+  const name = specs.some((s) => s === "node:test" || s === "test") ? c.params[1]
+    : specs.some((s) => /^(?:vitest|tap|ava|uvu)(?:\/|$)/.test(s)) ? undefined
+      : specs.some((s) => /^(?:mocha|jasmine|@jest\/globals)$/.test(s)) || ctx.doneRunner ? c.params[0] : undefined;
+  return name ? name : null;
+}
 
 /** The callee of the call whose argument list opens at `open` (`server.close`, `setTimeout`,
  *  `Promise.resolve().then`), spaces removed; null when the parenthesis opens no call (`if (`, `= (`). */
@@ -1214,39 +1426,33 @@ function calleeBefore(code: string, open: number): string | null {
   return !text || /^(?:if|for|while|switch|catch|with|return|typeof|await|yield|function|new|in|of|void|delete|throw|case)$/.test(text) ? null : text;
 }
 
-/** A function this file declares under `name`: a helper of the test, never the code under test. */
-const declaresFunction = (code: string, name: string): boolean => {
-  const n = name.replace(RE_SPECIAL, "\\$&");
-  return new RegExp(`(?<![\\w$.])function\\s*\\*?\\s*${n}\\s*\\(|(?<![\\w$.])(?:const|let|var)\\s+${n}\\s*=\\s*(?:async\\s*)?(?:function\\b|\\(|[A-Za-z_$][\\w$]*\\s*=>)`).test(code);
-};
-
-/** Does the case hand its `done` to the code under test (`route.dispatch(req, {}, done)`, `{ end: done }`,
- *  `app.on('foo', done)`, `server.close(done)`)? Then the case fails when that code reports an error or
- *  never completes. Handed to a timer, a promise of the runtime or a helper of this file, it checks nothing. */
-function handsDone(t: FileText, from: number, to: number, done: string): boolean {
+/** Does the case hand its `done` to the code under test: an argument of a call into it (`route.dispatch(req,
+ *  {}, done)`, `app.on('foo', done)`, `server.close(done)`), or a property of an object that is one
+ *  (`router.handle(req, { end: done })`)? The case then fails when that code reports an error or never
+ *  completes. Handed to a timer, a promise, a helper of the tests or a package (`request(app).end(done)`),
+ *  it checks none of the code. The callee, or null. */
+function handsDone(t: FileText, from: number, to: number, done: string, ctx: TestContext): string | null {
   const code = t.m.code;
   for (const k of code.slice(from, to).matchAll(new RegExp(`(?<![\\w$.])${done.replace(RE_SPECIAL, "\\$&")}(?![\\w$])`, "g"))) {
     const at = from + k.index;
     const next = code[skipAhead(code, at + done.length)];
     if (next !== ")" && next !== "," && next !== "}") continue; // called, read or compared: not handed on
-    const p = skipBack(code, at - 1);
+    let p = skipBack(code, at - 1);
     if (code[p] === ":") {
-      // `{ end: done }`: a property value, handed with its object.
       const key = wordEndingAt(code, skipBack(code, p - 1) + 1);
       const r = key ? skipBack(code, key.start - 1) : -1;
-      if (key && (code[r] === "{" || code[r] === ",")) return true;
-      continue;
+      if (!key || (code[r] !== "{" && code[r] !== ",")) continue;
+      const obj = code[r] === "{" ? r : unmatchedOpener(code, r - 1);
+      if (obj === -1 || code[obj] !== "{") continue;
+      p = skipBack(code, obj - 1); // the object itself must be an argument
     }
-    if (code[p] !== "(" && code[p] !== "," && code[p] !== "{") continue;
-    const open = code[p] === "(" || code[p] === "{" ? p : unmatchedOpener(code, p - 1);
-    if (open !== -1 && code[open] === "{") { if (next !== ")") return true; continue; } // `{ res, done }`, shorthand
+    const open = code[p] === "(" ? p : code[p] === "," ? unmatchedOpener(code, p - 1) : -1;
     if (open === -1 || code[open] !== "(") continue;
     const callee = calleeBefore(code, open);
-    if (callee === null || TIMER.test(callee) || /^Promise\b/.test(callee)) continue;
-    if (/^[A-Za-z_$][\w$]*$/.test(callee) && declaresFunction(code, callee)) continue;
-    return true;
+    const root = callee === null ? undefined : /^[A-Za-z_$][\w$]*/.exec(callee)?.[0];
+    if (root !== undefined && ctx.code.has(root)) return callee;
   }
-  return false;
+  return null;
 }
 
 /** Is the `await` at `at`, whose call opens its arguments at `open`, a statement of its own whose value
@@ -1260,18 +1466,28 @@ function wholeStatement(code: string, at: number, open: number): boolean {
   return n >= code.length || ";}".includes(code[n]) || (code.slice(close + 1, n).includes("\n") && !/[-.?+*/%&|^=<>,)\]]/.test(code[n]));
 }
 
+/** Does the case keep a value it awaited and never read it (`const res = await fastify.inject(…)`, then
+ *  nothing)? That is what a deleted assertion leaves: the case computed something and checks none of it. */
+function keepsUnreadValue(code: string, fns: FnSpan[], from: number, to: number): boolean {
+  for (const k of code.slice(from, to).matchAll(/(?<![\w$.])(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*(?::[^=;\n]{1,200})?=\s*await\b/g)) {
+    const at = from + k.index;
+    if (nestedIn(fns, from, to, at)) continue;
+    if (!new RegExp(`(?<![\\w$.])${k[1].replace(RE_SPECIAL, "\\$&")}(?![\\w$])`).test(code.slice(at + k[0].length, to))) return true;
+  }
+  return false;
+}
+
 /** Does the case build an object of the code under test, set it up, and await its completion as a
  *  statement of its own (`const fastify = Fastify()`, `fastify.addSchema(…)`, `await fastify.ready()`)?
  *  The promise rejects when the set-up fails: the promise form of handing it `done`. A bare call stays a
- *  bare call when it is a method (nothing set up before it), a value awaited and kept (`const out = await
- *  uc.run(x)`) is a value nothing checks, and a promise of the runtime (`Promise.resolve()`), a module
- *  (`require`), the plumbing of a promise (`then`, `catch`, `finally`) or an await in a nested function is
- *  none of this. */
-function awaitsBuiltObject(code: string, fns: FnSpan[], from: number, to: number): boolean {
+ *  bare call when it is a method (nothing set up before it), and an object of a package, a promise of the
+ *  runtime (`Promise.resolve()`), the plumbing of a promise (`then`, `catch`, `finally`) or an await in a
+ *  nested function is none of this. The call awaited, or null. */
+function awaitsBuiltObject(code: string, fns: FnSpan[], from: number, to: number, ctx: TestContext): string | null {
   const body = code.slice(from, to);
   for (const k of body.matchAll(/(?<![\w$.])await\s+([A-Za-z_$][\w$]*)((?:\s*\??\.\s*[A-Za-z_$][\w$]*)+)\s*\(/g)) {
     const at = from + k.index;
-    if (nestedIn(fns, from, to, at) || /(?:^|\.)\s*(?:then|catch|finally)\s*$/.test(k[2])) continue;
+    if (!ctx.code.has(k[1]) || nestedIn(fns, from, to, at) || /(?:^|\.)\s*(?:then|catch|finally)\s*$/.test(k[2])) continue;
     if (!wholeStatement(code, at, at + k[0].length - 1)) continue;
     const recv = k[1].replace(RE_SPECIAL, "\\$&");
     let built = -1;
@@ -1284,15 +1500,16 @@ function awaitsBuiltObject(code: string, fns: FnSpan[], from: number, to: number
     }
     if (built === -1) continue;
     for (const s of code.slice(built, at).matchAll(new RegExp(`(?<![\\w$.])${recv}(?:\\s*\\??\\.\\s*[A-Za-z_$][\\w$]*)+\\s*\\(`, "g"))) {
-      if (!nestedIn(fns, from, to, built + s.index)) return true;
+      if (!nestedIn(fns, from, to, built + s.index)) return `${k[1]}${k[2].replace(/\s+/g, "")}()`;
     }
   }
-  return false;
+  return null;
 }
 
-/** Does the case await (or return) a promise it builds whose executor rejects with a value on a failure
- *  path (`setTimeout(() => reject(new Error('response hung')), 2000)`)? That rejection fails the case. */
-function awaitsRejectingPromise(code: string, fns: FnSpan[], from: number, to: number): boolean {
+/** Does the case await (or return) a promise it builds around the code under test, whose executor rejects
+ *  with a value on a failure path (`setTimeout(() => reject(new Error('response hung')), 2000)`)? That
+ *  rejection fails the case. */
+function awaitsRejectingPromise(code: string, fns: FnSpan[], from: number, to: number, ctx: TestContext): boolean {
   const body = code.slice(from, to);
   for (const k of body.matchAll(/(?<![\w$.])(?:await|return)\s+new\s+Promise\s*(?:<[^>]*>\s*)?\(/g)) {
     const at = from + k.index;
@@ -1301,32 +1518,51 @@ function awaitsRejectingPromise(code: string, fns: FnSpan[], from: number, to: n
     const close = closing(code, open);
     if (close === -1) continue;
     const args = code.slice(open + 1, close);
-    const ex = /^\s*(?:async\s+)?(?:function\s*\(([^)]*)\)|\(([^)]*)\)\s*=>)/.exec(args);
-    const reject = ex ? paramNames(ex[1] ?? ex[2] ?? "")[1] : undefined;
-    if (!reject) continue;
-    if (new RegExp(`(?<![\\w$.])${reject.replace(RE_SPECIAL, "\\$&")}\\s*\\(\\s*[^)\\s]`).test(args)) return true;
+    // The executor: the outermost function among the arguments.
+    let ex: FnSpan | null = null;
+    const first = fns[firstBodyAfter(fns, open)];
+    if (first !== undefined && first.bodyStart < close && first.bodyEnd <= close + 1) ex = first;
+    const [resolve, reject] = ex?.params ?? [];
+    if (ex === null || !reject || !mentioned(args).some((n) => ctx.code.has(n))) continue;
+    // A reject fails the case only while the promise is unsettled: before the executor resolves it on its
+    // own, or later, in a callback, when it never does (`x(); resolve(); if (false) reject(…)` fails nothing).
+    const own = (i: number): boolean => !nestedIn(fns, ex!.bodyStart, ex!.bodyEnd, i);
+    const calls = (name: string, withValue: boolean): number[] =>
+      [...code.slice(ex!.bodyStart, ex!.bodyEnd).matchAll(new RegExp(`(?<![\\w$.])${name.replace(RE_SPECIAL, "\\$&")}\\s*\\(${withValue ? "\\s*[^)\\s]" : ""}`, "g"))]
+        .map((k) => ex!.bodyStart + k.index);
+    const settles = resolve ? calls(resolve, false).filter(own) : [];
+    const firstResolve = settles.length > 0 ? settles[0] : Number.POSITIVE_INFINITY;
+    if (calls(reject, true).some((i) => (own(i) ? i < firstResolve : firstResolve === Number.POSITIVE_INFINITY))) return true;
   }
   return false;
 }
 
+type OtherAssertion = { kind: "compile" } | { kind: "completion"; how: string };
+
 /** Does a case with no assertion call still assert, in a way the reading of calls and throws cannot see?
- *  At compile time (an assertion type instantiated, a `@ts-expect-error`, in a TypeScript file), through
- *  its `done` handed to the code under test, or through a promise it awaits that fails the case: a method
- *  of an object it built, or a promise of its own that rejects. A bare call, awaited or not, is none. */
-function assertsOtherwise(t: FileText, c: TestCase, assertionTypes: (t: FileText) => Set<string>): boolean {
-  if (c.body === null || c.bodyAt < 0) return false;
+ *  At compile time, in a TypeScript file whose project runs a type-checker (an assertion type, or a
+ *  `@ts-expect-error`, on the code under test): a real assertion. Or it checks that the code under test
+ *  completes without error (its `done` handed to that code, an object of it set up and awaited, a promise
+ *  of its own that rejects on a failure): reported as such, since nothing it computes is checked. A bare
+ *  call, awaited or not, is neither, and nor is a value awaited and never read. */
+function assertsOtherwise(t: FileText, c: TestCase, contextOf: (t: FileText) => TestContext): OtherAssertion | null {
+  if (c.body === null || c.bodyAt < 0) return null;
   const from = c.bodyAt;
   const to = c.bodyAt + c.body.length;
-  if (TYPESCRIPT.test(t.file.rel)) {
-    const names = assertionTypes(t);
-    if (names.size > 0 && new RegExp(`(?<![\\w$.])(?:${[...names].map((n) => n.replace(RE_SPECIAL, "\\$&")).join("|")})\\s*<`).test(c.body)) return true;
-    if (expectsTypeError(t, from, to)) return true;
+  const ctx = contextOf(t);
+  if (ctx.typeChecked && TYPESCRIPT.test(t.file.rel) && (assertsTypes(t.m.code, from, to, ctx) || expectsTypeError(t, from, to, ctx))) {
+    return { kind: "compile" };
   }
-  const done = doneParam(t, c);
-  if (done !== null && handsDone(t, from, to, done)) return true;
-  if (!/(?<![\w$.])(?:await|return)\b/.test(c.body)) return false;
   const fns = functionsIn(t.m);
-  return awaitsBuiltObject(t.m.code, fns, from, to) || awaitsRejectingPromise(t.m.code, fns, from, to);
+  if (keepsUnreadValue(t.m.code, fns, from, to)) return null;
+  const done = doneParam(t, c, ctx);
+  const handed = done === null ? null : handsDone(t, from, to, done, ctx);
+  if (handed !== null) return { kind: "completion", how: `its \`${done}\` is handed to \`${handed}\`` };
+  if (!/(?<![\w$.])(?:await|return)\b/.test(c.body)) return null;
+  const awaited = awaitsBuiltObject(t.m.code, fns, from, to, ctx);
+  if (awaited !== null) return { kind: "completion", how: `it awaits \`${awaited}\`` };
+  if (awaitsRejectingPromise(t.m.code, fns, from, to, ctx)) return { kind: "completion", how: "it awaits a promise of its own that rejects on a failure path" };
+  return null;
 }
 
 /** Is the name at `at`, whose argument list opens at `open`, DECLARED here rather than called: a
@@ -1487,7 +1723,7 @@ export function analyzeDelivery(missionDir: string): AnalysisReading | null {
           if (policy.networkModules.includes(mk.name) && opensNetwork(t.m, imp, mk.name)) {
             if (!allowedImport(imp.spec, mk.name) && !allowedCapability(rel, "network")) finding({ family: "capability", check: "network", path: rel, line: at(imp.index),
               message: `${kindWord} of \`${imp.spec}\` in the declared domain core (${via ?? "runward/territory.md"}): the network, which the core never opens` });
-          } else if (!allowedImport(imp.spec, mk.name)) {
+          } else if (!allowedImport(imp.spec, mk.name) && !(policy.networkModules.includes(mk.name) && allowedCapability(rel, "network"))) {
             finding({ family: "boundary", check: "core-import-builtin", path: rel, line: at(imp.index),
               message: `${kindWord} of the Node.js built-in \`${imp.spec}\` in the declared domain core (${via ?? "runward/territory.md"}), which ${allow.file} does not allow` });
           }
@@ -1558,7 +1794,7 @@ export function analyzeDelivery(missionDir: string): AnalysisReading | null {
   // Test integrity, read from the test sources, never run.
   const declaredNames = new Set<string>();
   let dynamicNames = false;
-  const assertionTypes = assertionTypeScope(texts, (from, spec) => resolveImport(from, spec, exists, policy)?.path ?? null);
+  const contextOf = testContexts(texts, scope.config, isTest, (from, spec) => resolveImport(from, spec, exists, policy)?.path ?? null);
   for (const t of texts) {
     if (!t.test) continue;
     const rel = t.file.rel;
@@ -1572,9 +1808,14 @@ export function analyzeDelivery(missionDir: string): AnalysisReading | null {
       if (c.name === null) dynamicNames = true; else declaredNames.add(c.name);
       if (c.skipped || c.body === null) continue;
       const shown = c.name === null ? "(a case whose name is computed)" : `"${c.name.length > 80 ? `${c.name.slice(0, 79)}…` : c.name}"`;
-      if (!ASSERTION.test(c.body) && !callsHelper(c.body) && !SUBTEST.test(c.body) && !assertsOtherwise(t, c, assertionTypes)) {
+      const plain = !ASSERTION.test(c.body) && !callsHelper(c.body) && !SUBTEST.test(c.body);
+      const other = plain ? assertsOtherwise(t, c, contextOf) : null;
+      if (plain && other === null) {
         finding({ family: "test-integrity", check: "case-asserts-nothing", path: rel, line: c.line,
           message: `case ${shown} asserts nothing: its body calls no assertion, no helper of this file that asserts, and throws nothing` });
+      } else if (other?.kind === "completion") {
+        hypothesis({ family: "test-integrity", check: "case-asserts-completion", path: rel, line: c.line,
+          message: `case ${shown} asserts only that the code under test completes without error (${other.how}): what it computes is not checked` });
       } else if (tautological(c.body) && !callsHelper(c.body)) {
         hypothesis({ family: "test-integrity", check: "case-asserts-literals", path: rel, line: c.line,
           message: `case ${shown} asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw` });
@@ -1675,7 +1916,7 @@ export function analyzeDelivery(missionDir: string): AnalysisReading | null {
         const stubRe = new RegExp(`(?<![\\w$.])(?:const|let|var)\\s+${esc}\\s*(?::[^=;\\n]{1,200})?=\\s*(-?0(?:\\.0+)?|null|undefined|void\\s+0|"\\s*"|'\\s*'|\`\\s*\`|\\{\\s*\\}|\\[\\s*\\])\\s*(?:;|,|\\n|$)`, "gm");
         // The module's declaration of the name, never a block's local that shares it (`let header = ''`
         // inside a function, beside `Reply.prototype.header`).
-        const stub = moduleLevelMatch(stubRe, t.m.code);
+        const stub = moduleLevelMatch(stubRe, t.m);
         // A string constant is a placeholder only when it is empty in the SOURCE: the masked text blanks
         // every string's contents, so `"   "` there may be `"abc"` here.
         const value = stub ? t.src.slice(stub.index + stub[0].indexOf(stub[1], stub[0].indexOf("=")), stub.index + stub[0].indexOf(stub[1], stub[0].indexOf("=")) + stub[1].length) : "";
@@ -1735,40 +1976,89 @@ function placeholderCredentials(match: string, policy: AnalysisPolicy): boolean 
 
 /** The base64 characters of the smallest private key (an Ed25519 key in PKCS #8 is 48 bytes, 64 characters). */
 const PEM_MIN_BODY = 64;
+const PEM_RUN = new RegExp(`[A-Za-z0-9+/]{${PEM_MIN_BODY}}`);
+const PEM_RUN_AT = new RegExp(`^[A-Za-z0-9+/]{${PEM_MIN_BODY}}`);
 
-/** Does the PEM armour whose BEGIN line ends at `from` hold a key? Its body, up to the END line (or, with
- *  none, the lines right after the armour), read through the syntax that carries it in source and
- *  configuration (quotes, `+`, commas, `\n` escapes, indentation, the headers of an encrypted key), must be
- *  base64, as long as the smallest key at least. An interpolation (`${…}`), a placeholder or code is none. */
-function pemKeyBody(text: string, from: number): boolean {
-  const endAt = text.indexOf("-----END ", from);
-  const closed = endAt !== -1 && endAt - from <= 20_000;
-  // The string syntax around a line of the body, stripped from both ends without a backtracking pattern.
-  const lead = (c: number): boolean => isSpaceCode(c) || c === 34 || c === 39 || c === 96 || c === 43 || c === 44; // " ' ` + ,
-  const trail = (c: number): boolean => lead(c) || c === 59 || c === 41 || c === 93; // and ; ) ]
-  let body = "";
-  for (const line of text.slice(from, closed ? endAt : Math.min(text.length, from + 20_000)).split(/\r\n|\r|\n|\\r\\n|\\n|\\r/)) {
-    let a = 0;
-    let b = line.length;
-    while (a < b && lead(line.charCodeAt(a))) a++;
-    while (b > a && trail(line.charCodeAt(b - 1))) b--;
-    const t = line.slice(a, b);
-    if (t === "") continue;
-    if (body === "" && /^[A-Za-z][A-Za-z0-9-]*:\s/.test(t)) continue; // Proc-Type:, DEK-Info:, Version:
-    if (/^[A-Za-z0-9+/=]+$/.test(t)) { body += t; continue; }
-    if (closed) return false;
-    break; // no END line: the key, if any, is the base64 right after the armour
+/** Where a file's PEM armours open and close, indexed once, and whether the one whose BEGIN line ends at a
+ *  given offset holds a key: a run of base64 as long as the smallest key, before its END line, whatever
+ *  carries the lines (comments, quotes, `+`, `\n` escapes, `\/`, line continuations, entities, headers). A
+ *  closed body that holds an interpolation (`${…}`) or a placeholder (`...`, `<key>`, `{{ key }}`) is no
+ *  key. With no END line before the next armour, the key is the base64 right after this one. */
+function pemReader(text: string): (from: number) => boolean {
+  const ends: number[] = [];
+  const begins: number[] = [];
+  for (let k = text.indexOf("-----"); k !== -1; k = text.indexOf("-----", k + 5)) {
+    if (text.startsWith("-----END ", k)) ends.push(k);
+    else if (text.startsWith("-----BEGIN ", k)) begins.push(k);
   }
-  return body.length >= PEM_MIN_BODY;
+  const firstFrom = (list: number[], at: number): number => {
+    let lo = 0;
+    let hi = list.length;
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (list[mid] < at) lo = mid + 1; else hi = mid; }
+    return lo < list.length ? list[lo] : -1;
+  };
+  return (from) => {
+    const end = firstFrom(ends, from);
+    const next = firstFrom(begins, from);
+    if (end !== -1 && end - from <= 20_000 && (next === -1 || next > end)) {
+      const body = text.slice(from, end);
+      if (/\$\{|\{\{|\.\.\.|<[A-Za-z][^<>\n]{0,80}>/.test(body)) return false;
+      return PEM_RUN.test(body.replace(/\\\//g, "/"));
+    }
+    const stop = Math.min(text.length, from + 400, next === -1 ? Number.POSITIVE_INFINITY : next);
+    let i = from;
+    while (i < stop) {
+      const c = text.charCodeAt(i);
+      if (isSpaceCode(c) || c === 34 || c === 39 || c === 96 || c === 43 || c === 44 || c === 42 || c === 35) { i++; continue; } // " ' ` + , * #
+      if (c === 92 && /[nr\r\n]/.test(text[i + 1] ?? "")) { i += 2; continue; } // a `\n` escape, a line continuation
+      if (c === 47 && text.charCodeAt(i + 1) === 47) { i += 2; continue; } // `//`
+      if (text.startsWith("&#10;", i) || text.startsWith("&#13;", i)) { i += 5; continue; }
+      break;
+    }
+    return PEM_RUN_AT.test(text.slice(i, i + 200).replace(/\\\//g, "/"));
+  };
 }
 
-/** The first match of the global `re` at the top level of the module, outside every block. */
-function moduleLevelMatch(re: RegExp, code: string): RegExpExecArray | null {
+let PEM_LAST: { text: string; read: (from: number) => boolean } | null = null;
+/** Does the armour whose BEGIN line ends at `from` hold a key? (The reader of the last file is kept.) */
+function pemKeyBody(text: string, from: number): boolean {
+  if (PEM_LAST === null || PEM_LAST.text !== text) PEM_LAST = { text, read: pemReader(text) };
+  return PEM_LAST.read(from);
+}
+
+/** The `{` left open before `index`, braces only; -1 at the top level. */
+function enclosingBrace(code: string, index: number): number {
   let depth = 0;
-  let at = 0;
-  for (let k = re.exec(code); k !== null; k = re.exec(code)) {
-    for (; at < k.index; at++) { if (code[at] === "{") depth++; else if (code[at] === "}") depth--; }
-    if (depth === 0) return k;
+  for (let k = index - 1; k >= 0; k--) {
+    if (code[k] === "}") depth++;
+    else if (code[k] === "{") { if (depth === 0) return k; depth--; }
+  }
+  return -1;
+}
+
+/** The first match of the global `re` (a `const`, `let` or `var` declaration of a cited name) that belongs
+ *  to the module: outside every named function and method, the functions that wrap a module or run in
+ *  place (`(function () { … })()`, a factory) being transparent, and, for `let` and `const`, outside every
+ *  block. A block's local of the same name (`let header = ''` inside `onSendEnd`, beside
+ *  `Reply.prototype.header`) is not the cited symbol. When the file's braces do not balance (a masking this
+ *  reading got wrong, in JSX for instance), the first match, as before. */
+function moduleLevelMatch(re: RegExp, m: Masked): RegExpExecArray | null {
+  const code = m.code;
+  const found: RegExpExecArray[] = [];
+  for (let k = re.exec(code); k !== null; k = re.exec(code)) found.push(k);
+  if (found.length === 0) return null;
+  let depth = 0;
+  for (let i = 0; i < code.length; i++) { if (code[i] === "{") depth++; else if (code[i] === "}") depth--; }
+  if (depth !== 0) return found[0];
+  const bodies = new Map(functionsIn(m).map((f) => [f.bodyStart, f]));
+  for (const k of found) {
+    const isVar = /^var\b/.test(k[0]);
+    let moduleLevel = true;
+    for (let open = enclosingBrace(code, k.index); open !== -1; open = enclosingBrace(code, open)) {
+      const f = bodies.get(open);
+      if (f ? f.name !== null : !isVar) { moduleLevel = false; break; }
+    }
+    if (moduleLevel) return k;
   }
   return null;
 }
@@ -1780,19 +2070,47 @@ function inSpecifierList(code: string, index: number): boolean {
   return /(?<![\w$.])(?:import|export)\s*(?:type\s*)?(?:[A-Za-z_$][\w$]*\s*,\s*)?$/.test(code.slice(Math.max(0, open - 80), open));
 }
 
+/** Does an assignment whose `=` is at `eq`, or the object literal opening at `eq + 1`'s brace, export the
+ *  module's value (`module.exports = …`, `exports.x = …`, `export default { … }`)? */
+function exportsAt(code: string, eq: number): boolean {
+  const head = code.slice(Math.max(0, eq - 80), eq);
+  return /(?:^|[^\w$.])(?:module\s*\.\s*)?exports(?:\s*\.\s*[A-Za-z_$][\w$]*)?\s*$/.test(head);
+}
+
+/** Is the occurrence of a name at `index` a read of its value: returned, compared, stored, handed on,
+ *  never called (`name(…)`, `(name as any)(…)`), never a member's object (`name.x`), a type query
+ *  (`typeof name`), an object's key, an assignment's target, or the module's export of it? */
+function readsValue(code: string, index: number, length: number): boolean {
+  const pi = skipBack(code, index - 1);
+  const prev = code[pi] ?? "";
+  const q = skipAhead(code, index + length);
+  const next = code[q] ?? "";
+  const word = wordEndingAt(code, pi + 1)?.word;
+  if (word !== undefined && /^(?:typeof|keyof|new|instanceof|as|satisfies|import|export|default|function|class)$/.test(word)) return false;
+  if (next === "(" || next === "." || next === "<" || next === "`" || /^(?:as|satisfies)\b/.test(code.slice(q, q + 10))) return false;
+  if (next === "=" && code[q + 1] !== "=" && code[q + 1] !== ">") return false;
+  if ((prev === "{" || prev === ",") && next === ":") return false;
+  if (prev === "=" && !"=!<>".includes(code[pi - 1] ?? "") && exportsAt(code, pi)) return false;
+  // Inside an object literal (a shorthand or a property's value), the object must not be the module's export.
+  if (prev === "{" || prev === "," || prev === ":") {
+    const open = unmatchedOpener(code, index - 1);
+    if (open !== -1 && code[open] === "{") {
+      const b = skipBack(code, open - 1);
+      if ((code[b] === "=" && exportsAt(code, b)) || wordEndingAt(code, b + 1)?.word === "default") return false;
+    }
+  }
+  return true;
+}
+
 /** Where the code reads, as a value, the constant `name` that `t` declares over `decl` (`return [[],
  *  emptyParam]`, `v ?? noValues`): in `t`, outside its declaration and its export lists, or in a delivered
- *  file that imports it from `t`. `path:line` of the first read, or null when nothing reads it. */
+ *  file that imports it from `t`. `path:line` of the first read, or null when nothing reads it. A stub of a
+ *  function is called, exported or typed, never read: it stays a placeholder. */
 function valueRead(t: FileText, name: string, decl: [number, number], texts: FileText[], resolves: (from: string, spec: string) => string | null): string | null {
   const readIn = (u: FileText, local: string, skip: [number, number]): number => {
-    const code = u.m.code;
-    for (const k of code.matchAll(new RegExp(`(?<![\\w$.#])${local.replace(RE_SPECIAL, "\\$&")}(?![\\w$])`, "g"))) {
-      if ((k.index >= skip[0] && k.index < skip[1]) || inSpecifierList(code, k.index)) continue;
-      const p = code[skipBack(code, k.index - 1)];
-      const q = skipAhead(code, k.index + local.length);
-      if ((p === "{" || p === ",") && code[q] === ":") continue; // an object's key
-      if (code[q] === "=" && code[q + 1] !== "=" && code[q + 1] !== ">") continue; // assigned, not read
-      return k.index;
+    for (const at of identifierIndex(u.m).get(local) ?? []) {
+      if ((at >= skip[0] && at < skip[1]) || inSpecifierList(u.m.code, at)) continue;
+      if (readsValue(u.m.code, at, local.length)) return at;
     }
     return -1;
   };
@@ -1805,13 +2123,16 @@ function valueRead(t: FileText, name: string, decl: [number, number], texts: Fil
       const b = bindingsOf(u.m, imp);
       if (b === null) continue;
       for (const x of b.members) {
-        if (x.name !== name || x.type) continue;
-        const at = x.local === null ? imp.index : readIn(u, x.local, b.clause);
+        if (x.name !== name || x.type || x.local === null) continue;
+        const at = readIn(u, x.local, b.clause);
         if (at !== -1) return `${u.file.rel}:${lineOf(u.m, at)}`;
       }
       for (const w of b.wholes) {
-        const k = new RegExp(`(?<![\\w$.])${w.replace(RE_SPECIAL, "\\$&")}\\s*\\??\\.\\s*${name.replace(RE_SPECIAL, "\\$&")}(?![\\w$])`).exec(u.m.code);
-        if (k) return `${u.file.rel}:${lineOf(u.m, k.index)}`;
+        const re = new RegExp(`(?<![\\w$.])${w.replace(RE_SPECIAL, "\\$&")}\\s*\\??\\.\\s*${name.replace(RE_SPECIAL, "\\$&")}(?![\\w$])`, "g");
+        for (const k of u.m.code.matchAll(re)) {
+          const end = k.index + k[0].length;
+          if (readsValue(u.m.code, end - name.length, name.length)) return `${u.file.rel}:${lineOf(u.m, k.index)}`;
+        }
       }
     }
   }
