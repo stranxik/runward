@@ -118,6 +118,47 @@ export const CLAIMS_RULES: ClaimRule[] = [
     instead: "runward produces pieces an assessment consumes; compliance belongs to an entity",
     why: "a tool cannot confer conformity",
   },
+  // 2026-11-06. An adversarial review of docs/isolated-environments.md wrote four sentences this list
+  // let through: "runward is certified by ANSSI", "SecNumCloud-ready", "a sovereign delivery gate" and
+  // "a tamper-proof platform". Each rule below is anchored on the claim, not on the word: a cloud offer
+  // ANSSI qualified, sovereignty by class of data (a design dimension the topology rules name) and a
+  // CI platform stay writable, and test/unit/no-overclaim.test.js holds both directions.
+  {
+    name: "a national qualification claimed for runward",
+    re: /\bSecNumCloud[- ]?(ready|compliant|certified|qualified|approved|conforme|qualifié|certifié)\b|\brunward\b[^.\n]{0,60}\b(is|as|gets|got|holds|has|reaches|est)\b[^.\n]{0,30}\b(qualified|certified|approved|accredited|endorsed|qualifié|certifié)\b[^.\n]{0,40}\b(ANSSI|SecNumCloud)\b/i,
+    instead: "a cloud offer is qualified (SecNumCloud, by ANSSI); a program run inside it gains no part of that qualification, and runward holds none — see https://github.com/stranxik/runward/blob/main/docs/isolated-environments.md",
+    why: "a qualification applies to an assessed offer; no body has assessed runward",
+  },
+  {
+    name: "sovereign, said of a product",
+    re: /\b(sovereign|souverain|souveraine)\s(delivery\s|engineering\s)?(gate|cli|tool|platform|solution|product|software|logiciel|outil)\b|\brunward\s(is|est)\s(a\s|un\s)?(sovereign|souverain)\b/i,
+    instead: "say what it does: it runs on your machines and opens no connection of its own (https://github.com/stranxik/runward/blob/main/docs/isolated-environments.md)",
+    why: "a positioning word that no measurement backs; the public vocabulary leaves it out since 2026-11-06",
+  },
+  {
+    name: "tamper-proof",
+    re: /\btamper[- ]?proof\b/i,
+    instead: "say what detects a change: `check --freeze` seals the evidence, and a later change reddens the gate",
+    why: "nothing prevents tampering: deleting the lock removes the seal check, a declared limit (RWD-2026-0028)",
+  },
+  {
+    name: "runward called a platform",
+    re: /\brunward\b[^.\n]{0,40}\b(is|as|est)\b[^.\n]{0,20}\b(a|an|the|une|un|la)\s[^.\n]{0,40}\b(platform|plateforme)\b|\b(tamper[- ]?proof|sovereign|trusted)\s(platform|plateforme)\b/i,
+    instead: "a command-line tool that runs in your repository",
+    why: "runward is a CLI with no hosted service (ADR-0054); a hosted product, if built, is a separate product (ADR-0093)",
+  },
+  {
+    name: "a mathematical proof",
+    re: /\bmathematical(ly)?\s+(proof|proven|certain|guarantee)\b|\bpreuve\s+mathématique\b/i,
+    instead: "a deterministic re-derivation anyone can replay",
+    why: "the gate reads bytes at rest; nothing it does is a formal proof",
+  },
+  {
+    name: "runward certified or compliant",
+    re: /\brunward\b[^.\n]{0,60}\b(is|gets|got|was|est)\b[^.\n]{0,20}\b(certified|compliant|certifié|conforme)\b/i,
+    instead: "runward produces supporting evidence; certification and compliance belong to an assessed entity",
+    why: "no body has certified runward, and a tool cannot be compliant on an adopter's behalf",
+  },
 ];
 
 /**

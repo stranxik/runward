@@ -1,0 +1,1310 @@
+{
+ "schema": "runward-c2-classification/1",
+ "reviewer": "independent session that wrote neither the analyzers nor the harness",
+ "scope": [
+  "express@43fca52d28a422c8be48fd489cbd4f2d6152bab6",
+  "fastify@1b954e5602261115b67708c73a9729231d70d2a0"
+ ],
+ "build": {
+  "version": "0.46.0",
+  "commit": "03c5e64ad44b74541918d14cc6126c75e742427e",
+  "dirty": false,
+  "node": "v24.22.1",
+  "nvmrc": "24.22.1"
+ },
+ "profilesNote": "profile \"default\" entries were reported by both runs (the declared run includes every default finding, defaultMissingFromDeclared = 0); profile \"declared\" entries only by the declared run",
+ "entries": [
+  {
+   "id": "express-5ee7dc5744",
+   "repository": "express",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "capability",
+   "check": "computed-import",
+   "verdict": "FALSE",
+   "reason": "examples/content-negotiation/index.js:34 require(path) sits in the module-local function format(path), not exported, whose only call (format('./users')) passes the literal './users': the module loaded is readable from the tree, so 'computed at run time' and 'no reader of the tree can say what it loads' do not hold",
+   "pattern": "require-of-local-parameter-whose-only-call-passes-a-literal"
+  },
+  {
+   "id": "express-d251301c61",
+   "repository": "express",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "capability",
+   "check": "computed-import",
+   "verdict": "TRUE",
+   "reason": "examples/mvc/lib/boot.js:18 require(file) loads every directory that fs.readdirSync(dir) finds under controllers/ at run time (line 14-15): the set is data, not code; a true computed import",
+   "pattern": "require-of-name-computed-from-runtime-data"
+  },
+  {
+   "id": "express-1dc713330e",
+   "repository": "express",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "capability",
+   "check": "computed-import",
+   "verdict": "TRUE",
+   "reason": "lib/view.js:81 require(mod) loads the template engine named by the view's extension or the app's 'view engine' setting (mod = this.ext.slice(1), line 77): chosen by the application at run time; a true computed import",
+   "pattern": "require-of-name-computed-from-runtime-data"
+  },
+  {
+   "id": "express-d19a47e438",
+   "repository": "express",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "FALSE",
+   "reason": "test/Route.js:10-14 hands mocha's done to the code under test (route.dispatch(req, {}, done)): the case fails if that code calls done with an error or never calls it (mocha timeout), so it asserts completion without error",
+   "pattern": "mocha-done-handed-to-the-code-under-test"
+  },
+  {
+   "id": "express-676ef2e6b7",
+   "repository": "express",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "FALSE",
+   "reason": "test/Router.js:19-29 hands mocha's done to the code under test (router.handle({ url: '/foo/bar', method: 'GET' }, { end: done }, function () { })): the case fails if that code calls done with an error or never calls it (mocha timeout), so it asserts completion without error",
+   "pattern": "mocha-done-handed-to-the-code-under-test"
+  },
+  {
+   "id": "express-5ebcafac7f",
+   "repository": "express",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "FALSE",
+   "reason": "test/Router.js:91-106 hands mocha's done to the code under test (router.handle({ url: '/', method: 'GET' }, { end: done }, function () { })): the case fails if that code calls done with an error or never calls it (mocha timeout), so it asserts completion without error",
+   "pattern": "mocha-done-handed-to-the-code-under-test"
+  },
+  {
+   "id": "express-af3e0ba129",
+   "repository": "express",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "TRUE",
+   "reason": "test/Router.js:202-205 only calls router.route('/foo').all(fn).all(fn): no assertion, no done, no throw, exactly as the message says; it fails only if that call throws, the implicit channel every case has. Judgement call: the title \"should not throw\" and its siblings using assert.throws (lines 182,189,196) show a deliberate no-throw check, which a policy accepting no-throw cases would clear",
+   "pattern": "synchronous-call-with-no-check"
+  },
+  {
+   "id": "express-8ea1a092e7",
+   "repository": "express",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "FALSE",
+   "reason": "test/app.js:8-12 hands mocha's done to the code under test (app.on('foo', done)): the case fails if that code calls done with an error or never calls it (mocha timeout), so it asserts completion without error",
+   "pattern": "mocha-done-handed-to-the-code-under-test"
+  },
+  {
+   "id": "express-59c209f0ee",
+   "repository": "express",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "FALSE",
+   "reason": "test/app.listen.js:7-13 hands mocha's done to the code under test (server.close(done)): the case fails if that code calls done with an error or never calls it (mocha timeout), so it asserts completion without error",
+   "pattern": "mocha-done-handed-to-the-code-under-test"
+  },
+  {
+   "id": "express-a421096401",
+   "repository": "express",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "FALSE",
+   "reason": "test/app.listen.js:38-43 hands mocha's done to the code under test (server.close(done)): the case fails if that code calls done with an error or never calls it (mocha timeout), so it asserts completion without error",
+   "pattern": "mocha-done-handed-to-the-code-under-test"
+  },
+  {
+   "id": "fastify-5aca87bd0b",
+   "repository": "fastify",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "FALSE",
+   "reason": "test/decorator.test.js:869-900 awaits app.ready() inside an async node:test case: a rejection fails the case, so it asserts that the code under test completes without error (the promise form of a done callback that receives an error)",
+   "pattern": "awaited-promise-of-the-code-under-test"
+  },
+  {
+   "id": "fastify-c66e22813e",
+   "repository": "fastify",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "FALSE",
+   "reason": "test/http2/closing.test.js:118-131 awaits fastify.listen({ port: 0 }), fastify.close() inside an async node:test case: a rejection fails the case, so it asserts that the code under test completes without error (the promise form of a done callback that receives an error)",
+   "pattern": "awaited-promise-of-the-code-under-test"
+  },
+  {
+   "id": "fastify-087cfb3b14",
+   "repository": "fastify",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "FALSE",
+   "reason": "test/http2/closing.test.js:133-150 awaits fastify.listen({ port: 0 }), fastify.close() inside an async node:test case: a rejection fails the case, so it asserts that the code under test completes without error (the promise form of a done callback that receives an error)",
+   "pattern": "awaited-promise-of-the-code-under-test"
+  },
+  {
+   "id": "fastify-ec7d4cf1b0",
+   "repository": "fastify",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "FALSE",
+   "reason": "test/reply-trailers.test.js:269-300 awaits a promise that rejects with new Error('response hung') when no response event arrives within 2 s: an explicit failure path, equivalent to a throw, checking exactly what the title says",
+   "pattern": "awaited-promise-rejected-on-a-failure-condition"
+  },
+  {
+   "id": "fastify-de212045f8",
+   "repository": "fastify",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "FALSE",
+   "reason": "test/schema-special-usage.test.js:423-467 awaits fastify.ready() inside an async node:test case: a rejection fails the case, so it asserts that the code under test completes without error (the promise form of a done callback that receives an error)",
+   "pattern": "awaited-promise-of-the-code-under-test"
+  },
+  {
+   "id": "fastify-4df783311f",
+   "repository": "fastify",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "FALSE",
+   "reason": "test/schema-special-usage.test.js:469-491 awaits fastify.ready() inside an async node:test case: a rejection fails the case, so it asserts that the code under test completes without error (the promise form of a done callback that receives an error)",
+   "pattern": "awaited-promise-of-the-code-under-test"
+  },
+  {
+   "id": "fastify-0801c8a5f2",
+   "repository": "fastify",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "FALSE",
+   "reason": "test/schema-special-usage.test.js:493-518 awaits fastify.ready() inside an async node:test case: a rejection fails the case, so it asserts that the code under test completes without error (the promise form of a done callback that receives an error)",
+   "pattern": "awaited-promise-of-the-code-under-test"
+  },
+  {
+   "id": "fastify-861fe1ef5d",
+   "repository": "fastify",
+   "profile": "default",
+   "profiles": [
+    "default",
+    "declared"
+   ],
+   "family": "test-integrity",
+   "check": "case-asserts-nothing",
+   "verdict": "TRUE",
+   "reason": "test/wrap-thenable.test.js:8-16 calls wrapThenable(thenable, reply) then resolve() unconditionally: wrapThenable returns nothing and its then-callback is never observed; with reply = {} the hijacked early return and the fall-through behave alike, so the case cannot fail on what its title names",
+   "pattern": "case-resolves-its-own-promise-and-observes-nothing"
+  },
+  {
+   "id": "express-fe731a76dd",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/application.js:16 requires `finalhandler`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-20aeb639ab",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/application.js:17 requires `debug`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-32a332287f",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/application.js:24 requires the built-in `node:path` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "express-5f3288bea7",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/application.js:25 requires `once`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-cd1e87073c",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/application.js:26 requires `router`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-2cc12e95c1",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/express.js:15 requires `body-parser`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-6764e8b81f",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/express.js:16 requires the built-in `node:events` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "express-c3ec72f311",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/express.js:17 requires `merge-descriptors`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-680b1965ae",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/express.js:19 requires `router`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-873f33db3a",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/express.js:79 requires `serve-static`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-0dce1aedd0",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/request.js:16 requires `accepts`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-5411168c0b",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/request.js:18 requires `type-is`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-ff20a13325",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/request.js:20 requires `fresh`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-efaacc0595",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/request.js:21 requires `range-parser`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-b51d14d28c",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/request.js:22 requires `parseurl`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-23cec7976e",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/request.js:23 requires `proxy-addr`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-ba8e7cb069",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:15 requires `content-disposition`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-5323a5fd66",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:16 requires `http-errors`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-a82e77f0eb",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:17 requires `depd`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-971a2fca50",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:18 requires `encodeurl`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-16470d8377",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:19 requires `escape-html`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-4b1815a019",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:21 requires `on-finished`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-149cdff9cc",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:22 requires `mime-types`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-5f197d6c9a",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:23 requires the built-in `node:path` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "express-2e865ebdbd",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:24 requires the built-in `node:path` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "express-f280e08a0f",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:25 requires `statuses`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-393eaa3e8a",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:26 requires `cookie-signature`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-09615a2afd",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:30 requires `cookie`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-144fa4539a",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:31 requires `send`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-153a80ba41",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:35 requires `vary`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-e3d54da9e9",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:36 requires the built-in `node:buffer` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "express-b6e8975f4d",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/utils.js:16 requires `content-type`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-cc499773fb",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/utils.js:17 requires `etag`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-9e5cb5a365",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/utils.js:18 requires `mime-types`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-94fe473ac7",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/utils.js:19 requires `proxy-addr`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-02fab2e5ea",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/utils.js:20 requires `qs`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-3a714290eb",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/utils.js:21 requires the built-in `node:querystring` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "express-748f67a12a",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/utils.js:22 requires the built-in `node:buffer` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "express-a682a701eb",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/view.js:16 requires `debug`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "express-dfa94d1e85",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/view.js:17 requires the built-in `node:path` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "express-c4a237dcea",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/view.js:18 requires the built-in `node:fs` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "express-6d180cc1a4",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "capability",
+   "check": "network",
+   "verdict": "TRUE",
+   "reason": "lib/application.js:19: http.createServer at 599: opens a listening server. True against the declared core",
+   "pattern": "network-module-used-for-servers-dns-or-http-messages"
+  },
+  {
+   "id": "express-ad5b0c3efa",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "capability",
+   "check": "environment",
+   "verdict": "TRUE",
+   "reason": "lib/application.js:91 reads process.env.NODE_ENV inside app.defaultConfiguration, a file the harness declared domain-core: the core reads the environment itself; true against the declaration",
+   "pattern": "core-reads-process-env"
+  },
+  {
+   "id": "express-6bbede1717",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "capability",
+   "check": "network",
+   "verdict": "FALSE",
+   "reason": "lib/request.js:17: the core only reads isIP from `node:net` (isIP at 389), a constant table or a pure string predicate: no socket, server, request or lookup, so not a network use; the line remains a built-in import in the declared core, which a boundary finding (core-import-builtin) would rightly report and does not",
+   "pattern": "network-builtin-read-for-constants-only"
+  },
+  {
+   "id": "express-cfb76e0e72",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "capability",
+   "check": "network",
+   "verdict": "TRUE",
+   "reason": "lib/request.js:19: http.IncomingMessage at 30: builds the core request on http.IncomingMessage.prototype, then reads the connection (this.socket.encrypted / remoteAddress at 298, 303, 422). True against the declared core",
+   "pattern": "network-module-used-for-servers-dns-or-http-messages"
+  },
+  {
+   "id": "express-a5e6fa1f2b",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "capability",
+   "check": "network",
+   "verdict": "TRUE",
+   "reason": "lib/response.js:20: http.ServerResponse at 43: builds the core response on http.ServerResponse.prototype and writes to the connection through this.end (215, 218, 863, 865). True against the declared core",
+   "pattern": "network-module-used-for-servers-dns-or-http-messages"
+  },
+  {
+   "id": "express-2b48f2cfb7",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "capability",
+   "check": "network",
+   "verdict": "FALSE",
+   "reason": "lib/utils.js:15: the core only reads METHODS from `node:http` (METHODS at 29), a constant table or a pure string predicate: no socket, server, request or lookup, so not a network use; the line remains a built-in import in the declared core, which a boundary finding (core-import-builtin) would rightly report and does not",
+   "pattern": "network-builtin-read-for-constants-only"
+  },
+  {
+   "id": "fastify-ef6ddb418e",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "fastify.js:5 requires `avvio`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:7); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-ffe72e0188",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "fastify.js:7 requires the built-in `node:diagnostics_channel` in a file the harness declared domain-core (territory.md:7); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "fastify-74e27100ac",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "fastify.js:502 requires `light-my-request`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:7); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-cde2d79b4c",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/content-type-parser.js:3 requires the built-in `node:async_hooks` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "fastify-9d5adf9929",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/content-type-parser.js:4 requires `toad-cache`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-53036ffe78",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/content-type-parser.js:5 requires `secure-json-parse`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-4b79e8a63a",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/content-type.js:3 requires `toad-cache`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-84e48c139a",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/error-serializer.js:6 requires `fast-json-stringify/lib/serializer`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-8855fc69c5",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/errors.js:3 requires `@fastify/error`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-1fdd893b87",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/four-oh-four.js:3 requires `find-my-way`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-7174d29e30",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/handle-request.js:3 requires the built-in `node:diagnostics_channel` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "fastify-b05cefb0e7",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/initial-config-validation.js:4 requires `rfdc`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-81df34e702",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/logger-factory.js:3 requires the built-in `node:perf_hooks` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "fastify-e0deec6f95",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/logger-factory.js:88 requires `abstract-logging`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-b823e11679",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/logger-pino.js:9 requires `pino`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-c21d51d257",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/plugin-utils.js:3 requires `semver`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-c0f5ace1d0",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/plugin-utils.js:4 requires the built-in `node:assert` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "fastify-85bbe54840",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/reply.js:3 requires the built-in `node:stream` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "fastify-e6e478126e",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/request.js:3 requires `@fastify/proxy-addr`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-a1551ae183",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/route.js:3 requires `find-my-way`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-cbd1690b92",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/schema-controller.js:22 requires `@fastify/ajv-compiler`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-1a3c7fe2a9",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/schema-controller.js:26 requires `@fastify/fast-json-stringify-compiler`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-b3ae49ac43",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/schemas.js:3 requires `rfdc`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-377e3468be",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/server.js:7 requires the built-in `node:os` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "fastify-f159981c83",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-package",
+   "verdict": "TRUE",
+   "reason": "lib/warnings.js:3 requires `process-warning`, a runtime dependency in package.json, in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-dependency-package"
+  },
+  {
+   "id": "fastify-fff7021739",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/wrap-thenable.js:9 requires the built-in `node:diagnostics_channel` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "fastify-e83600d8cc",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "capability",
+   "check": "network",
+   "verdict": "FALSE",
+   "reason": "fastify.js:6: the core only reads METHODS/STATUS_CODES from `node:http` (http.METHODS at 858; http.STATUS_CODES at 991,996,1001), a constant table or a pure string predicate: no socket, server, request or lookup, so not a network use; the line remains a built-in import in the declared core, which a boundary finding (core-import-builtin) would rightly report and does not. Judgement call: the whole module is bound, so the network is in reach of the file; FALSE on use, TRUE if the policy counts what is in reach",
+   "pattern": "network-module-bound-whole-but-only-constants-read"
+  },
+  {
+   "id": "fastify-d79a2505a5",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "capability",
+   "check": "network",
+   "verdict": "FALSE",
+   "reason": "lib/error-handler.js:3: the core only reads STATUS_CODES (as statusCodes) from `node:http` (STATUS_CODES (as statusCodes) at 111,118), a constant table or a pure string predicate: no socket, server, request or lookup, so not a network use; the line remains a built-in import in the declared core, which a boundary finding (core-import-builtin) would rightly report and does not",
+   "pattern": "network-builtin-read-for-constants-only"
+  },
+  {
+   "id": "fastify-16f1438199",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "capability",
+   "check": "network",
+   "verdict": "TRUE",
+   "reason": "lib/server.js:3: http.createServer at 337: opens a listening server. True against the declared core",
+   "pattern": "network-module-used-for-servers-dns-or-http-messages"
+  },
+  {
+   "id": "fastify-60191976b6",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "capability",
+   "check": "network",
+   "verdict": "TRUE",
+   "reason": "lib/server.js:4: https.createServer at 336: opens a listening server. True against the declared core",
+   "pattern": "network-module-used-for-servers-dns-or-http-messages"
+  },
+  {
+   "id": "fastify-5a1fde90fc",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "capability",
+   "check": "network",
+   "verdict": "TRUE",
+   "reason": "lib/server.js:5: http2.createSecureServer at 318: opens a listening TLS server; http2.createServer at 318: opens a listening server. True against the declared core",
+   "pattern": "network-module-used-for-servers-dns-or-http-messages"
+  },
+  {
+   "id": "fastify-d3dae9b27f",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "capability",
+   "check": "network",
+   "verdict": "TRUE",
+   "reason": "lib/server.js:6: dns.lookup at 155: resolves the listen host over DNS. True against the declared core",
+   "pattern": "network-module-used-for-servers-dns-or-http-messages"
+  },
+  {
+   "id": "fastify-451e6a173c",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "symbol",
+   "check": "symbol-placeholder-constant",
+   "verdict": "FALSE",
+   "reason": "lib/reply.js:606 is `let header = ''`, a block-local accumulator inside onSendEnd, appended at lines 609,610: not a constant and not the cited symbol; the file's symbol `header` is the method Reply.prototype.header at line 273, which has a body (sets a response header)",
+   "pattern": "cited-symbol-resolved-to-a-local-accumulator"
+  }
+ ]
+}

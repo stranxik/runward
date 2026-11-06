@@ -37,6 +37,28 @@ export function readEd25519Key(material) {
   return { key, digest: `sha256:${digest}` };
 }
 
+/** A key that signs DSSE envelopes: Ed25519, or ECDSA on P-256 or P-384 (what `cosign generate-key-pair`
+ *  writes). Returns the key, its algorithm and the sha256 of its SPKI. */
+export function readSigningKey(pem) {
+  const key = createPublicKey(pem);
+  const t = key.asymmetricKeyType;
+  const curve = key.asymmetricKeyDetails?.namedCurve;
+  const algorithm = t === "ed25519" ? "ed25519" : t === "ec" && curve === "prime256v1" ? "ecdsa-p256-sha256" : t === "ec" && curve === "secp384r1" ? "ecdsa-p384-sha384" : null;
+  if (!algorithm) throw new Error(`a ${t ?? "unknown"}${curve ? ` ${curve}` : ""} key: Ed25519 or ECDSA P-256/P-384 expected`);
+  const digest = createHash("sha256").update(key.export({ type: "spki", format: "der" })).digest("hex");
+  return { key, algorithm, digest: `sha256:${digest}` };
+}
+
+/** True only when `sig` is a signature of exactly `bytes` under a key `readSigningKey` read. */
+export function signatureVerifies(bytes, sig, k) {
+  try {
+    const d = k.algorithm === "ed25519" ? null : k.algorithm === "ecdsa-p384-sha384" ? "sha384" : "sha256";
+    return cryptoVerify(d, bytes, k.key, sig);
+  } catch {
+    return false;
+  }
+}
+
 /** True only when `sigText` (base64) is an Ed25519 signature of exactly `bytes` under `key`. */
 export function ed25519Verifies(bytes, sigText, key) {
   try {

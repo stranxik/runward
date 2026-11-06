@@ -5,7 +5,7 @@ import { join, dirname, relative, sep } from "node:path";
 import { TEMPLATES } from "./paths.js";
 import { EXPECTED_MAPPED, ADR_MIN_CHARS } from "./constants.js";
 import { ruleMigrations } from "./rule-migrations.js";
-import { adrStatusLine, agentRatificationOptIn, regulatedOptIn } from "./mission.js";
+import { adrStatusLine, adrSetAsideReason, agentRatificationOptIn, regulatedOptIn } from "./mission.js";
 import { resolveIdentity, spellingsOf, foldName, singleAccountableOptIn, SINGLE_ACCOUNTABLE_DISCLOSURE, SINGLE_ACCOUNTABLE_REGULATED_NOTE, type Identities } from "./identity.js";
 import { missionIdentities, isDelegate, isoDay, readCharter, CHARTER_FILE, type Charter, type CharterGapKind } from "./delegation.js";
 import { readSampleLedger, sampleState, passingCovers, dayString, SAMPLE_FILE, type SampleState } from "./delegation-sample.js";
@@ -408,6 +408,16 @@ export function adrDecision(missionDir: string, id: string): string | null {
   const word = adrStatusWord(text);
   if (ADR_SET_ASIDE.test(word)) return `${hit} is ${word} — a set-aside decision cannot justify a deviation`;
   if (ADR_UNRATIFIED.test(word)) return `${hit} is not ratified (${word}) — ratify it, or the deviation rests on nothing`;
+  // ADR-0124 decision 1: one bar for a decision record. Under the mission's structure contract, the
+  // journal count sets aside a record with no date, no status from the closed list or no reevaluation
+  // trigger (adrSetAsideReason), and this reader took the same file for a decision: two answers to "is
+  // this a decision?" in one run, and a 47-character stub left `accepted` passed every `adr:` pointer
+  // and every table that cites it (cases g2 and g4 of the 2026-11-05 saboteur corpus). The same
+  // function is asked, on the same journal: the mission's own `adr/`, under the mission's opt-in. The
+  // journals ADR-0074 reads outside the mission keep this reading, because they are often kept in
+  // another tool's format, with no bold `**Date**` label.
+  const setAside = adrSetAsideReason(hit, dirname(abs));
+  if (setAside) return `${hit} is not a decision record under the structure contract (${setAside}): the journal sets it aside, so nothing may rest on it`;
   return null;
 }
 
@@ -491,13 +501,13 @@ export function unratifiedAdrs(missionDir: string): Array<{ file: string; reason
       // it is resolved, not unratified — deleting it instead would only be re-proposed by --mine.
       let draftBody = "";
       try { draftBody = readFileSync(join(dir, f), "utf8"); } catch { /* unreadable: treat as unratified */ }
-      if (/^\s*(?:\*\*status\*\*|status)\s*:\s*rejected\b/im.test(draftBody)) continue;
+      if (STATUS_REJECTED.test(draftBody)) continue;
       out.push({ file: f, reason: "DRAFT — reconstructed decision not yet ratified" });
       continue;
     }
     let body = "";
     try { body = readFileSync(join(dir, f), "utf8"); } catch { continue; }
-    if (/^\s*(?:\*\*status\*\*|status)\s*:\s*hypothesis\b/im.test(body)) out.push({ file: f, reason: "Status: hypothesis" });
+    if (STATUS_HYPOTHESIS.test(body)) out.push({ file: f, reason: "Status: hypothesis" });
     else if (/why\s*:\s*UNKNOWN\b/i.test(body)) out.push({ file: f, reason: "why: UNKNOWN — the operator must supply it" });
   }
   return out;
@@ -517,7 +527,7 @@ export function decisionCoverage(missionDir: string): { total: number; ratified:
       if (!f.endsWith(".md") || f === "ADR-0000-template.md" || f.toUpperCase() === "README.MD") return false;
       // A rejected DRAFT is a recorded "not a decision" — it is not part of the decision count.
       if (/^DRAFT-/i.test(f)) {
-        try { return !/^\s*(?:\*\*status\*\*|status)\s*:\s*rejected\b/im.test(readFileSync(join(dir, f), "utf8")); } catch { return true; }
+        try { return !STATUS_REJECTED.test(readFileSync(join(dir, f), "utf8")); } catch { return true; }
       }
       return true;
     }).length;
@@ -525,8 +535,19 @@ export function decisionCoverage(missionDir: string): { total: number; ratified:
   return { total, ratified: Math.max(0, total - unratified.length), unratified };
 }
 
+// A status line of a decision. The indent before it is read on its own line: `^\s*` with the `m` flag
+// crossed line breaks, so each of many blank lines read every blank line after it (quadratic: 11 s on a
+// draft of 100,000 blank lines, measured on 0.46.0, RWD-2026-0205), and a line it found that way was always
+// found from its own line too. Same files matched.
+const STATUS_REJECTED = /^[^\S\n\r\u2028\u2029]*(?:\*\*status\*\*|status)\s*:\s*rejected\b/im;
+const STATUS_HYPOTHESIS = /^[^\S\n\r\u2028\u2029]*(?:\*\*status\*\*|status)\s*:\s*hypothesis\b/im;
+
 // A path token: a file with a known code/doc extension (excludes version numbers like v1.0, "§2").
-const PATH_TOKEN = /[\w./-]+\.(?:ts|tsx|js|jsx|mjs|cjs|py|md|json|ya?ml|toml|go|rs|java|rb|php|sql|sh|css|scss|html|txt)\b/g;
+// A token starts where a run of path characters starts: from inside a run the pattern read the rest of it
+// again for every character (quadratic: 15 s for a 100,000-character cell, measured on 0.46.0,
+// RWD-2026-0205), and no token it found ever started there, since the longest one from the run's start
+// covers any it could.
+const PATH_TOKEN = /(?<![\w./-])[\w./-]+\.(?:ts|tsx|js|jsx|mjs|cjs|py|md|json|ya?ml|toml|go|rs|java|rb|php|sql|sh|css|scss|html|txt)\b/g;
 
 /** File-path tokens carried by an evidence cell — the drift/evidence layer's shared extraction. */
 export function evidencePathTokens(evidence: string): string[] {

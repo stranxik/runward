@@ -144,11 +144,84 @@ export function globToRegExp(glob: string): RegExp {
   return new RegExp(`^${re}$`);
 }
 
+/** A glob of the dialect above, read as `globToRegExp(glob).test(path)` reads it, in time bounded by the
+ *  glob's length times the path's. The pattern a glob of many stars compiles to (`a*a*a*…b`, a run of
+ *  `**`) backtracks over every way of splitting a name between its stars, polynomial in the name with the
+ *  stars as the degree: a 30-character glob against one 200-character file name ran over 60 s, when the run
+ *  was stopped (measured on 2026-11-06).
+ *  The globs of `runward/territory.md` and `runward/analysis.md` are written in the judged tree, and the
+ *  gate reads them under an analysis policy (ADR-0118), so they are matched here, one character of the
+ *  path at a time against every place the glob could be at once. Same dialect, same answer: `**`, and
+ *  the runs the two anchors add, match no line terminator, as `.` does not; `*` and `?` match any
+ *  character but `/`. */
+export function globMatcher(glob: string): { test(path: string): boolean } {
+  // Each state is a place in the glob: what it consumes, whether it stays (a run), and where it moves
+  // for free (the end of a run, past an optional group). Every free move goes forward.
+  type State = { on: (c: string) => boolean; stay: boolean; eps: number[] };
+  const states: State[] = [];
+  const NOT_SLASH = (c: string): boolean => c !== "/";
+  const NOT_TERMINATOR = (c: string): boolean => c !== "\n" && c !== "\r" && c !== "\u2028" && c !== "\u2029";
+  const literal = (ch: string) => (c: string): boolean => c === ch;
+  let i = 0;
+  while (i < glob.length) {
+    const at = states.length;
+    if (glob.startsWith("**/", i) && i === 0) {
+      // `(?:.*/)?`: any run then `/`, or nothing. The group is entered or passed before a character is read.
+      states.push({ on: () => false, stay: false, eps: [at + 1, at + 3] },
+        { on: NOT_TERMINATOR, stay: true, eps: [at + 2] }, { on: literal("/"), stay: false, eps: [] });
+      i += 3; continue;
+    }
+    if (glob.startsWith("/**", i) && i + 3 === glob.length) {
+      // `(?:/.*)?`: `/` then any run, or nothing.
+      states.push({ on: literal("/"), stay: false, eps: [at + 2] }, { on: NOT_TERMINATOR, stay: true, eps: [at + 2] });
+      i += 3; continue;
+    }
+    if (glob.startsWith("**", i)) { states.push({ on: NOT_TERMINATOR, stay: true, eps: [at + 1] }); i += 2; continue; }
+    const ch = glob[i];
+    if (ch === "*") states.push({ on: NOT_SLASH, stay: true, eps: [at + 1] });
+    else if (ch === "?") states.push({ on: NOT_SLASH, stay: false, eps: [] });
+    else states.push({ on: literal(ch), stay: false, eps: [] });
+    i++;
+  }
+  const n = states.length;
+  const close = (set: Uint8Array): void => {
+    for (let k = 0; k < n; k++) if (set[k] === 1) for (const e of states[k].eps) set[e] = 1;
+  };
+  return {
+    test(path: string): boolean {
+      let cur = new Uint8Array(n + 1);
+      cur[0] = 1;
+      close(cur);
+      // By UTF-16 unit, as the pattern without the `u` flag reads the path.
+      for (let j = 0; j < path.length; j++) {
+        const c = path[j];
+        const next = new Uint8Array(n + 1);
+        let any = false;
+        for (let k = 0; k < n; k++) {
+          if (cur[k] !== 1 || !states[k].on(c)) continue;
+          next[states[k].stay ? k : k + 1] = 1;
+          any = true;
+        }
+        if (!any) return false;
+        close(next);
+        cur = next;
+      }
+      return cur[n] === 1;
+    },
+  };
+}
+
 /** Normalise a caller-supplied path to a project-relative POSIX path, or null if the question
  *  cannot be asked about it (absolute, or escaping the project with `..`). Windows separators are
  *  accepted so a caller on either platform gets the same answer. */
 export function normalizeForPath(input: string): string | null {
-  const p = input.trim().replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/+$/, "");
+  // The trailing slashes come off from the end: `/\/+$/` tried every slash of a run and read each try to the
+  // run's end, so one pattern of `runward/territory.md` or `runward/analysis.md` holding a long run of them
+  // took 7.7 s at 100,000 characters (measured on 2026-11-06, RWD-2026-0203). The same characters come off.
+  let p = input.trim().replace(/\\/g, "/").replace(/^\.\//, "");
+  let end = p.length;
+  while (end > 0 && p[end - 1] === "/") end--;
+  p = p.slice(0, end);
   if (!p) return null;
   if (p.startsWith("/") || /^[A-Za-z]:/.test(p)) return null; // absolute: not project-relative
   if (p.split("/").includes("..")) return null;               // escapes the project
@@ -219,7 +292,7 @@ export function matchRulesForPaths(
     // `appliesTo` first, so a glob match stays at matchedBy[0] for existing consumers.
     for (const path of paths) {
       for (const pattern of rule.appliesTo) {
-        if (globToRegExp(pattern).test(path)) matchedBy.push({ kind: "appliesTo", pattern, path });
+        if (globMatcher(pattern).test(path)) matchedBy.push({ kind: "appliesTo", pattern, path });
       }
     }
     for (const path of paths) {

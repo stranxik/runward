@@ -32,6 +32,12 @@ no `&quot;` and at least one `&amp;quot;` reads `&amp;quot;` as `"` (section 9.5
 `raw` echo of a test name carrying a `"` reads back as that name (section 7.3). A witness of 0.46.0 or
 earlier keeps the old readings, described there.
 
+**Unreleased, after 0.46.0 (ADR-0124 decision 1).** Under the mission's structure contract, the
+refusal of an ADR found in the mission's own journal (`runward/adr/`) includes the structure contract's
+bar for a decision record: a date, a status from its closed list, a reevaluation trigger (section 7.6).
+This edition adds no member; it adds one condition to `refusal`. A witness of 0.46.0 or earlier keeps
+the old reading.
+
 ## 1. What a witness is, and what it is not
 
 A **witness** is the set of facts one `check --strict` verdict relied on, written down by the run that
@@ -579,7 +585,15 @@ in the right journal and reports the ambiguity beside its answer, never as a fac
 template (it matches `^ADR-0+(?:-|\.md$)` case-insensitively, or, without its `.md`, matches
 `^ADR-0+$`); it is not a regular file; it cannot be read; its trimmed text is shorter than 40 UTF-16
 code units; its status word is `rejected`, `superseded`, `withdrawn` or `obsolete`; its status word is
-`proposed`, `hypothesis`, `draft` or `pending`. A checker re-derives whether `refusal` is null.
+`proposed`, `hypothesis`, `draft` or `pending`; since ADR-0124 (unreleased, after 0.46.0), when the
+mission opts into the structure contract (`runward/scaffold-lock.json` parses as a JSON object whose
+member `structureContract` is `true`) and `file` sits directly in `runward/adr/`, the first of these that
+holds: the text has no match of `\*\*Date\*\*\s*:\s*\d{4}-\d{2}-\d{2}`; the status line's capture (trimmed,
+case kept) does not match `^(proposed|accepted|superseded|deprecated)\b`; the text has no match of
+`^##[ \t]+Reevaluation` (multiline); the text after the line of that match, up to the first line that
+starts with `## `, trimmed, is shorter than 20 UTF-16 code units or matches `^\[[^\]]*\]$` whole. The
+journals outside the mission (`docs/adr/`, `doc/adr/`, `adr/`) never take this condition. A checker
+re-derives whether `refusal` is null.
 
 ### 7.7 `unratified`
 

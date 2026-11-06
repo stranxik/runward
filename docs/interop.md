@@ -118,6 +118,19 @@ wrongly often enough, or are new enough, to be said here:
   block with every other field (ADR-0113), so a delivered source file changed since the attestation is
   named under `analysis`; the attestation's subject does not bind the files it reads (`--whole-tree`
   binds them as its second subject).
+- **`levels`** (strict, additive, ADR-0119 and ADR-0120, present only when the run requires
+  `re-derived` or `attested` with `--require`): `{ required, source, met, sentence, signatureVerified,
+  counts, rows, territory, below, execution }`. `rows` holds each applied row under its level
+  (`re-derived`, `attested`, `declared`), each `{ deliverable, rule, level, pieces, requires? }`, a piece
+  being `{ pointer, kind: "static" | "execution", level, setsLevel, nature?, report?, statement?, why? }`;
+  `counts` counts those lists. `below` lists every applied row below the required level with what holds
+  it there. `territory` says whether the declared territory is analysed. `execution.statements` lists the
+  `runward-run` Statements read beside the cited reports (`{ path, form, signatures, binds, bound,
+  problems, mutation }`): `signatures` is a count, and `signatureVerified` is `false` in every payload;
+  the identity is verified outside runward (`runward-fleet verify-run`, `docs/spec/runward-run.md` §6).
+  `execution.expected` is the source set this tree implies, the one `runward-run` records
+  (`{ rule, files, manifests, manifestsDigest }`). `require` keeps its shape; `verify` re-derives the block
+  with every other field.
 - **`delegation.assurance`** (with a charter, additive, ADR-0095 for the shape, ADR-0090 for the
   computation): `{ declared, inForce, degraded, notInForce, sentence }`. `declared` is the charter's
   `mode:` as written, null when absent; `inForce` is that mode, `sampled` when the field is absent,

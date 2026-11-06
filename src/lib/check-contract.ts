@@ -22,6 +22,7 @@ import { GATED_DELIVERABLES, UNBOUND_CAUSE_TEXT } from "./conformance.js";
 import { requiredLevel, verdictOutcome, type Verdict } from "./verdict.js";
 import { PHASES, type GapReport } from "./mission.js";
 import { analysisPayload } from "./analyze.js";
+import { levelsPayload } from "./evidence-levels.js";
 
 /** Everything `check` accepts, exactly as commander hands it over. */
 export interface CheckOptions {
@@ -69,12 +70,12 @@ export interface OptionFault {
  * Misuse exits 2, like any bad flag combination — never 1, which would read as a failed gate.
  */
 export function optionFault(opts: CheckOptions): OptionFault | null {
-  // ADR-0053: a declared horizon certifies only a prefix; a seal certifies a full crossing. The two
+  // ADR-0053: a declared horizon judges only a prefix; a seal is taken on a complete crossing. The two
   // are mutually exclusive by construction — sealing a partial arc would read like completion, the
   // precise false green this mode refuses.
   if (opts.through && opts.freeze) {
     return {
-      message: "`--through` cannot be combined with `--freeze`: a seal certifies a full crossing, a declared horizon only a prefix. Seal the whole arc (drop --through), or drop --freeze.",
+      message: "`--through` cannot be combined with `--freeze`: a seal is taken on a complete crossing, and a declared horizon judges only a prefix. Seal the whole arc (drop --through), or drop --freeze.",
     };
   }
   // ADR-0089: a witness is the facts a STRICT verdict relied on. Without --strict there are no
@@ -138,7 +139,7 @@ export function optionFault(opts: CheckOptions): OptionFault | null {
   return null;
 }
 
-/** `--freeze` implies `--strict`: a seal certifies a strict crossing, never a lenient one. */
+/** `--freeze` implies `--strict`: a seal is taken on a strict crossing, never on a lenient one. */
 export function impliesStrict(opts: CheckOptions): boolean {
   return !!opts.strict || !!opts.freeze;
 }
@@ -199,12 +200,29 @@ export interface NextSegment { text: string; tone?: "command" | "muted" }
 export interface NextStep { action: string; command: string; rerun: string | null; segments: NextSegment[] }
 
 export function nextStep(
-  v: { gaps: number; strictGaps: number; hookFailed: number; breakdown: Verdict["strictBreakdown"]; levelNotMet?: boolean },
+  v: { gaps: number; strictGaps: number; hookFailed: number; breakdown: Verdict["strictBreakdown"]; levelNotMet?: boolean; level?: string | null },
   opts: CheckOptions,
 ): NextStep {
   const cmd = (text: string): NextSegment => ({ text, tone: "command" });
   const muted = (text: string): NextSegment => ({ text, tone: "muted" });
   const plain = (text: string): NextSegment => ({ text });
+  // ADR-0119: no gap, and some applied row is below `re-derived` or `attested`. The rows and what holds
+  // each are listed under `levels.below`; the way up is named, and the lower level too, by name.
+  if (v.levelNotMet && v.gaps === 0 && v.strictGaps === 0 && v.hookFailed === 0 && (v.level === "re-derived" || v.level === "attested")) {
+    const rerun = rerunCommand(opts);
+    const lower = rerunCommand({ ...opts, require: v.level === "attested" ? "re-derived" : "mechanical" });
+    return v.level === "attested"
+      ? {
+          action: "attest-the-execution", command: rerun, rerun,
+          segments: [plain("Bind the execution evidence each listed row cites: run its tests and tools with runward-run in a CI job the agent cannot change, commit the reports, the run Statement and the signature bundle the signing job writes beside them (runward ADR-0120), then re-run "), cmd(rerun),
+            plain(" "), muted("(the rows below the level are under `levels.below` in --json)"), plain("; or require the level below, by name: "), cmd(lower), plain(".")],
+        }
+      : {
+          action: "re-derive-the-rows", command: rerun, rerun,
+          segments: [plain("Give each listed row a pointer the gate can open, and analyse the declared territory under a pinned policy (`\"analysis\"` in runward/scaffold-lock.json, runward ADR-0118), then re-run "), cmd(rerun),
+            plain(" "), muted("(the rows below the level are under `levels.below` in --json)"), plain("; or require the level below, by name: "), cmd(lower), plain(".")],
+        };
+  }
   // ADR-0114: no gap, and nothing the gate verified reaches the required level. Two ways out, both
   // named: give one row something the gate can open, or ask for the traced green by name.
   if (v.levelNotMet && v.gaps === 0 && v.strictGaps === 0 && v.hookFailed === 0) {
@@ -304,8 +322,11 @@ export function nextPayload(n: NextStep): { action: string; command: string; rer
  * the JSON carried `currentGate: "all gates passed"` beside `verdict: "gaps"` (RWD-2026-0131). The
  * label now says what it measured whenever the verdict disagrees; the green keeps its bytes.
  */
-export function currentGateLabel(report: { currentPhase: string; steadyState: boolean }, clean: boolean, redAt: readonly string[] = [], levelNotMet = false): string {
+export function currentGateLabel(report: { currentPhase: string; steadyState: boolean }, clean: boolean, redAt: readonly string[] = [], levelNotMet = false, level: string | null = null): string {
   // ADR-0114: "all gates passed" above an exit 5 is the vacuous green this label must not print.
+  // ADR-0119: above `mechanical`, an exit 5 says the rows are below the level the run required, not
+  // that nothing was verified.
+  if (report.steadyState && clean && levelNotMet && (level === "re-derived" || level === "attested")) return `deliverables filled, below the level of proof the run required (${level})`;
   if (report.steadyState && clean && levelNotMet) return "deliverables filled, nothing verified mechanically";
   // "all deliverables filled (verdict: gaps)" was true and read as a contradiction: measured
   // 2026-10-13, a newcomer met "filled" one line above a red exit and had to scroll up to learn
@@ -693,6 +714,12 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       // payload keeps its bytes. Last in the strict block. `findings` are counted (`gaps.analysis`, and
       // one `conformance` row each); `hypotheses` and `notAnalyzed` never are.
       ...(verdict.analysis ? { analysis: analysisPayload(verdict.analysis) } : {}),
+      // ADR-0119 decision 6 and ADR-0120 decision 6, additive and present only when the run requires
+      // `re-derived` or `attested`, so every other payload keeps its bytes. Last in the strict block.
+      // Each applied row at its level, each count with its list; the run Statements read beside the
+      // cited reports, with their signatures COUNTED (`signatureVerified: false`, always); the expected
+      // source set this tree implies, which `runward-run` records and this command re-derives.
+      ...(verdict.levels ? { levels: levelsPayload(verdict.levels) } : {}),
     } : {}),
     // RWD-2026-0150, additive and present only under --coverage, so every other run keeps its bytes.
     ...(ctx.coverage ? { coverage: ctx.coverage } : {}),

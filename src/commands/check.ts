@@ -20,6 +20,7 @@ import { VERSION } from "../lib/paths.js";
 import { emitJson, errorPayload } from "../lib/machine-output.js";
 import { buildWitness, renderWitness, witnessPathFault, WITNESS_SCHEMA } from "../lib/witness.js";
 import { analysisLines } from "../lib/analysis-render.js";
+import { levelNotMetSummary, levelsLines } from "../lib/levels-render.js";
 
 /**
  * Gate audit — the gap analysis: which deliverable, expected at which
@@ -190,7 +191,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   }
 
   // ADR-0053: the declared-horizon banner, printed loud so a green prefix is never read as a
-  // completion. The verdict certifies phases up to `--through`; everything past it is deferred,
+  // completion. The verdict judges the phases up to `--through`; everything past it is deferred,
   // named here and in the JSON, never conflated with "crossed".
   if (verdict.horizon) {
     const deferredPhases = [...new Set(verdict.horizon.deferred.map((r) => r.phase))];
@@ -291,8 +292,8 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // posture of THIS run: refused at `mechanical` (exit 5), or accepted because the run asked for
       // `traced` by name or is a prefix verdict.
       if (ev.typed === 0 && ev.rows > 0) {
-        const posture = verdict.require?.level === "mechanical"
-          ? ` — no applied row carries a pointer the gate opened and checked: every row was answered by judgment or set aside. This run requires \`mechanical\`${opts.require === undefined ? ", the default of a full strict verdict" : ""}, so it exits 5 (runward ADR-0114).`
+        const posture = verdict.require !== null && verdict.require.level !== "traced"
+          ? ` — no applied row carries a pointer the gate opened and checked: every row was answered by judgment or set aside. This run requires \`${verdict.require.level}\`${opts.require === undefined ? ", the default of a full strict verdict" : ""}, so it exits 5 (runward ADR-0114).`
           : verdict.through !== null && opts.require === undefined
             ? " — every row was answered by judgment or set aside. A prefix verdict requires `traced` (ADR-0053); the full `runward check --strict` requires `mechanical` and exits 5 on it (runward ADR-0114)."
             : " — every row was answered by judgment or set aside, and this run asked for that by name (`--require traced`): it is not a machine-checked gate (runward ADR-0114).";
@@ -500,6 +501,12 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       log(section("Delivered code (--strict, built-in analyzers)"));
       for (const line of analysisLines(verdict.analysis)) log(line);
     }
+    // ADR-0119 and ADR-0120 decision 6: each applied row at its level of proof, and the run Statements
+    // read beside the cited reports, only when the run requires `re-derived` or `attested`.
+    if (verdict.levels) {
+      log(section("Level of proof (--strict, runward ADR-0119)"));
+      for (const line of levelsLines(verdict.levels)) log(line);
+    }
     if (checked > 0 && strictGaps === 0) {
       // The two proofs, made legible together: this gate is the DOCUMENTARY proof (decisions traced);
       // the BEHAVIORAL proof is the operator's test suite. runward reads the pointer, never runs the code.
@@ -646,10 +653,15 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
 
   log(section("Summary"));
   // What this line measures is the deliverables; under a red verdict it says so (RWD-2026-0131).
-  const gateLabel = currentGateLabel(report, clean, redPhases(verdict), levelNotMet);
+  const gateLabel = currentGateLabel(report, clean, redPhases(verdict), levelNotMet, verdict.require?.level ?? null);
   log(`  ${c.primaryBold("Current gate")}  ${c.white(gateLabel)}`);
   log(`  ${c.primaryBold("ADRs")}          ${c.white(String(report.adrCount))}${report.adrCount === 0 ? c.warning("  — no structural decision locked yet") : ""}${report.adrSetAside.length > 0 ? c.darkGray(`  (${report.adrSetAside.length} set aside, not counted)`) : ""}`);
-  if (levelNotMet) {
+  if (levelNotMet && verdict.levels && verdict.breakdown.typed > 0) {
+    // ADR-0119: above `mechanical`, the rows below the level are named in their section, with what
+    // holds each there; the summary says which level was required and that no gap stands.
+    log("\n" + status.warning(levelNotMetSummary(verdict.levels, LEVEL_NOT_MET_EXIT)));
+    process.exitCode = LEVEL_NOT_MET_EXIT;
+  } else if (levelNotMet) {
     // ADR-0114: neither a gap (1) nor a verified pass (0). The line says which level was required,
     // what the gate verified, and the two ways out.
     log("\n" + status.warning(`No gap, and nothing was verified mechanically: no applied row carries a pointer the gate opened and checked, and this run requires \`${verdict.require?.level}\` (exit ${LEVEL_NOT_MET_EXIT}, runward ADR-0114). Point a row at the code, test or report that applies its rule, or accept a green that rests on judgment alone with \`--require traced\`.`));
@@ -687,7 +699,10 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   if (opts.freeze) {
     log(section("Evidence seal — freeze (ADR-0021)"));
     if (gaps || strictGaps || hookFailed) {
-      log("  " + status.error("refusing to seal a red gate — a seal certifies a crossing, not a hope. Close the gaps above, then re-run `runward check --freeze`."));
+      log("  " + status.error("refusing to seal a red gate — a seal is taken on a complete crossing, not on a hope. Close the gaps above, then re-run `runward check --freeze`."));
+    } else if (levelNotMet && verdict.levels && verdict.breakdown.typed > 0) {
+      // ADR-0119 decision 3: `--freeze` refuses to seal a run below the level it requires.
+      log("  " + status.error(`refusing to seal: the level of proof this run requires (\`${verdict.levels.required}\`) is not met (exit ${LEVEL_NOT_MET_EXIT}, runward ADR-0119). Nothing was written.`));
     } else if (levelNotMet) {
       // ADR-0114: a run that exits 5 is not a crossing either. Nothing is written; the exit stays 5.
       log("  " + status.error(`refusing to seal: nothing was verified mechanically and this run requires \`${verdict.require?.level}\` (exit ${LEVEL_NOT_MET_EXIT}, runward ADR-0114). Nothing was written.`));
@@ -696,7 +711,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // froze a report that is not a crossing, and the next CI run, regenerating it without the
       // flaky failure, broke the seal for a defect unrelated to the change (RWD-2026-0182).
       // Nothing is written; exit 1, as for every other refused seal.
-      log("  " + status.error(`refusing to seal: ${junitNotGreen.length} JUnit report(s) cited by a \`test:\` pointer record failures or errors — a seal certifies a crossing; a report that says tests failed is not one (ADR-0102). Nothing was written.`));
+      log("  " + status.error(`refusing to seal: ${junitNotGreen.length} JUnit report(s) cited by a \`test:\` pointer record failures or errors — a seal is taken on a complete crossing; a report that says tests failed is not one (ADR-0102). Nothing was written.`));
       for (const j of junitNotGreen) {
         log(`  ${c.error("✗")} ${c.white(j.report)} — ${j.failures} failure(s) or error(s) at its root${j.citedCasesGreen ? ", even though the cited cases are green" : ""}`);
       }
@@ -710,7 +725,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       const projected = Object.keys(seal.hashKinds).length;
       // Sealing nothing produced `✓ sealed 0 evidence file(s)` and then `✓ seal intact — 0 file(s)`
       // on every later run: rendered identically to a real seal, one number apart. A seal over an
-      // empty set certifies nothing and reads like certification, which is the worst pair.
+      // empty set freezes nothing and reads like a seal, which is the worst pair.
       if (count === 0) {
         log("  " + status.error("refusing to seal zero files — nothing in this mission resolves to evidence, so there is nothing to freeze. A seal over an empty set reads like proof and is not."));
         process.exitCode = 1;
@@ -746,7 +761,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
 
   // Transmission surface: name the next gesture, so the operating agent can hand the human a decision.
   // ONE implementation (nextStep) for this line and the payload's `next` (RWD-2026-0145).
-  const next = nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown, levelNotMet }, opts);
+  const next = nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown, levelNotMet, level: verdict.require?.level ?? null }, opts);
   // WHY RED, AT THE END. Measured 2026-10-13 on the renaming demo: the two ✗ lines that made the
   // gate red sat at lines 40 and 41 of 78, above the disclosures, the seal note and the summary; the
   // reader at the bottom of the screen saw a count and had to scroll back for the reason. The lines
@@ -823,7 +838,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       for (const r of renderingOut) {
         const text = r.flag === "--codequality"
           ? renderCodeQuality(buildCodeQuality(findings))
-          : buildJUnit(findings, { version: VERSION, payloadDigest: payloadDigest({ ...payload, mission: declaredMissionName(mission) }), strict: !!opts.strict, exitCode, through: verdict.through ?? null });
+          : buildJUnit(findings, { version: VERSION, payloadDigest: payloadDigest({ ...payload, mission: declaredMissionName(mission) }), strict: !!opts.strict, exitCode, through: verdict.through ?? null, requiredLevel: verdict.require?.level ?? null });
         writeRendering(r.flag, r.shown, r.abs, text, !!(opts.json && !opts.sarif && !opts.vsa && !opts.attest));
       }
     }
@@ -863,7 +878,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // never reads them.
       const predicate = {
         ...payload, mission: declaredMissionName(mission),
-        next: nextPayload(nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown, levelNotMet }, attestedQuestion(opts))),
+        next: nextPayload(nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown, levelNotMet, level: verdict.require?.level ?? null }, attestedQuestion(opts))),
       };
       const statement = buildVerdictStatement(root, mission, predicate, { deliveredTree: opts.wholeTree ? deliveredTreeOf(root) : undefined });
       process.stdout.write(JSON.stringify(statement, null, 2) + "\n");

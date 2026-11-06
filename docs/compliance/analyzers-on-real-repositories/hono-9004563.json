@@ -1,0 +1,1213 @@
+{
+  "schema": "reviewer-classification-delta/1",
+  "repository": "hono",
+  "reviewer": "independent reviewer session for hono (wrote neither the analyzers, their correction, nor the harness); compared messages with the code, never with the analyzers' implementation",
+  "date": "2026-11-06",
+  "entries": [
+    {
+      "id": "hono-5ecd867d44",
+      "profile": "declared",
+      "family": "boundary",
+      "verdict": "TRUE",
+      "reason": "src/utils/color.ts:48 `await import(cfWorkers)` with `const cfWorkers = 'cloudflare:workers'` at :40 (the name occurs nowhere else) loads cloudflare:workers from a file of the declared core (`src/utils/**`, territory.md:9); no runward/analysis.md exists, so nothing allows it: true against the harness's declaration; `cloudflare:workers` is a module of the Workers runtime, absent from package.json, so 'package' is approximate wording (a runtime built-in, like `node:`), the boundary crossing is real",
+      "pattern": "boundary/core-import-package: literal (const-bound) dynamic import of a runtime module in the declared core (harness declaration)"
+    }
+  ],
+  "delta": {
+    "comparedWith": "hono-03c5e64.json (measurement 0.46.0-03c5e64, 123 hono findings)",
+    "measurement": "the measurement 0.46.0-9004563 (build of fix/analyzers-false-reds at 9004563f8c777d2285b74f41e751dcbb6132ec75); same trees: run-0.46.0-9004563 hono at eb754bd5, identical to run-0.46.0-03c5e64 outside runward/ and the init files, same declared overlay",
+    "summary": {
+      "oldIds": 123,
+      "newIds": 14,
+      "kept": 13,
+      "keptAllTrue": true,
+      "messagesChangedAmongKept": [],
+      "goneTrue": [],
+      "goneTrueAssessment": "none of the 13 TRUE ids is missing, so no disappearance is a false green",
+      "goneFalse": 110,
+      "falseStillPresent": [],
+      "falseStillPresentAssessment": "none of the 110 FALSE ids is still reported",
+      "newClassified": [
+        "hono-5ecd867d44"
+      ]
+    },
+    "kept": [
+      {
+        "id": "hono-b6bde056b6",
+        "profile": "default",
+        "family": "capability",
+        "verdictBefore": "TRUE",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-df3e9c2f50",
+        "profile": "default",
+        "family": "capability",
+        "verdictBefore": "TRUE",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-b3eb34d95d",
+        "profile": "default",
+        "family": "capability",
+        "verdictBefore": "TRUE",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-8ed24847f4",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "TRUE",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-edea697994",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "TRUE",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-8abd2f999e",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "TRUE",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-1d45c6c225",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "TRUE",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-ed14a2f76e",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "TRUE",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-e8525087ae",
+        "profile": "declared",
+        "family": "boundary",
+        "verdictBefore": "TRUE",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-deaa6ea14b",
+        "profile": "declared",
+        "family": "boundary",
+        "verdictBefore": "TRUE",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-71345e27fa",
+        "profile": "declared",
+        "family": "boundary",
+        "verdictBefore": "TRUE",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-345d54752c",
+        "profile": "declared",
+        "family": "boundary",
+        "verdictBefore": "TRUE",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-5b92eeff10",
+        "profile": "declared",
+        "family": "capability",
+        "verdictBefore": "TRUE",
+        "messageUnchanged": true
+      }
+    ],
+    "goneFalse": [
+      {
+        "id": "hono-36e0b71b14",
+        "profile": "default",
+        "family": "capability",
+        "verdictBefore": "FALSE",
+        "where": "src/utils/color.ts:48",
+        "pattern": "capability/computed-import: specifier is a const bound to a string literal",
+        "assessment": "correct: the import is now read as the literal cloudflare:workers it is",
+        "replacedBy": "hono-5ecd867d44 (declared only: boundary/core-import-package at the same line); no finding in default, where no core is declared and a literal import is no capability finding"
+      },
+      {
+        "id": "hono-a9cf991ec9",
+        "profile": "default",
+        "family": "secret",
+        "verdictBefore": "FALSE",
+        "where": "src/utils/jwt/jwt.test.ts:1561",
+        "pattern": "secret/private-key-block: PEM armour around a key generated at run time (no key material)",
+        "assessment": "correct: no key material; the whole tree holds no other PEM private key marker (grep of every file outside .git), so the silence is nothing to find, not blindness"
+      },
+      {
+        "id": "hono-93c2d056c0",
+        "profile": "default",
+        "family": "secret",
+        "verdictBefore": "FALSE",
+        "where": "src/utils/jwt/jwt.test.ts:1794",
+        "pattern": "secret/private-key-block: PEM armour around a key generated at run time (no key material)",
+        "assessment": "correct: no key material; the whole tree holds no other PEM private key marker (grep of every file outside .git), so the silence is nothing to find, not blindness"
+      },
+      {
+        "id": "hono-5e52c0502a",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:654",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-0eb28c602c",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:666",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-d05a7b3234",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:678",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-e3e4c8afaf",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:690",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-bfeb2a10a2",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:706",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-cd77d4611e",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:715",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-443cdd8aa9",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:864",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-f64d4f56d9",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:882",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-d254e1cdfd",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:888",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-4644a2d56a",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:1107",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-c47c4e3152",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:1122",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-d7a7df5ce8",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:1174",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-cf38411dfb",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:1184",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-01e5d2bdb2",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:1194",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-0485aebf8f",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:1204",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-2a07a9e530",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:1767",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-1baf48b078",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:1784",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-9a721ca492",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:1819",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-db05d32b94",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:2110",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-15c927eb47",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:2170",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-5752b441c8",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:2193",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-eb09f619d8",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:2215",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-5286610fae",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:2238",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-22e8261a85",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:2265",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-54ffb02eb7",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/client.test.ts:2285",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-bc62ecfce0",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/utils.test.ts:373",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-0372143f5a",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/utils.test.ts:379",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-86b7ecd113",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/client/utils.test.ts:387",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-7a4cde55ed",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/helper/factory/index.test.ts:67",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-d27ac12f15",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/helper/factory/index.test.ts:386",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-e02dee5a8e",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/helper/factory/index.test.ts:399",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-34c77203b0",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/hono.test.ts:3801",
+        "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-ef4f6bd04b",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/middleware/compress/index.test.ts:121",
+        "pattern": "test-integrity: assertion inside a helper bound as `const name = async (...) => {...}` in the enclosing describe",
+        "assessment": "correct: the case asserts through testCompression (src/middleware/compress/index.test.ts:95, expect at :105)"
+      },
+      {
+        "id": "hono-2ae8c44928",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/middleware/compress/index.test.ts:130",
+        "pattern": "test-integrity: assertion inside a helper bound as `const name = async (...) => {...}` in the enclosing describe",
+        "assessment": "correct: the case asserts through testCompression (src/middleware/compress/index.test.ts:95, expect at :105)"
+      },
+      {
+        "id": "hono-f56ca7b3f3",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/middleware/compress/index.test.ts:394",
+        "pattern": "test-integrity: assertion inside a helper bound as `const name = async (...) => {...}` in the enclosing describe",
+        "assessment": "correct: the case asserts through testCompression (src/middleware/compress/index.test.ts:95, expect at :105)"
+      },
+      {
+        "id": "hono-b34fccbb43",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/middleware/jsx-renderer/index.test.tsx:69",
+        "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-7a25563078",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:155",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-28c04224b2",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:206",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-488f75f92f",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:246",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-0705930617",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:323",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-4c33b0d4af",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:360",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-14c8d0a30c",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:405",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-3360b6a1fb",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:417",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-706d96fc9b",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:429",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-e3d9df305e",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:454",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-b118a8b18a",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:464",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-b6df360fae",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:474",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-6e7172c568",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:486",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-23f0afb536",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:539",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-37b75655d0",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:619",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-6ae8c109c7",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:641",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-6dfe04d415",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:668",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-d78d2fe819",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:675",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-d3e6ab5578",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:680",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-886e4fb95c",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:719",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-3885749ae1",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:728",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-d5ea1778be",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:733",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-78aaf334e9",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:740",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-7e017f067c",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:767",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-abc5aef8be",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:796",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-a1fbcd60ae",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:817",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-e27aee93a0",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:873",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-e9976a30a1",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:916",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-b16b7fa59c",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:922",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-9ac471ff7a",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:928",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-a2086b6a47",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:934",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-35bbf37a0d",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:953",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-b951709992",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:974",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-7261b9813d",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:995",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-38c91e1b7b",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:1049",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-2db3a4927e",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:1099",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-8d5a38cc94",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:1159",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-369c1d698c",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:1209",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-ac170b5229",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:1270",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-2f37b33037",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:1292",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-e465d9e646",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:2482",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-f6a042ec6f",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:2536",
+        "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-d686c73eb6",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:2550",
+        "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-f1429a6ef3",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:2557",
+        "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-47ac8f77ab",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:2564",
+        "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-5d8591b224",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3291",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-5f889b87b1",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3297",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-78d2a8e929",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3303",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-691f49f6dd",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3309",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-0e8534f146",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3315",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-3803a8c015",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3321",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-3c8a54fad4",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3335",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-9256f466c4",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3350",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-675f574dea",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3366",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-001a3d11cd",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3383",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-33b56358e4",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3405",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-5b275b0930",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3444",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-eeebb0ba68",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3780",
+        "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-85b31305f6",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3793",
+        "pattern": "test-integrity: `// @ts-expect-error` directive (negative type assertion checked by tsc)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-56e9e05917",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3804",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-cfb6e5aa2c",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3832",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-0629d70511",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3870",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-ae22262c5b",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3908",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-d03af10330",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3952",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-f36e762952",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:3976",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-bee47a744d",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:4007",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-876cb539eb",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:4036",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-9ad018d31b",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:4057",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-f668773303",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/types.test.ts:4109",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-9f4beb6e66",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/validator/validator.test.ts:1003",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-2cf3c67344",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "FALSE",
+        "where": "src/validator/validator.test.ts:1046",
+        "pattern": "test-integrity: type-level assertion `type X = Expect<Equal<Expected, Actual>>` (compile time, like expectTypeOf)",
+        "assessment": "correct: the case asserts at compile time and hono's test script type-checks this file (see typecheckCoverage)"
+      },
+      {
+        "id": "hono-ffbb759bb2",
+        "profile": "declared",
+        "family": "symbol",
+        "verdictBefore": "FALSE",
+        "where": "src/router/reg-exp-router/matcher.ts:9",
+        "pattern": "symbol/placeholder-constant: the empty literal is the behaviour (shared sentinel read by the router)",
+        "assessment": "correct: emptyParam is a sentinel read as a value (matcher.ts:24, router.ts:133), not a placeholder",
+        "replacedBy": "hypothesis hono-c162647772 (symbol-sentinel-constant, never counted)"
+      }
+    ],
+    "hypotheses": {
+      "added": [
+        "hono-c162647772"
+      ],
+      "symbol-sentinel-constant": [
+        {
+          "id": "hono-c162647772",
+          "where": "src/router/reg-exp-router/matcher.ts:9",
+          "replaces": "hono-ffbb759bb2 (finding classified FALSE)",
+          "hidesACaseThatAssertsNothing": false,
+          "hidesAPlaceholder": false,
+          "reason": "not a test case; emptyParam (src/router/reg-exp-router/matcher.ts:9) is read as the no-params value at matcher.ts:24 `return [[], emptyParam]` and stored at router.ts:133, so the hypothesis holds a real sentinel and hides nothing; its message is accurate"
+        }
+      ],
+      "case-asserts-completion": {
+        "hono": 0,
+        "note": "none on hono (the 13 are express and fastify, the other reviewer's scope). hono-8ed24847f4 (`await compose([])(…)`, src/compose.test.ts:506) has the completion shape but stays a red finding: right by the message and by the amendment's own rule (a bare call awaited still reads red)"
+      },
+      "unchanged": "9 file-no-visible-case hypotheses, same ids as before (not classified: hypotheses never count)"
+    },
+    "typecheckCoverage": {
+      "question": "Does the type check a package.json script runs cover the test files holding the 95 Expect<Equal<…>> and 8 @ts-expect-error cases?",
+      "answer": "yes: all 103 cases are in files the `test` script type-checks, and tsc reports both assertion forms there; the earlier FALSE verdicts stand",
+      "configLines": [
+        "package.json:14 \"test\": \"tsc -p tsconfig.spec.json && vp test --run\" (tsc first, vitest only if it exits 0)",
+        "package.json:702 \"typescript\": \"^6.0.3\" (pnpm-lock.yaml resolves 6.0.3); package.json:691 @typescript/native-preview is tsgo and is not the one the script calls",
+        "tsconfig.spec.json:10 \"include\": [\"src\", \"src/middleware/jwk/keys.test.json\"]; no \"exclude\" (defaults only: node_modules, bower_components, jspm_packages, outDir ${configDir}/dist from tsconfig.base.json:7)",
+        "tsconfig.spec.json:4 \"jsx\": \"react-jsx\" (the .tsx case is compiled), :6 \"noEmit\": true, :8 \"types\": [\"vitest/globals\"]; tsconfig.base.json:10 \"strict\": true, :11 \"skipLibCheck\": true (skips .d.ts only)",
+        "no `// @ts-nocheck` anywhere under src/",
+        "vitest.config.ts: no `typecheck` key, so Vitest itself checks no types; the check is tsc in the script",
+        "contrast: tsconfig.build.json:15-18 excludes \"src/**/*.test.ts\" and \"src/**/*.test.tsx\" (used by the build, vite.config.ts:10); only the spec config covers the tests",
+        ".github/workflows/ci.yml:61 `- run: pnpm run test` in job `main` (ci.yml:40)"
+      ],
+      "fileList": "TypeScript 5.9.3 (runward build) parsing tsconfig.spec.json: 315 files, 124 test files, no config error; IN: src/client/client.test.ts (25), src/client/utils.test.ts (3), src/helper/factory/index.test.ts (3), src/hono.test.ts (1), src/middleware/jsx-renderer/index.test.tsx (1), src/types.test.ts (68), src/validator/validator.test.ts (2) = 103 of 103",
+      "positiveControl": "in memory, spec options with a stub for the vitest globals: src/types.test.ts unmodified gives no diagnostic in 668-672 and 2536-2548; with `type Expected` narrowed to 'postId' (line 670) tsc reports TS2344 at :671, and with 204 changed to 200 (line 2538) TS2578 \"Unused '@ts-expect-error' directive\" at :2537; synthetic control: TS2344 and TS2578 as expected",
+      "ciEvidence": "GitHub Actions, honojs/hono job Main at eb754bd5 (run 42044176204, job 127302535626): success; its log runs `$ tsc -p tsconfig.spec.json && vp test --run`, then 145 test files passed, so tsc exited 0 over these files",
+      "limits": "the file list and the in-memory control use TypeScript 5.9.3 without hono's dependencies installed; hono pins 6.0.3, whose include expansion and TS2344/TS2578 are the same for this config; the CI log is the 6.0.3 run",
+      "generalCaveat": "outside hono, the assumption is not verified by the reading (the amendment says so: \"a type-checker declared by the project is taken as running on the tests\"). Black-box probe of build 9004563 on fixtures modelled on hono: with `\"test\": \"tsc -p tsconfig.spec.json && vp test --run\"` the three type cases are credited (right); with only `\"build\": \"tsc -p tsconfig.build.json\"` whose config excludes src/**/*.test.ts, or with `\"test\": \"tsc -p tsconfig.build.json && vp test --run\"`, they are credited too although nothing type-checks the test file (false green); with no type-checker they read red (right). hono itself ships such a build config (tsconfig.build.json:15-18): had its test script pointed at it, the 103 cases would read green unchecked"
+    },
+    "outsideComparison": [
+      "probe residual false red: a type case whose Expect/Equal are exported by the same module as the type under test (`import type { Equal, Expect, ParamKeys } from './params'`) still reads case-asserts-nothing under a covering tsc; with the helpers in their own module it is credited; no hono case has this shape (src/utils/types.test.ts uses expectTypeOf)",
+      "pre-existing miss in both runs, declared profile: src/utils/color.ts:23 `'NO_COLOR' in process?.env` (process destructured from globalThis at :16) reads the process environment in the declared core and is not reported, while express's lib/application.js:91 `process.env.NODE_ENV` is (capability/environment); not caused by the correction"
+    ]
+  },
+  "counts": {
+    "newMeasurement": {
+      "default": {
+        "capability": {
+          "TRUE": 3,
+          "FALSE": 0
+        },
+        "test-integrity": {
+          "TRUE": 5,
+          "FALSE": 0
+        },
+        "total": {
+          "TRUE": 8,
+          "FALSE": 0,
+          "UNDECIDABLE": 0
+        }
+      },
+      "declared": {
+        "boundary": {
+          "TRUE": 5,
+          "FALSE": 0
+        },
+        "capability": {
+          "TRUE": 4,
+          "FALSE": 0
+        },
+        "test-integrity": {
+          "TRUE": 5,
+          "FALSE": 0
+        },
+        "total": {
+          "TRUE": 14,
+          "FALSE": 0,
+          "UNDECIDABLE": 0
+        }
+      }
+    },
+    "earlierMeasurement": {
+      "default": {
+        "TRUE": 8,
+        "FALSE": 109
+      },
+      "declared": {
+        "TRUE": 13,
+        "FALSE": 110
+      }
+    }
+  }
+}

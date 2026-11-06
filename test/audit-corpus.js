@@ -284,7 +284,10 @@ honest("AC-016", ["ADR-0045"], "an accepted ADR whose line merely names another 
   "the status was searched anywhere in the line, so `accepted, replacing the proposed ADR-0012` read as unratified. The status is the first word.",
   (dir) => {
     writeFileSync(join(dir, "runward", "adr", "ADR-0061-x.md"),
-      "# ADR-0061: a real decision\n\n**Status**: accepted (superseded by ADR-0099)\n\n## Context\n\nSomething was decided and this records it.\n");
+      // A record by the structure contract's bar, which the example opts into (ADR-0124 decision 1): with
+      // no date and no trigger it has the shape of the stub the saboteur corpus writes, and the bar
+      // cannot tell the two apart without reading what they say. What this case tests is the status word.
+      "# ADR-0061: a real decision\n\n**Date**: 2026-05-12\n**Status**: accepted (superseded by ADR-0099)\n\n## Context\n\nSomething was decided and this records it.\n\n## Reevaluation trigger (mandatory, dated)\n\nReopen when ADR-0099 is itself reopened, set on 2026-05-12.\n");
     rewriteRows(dir, (slug) => (slug === "hexa-architecture" ? { status: "deviated", evidence: "ADR-0061" } : null));
   });
 

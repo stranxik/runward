@@ -89,10 +89,19 @@ test("the ledger says when the cited case is itself red, and reads only test: po
 const UNCITED = '<testcase name="input boundary: a malformed payload is rejected, unknown keys included" classname="test"/>';
 const withChild = (child) => `<testcase name="input boundary: a malformed payload is rejected, unknown keys included" classname="test">${child}</testcase>`;
 
+// Since ADR-0124 decision 3 the shipped example cites every case of its suite, where its floor row says
+// every case runs the keyword adapter. These tests are about a case no pointer cites, so their fixture
+// takes that one citation out of the floor row, and the case they edit is uncited again.
+const CITATION = '; test:code/reports/junit.xml::"input boundary: a malformed payload is rejected, unknown keys included"';
+
 function example() {
   const dir = mkdtempSync(join(tmpdir(), "rw-junit-seal-ex-"));
   execFileSync("git", ["init", "-q", "."], { cwd: dir });
   execFileSync("node", [CLI, "--yes", "init", "--example"], { cwd: dir, env });
+  const floor = join(dir, "runward", "floor.md");
+  const rows = readFileSync(floor, "utf8");
+  assert.ok(rows.includes(CITATION), "the shipped example cites the case; the fixture uncites it");
+  writeFileSync(floor, rows.replace(CITATION, ""));
   const report = join(dir, "code", "reports", "junit.xml");
   const original = readFileSync(report, "utf8");
   assert.ok(original.includes(UNCITED), "the example's report carries the uncited case this test edits");
@@ -125,7 +134,7 @@ test("end to end: an uncited failure is advised on every check, verdict and exit
     // D: the seal is refused, the report and the count are named, nothing is written.
     const refused = check(ex.dir, "--freeze");
     assert.equal(refused.status, 1, "a refused seal exits 1, as for a red gate");
-    assert.match(refused.stdout, /refusing to seal: 1 JUnit report\(s\) cited by a `test:` pointer record failures or errors — a seal certifies a crossing; a report that says tests failed is not one \(ADR-0102\)\. Nothing was written\./);
+    assert.match(refused.stdout, /refusing to seal: 1 JUnit report\(s\) cited by a `test:` pointer record failures or errors — a seal is taken on a complete crossing; a report that says tests failed is not one \(ADR-0102\)\. Nothing was written\./);
     assert.match(refused.stdout, /✗ code\/reports\/junit\.xml — 1 failure\(s\) or error\(s\) at its root, even though the cited cases are green/);
     assert.equal(existsSync(ex.lock), false, "no lock was written");
 

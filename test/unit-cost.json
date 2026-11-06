@@ -6,11 +6,13 @@
     "is killed iff some test fails. A stale file therefore costs time and never truth.",
     "Re-measure with: node scripts/test-cost.mjs"
   ],
-  "measuredOn": "2026-11-03",
+  "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 781.7,
-  "slowSeconds": 728.1,
+  "totalSeconds": 845.7,
+  "slowSeconds": 788.9,
   "slow": [
+    "test/unit/run-binding.test.js",
+    "test/unit/run-executor.test.js",
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
     "test/unit/mission-name-independent-of-checkout.test.js",
@@ -101,12 +103,40 @@
     "test/unit/analyze-gate.test.js",
     "test/unit/analyze-bench.test.js",
     "test/unit/example-machine-evidence.test.js",
-    "test/unit/package-sbom.test.js"
+    "test/unit/package-sbom.test.js",
+    "test/unit/partial-clone-no-fetch.test.js",
+    "test/unit/adr-one-bar.test.js",
+    "test/unit/analyze-linkage.test.js",
+    "test/unit/seal-named-decisions.test.js",
+    "test/unit/saboteur-corpus.test.js",
+    "test/unit/analyze-ceilings.test.js",
+    "test/unit/evidence-conformance-ceilings.test.js",
+    "test/unit/hooks-parent-test-runner.test.js"
   ],
   "files": [
     {
+      "file": "test/unit/run-binding.test.js",
+      "seconds": 12.21,
+      "passed": true
+    },
+    {
+      "file": "test/unit/run-executor.test.js",
+      "seconds": 11.82,
+      "passed": true
+    },
+    {
       "file": "test/unit/junit-quote-escaping.test.js",
       "seconds": 6.41,
+      "passed": true
+    },
+    {
+      "file": "test/unit/run-samples.test.js",
+      "seconds": 0.75,
+      "passed": true
+    },
+    {
+      "file": "test/unit/run-signature.test.js",
+      "seconds": 0.69,
       "passed": true
     },
     {
@@ -1287,6 +1317,71 @@
     {
       "file": "test/unit/fleet-build.test.js",
       "seconds": 0.26,
+      "passed": true
+    },
+    {
+      "file": "test/unit/partial-clone-no-fetch.test.js",
+      "seconds": 6.22,
+      "passed": true
+    },
+    {
+      "file": "test/unit/adr-one-bar.test.js",
+      "seconds": 1.84,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-linkage.test.js",
+      "seconds": 3.38,
+      "passed": true
+    },
+    {
+      "file": "test/unit/seal-named-decisions.test.js",
+      "seconds": 3.82,
+      "passed": true
+    },
+    {
+      "file": "test/unit/saboteur-corpus.test.js",
+      "seconds": 31.44,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-false-reds.test.js",
+      "seconds": 0.53,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-ceilings.test.js",
+      "seconds": 7.52,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-conformance-ceilings.test.js",
+      "seconds": 3.56,
+      "passed": true
+    },
+    {
+      "file": "test/unit/hooks-parent-test-runner.test.js",
+      "seconds": 3.09,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-typecheck-coverage.test.js",
+      "seconds": 0.25,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-environment-reads.test.js",
+      "seconds": 0.15,
+      "passed": true
+    },
+    {
+      "file": "test/unit/fleet-linear-readers.test.js",
+      "seconds": 1.15,
+      "passed": true
+    },
+    {
+      "file": "test/unit/example-report-readers.test.js",
+      "seconds": 1.21,
       "passed": true
     }
   ]

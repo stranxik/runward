@@ -635,9 +635,29 @@ function sigCard(m, x, j) {
 }
 
 // ------------------------------------------------------------------ in the PR
+/**
+ * `s` without its HTML comments, each `<!--` to the first `-->` after it, left to right, in one pass:
+ * what `s.replace(/<!--[\s\S]*?-->/g, "")` gives, which read the rest of the text again from every
+ * `<!--` that does not close (1.4 s for 100,000 characters, RWD-2026-0206). A `<!--` left in the text
+ * is shown as text: `md` escapes every character of its input.
+ */
+export function withoutComments(s) {
+  let out = "";
+  let at = 0;
+  for (;;) {
+    const i = s.indexOf("<!--", at);
+    if (i === -1) break;
+    const j = s.indexOf("-->", i + 4);
+    if (j === -1) break;
+    out += s.slice(at, i);
+    at = j + 3;
+  }
+  return out + s.slice(at);
+}
+
 /** Markdown, escaped first: a value from the tree can never inject markup. */
 export function md(src) {
-  const lines = String(src).replace(/<!--[\s\S]*?-->/g, "").split("\n");
+  const lines = withoutComments(String(src)).split("\n");
   const out = []; let i = 0;
   const inline = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>").replace(/(^|\s)_([^_]+)_(?=\s|$|[.,;])/g, "$1<i>$2</i>");
   while (i < lines.length) {

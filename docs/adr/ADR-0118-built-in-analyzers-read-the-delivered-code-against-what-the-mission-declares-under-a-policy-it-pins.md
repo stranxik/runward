@@ -213,6 +213,98 @@ on the healthy trees. It missed SQL built by concatenation in one file of three:
   in a dotenv file (not read: on disk it is usually ignored by version control, which the gate does not read),
   a file over 1 MB, and every language but TypeScript and JavaScript.
 
+## Amendment (2026-11-06) — the reading after the false reds of three repositories runward did not write
+
+ADR-0117 (What would settle it, criterion 2) ran the analyzers on express, fastify and hono at pinned
+commits; two reviewer sessions that wrote neither the analyzers nor the harness classified the 221 findings,
+129 false and 92 true. The reading is corrected on evidence the tree carries, never narrowed to silence: every
+true finding still fires, the bench's sabotages keep their exit codes, and the evasions a second review built
+against the first version of this correction read red again (`test/unit/analyze-false-reds.test.js`, one
+test per pattern, each beside a case classified true and those evasions).
+
+- *Test integrity*: the code under test is what a test file imports from a module that is not a test, and
+  every name it assigns from it. A TypeScript case asserts at compile time when a type check of its project
+  covers the file, as the tree shows it, and the assertion is about that code: an assertion type constrained
+  `extends true` instantiated on it (`type verify = Expect<Equal<Expected, Actual>>`), or a
+  `@ts-expect-error` over a line that uses it; an asserting helper may spread its parameters over lines. The
+  type check is read, never assumed: a `package.json` script on the file's path runs `tsc` or `vue-tsc` with
+  a configuration (`-p`/`--project`, or the `tsconfig.json` beside it) whose `files`, `include` and `exclude`
+  cover the file through relative `extends`, as TypeScript reads them, or names the file itself. It fails
+  closed: an `extends` from a package, build mode, a command after a `cd`, a configuration the tree does not
+  hold or that does not parse, and the runners of type tests (`tsd`, `tstyche`, `vitest --typecheck`)
+  credit nothing. A
+  case that only checks that the code under test completes without error (its `done` handed to that code,
+  under a runner that passes one; an object of it set up and awaited as a statement, `await
+  fastify.ready()`; a promise of its own that can still reject on a failure path) is no finding: it is the
+  hypothesis `case-asserts-completion`, decision 6's labelled class, beside `case-asserts-literals`. A value
+  awaited and never read keeps the case a finding. Decided on 2026-11-06 with the classification: a case with
+  no assertion at all stays a finding, a bare call awaited or not and a type case with no type assertion
+  alike; the case asserting only on literals stays a hypothesis, which no longer says it is by design.
+- *Capability*: the environment the core is refused is read in every spelling of it: `process.env` and
+  `process?.env` (hono `src/utils/color.ts:23`, missed by the first version), `process['env']`, through
+  `globalThis` or `global`, destructured (`const { env } = process`), and `import.meta`, `Deno` and `Bun`
+  with optional chaining. A loader whose argument is a `const` initialised with a literal alone in a scope that holds
+  the call, or the parameter of a local function only ever called with literals, loads that module when the
+  name occurs nowhere else; it is judged as a literal import, by the boundary in a declared core. The network
+  is judged by what an import binds and reads, its type-only form read from the statement's syntax: a table
+  of constants (`METHODS`, `STATUS_CODES`, `isIP`) or a type-only import is a `core-import-builtin` finding,
+  the module still refused in the core, and a `network` allowance of the file still covers it.
+- *Secret*: a PEM private key block is a finding when a base64 run of key length sits before its END line
+  (or right after the armour, with none), whatever carries the lines; a body holding an interpolation or a
+  placeholder holds no key.
+- *Cited symbol*: a name resolves to the module's declaration (through a function that wraps the module,
+  never into a named function's local); an empty constant the code reads as a value is the hypothesis
+  `symbol-sentinel-constant`, never counted; a stub that is only called, exported or typed stays a finding.
+
+What the corrected reading lets through, said: a case whose assertions were deleted while it still hands
+its `done` to the code under test, or still sets up an object of it and awaits it without binding the
+result (`app.get(…)` then `await app.request('/')`), reads as the completion hypothesis, not as a finding
+(decision (a) below); a configuration the type check reads is taken to run as written, and a type case it
+covers is credited though no job may run that script. A type case whose `Expect` and `Equal` are declared in
+the module under test reads as asserting on operators alone and stays red under a covering type check;
+no case of the three repositories has that shape. The completion hypothesis names the promise whose
+`reject` fails the case, with its line, before an object the case only set up (fastify
+`test/reply-trailers.test.js:269` named `fastify.listen()`, its set-up, where the failure path is the
+`reject` at line 297). These false reds were found before any release carried the analyzers, and none is
+filed in the defect register (decision (b) below).
+
+### Decided on 2026-11-06, under the delegation of 2026-11-05
+
+Three decisions taken without asking, under the maintainer's delegation of 2026-11-05 ("carry it out each
+time instead of asking me"), on the recommendation of the agent session that built the second integration
+train of 2026-11-06; the maintainer did not review them before they were written, and each stands until he
+reverses it.
+
+- **(a) A case that only checks that the code completes stays a visible, uncounted hypothesis,**
+  `case-asserts-completion`, with what it lets through written above. Keeping it a finding would contradict
+  the independent classification: the reviewers of express and fastify classified as false the findings
+  those cases raised, and the 13 hypotheses of the re-measurement on `9004563` hide no empty case (their
+  reviewer checked them against an independent scan of 2,938 cases). The residual is the one said above: deleting a
+  case's assertions while it still hands its `done` on, or still awaits an object it set up, turns a finding
+  into this hypothesis; the hypothesis is printed, never counted, and an execution of the suite (`--hooks`,
+  or `attested` with `runward-run`, ADR-0120) is what tells a check of completion from an empty case.
+- **(b) The false reds measured before any release are ADR-0117 criterion-2 measurements, not
+  `undue-refusal` entries under "Against A" below.** "Against A" counts refusals of code a release judged;
+  the 129 false reds of 2026-11-06 were found by the measurement that criterion 2 requires before the policy
+  can stay a default, on a build no release carried, and were corrected before any adopter met them. They are
+  published as that measurement, with its classification and its commands
+  (`docs/compliance/analyzers-on-real-repositories.md`); a false red found after a release is an
+  `undue-refusal` of the register, and counts.
+- **(c) A case with no assertion at all stays a finding, "does not throw" cases included** (express
+  `test/Router.js:202`, classified true by its reviewer: a case that calls the code and asserts nothing
+  fails on nothing it computes), while a case that asserts only on literals stays the hypothesis
+  `case-asserts-literals`. The asymmetry is on purpose. A case with no assertion is what the sabotages e1 and
+  e2 of the bench leave once every assertion is removed: read as a hypothesis, they would pass again. A case
+  whose assertions hold only literals (`assert.ok(true)`) has an assertion the reading cannot judge, and
+  whether its body can fail is a question for an execution: the mutation leg of ADR-0120 (R2) at `attested`
+  answers it, the reading does not.
+
+The reading's cost is bounded too (RWD-2026-0203): what one file makes the case loop, the asserting
+helpers and the initializers read is counted against sixteen times its size. A case past the budget is
+listed under `notAnalyzed`, as a file over the size limit is; a helper or an initializer past it credits
+nothing, which can only leave a case red. An agent can hide an empty case in cases nested deep enough to
+pass the budget, as in a file over 1 MB; both are said, never silent.
+
 ## What would settle it
 
 - **For A**: over the next ten pull requests of this repository and the first pilot mission, every sabotage of
@@ -229,6 +321,18 @@ when a pilot asks for a second language, when the attestation's subject binds th
 
 **Trigger set on**: 2026-11-05 · **Watched via**: `test/unit/analyze-bench.test.js` on every pull request, and
 the `undue-refusal` entries of `docs/compliance/known-defects.md` that name ADR-0118.
+
+## Note, 2026-11-06: a sixth family before the policy's first release (ADR-0124)
+
+[ADR-0124](ADR-0124-one-bar-for-a-decision-record-a-linkage-family-for-cited-files-the-seal-over-the-decisions-the-manifests-name-and-a-deleted-uncited-test-refused-only-where-declared.md)
+decision 2 adds the *linkage* family to `runward-analysis/1`: a name the delivered code imports, by a
+relative path, from a file an applied row cites or from the declared domain core, is exported by that
+file, and a form the reading does not settle (CommonJS, `export =`, a destructured export, a re-export it
+cannot follow) never refuses and is listed under `notAnalyzed`. It reads the delivered tree only, like
+every family since ADR-0113 decision 5. The policy has not shipped in a release on this date, so decision
+3 holds: had it shipped, the family would have been `runward-analysis/2`. Decision 1's list reads six
+families from this note. On the bench of this record, the family adds true findings to three plantings,
+whose payloads drop names other files of the example import: 7 to (a), 1 to (c3b), 6 to (ae2).
 
 ## References
 

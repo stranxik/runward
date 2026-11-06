@@ -92,7 +92,9 @@ test("beside ADR-0114: `--require traced` lifts no requires-unmet refusal, and i
     const j = JSON.parse(run(dir, "check", "--strict", "--require", "traced", "--json").out);
     assert.equal(j.exitCode, 1, "gaps come first: a level accepted by name lifts no gap");
     assert.equal(j.conformance.filter((c) => c.kind === "requires-unmet").length, 1);
-    assert.match(run(dir, "check", "--help").out, /It lifts no gap:\s+a\s+row\s+refused\s+as\s+requires-unmet/);
+    // Read across commander's line wrapping, which moves with every word the help gains (ADR-0119 added the
+    // two upper levels to it): the sentence, not where its lines break.
+    assert.match(run(dir, "check", "--help").out, /It\s+lifts\s+no\s+gap:\s+a\s+row\s+refused\s+as\s+requires-unmet/);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -234,7 +236,9 @@ test("a red case in that report refuses the row — the report is read, not trus
 
 // ── ADR-0115 decision 4: the ways out are decisions the tree carries ─────────────────────────────────
 
-const DECLARATION = (status, nature = "junit") => `# ADR-0004: this delivery produces no ${nature} report\n\n**Status**: ${status}\n**Nature not carried**: ${nature} — a fixture of runward's own test suite, with no test runner to cite\n\n## Decision\n\nDeclared.\n\n## Reevaluation trigger\n\nA test runner is added.\n`;
+// The example opts into the structure contract, so a declaration is a decision record by its bar: a date,
+// a status, a trigger (ADR-0124 decision 1). The fixture carried no date until then.
+const DECLARATION = (status, nature = "junit") => `# ADR-0004: this delivery produces no ${nature} report\n\n**Date**: 2026-11-06\n**Status**: ${status}\n**Nature not carried**: ${nature} — a fixture of runward's own test suite, with no test runner to cite\n\n## Decision\n\nDeclared.\n\n## Reevaluation trigger\n\nA test runner is added.\n`;
 
 test("ADR-0115: a nature declared uncarriable in an accepted ADR is not refused, and is said; a proposed declaration declares nothing", () => {
   const dir = mkdtempSync(join(tmpdir(), "rw-req-declared-"));

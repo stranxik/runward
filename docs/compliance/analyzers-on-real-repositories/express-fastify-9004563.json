@@ -1,0 +1,523 @@
+{
+ "schema": "runward-c2-classification/1",
+ "reviewer": "independent session that wrote neither the analyzers, nor the harness, nor the correction",
+ "scope": [
+  "express@43fca52d28a422c8be48fd489cbd4f2d6152bab6",
+  "fastify@1b954e5602261115b67708c73a9729231d70d2a0"
+ ],
+ "build": {
+  "version": "0.46.0",
+  "commit": "9004563f8c777d2285b74f41e751dcbb6132ec75",
+  "dirty": false,
+  "node": "v24.22.1",
+  "nvmrc": "24.22.1"
+ },
+ "comparedWith": {
+  "classification": "express-fastify-03c5e64.json",
+  "build": "0.46.0 03c5e64"
+ },
+ "sameInputs": "same commits, byte-identical sources outside runward/, identical territory.md and architecture.md, no analysis.md: only the analyzer changed",
+ "entries": [
+  {
+   "id": "express-0f80d131c9",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/request.js:17 requires the built-in `node:net` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial (the red my previous classification said was missing, formerly express-6bbede1717 network).",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "express-1048a236d3",
+   "repository": "express",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/utils.js:15 requires the built-in `node:http` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial (the red my previous classification said was missing, formerly express-2b48f2cfb7 network).",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "fastify-0df8ee6709",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "lib/error-handler.js:3 requires the built-in `node:http` in a file the harness declared domain-core (territory.md:8); no runward/analysis.md allows it: true against the declaration, which is artificial (the red my previous classification said was missing, formerly fastify-d79a2505a5 network).",
+   "pattern": "core-requires-node-builtin"
+  },
+  {
+   "id": "fastify-0f33c431fd",
+   "repository": "fastify",
+   "profile": "declared",
+   "profiles": [
+    "declared"
+   ],
+   "family": "boundary",
+   "check": "core-import-builtin",
+   "verdict": "TRUE",
+   "reason": "fastify.js:6 requires the built-in `node:http` in a file the harness declared domain-core (territory.md:7); no runward/analysis.md allows it: true against the declaration, which is artificial (the red my previous classification said was missing, formerly fastify-e83600d8cc network). The whole module is bound but only http.METHODS (858) and http.STATUS_CODES (991, 996, 1001) are read, so the red is true whichever way the use-or-reach question is settled; only its family depends on it.",
+   "pattern": "core-requires-node-builtin"
+  }
+ ],
+ "delta": {
+  "carriedOver": {
+   "ids": 79,
+   "textChanged": 0,
+   "note": "all 79 TRUE ids still reported with identical message, line and lineText; their verdicts stand"
+  },
+  "trueMissing": [],
+  "trueMissingNote": "none: no id classified TRUE disappeared, so no false green by disappearance",
+  "falseStillPresent": [],
+  "falseStillPresentNote": "none: every id classified FALSE is gone",
+  "falseGone": [
+   {
+    "id": "express-5ee7dc5744",
+    "repository": "express",
+    "check": "computed-import",
+    "at": "examples/content-negotiation/index.js:34",
+    "pattern": "require-of-local-parameter-whose-only-call-passes-a-literal",
+    "became": [
+     "nothing (neither finding nor hypothesis)"
+    ],
+    "falseGreen": false,
+    "assessment": "right: the only call is format('./users') (line 40), a literal; no hypothesis left"
+   },
+   {
+    "id": "express-d19a47e438",
+    "repository": "express",
+    "check": "case-asserts-nothing",
+    "at": "test/Route.js:10",
+    "pattern": "mocha-done-handed-to-the-code-under-test",
+    "became": [
+     "hypothesis express-5ad3c5e78a case-asserts-completion"
+    ],
+    "falseGreen": false,
+    "assessment": "right: the case asserts completion without error; reported now as a hypothesis, which never counts"
+   },
+   {
+    "id": "express-676ef2e6b7",
+    "repository": "express",
+    "check": "case-asserts-nothing",
+    "at": "test/Router.js:19",
+    "pattern": "mocha-done-handed-to-the-code-under-test",
+    "became": [
+     "hypothesis express-bb50abf222 case-asserts-completion"
+    ],
+    "falseGreen": false,
+    "assessment": "right: the case asserts completion without error; reported now as a hypothesis, which never counts"
+   },
+   {
+    "id": "express-5ebcafac7f",
+    "repository": "express",
+    "check": "case-asserts-nothing",
+    "at": "test/Router.js:91",
+    "pattern": "mocha-done-handed-to-the-code-under-test",
+    "became": [
+     "hypothesis express-9909461367 case-asserts-completion"
+    ],
+    "falseGreen": false,
+    "assessment": "right: the case asserts completion without error; reported now as a hypothesis, which never counts"
+   },
+   {
+    "id": "express-8ea1a092e7",
+    "repository": "express",
+    "check": "case-asserts-nothing",
+    "at": "test/app.js:8",
+    "pattern": "mocha-done-handed-to-the-code-under-test",
+    "became": [
+     "hypothesis express-9f322e62fb case-asserts-completion"
+    ],
+    "falseGreen": false,
+    "assessment": "right: the case asserts completion without error; reported now as a hypothesis, which never counts"
+   },
+   {
+    "id": "express-59c209f0ee",
+    "repository": "express",
+    "check": "case-asserts-nothing",
+    "at": "test/app.listen.js:7",
+    "pattern": "mocha-done-handed-to-the-code-under-test",
+    "became": [
+     "hypothesis express-b95a47f76c case-asserts-completion"
+    ],
+    "falseGreen": false,
+    "assessment": "right: the case asserts completion without error; reported now as a hypothesis, which never counts"
+   },
+   {
+    "id": "express-a421096401",
+    "repository": "express",
+    "check": "case-asserts-nothing",
+    "at": "test/app.listen.js:38",
+    "pattern": "mocha-done-handed-to-the-code-under-test",
+    "became": [
+     "hypothesis express-735adda2e4 case-asserts-completion"
+    ],
+    "falseGreen": false,
+    "assessment": "right: the case asserts completion without error; reported now as a hypothesis, which never counts"
+   },
+   {
+    "id": "fastify-5aca87bd0b",
+    "repository": "fastify",
+    "check": "case-asserts-nothing",
+    "at": "test/decorator.test.js:869",
+    "pattern": "awaited-promise-of-the-code-under-test",
+    "became": [
+     "hypothesis fastify-85a42863e5 case-asserts-completion"
+    ],
+    "falseGreen": false,
+    "assessment": "right: the awaited promise is the check the title names; reported now as a hypothesis"
+   },
+   {
+    "id": "fastify-c66e22813e",
+    "repository": "fastify",
+    "check": "case-asserts-nothing",
+    "at": "test/http2/closing.test.js:118",
+    "pattern": "awaited-promise-of-the-code-under-test",
+    "became": [
+     "hypothesis fastify-d564b05c63 case-asserts-completion"
+    ],
+    "falseGreen": false,
+    "assessment": "right: the awaited promise is the check the title names; reported now as a hypothesis"
+   },
+   {
+    "id": "fastify-087cfb3b14",
+    "repository": "fastify",
+    "check": "case-asserts-nothing",
+    "at": "test/http2/closing.test.js:133",
+    "pattern": "awaited-promise-of-the-code-under-test",
+    "became": [
+     "hypothesis fastify-63d85c06b4 case-asserts-completion"
+    ],
+    "falseGreen": false,
+    "assessment": "right: the awaited promise is the check the title names; reported now as a hypothesis"
+   },
+   {
+    "id": "fastify-ec7d4cf1b0",
+    "repository": "fastify",
+    "check": "case-asserts-nothing",
+    "at": "test/reply-trailers.test.js:269",
+    "pattern": "awaited-promise-rejected-on-a-failure-condition",
+    "became": [
+     "hypothesis fastify-1f0de68d26 case-asserts-completion"
+    ],
+    "falseGreen": false,
+    "assessment": "right to clear the red, but the new hypothesis misdescribes the case: it cites the awaited fastify.listen() (setup) and says what it computes is not checked, while line 297 rejects with new Error('response hung'), an explicit check; the analyzer still does not read that failure path"
+   },
+   {
+    "id": "fastify-de212045f8",
+    "repository": "fastify",
+    "check": "case-asserts-nothing",
+    "at": "test/schema-special-usage.test.js:423",
+    "pattern": "awaited-promise-of-the-code-under-test",
+    "became": [
+     "hypothesis fastify-2771a27f75 case-asserts-completion"
+    ],
+    "falseGreen": false,
+    "assessment": "right: the awaited promise is the check the title names; reported now as a hypothesis"
+   },
+   {
+    "id": "fastify-4df783311f",
+    "repository": "fastify",
+    "check": "case-asserts-nothing",
+    "at": "test/schema-special-usage.test.js:469",
+    "pattern": "awaited-promise-of-the-code-under-test",
+    "became": [
+     "hypothesis fastify-b7de69d331 case-asserts-completion"
+    ],
+    "falseGreen": false,
+    "assessment": "right: the awaited promise is the check the title names; reported now as a hypothesis"
+   },
+   {
+    "id": "fastify-0801c8a5f2",
+    "repository": "fastify",
+    "check": "case-asserts-nothing",
+    "at": "test/schema-special-usage.test.js:493",
+    "pattern": "awaited-promise-of-the-code-under-test",
+    "became": [
+     "hypothesis fastify-96f2628230 case-asserts-completion"
+    ],
+    "falseGreen": false,
+    "assessment": "right: the awaited promise is the check the title names; reported now as a hypothesis"
+   },
+   {
+    "id": "express-6bbede1717",
+    "repository": "express",
+    "check": "network",
+    "at": "lib/request.js:17",
+    "pattern": "network-builtin-read-for-constants-only",
+    "became": [
+     "finding express-0f80d131c9 core-import-builtin"
+    ],
+    "falseGreen": false,
+    "assessment": "right: no longer called network, and the true red is now reported as core-import-builtin"
+   },
+   {
+    "id": "express-2b48f2cfb7",
+    "repository": "express",
+    "check": "network",
+    "at": "lib/utils.js:15",
+    "pattern": "network-builtin-read-for-constants-only",
+    "became": [
+     "finding express-1048a236d3 core-import-builtin"
+    ],
+    "falseGreen": false,
+    "assessment": "right: no longer called network, and the true red is now reported as core-import-builtin"
+   },
+   {
+    "id": "fastify-e83600d8cc",
+    "repository": "fastify",
+    "check": "network",
+    "at": "fastify.js:6",
+    "pattern": "network-module-bound-whole-but-only-constants-read",
+    "became": [
+     "finding fastify-0f33c431fd core-import-builtin"
+    ],
+    "falseGreen": false,
+    "assessment": "right on use: no longer called network, and the line stays red as core-import-builtin"
+   },
+   {
+    "id": "fastify-d79a2505a5",
+    "repository": "fastify",
+    "check": "network",
+    "at": "lib/error-handler.js:3",
+    "pattern": "network-builtin-read-for-constants-only",
+    "became": [
+     "finding fastify-0df8ee6709 core-import-builtin"
+    ],
+    "falseGreen": false,
+    "assessment": "right: no longer called network, and the true red is now reported as core-import-builtin"
+   },
+   {
+    "id": "fastify-451e6a173c",
+    "repository": "fastify",
+    "check": "symbol-placeholder-constant",
+    "at": "lib/reply.js:606",
+    "pattern": "cited-symbol-resolved-to-a-local-accumulator",
+    "became": [
+     "nothing (neither finding nor hypothesis)"
+    ],
+    "falseGreen": false,
+    "assessment": "right: the cited header is Reply.prototype.header (lib/reply.js:273), which has a body; no hypothesis left"
+   }
+  ],
+  "caseAssertsCompletionHypotheses": [
+   {
+    "id": "express-5ad3c5e78a",
+    "repository": "express",
+    "at": "test/Route.js:10",
+    "formerFinding": "express-d19a47e438",
+    "formerVerdict": "FALSE",
+    "shape": "done handed to route.dispatch",
+    "inResidualShape": true,
+    "hidesCaseAssertingNothing": false,
+    "reason": "test/Route.js:10-14: with no handlers, route.dispatch must call its callback without error; that completion is exactly what \"should work without handlers\" claims; done(err) or a timeout fails it"
+   },
+   {
+    "id": "express-bb50abf222",
+    "repository": "express",
+    "at": "test/Router.js:19",
+    "formerFinding": "express-676ef2e6b7",
+    "formerVerdict": "FALSE",
+    "shape": "done handed to router.handle as res.end",
+    "inResidualShape": true,
+    "hidesCaseAssertingNothing": false,
+    "reason": "test/Router.js:19-29: the final handler is a no-op, so done is reached only if the mounted router's GET /bar handler calls res.end(): completion proves the mount the title names"
+   },
+   {
+    "id": "express-9909461367",
+    "repository": "express",
+    "at": "test/Router.js:91",
+    "formerFinding": "express-5ebcafac7f",
+    "formerVerdict": "FALSE",
+    "shape": "done handed to router.handle as res.end",
+    "inResidualShape": true,
+    "hidesCaseAssertingNothing": false,
+    "reason": "test/Router.js:91-106: the 6000 decoy handlers call res.end(new Error('wrong handler')) (line 94), so done fails if any of them is chosen; only GET / ends cleanly, without stack overflow"
+   },
+   {
+    "id": "express-9f322e62fb",
+    "repository": "express",
+    "at": "test/app.js:8",
+    "formerFinding": "express-8ea1a092e7",
+    "formerVerdict": "FALSE",
+    "shape": "done handed to app.on",
+    "inResidualShape": true,
+    "hidesCaseAssertingNothing": false,
+    "reason": "test/app.js:8-12: app.on throws if app is not an EventEmitter and app.emit('foo') must invoke the listener; completion is the inheritance the title names"
+   },
+   {
+    "id": "express-b95a47f76c",
+    "repository": "express",
+    "at": "test/app.listen.js:7",
+    "formerFinding": "express-59c209f0ee",
+    "formerVerdict": "FALSE",
+    "shape": "done handed to server.close",
+    "inResidualShape": true,
+    "hidesCaseAssertingNothing": false,
+    "reason": "test/app.listen.js:7-13: listen must call back and the server must be running (close passes ERR_SERVER_NOT_RUNNING otherwise). Upstream history: never had an assertion; dab6ee5822 removed an unused route, 8c24fa8f7b turned server.close(); done() into server.close(done), a stronger check"
+   },
+   {
+    "id": "express-735adda2e4",
+    "repository": "express",
+    "at": "test/app.listen.js:38",
+    "formerFinding": "express-a421096401",
+    "formerVerdict": "FALSE",
+    "shape": "done handed to server.close",
+    "inResidualShape": true,
+    "hidesCaseAssertingNothing": false,
+    "reason": "test/app.listen.js:38-43: the server returned by app.listen() with no arguments must be listening for close(done) to succeed; born in this form upstream (b8ab46594d, #6476), nothing deleted. Caveat: the title says \"just a callback\" but no callback is passed to listen; it checks the no-argument call, a looser title, not an empty case"
+   },
+   {
+    "id": "fastify-85a42863e5",
+    "repository": "fastify",
+    "at": "test/decorator.test.js:869",
+    "formerFinding": "fastify-5aca87bd0b",
+    "formerVerdict": "FALSE",
+    "shape": "awaits app.ready() without binding it",
+    "inResidualShape": true,
+    "hidesCaseAssertingNothing": false,
+    "reason": "test/decorator.test.js:869-900: plugin2 declares dependencies ['custom-plugin-one'] and decorators.request ['someThing'] (889, 891); registerPlugin runs checkDecorators and checkDependencies (lib/plugin-utils.js:151-152), which throw, so ready() rejects if either check fails: the awaited ready() is the check"
+   },
+   {
+    "id": "fastify-d564b05c63",
+    "repository": "fastify",
+    "at": "test/http2/closing.test.js:118",
+    "formerFinding": "fastify-c66e22813e",
+    "formerVerdict": "FALSE",
+    "shape": "awaits fastify.close() without binding it",
+    "inResidualShape": true,
+    "hidesCaseAssertingNothing": false,
+    "reason": "test/http2/closing.test.js:118-131: with an http/2 session still open, await fastify.close() (130) must resolve; that is what \"closes successfully\" names"
+   },
+   {
+    "id": "fastify-63d85c06b4",
+    "repository": "fastify",
+    "at": "test/http2/closing.test.js:133",
+    "formerFinding": "fastify-087cfb3b14",
+    "formerVerdict": "FALSE",
+    "shape": "awaits fastify.close() without binding it",
+    "inResidualShape": true,
+    "hidesCaseAssertingNothing": false,
+    "reason": "test/http2/closing.test.js:133-150: same over TLS, await fastify.close() at 149"
+   },
+   {
+    "id": "fastify-1f0de68d26",
+    "repository": "fastify",
+    "at": "test/reply-trailers.test.js:269",
+    "formerFinding": "fastify-ec7d4cf1b0",
+    "formerVerdict": "FALSE",
+    "shape": "awaits fastify.listen() and a promise that rejects on a hang",
+    "inResidualShape": true,
+    "hidesCaseAssertingNothing": false,
+    "reason": "test/reply-trailers.test.js:269-300: the case rejects with new Error('response hung') when no response event arrives within 2 s (297): an explicit check, more than the hypothesis says. The hypothesis cites the awaited fastify.listen() (setup), which is the residual made concrete: delete the rejecting promise and the case would still read as asserting completion"
+   },
+   {
+    "id": "fastify-2771a27f75",
+    "repository": "fastify",
+    "at": "test/schema-special-usage.test.js:423",
+    "formerFinding": "fastify-de212045f8",
+    "formerVerdict": "FALSE",
+    "shape": "awaits fastify.ready() without binding it",
+    "inResidualShape": true,
+    "hidesCaseAssertingNothing": false,
+    "reason": "test/schema-special-usage.test.js:423-467: regression test, the crash was at boot; await fastify.ready() (466) is the check"
+   },
+   {
+    "id": "fastify-b7de69d331",
+    "repository": "fastify",
+    "at": "test/schema-special-usage.test.js:469",
+    "formerFinding": "fastify-4df783311f",
+    "formerVerdict": "FALSE",
+    "shape": "awaits fastify.ready() without binding it",
+    "inResidualShape": true,
+    "hidesCaseAssertingNothing": false,
+    "reason": "test/schema-special-usage.test.js:469-491: AJV pollution regression, ready() threw; await fastify.ready() (490) is the check"
+   },
+   {
+    "id": "fastify-96f2628230",
+    "repository": "fastify",
+    "at": "test/schema-special-usage.test.js:493",
+    "formerFinding": "fastify-0801c8a5f2",
+    "formerVerdict": "FALSE",
+    "shape": "awaits fastify.ready() without binding it",
+    "inResidualShape": true,
+    "hidesCaseAssertingNothing": false,
+    "reason": "test/schema-special-usage.test.js:493-518: same with a params schema; await fastify.ready() (517) is the check"
+   }
+  ],
+  "residualAnswer": "13 real cases have the residual shape (6 express hand done to the code, 7 fastify await an unbound call) and all 13 are surfaced as hypotheses; none hides a case that asserts nothing: in each, completing without error is the property the title names (fastify-1f0de68d26 asserts more, an explicit reject). No real case here has had its assertions deleted (express app.listen.js history checked upstream). The residual is real for future edits: the analyzer takes an awaited setup call (fastify.listen) as the completion check, so deleting the real check of such a case would downgrade it to a hypothesis, not a red.",
+  "control": {
+   "method": "independent scan of every it()/test() case (express test/**/*.js, fastify test/**/*.test.{js,mjs}) for any explicit assertion",
+   "casesScanned": {
+    "express": 1154,
+    "fastify": 1784
+   },
+   "withoutExplicitAssertion": {
+    "express": 23,
+    "fastify": 9
+   },
+   "reportedByAnalyzer": 15,
+   "silentAndWhy": {
+    "done handed plus a 'should not be called' throw guard": 4,
+    "file-local helper testRequestedRedirect (asserts, done(new Error))": 12,
+    "imported helper assertNoWarning (t.assert.fail on any warning)": 1
+   },
+   "conclusion": "every assertion-free case is either reported (2 findings, 13 hypotheses) or asserts through a helper or a throw guard: no vacuous case is silent"
+  },
+  "hypothesisRewording": "the 96 case-asserts-literals hypotheses kept check and location; only their message changed (new ids). The inconsistency noted before persists in a milder form: a literal-only no-throw case is a hypothesis, a zero-assertion one (test/Router.js:202) a finding.",
+  "counts": {
+   "express/declared/boundary": {
+    "TRUE": 43
+   },
+   "express/declared/capability": {
+    "TRUE": 6
+   },
+   "express/declared/test-integrity": {
+    "TRUE": 1
+   },
+   "express/default/capability": {
+    "TRUE": 2
+   },
+   "express/default/test-integrity": {
+    "TRUE": 1
+   },
+   "fastify/declared/boundary": {
+    "TRUE": 28
+   },
+   "fastify/declared/capability": {
+    "TRUE": 4
+   },
+   "fastify/declared/test-integrity": {
+    "TRUE": 1
+   },
+   "fastify/default/test-integrity": {
+    "TRUE": 1
+   }
+  },
+  "totals": {
+   "express/declared": {
+    "TRUE": 50
+   },
+   "express/default": {
+    "TRUE": 3
+   },
+   "fastify/declared": {
+    "TRUE": 33
+   },
+   "fastify/default": {
+    "TRUE": 1
+   }
+  }
+ }
+}

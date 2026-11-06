@@ -77,7 +77,7 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
     missionRoot: root,
     // The assessor reads this line alone: under a red verdict it names what it measured, never
     // "all gates passed" above a GAPS banner (RWD-2026-0131).
-    currentGate: currentGateLabel(report, clean, redPhases(verdict), verdict.exitCode === LEVEL_NOT_MET_EXIT),
+    currentGate: currentGateLabel(report, clean, redPhases(verdict), verdict.exitCode === LEVEL_NOT_MET_EXIT, verdict.require?.level ?? null),
     adrCount: report.adrCount,
     adrSetAside: report.adrSetAside,
     clean,
@@ -93,7 +93,7 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
     corpusDrift: corpusDrift(mission, rulesDir(mission)),
     gateNonScope: GATE_NON_SCOPE,
     // The same Next the strict gate prints (RWD-2026-0145), from the same function.
-    next: nextPayload(nextStep({ gaps: verdict.gaps, strictGaps: verdict.strictGaps, hookFailed: 0, breakdown: verdict.strictBreakdown, levelNotMet: verdict.exitCode === LEVEL_NOT_MET_EXIT }, { strict: true })),
+    next: nextPayload(nextStep({ gaps: verdict.gaps, strictGaps: verdict.strictGaps, hookFailed: 0, breakdown: verdict.strictBreakdown, levelNotMet: verdict.exitCode === LEVEL_NOT_MET_EXIT, level: verdict.require?.level ?? null }, { strict: true })),
   });
   // ADR-0071 option 2: the subject digest is taken BEFORE the write, because the report lives inside
   // the tree the digest hashes. Measured while deciding: printing the after-value would be wrong on

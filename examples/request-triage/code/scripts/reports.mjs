@@ -51,28 +51,122 @@ if (!check) process.exit(worst);
 
 const decodeXml = (s) => s.replace(/&(?:#(\d+)|#x([0-9a-f]+)|(lt|gt|amp|quot|apos));/gi, (_, d, h, n) =>
   n ? { lt: "<", gt: ">", amp: "&", quot: "\"", apos: "'" }[n.toLowerCase()] : String.fromCodePoint(d ? Number(d) : parseInt(h, 16)));
+
+// The readers of a JUnit report read it in one pass, whatever it holds: a committed report is a file of
+// the tree like any other, and a regular expression that restarts from every `<!--` or every
+// `<testcase` that does not close reads the rest of the file again each time (measured at 100,000
+// characters: 1.4 s for a run of `<!--`, 1.9 s for a tag left open inside quotes; runward
+// RWD-2026-0207).
+
+/** `s` without its comments, each `<!--` to the first `-->` after it, as an XML reader drops them. */
+function withoutComments(s) {
+  let out = "";
+  let at = 0;
+  for (;;) {
+    const i = s.indexOf("<!--", at);
+    if (i === -1) break;
+    const j = s.indexOf("-->", i + 4);
+    if (j === -1) break;
+    out += s.slice(at, i);
+    at = j + 3;
+  }
+  return out + s.slice(at);
+}
+
+/** The first `what` at or after a position, for positions asked in increasing order: one scan for all. */
+function forward(s, what) {
+  let from = Infinity, at = -1;
+  return (i) => {
+    if (i >= from && (at === -1 || at >= i)) return at;
+    from = i;
+    at = s.indexOf(what, i);
+    return at;
+  };
+}
+
+const isWord = (c) => c !== undefined && /\w/.test(c);
+
+/**
+ * Each `<testsuite …>`, `</testsuite>` and `<testcase …>` of `text`, in order: a tag ends at its first
+ * `>` outside a quoted value, and a quote that never closes ends no tag. Where a tag's attributes end
+ * depends only on where they start, so each position is read once, for every tag that reaches it.
+ */
+function* tags(text) {
+  const low = text.replace(/[A-Z]+/g, (w) => w.toLowerCase());
+  const ends = new Int32Array(text.length + 1); // 0 not read yet, -1 no end, else the end of the attributes + 1
+  const attrsEnd = (from) => {
+    const seen = [];
+    let y = from;
+    let r;
+    for (;;) {
+      if (ends[y] !== 0) { r = ends[y]; break; }
+      seen.push(y);
+      const c = text[y];
+      if (c === undefined) { r = -1; break; }
+      if (c === ">" || (c === "/" && text[y + 1] === ">")) { r = y + 1; break; }
+      if (c === '"' || c === "'") {
+        const q = text.indexOf(c, y + 1);
+        if (q === -1) { r = -1; break; }
+        y = q + 1;
+        continue;
+      }
+      y++;
+    }
+    for (const p of seen) ends[p] = r;
+    return r === -1 ? -1 : r - 1;
+  };
+  for (let x = text.indexOf("<"); x !== -1; x = text.indexOf("<", x + 1)) {
+    const close = text[x + 1] === "/" ? "/" : "";
+    const c = x + 1 + close.length;
+    const name = low.startsWith("testsuite", c) ? 9 : low.startsWith("testcase", c) ? 8 : 0;
+    if (!name || isWord(text[c + name])) continue;
+    const e = attrsEnd(c + name);
+    if (e === -1) continue;
+    const self = text[e] === "/" ? "/" : "";
+    const end = e + self.length + 1;
+    yield { close, name: text.slice(c, c + name), attrs: text.slice(c + name, e), self, end };
+    x = end - 1;
+  }
+}
+
+/** The positions of `<name` (any case, then no word character) in `text`, in order. */
+function marks(text, name) {
+  const low = text.replace(/[A-Z]+/g, (w) => w.toLowerCase());
+  const at = [];
+  for (let i = low.indexOf(`<${name}`); i !== -1; i = low.indexOf(`<${name}`, i + 1)) if (!isWord(text[i + name.length + 1])) at.push(i);
+  return at;
+}
+/** Whether one of the sorted `at` lies in [from, to - len]. */
+function within(at, from, to, len) {
+  let lo = 0, hi = at.length;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (at[mid] < from) lo = mid + 1; else hi = mid; }
+  return lo < at.length && at[lo] <= to - len;
+}
+
 function junit(xml) {
   // A report written by Node.js up to 24.21.x escapes a `"` twice; read it as runward does.
   const twice = !xml.includes("&quot;") && xml.includes("&amp;quot;");
   const value = (v) => decodeXml(twice ? v.replace(/&amp;quot;/g, "&quot;") : v);
-  const text = xml.replace(/<!--[\s\S]*?-->/g, "");
+  const text = withoutComments(xml);
   const out = [];
   const suites = [];
-  const tag = /<(\/?)(testsuite|testcase)\b((?:[^>"']|"[^"]*"|'[^']*')*?)(\/?)>/gi;
-  for (let m = tag.exec(text); m; m = tag.exec(text)) {
-    const [, close, name, attrs, self] = m;
+  const caseEnd = forward(text, "</testcase>");
+  const found = { error: marks(text, "error"), failure: marks(text, "failure"), skipped: marks(text, "skipped") };
+  for (const { close, name, attrs, self, end } of tags(text)) {
     const attr = (k) => { const a = new RegExp(`\\b${k}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, "i").exec(attrs); return a ? value(a[1] ?? a[2]) : null; };
     if (name.toLowerCase() === "testsuite") { if (close) suites.pop(); else if (!self) suites.push(attr("name")); continue; }
     if (close) continue;
     let verdict = "passed";
     if (!self) {
-      const end = text.indexOf("</testcase>", tag.lastIndex);
-      const body = text.slice(tag.lastIndex, end === -1 ? undefined : end);
-      verdict = /<error\b/i.test(body) ? "error" : /<failure\b/i.test(body) ? "failure" : /<skipped\b/i.test(body) ? "skipped" : "passed";
+      // The case's body runs to the next `</testcase>`, or to the end of the report.
+      const stop = caseEnd(end);
+      const to = stop === -1 ? text.length : stop;
+      const has = (k) => within(found[k], end, to, k.length + 1);
+      verdict = has("error") ? "error" : has("failure") ? "failure" : has("skipped") ? "skipped" : "passed";
     }
     out.push(JSON.stringify([suites, attr("classname"), attr("name"), verdict]));
   }
-  out.push(JSON.stringify(["failures and errors anywhere", (text.match(/<(?:failure|error)\b/gi) ?? []).length]));
+  out.push(JSON.stringify(["failures and errors anywhere", found.error.length + found.failure.length]));
   return out.sort();
 }
 function lcov(text) {
@@ -114,8 +208,10 @@ for (const [name, project] of REPORTS) {
   let was, now;
   try { was = project(committed); } catch (e) { problems.push(`reports/${name} cannot be read as the report it claims to be (${e.message})`); continue; }
   now = project(fresh);
-  const gone = was.filter((x) => !now.includes(x));
-  const added = now.filter((x) => !was.includes(x));
+  // Looked up in a set: in the other list, each line cost a scan of it (9.4 s for 50,000 cases).
+  const [inWas, inNow] = [new Set(was), new Set(now)];
+  const gone = was.filter((x) => !inNow.has(x));
+  const added = now.filter((x) => !inWas.has(x));
   if (gone.length + added.length === 0) continue;
   const show = (list) => list.slice(0, 8).map((x) => `\n      ${x}`).join("") + (list.length > 8 ? `\n      … and ${list.length - 8} more` : "");
   problems.push(`reports/${name} is not the report this tree produces:`

@@ -1,18 +1,55 @@
 # runward gate — GitLab CI adapter (sample).
 # Inert until you install it: see runward/adapters/README.md.
-# Merge this job into your .gitlab-ci.yml, then make the pipeline required
-# on your protected branch (Settings → Merge requests → pipelines must
-# succeed) so no gap merges.
+#
+# Two ways in, the same job (ADR-0094):
+#  1. GitLab 17.9 or later: include the release asset, pinned by its content (recommended):
+#       include:
+#         - remote: "https://github.com/stranxik/runward/releases/download/vX.Y.Z/runward-gitlab-gate-X.Y.Z.yml"
+#           integrity: "sha256-<base64>"
+#     The asset pins runward X.Y.Z; docs/gitlab.md in the runward repository computes the value.
+#  2. Any GitLab: merge the job below into your .gitlab-ci.yml. RUNWARD_VERSION is the runward
+#     version that wrote this file (`runward init` / `runward update` stamp it). Set to `latest`,
+#     the job warns on every run, as the GitHub Action does.
+# Then make the pipeline required on your protected branch (Settings > Merge requests > Pipelines
+# must succeed) so no gap merges. What each GitLab tier can and cannot enforce: docs/gitlab.md.
 #
 # The gate is deterministic and zero-LLM: no secrets, no model key needed.
-# Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission found.
+# Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission, a usage error or a refused gesture: the question could not be asked, never a red gate.
 
 runward-gate:
-  image: node:20
-  # Use --strict to also enforce the rule-conformance manifests.
-  # Drop --strict for the deliverable audit only.
+  # The floor runward's own package declares (engines.node) — ADR-0070: a shipped sample never
+  # contradicts the package that ships it.
+  image: node:22
+  variables:
+    RUNWARD_VERSION: "0.46.0" # the runward version that wrote this file (init / update stamp it)
   script:
-    - npx --yes runward check --strict
+    - |
+      case "$RUNWARD_VERSION" in
+        latest|next) echo "WARNING: runward@$RUNWARD_VERSION is not pinned: the verdict can change when a new runward is published. Pin RUNWARD_VERSION for a reproducible verdict." ;;
+        *) printf '%s' "$RUNWARD_VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "ERROR: invalid runward version '$RUNWARD_VERSION'"; exit 2; } ;;
+      esac
+      mkdir -p runward-reports
+      code=0
+      # Use --strict to also enforce the rule-conformance manifests.
+      # Drop --strict for the deliverable audit only.
+      npx --yes "runward@$RUNWARD_VERSION" check --strict || code=$?
+      # The reports, deposited on a red gate too; verify re-derives the attestation just emitted.
+      # One run writes check.json and the Code Quality and JUnit renderings (ADR-0096).
+      npx --yes "runward@$RUNWARD_VERSION" check --strict --json --codequality runward-reports/gl-code-quality-report.json --junit runward-reports/runward-junit.xml > runward-reports/check.json || true
+      npx --yes "runward@$RUNWARD_VERSION" check --strict --attest > runward-reports/verdict.intoto.json || true
+      npx --yes "runward@$RUNWARD_VERSION" verify runward-reports/verdict.intoto.json --json > runward-reports/verify.json || { if [ "$code" -eq 0 ]; then code=1; fi; }
+      npx --yes "runward@$RUNWARD_VERSION" report --out runward-reports/delivery-report.html || true
+      exit $code
+  artifacts:
+    when: always
+    expose_as: "runward reports"
+    paths:
+      - runward-reports/
+    # The gate's causes in the merge request's Code Quality widget and test panel, on every tier.
+    # No `reports: sarif`: GitLab would file each runward gap as a vulnerability, which it is not.
+    reports:
+      codequality: runward-reports/gl-code-quality-report.json
+      junit: runward-reports/runward-junit.xml
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'

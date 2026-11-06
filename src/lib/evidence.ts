@@ -182,6 +182,35 @@ function stringEnd(text: string, from: number, f: StringForm): number {
   return text.length;
 }
 
+/** `/(?:^|[:\-[{,?])\s*$/` tested on the line before `i`, read back over the blanks only: the line was sliced
+ *  and tested from its start for every quote of it (quadratic on a long line of quotes). */
+function atValue(text: string, i: number): boolean {
+  let q = i - 1;
+  while (q >= 0 && text[q] !== "\n" && /\s/.test(text[q])) q--;
+  return q < 0 || text[q] === "\n" || ":-[{,?".includes(text[q]);
+}
+
+/** Every maximal run of backticks of a text, by its length: the starts, in order. */
+function backtickRuns(text: string): Map<number, number[]> {
+  const out = new Map<number, number[]>();
+  for (let i = text.indexOf("`"); i !== -1; i = text.indexOf("`", i)) {
+    let k = i; while (text[k] === "`") k++;
+    const list = out.get(k - i);
+    if (list) list.push(i); else out.set(k - i, [i]);
+    i = k;
+  }
+  return out;
+}
+/** The first start of a run of exactly `length` backticks at or after `from`, or -1. A run of that many
+ *  inside a longer one is no closing run: `text.indexOf(run)` met those and set them aside. */
+function nextRunOf(runs: Map<number, number[]>, length: number, from: number): number {
+  const starts = runs.get(length);
+  if (!starts) return -1;
+  let lo = 0, hi = starts.length;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (starts[mid] < from) lo = mid + 1; else hi = mid; }
+  return lo < starts.length ? starts[lo] : -1;
+}
+
 /** A template literal's text from `from`: where it ends, and whether it stopped at a `${`. */
 function templateEnd(text: string, from: number): { end: number; interpolation: boolean } {
   for (let j = from; j < text.length;) {
@@ -195,6 +224,7 @@ function templateEnd(text: string, from: number): { end: number; interpolation: 
 
 /** The end of a regular-expression literal opening at `from` (a `/`), or -1 when none closes on its line. */
 function regexEnd(text: string, from: number): number {
+  if (text.length >= 4096) return regexEnds(text)[from + 1] ?? -1;
   let inClass = false;
   for (let j = from + 1; j < text.length; j++) {
     const ch = text[j];
@@ -207,6 +237,29 @@ function regexEnd(text: string, from: number): number {
   return -1;
 }
 
+/** `regexEnd` for every position of a long text at once, read from the end in the two states of the scan
+ *  (inside a class or not): a scan from every `/` that may open a literal read to the end of its line each
+ *  time a class stayed open, quadratic on a line of `(/[` repeated (54 s at 250,000 characters, measured on
+ *  2026-11-06). Entry `k` is the answer of a scan that starts at `k` outside a class. */
+let REGEX_ENDS: { text: string; ends: Int32Array } | null = null;
+function regexEnds(text: string): Int32Array {
+  if (REGEX_ENDS !== null && REGEX_ENDS.text === text) return REGEX_ENDS.ends;
+  const n = text.length;
+  const out = new Int32Array(n + 2).fill(-1);
+  const inClass = new Int32Array(n + 2).fill(-1);
+  for (let j = n - 1; j >= 0; j--) {
+    const ch = text[j];
+    if (ch === "\n") continue;
+    if (ch === "\\") { out[j] = j + 2 < n ? out[j + 2] : -1; inClass[j] = j + 2 < n ? inClass[j + 2] : -1; }
+    else if (ch === "[") { out[j] = inClass[j + 1]; inClass[j] = inClass[j + 1]; }
+    else if (ch === "]") { out[j] = out[j + 1]; inClass[j] = out[j + 1]; }
+    else if (ch === "/") { out[j] = j + 1; inClass[j] = inClass[j + 1]; }
+    else { out[j] = out[j + 1]; inClass[j] = inClass[j + 1]; }
+  }
+  REGEX_ENDS = { text, ends: out };
+  return out;
+}
+
 /** YAML: the [start, end) offsets of the lines of every `|` or `>` block scalar, in order. */
 function yamlBlockScalars(text: string): Array<[number, number]> {
   const out: Array<[number, number]> = [];
@@ -215,7 +268,7 @@ function yamlBlockScalars(text: string): Array<[number, number]> {
   for (let i = 0, at = 0; i < lines.length; i++) { starts.push(at); at += lines[i].length + 1; }
   const indent = (l: string): number => l.length - l.trimStart().length;
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].trimStart().startsWith("#") || !YAML_BLOCK_START.test(lines[i].replace(/\s#.*$/, ""))) continue;
+    if (lines[i].trimStart().startsWith("#") || !YAML_BLOCK_START.test(withoutTrailingComment(lines[i]))) continue;
     const parent = indent(lines[i]);
     let j = i + 1;
     while (j < lines.length && (lines[j].trim() === "" || indent(lines[j]) > parent)) j++;
@@ -223,6 +276,18 @@ function yamlBlockScalars(text: string): Array<[number, number]> {
     i = j - 1;
   }
   return out;
+}
+
+/** `line.replace(/\s#.*$/, "")` in one pass: the pattern tried every ` #` of a line and read each to the
+ *  line's end when a line separator sat further on (quadratic). A cut can only start after the last line
+ *  terminator of the line, where `.*` then reaches the end; before it, no cut ever matched. */
+function withoutTrailingComment(line: string): string {
+  let from = 0;
+  for (let k = line.length - 1; k >= 0; k--) {
+    const ch = line[k];
+    if (ch === "\r" || ch === "\u2028" || ch === "\u2029") { from = k; break; }
+  }
+  return line.slice(0, from) + line.slice(from).replace(/\s#.*$/, "");
 }
 
 const blank = (s: string): string => s.replace(/[^\r\n]/g, " ");
@@ -238,6 +303,11 @@ export function withoutComments(text: string, path: string): string {
   const scalars = lx.blockScalars ? yamlBlockScalars(text) : [];
   let nextScalar = 0;
   const frames: number[] = []; // JS: one per open `${`, the `{` depth inside it
+  // A block comment that does not nest and found no close from `i` finds none from any later position:
+  // remembered per opener, so an unterminated `<!--` repeated is not read to the end once per opener
+  // (quadratic: 85 s at 250,000 characters, measured on 2026-11-06).
+  const openFrom = new Map<string, number>();
+  let runsByLength: Map<number, number[]> | null = null;
   let prevSig = "", prevWord = "", gap = false;
   const keep = (s: string): void => { out.push(s); prevSig = s[s.length - 1]; prevWord = ""; gap = false; };
   const drop = (s: string): void => { out.push(blank(s)); gap = true; };
@@ -268,8 +338,9 @@ export function withoutComments(text: string, path: string): string {
     if (lx.codeSpans && ch === "`") {
       let k = i; while (text[k] === "`") k++;
       const run = text.slice(i, k);
-      let close = text.indexOf(run, k);
-      while (close !== -1 && (text[close - 1] === "`" || text[close + run.length] === "`")) close = text.indexOf(run, close + 1);
+      // The first run of exactly this many backticks at or after `k`: a search from every run left open
+      // read to the end of the text once per run (quadratic on runs of many lengths).
+      const close = nextRunOf(runsByLength ??= backtickRuns(text), run.length, k);
       const e = close === -1 ? k : close + run.length;
       keep(text.slice(i, e)); i = e; continue;
     }
@@ -277,11 +348,14 @@ export function withoutComments(text: string, path: string): string {
     if (block) {
       const [open, close] = block;
       let depth = 1, j = i + open.length;
+      const unclosedFrom = lx.nests ? undefined : openFrom.get(open);
+      if (unclosedFrom !== undefined && i >= unclosedFrom) j = text.length;
       while (j < text.length && depth > 0) {
         if (lx.nests && text.startsWith(open, j)) { depth++; j += open.length; }
         else if (text.startsWith(close, j)) { depth--; j += close.length; }
         else j++;
       }
+      if (depth > 0 && !lx.nests && !openFrom.has(open)) openFrom.set(open, i);
       if (depth > 0 && lx.openCommentIsText) { keep(open); i += open.length; continue; }
       drop(text.slice(i, j)); i = j; continue;
     }
@@ -307,7 +381,7 @@ export function withoutComments(text: string, path: string): string {
       keep(ch); i++; continue;
     }
     const str = lx.strings.find((f) => text.startsWith(f.open, i));
-    if (str && (!lx.quoteAtValue || /(?:^|[:\-[{,?])\s*$/.test(text.slice(text.lastIndexOf("\n", i - 1) + 1, i)))) {
+    if (str && (!lx.quoteAtValue || atValue(text, i))) {
       const e = stringEnd(text, i + str.open.length, str);
       keep(text.slice(i, e)); i = e; continue;
     }
@@ -430,11 +504,20 @@ const POINTER_START = /^(file|test|adr):\S/;
 function splitPointers(segment: string): string[] {
   const out: string[] = [];
   let buf = "", quote: string | null = null;
+  // Whether a pointer spelling follows a blank or a comma at or after each position, read once from the
+  // end: the test `/(^|[\s,])(file|test|adr):\S/` of the rest of the segment, at every blank, read the
+  // rest again each time (quadratic: 22 s for a 100,000-character cell, measured on 2026-11-06,
+  // RWD-2026-0205). The rest from a blank holds a match exactly when one of its blanks or commas, the
+  // first one included, is followed by a spelling.
+  const ahead = new Uint8Array(segment.length + 1);
+  for (let i = segment.length - 1; i >= 0; i--) {
+    ahead[i] = ahead[i + 1] === 1 || (/[\s,]/.test(segment[i]) && POINTER_START.test(segment.slice(i + 1, i + 7))) ? 1 : 0;
+  }
   for (let i = 0; i < segment.length; i++) {
     const ch = segment[i];
     if (quote) { if (ch === quote) quote = null; buf += ch; continue; }
     if (ch === '"') { quote = ch; buf += ch; continue; }
-    if (/\s|,/.test(ch) && /(^|[\s,])(file|test|adr):\S/.test(segment.slice(i))) { out.push(buf); buf = ""; continue; }
+    if (/\s|,/.test(ch) && ahead[i] === 1) { out.push(buf); buf = ""; continue; }
     if (!/[A-Za-z0-9_]/.test(segment.charAt(i - 1)) && POINTER_START.test(segment.slice(i))) { out.push(buf); buf = ch; continue; }
     buf += ch;
   }
@@ -637,7 +720,12 @@ function clean(token: string): string {
   // reported *symbol "login`" not found*. An undue refusal, and the operator sees a pointer that
   // is correct being called wrong. It only surfaced where the pointer ends the line: in a manifest
   // cell something usually follows it. No path segment and no identifier ends in a backtick.
-  return token.replace(/[),.:`]+$/, "");
+  // Read from the end: `/[),.:`]+$/` tried every character of a run of them and read each try to the
+  // end of the run, quadratic on a cell holding one long run (over 60 s for a 100,000-character
+  // cell, measured on 0.46.0, RWD-2026-0205). The same characters come off.
+  let end = token.length;
+  while (end > 0 && "),.:`".includes(token[end - 1])) end--;
+  return token.slice(0, end);
 }
 
 /**
@@ -1292,7 +1380,10 @@ export function evidenceReport(
     // the whole cell wrapped in brackets, which is what the templates ship and what no honest cell
     // looks like; a cell that merely CONTAINS brackets (`file:x.ts [checked 2026-09]`, a markdown
     // link) is untouched.
-    if (/^\[[^\]]*\s[^\]]*\]$/.test(row.evidence.trim())) {
+    // The first blank is the one the pattern needs: `[^\]\s]*` before it reads each character one way, where
+    // `[^\]]*\s[^\]]*` tried every blank of the cell (quadratic: 3.9 s for the pattern alone on a
+    // 100,000-character cell, measured on 2026-11-06, RWD-2026-0205). Same cells refused.
+    if (/^\[[^\]\s]*\s[^\]]*\]$/.test(row.evidence.trim())) {
       out.push({ rule: row.rule, kind: "evidence-placeholder", problem: "the evidence cell is still the template placeholder — write what actually proves this rule was applied (a pointer, a test, an ADR, or your reasoning)" });
       continue;
     }
@@ -1669,6 +1760,20 @@ function sealableEvidencePaths(missionDir: string): string[] {
   // frozen files were no longer invoked by anything. A seal must cover the claim, not only what the
   // claim happened to cite.
   for (const rel of sealedManifests(missionDir)) files.set(toPosix(relative(realpathOr(resolve(root)), realpathOr(join(missionDir, rel)))), "");
+  // ADR-0124 decision 4: the decisions the manifests name are part of the claim too. An ADR a gated
+  // manifest names in a row, a table or a sentence, and never through `adr:`, sat outside the lock: case
+  // g4 of the 2026-11-05 saboteur corpus replaced its body under an intact seal. The id is looked up as
+  // `adr:` looks it up (ADR-0074's journals). A name in prose stays outside the checked layer (ADR-0004):
+  // it decides what the seal freezes, nothing else. A lock written before verifies the keys it lists, so
+  // it stays intact, and the next `--freeze` widens.
+  for (const { deliverable } of GATED_DELIVERABLES) {
+    let content: string;
+    try { content = readFileSync(join(missionDir, deliverable), "utf8"); } catch { continue; }
+    for (const id of new Set([...content.matchAll(/(?<![\w-])ADR-(\d+)(?!\d)/gi)].map((k) => k[1]))) {
+      const abs = adrPath(missionDir, `ADR-${id}`);
+      if (abs && isRegularFile(abs)) files.set(toPosix(relative(realpathOr(resolve(root)), realpathOr(abs))), "");
+    }
+  }
   return [...files.keys()].sort();
 }
 

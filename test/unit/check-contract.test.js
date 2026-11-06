@@ -51,7 +51,7 @@ const ctx = (over = {}) => ({
 
 // --- misuse -------------------------------------------------------------------------------------
 
-test("--through with --freeze is refused: a seal certifies a full crossing, a horizon a prefix", () => {
+test("--through with --freeze is refused: a seal is taken on a complete crossing, a horizon judges a prefix", () => {
   const fault = optionFault({ through: "floor", freeze: true });
   assert.ok(fault, "sealing a declared prefix would read like completion — the false green ADR-0053 refuses");
   assert.match(fault.message, /--through/);
@@ -81,7 +81,7 @@ test("the combinations that mean something are not refused", () => {
 
 // --- implied modes ------------------------------------------------------------------------------
 
-test("--freeze implies --strict: a seal certifies a strict crossing, never a lenient one", () => {
+test("--freeze implies --strict: a seal is taken on a strict crossing, never on a lenient one", () => {
   assert.equal(impliesStrict({ freeze: true }), true);
   assert.equal(impliesStrict({ strict: true }), true);
   assert.equal(impliesStrict({}), false, "nothing else may turn strict on by accident");

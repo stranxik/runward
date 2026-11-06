@@ -18,7 +18,7 @@ import { readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
 import { GATED_DELIVERABLES, parseManifest } from "../lib/conformance.js";
-import { readRuleSet, ruleSetDir, globToRegExp, type RuleInfo } from "../lib/rules.js";
+import { readRuleSet, ruleSetDir, globMatcher, type RuleInfo } from "../lib/rules.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 import { hashText, scaffoldedProjectHashes } from "../lib/scaffold-lock.js";
@@ -49,7 +49,7 @@ function projectFiles(root: string): string[] {
  *  is still exactly what runward scaffolded is skipped and reported in `untouched`. */
 function signatureMatch(root: string, files: string[], rule: RuleInfo, scaffolded: Map<string, Set<string>>, untouched: string[]): string | null {
   if (!rule.signature || rule.appliesTo.length === 0) return null;
-  const globs = rule.appliesTo.map(globToRegExp);
+  const globs = rule.appliesTo.map(globMatcher);
   let re: RegExp;
   try { re = new RegExp(rule.signature); } catch { return null; }
   for (const f of files) {
@@ -135,7 +135,7 @@ export async function proposeCommand(opts: { path?: string; json?: boolean; for?
         empty("scaffolded-file-untouched", null);
         lines.push(`  ${c.darkGray("·")} ${c.white(row.rule)} ${c.darkGray(`— ${untouched.join(", ")} ${untouched.length > 1 ? "are" : "is"} still the file runward scaffolded; nothing proposed (runward's template is not your evidence)`)}`);
       } else if (rule.appliesTo.length > 0) {
-        const governed = files.filter((f) => rule.appliesTo.map(globToRegExp).some((g2) => g2.test(f)));
+        const governed = files.filter((f) => rule.appliesTo.map(globMatcher).some((g2) => g2.test(f)));
         empty(rule.signature ? "signature-not-found" : "no-signature", governed.length);
         lines.push(`  ${c.darkGray("·")} ${c.white(row.rule)} ${c.darkGray(`— territory matches ${governed.length} file(s)${rule.signature ? `, signature /${rule.signature}/ not found in any` : "; no signature, nothing proposed"}`)}`);
       } else if (rule.signature) {

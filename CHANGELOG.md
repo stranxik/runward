@@ -2,6 +2,293 @@
 
 ## Unreleased
 
+### runward-run: the tests and the declared reports run out of the agent's reach, and the gate reads them at `attested` (ADR-0120 R1, ADR-0119)
+
+Measured on 2026-11-05 (ADR-0117): a hand-committed report satisfied `requires:`, and nothing in the
+product said who produced the reports a verdict reads. A new package of this repository,
+`packages/runward-run` (MIT, no dependency, imports nothing from runward, versioned with runward),
+runs a mission's tests and the commands of its declared reports in a container pinned by digest with the
+network cut, on a copy of the checkout, and writes the reports, normalised (no absolute path, no timing,
+no verdict touched), with one unsigned in-toto Statement, `https://runward.dev/run/v1`, whose subjects are
+their digests and whose predicate records the image, the commands and their exit codes, the lockfile's
+digest, the mission's manifests and the digests of the expected source set, hashed before any leg ran. It
+fails closed, exit 3 and nothing written, on an image pinned by tag, a runtime that cannot cut the network
+or ignores the flag (a probe container must see the loopback only), a run policy inside the judged tree,
+install scripts left on, no lockfile, and the legs of R2 and R3, refused by name.
+
+`check --strict --require` takes two more levels, by rank above `mechanical` (ADR-0119): `re-derived`
+(no applied row rests on a declaration, and the declared territory is analysed under the pinned policy)
+and `attested` (also, every report a row cites is bound to this tree by a signed run Statement found
+beside it). The binding is re-derived by the command, from files at rest: the report's digest is a
+subject, the network was cut, the manifests and every recorded source digest are this tree's, and the
+recorded source set is not narrower than the one the tree implies. A signature is counted, never
+verified: every payload says `signatureVerified: false`, and every surface that reads `attested` prints
+« attested: the binding is re-derived by this command; the signature is verified outside it ». Below the
+level asked, exit 5. The `levels` block of `check --json` (each applied row at its level with its pieces,
+the rows below the level and what holds each, the run Statements read, the expected set) is present only
+when the run requires one of the two levels: every other payload keeps its bytes. Inert samples ship for
+GitHub (a reusable workflow: the executing job holds no id-token and no secret, the signing job runs no
+project code) and GitLab (the pipeline of a project the agent cannot write), at parity, with the shipped
+example's run policy. Not delivered yet: the coverage and mutation legs of the cited lines (R2) and the
+evals leg (R3); the required level read from the mission's lock (ADR-0119 decision 4); the shipped
+example still answers one row in prose, which `re-derived` refuses until it is typed; runward-run is not
+in the release chain yet. The specification is `docs/spec/runward-run.md`.
+
+### runward-fleet verify-run: the signature on a run Statement, verified offline against the trust policy (ADR-0120 D4a)
+
+The identity half of `attested`, outside the CLI. `runward-fleet verify-run <bundle|envelope> --policy
+<trust-policy.json> --repository <host/owner/repo> --commit <sha>` verifies a Sigstore bundle (what
+`actions/attest` and `cosign attest-blob --bundle` write) or a key-signed DSSE envelope with the fleet's
+own offline verifier, and refuses by name a Statement signed from the mission's own workflow, by a signer
+workflow the trust policy does not pin or pins without a commit, by the pinned workflow at another commit,
+for another repository or another commit of the mission, and a key signature under no key the policy pins.
+The trust policy gains the signer kind `key` (ECDSA P-256 or P-384, or Ed25519, pinned by the digest of
+its SPKI) for instances with no keyless signing. Exit 0 accepted, 1 refused, 2 a question it cannot ask.
+Its result enters no file runward reads. The display half of D4 (cells raised to `machine-established`
+from run Statements in the fleet view) is D4b, not delivered.
+
+### Fixed: what CodeQL raised on runward-fleet, the example's report script and the SBOM generator (RWD-2026-0206 to RWD-2026-0208)
+
+The repository's code scanning raised eleven alerts of severity high on the first integration pull request
+of 2026-11-06, all in code no release carried. Eight are polynomial-time patterns of runward-fleet: the
+view rules (`ownText`, the numbers of a view, the page's inline index and its data URLs), the repository
+names of the trust policy (`normRepo`) and the markdown of the pull-request view. The static analyzers of
+RWD-2026-0203 found four more in the same functions, and reading them found a lookup that is not a pattern:
+every count of a view searched for again in the whole view. Measured at 100,000 characters, a run of `<`
+took 9 s in `ownText` and a run of slashes 7.8 s in `normRepo`; the count lookup took 9.6 s at 400,000.
+Each reader now reads its text in one pass, with the answers of the pattern it replaces (compared on
+310,000 generated inputs); `test/unit/fleet-linear-readers.test.js` holds twelve shapes at 1,000,000
+characters under a ceiling of CPU time. The index path reader CodeQL named measured linear, and was
+rewritten anyway. Three alerts read a sanitization as incomplete. On the markdown view it is not one: `md`
+escapes every character of its input, and a test holds that a `<!--` left in the text is written as text. On
+the example's `reports.mjs` it is not one either, since the JUnit report is read and never written as
+markup, but reading `junit()` for it found the comment reader, the tag pattern and the search for each
+case's body restarting from every opener left open, and the comparison of two reports quadratic in their
+cases (9.4 s of CPU for 50,000): each is linear now, with the same projection
+(`test/unit/example-report-readers.test.js`). On the SBOM generator, an author's address left open stayed in
+the name and an object's name lost what it held in parentheses: the name is now the one npm reads, an
+object's `name` as written and a string up to its first `<` or `(`. No author of the runtime tree the
+release bundles changes.
+
+### Fixed: the declared core's environment read through optional chaining, a bracket, `globalThis` or a destructuring is a finding
+
+The capability family looked for `process.env`, `import.meta.env`, `Deno.env` and `Bun.env` written with a
+dot. The reviewer of hono measured the miss on the builds of 2026-11-06: in the measurement's declared
+profile, `src/utils/color.ts:23` reads `'NO_COLOR' in process?.env` inside the declared core and was not
+reported, while express's `process.env.NODE_ENV` was. Each spelling of that read is now one finding:
+`process?.env`, `process['env']` and `process?.["env"]`, `globalThis.process.env` and `global.process['env']`,
+`const { env } = process`, and the optional chaining of the other three. A bracket holding anything but the
+literal `'env'` is not read as one, and an `environment` allowance of the file covers every spelling.
+`test/unit/analyze-environment-reads.test.js` holds each form, and what is not that read.
+
+### Fixed: under a parent test runner, a hook's own `node --test` no longer passes without running (RWD-2026-0204)
+
+A `node --test` sets `NODE_TEST_CONTEXT` for each child it spawns, and `check --hooks` ran the hooks with
+its whole environment. When runward itself ran under a test runner (a suite that spawns
+`runward check --hooks`), a hook's `node --test` read the variable as its own: it skipped every file it was
+given and exited 0, on Node.js 20, 22 and 24. Measured on 0.46.0 with `init --example` and a hook running
+a failing test file: `check --strict --hooks` exits 1; the same command with `NODE_TEST_CONTEXT=child-v8` in
+its environment exits 0. A hook that regenerates a JUnit report fails instead, since the nested run writes
+none (the example's own hook: exit 1 where it is green). The hooks now run without that one variable, and
+with every other; `test/unit/hooks-parent-test-runner.test.js` shows the nested run skipping first, then the
+failing hook failing under the variable. Every release since 0.8.0, the first with `--hooks`, passed it on.
+On those, run `check --hooks` outside a test runner, or clear the variable for it (`env -u
+NODE_TEST_CONTEXT`).
+
+### Fixed: a manifest cell or a decision record built for it no longer holds `check --strict` for minutes (RWD-2026-0205)
+
+The audit of RWD-2026-0203 read the evidence and conformance layers too, which every release runs under
+`check --strict`, and timed them end to end on `init --example` with one cell or one file planted, 100,000
+characters long. On 0.46.0: a pointer followed by a run of closing punctuation held the gate over 60 s, a
+cell opening like the template placeholder 18 s, a cell of path characters without an extension 15 s, a
+draft decision of blank lines 11 s, a decision ending in lines of tabs 6.8 s; 1 MB is hours. Six patterns
+did it, each first measured where it arrived: the path tokens of a cell from 0.8.0, a decision's
+`hypothesis` status from 0.10.0, the trailing punctuation of a pointer from 0.15.0, a draft's `rejected`
+status from 0.21.1, the cut of a segment where a pointer starts from 0.32.0, the template placeholder test
+from 0.41.0. Each reads each character one way now, with the same answers (compared on 850,000 generated
+inputs with the former patterns); `test/unit/evidence-conformance-ceilings.test.js` runs the five shapes
+through the CLI under a ceiling of its CPU time. On a release before this one, a manifest cell or a decision longer than a
+few thousand characters is the shape to look for in a gate that does not finish.
+
+### Fixed: the built-in analyzers, the globs of the mission's own files and the comment reader read in linear time (RWD-2026-0203)
+
+Measured on 2026-11-06: the symbol family tried each cited name against `function\s*\*?\s*NAME`, whose two
+blank quantifiers around an optional star split a run of blanks every way, so one file holding `function`
+and blanks took 2.6 s at 50 KB, 42 s at 200 KB and 167 s at 400 KB, inside the policy's 1 MB limit. An
+audit of every regular expression the analyzers, the evidence layer's comment reader (ADR-0114) and the
+globs of `runward/territory.md` and `runward/analysis.md` run, and a measurement of each family end to end
+on 68 adversarial shapes at 999,000 bytes, found the same class elsewhere: the same pattern in the linkage
+and test-integrity families, a heading pattern of `runward/analysis.md` that was cubic (16 s on one line
+of 4,000 characters), a glob of many stars compiled to a backtracking pattern (over 60 s for one file
+name), a bracket scan restarted from every opener, a fixpoint re-reading every helper's body once per
+helper found, regular-expression literals left open that both maskers read to the end of the line from
+every slash, an `<!--` left open read to the end of the file once per opener. Each is read in linear time
+now, by an unambiguous pattern, a table read once per file or a search that does not restart, and gives
+the answers it gave: the masker, the comment reader and the glob matcher were compared with their former
+forms on generated inputs, and the analyzers end to end on 750 generated missions, with no difference.
+Where nesting multiplies the work (cases in cases, helpers in helpers, assignments in assignments), what
+one file makes the reading read is bounded at sixteen times its size: a case past it is listed under
+`notAnalyzed`, as a file over the size limit is, and a helper or an initializer past it credits nothing,
+which can only leave a case red. On the 68 shapes the slowest reading now takes 1.4 s at 999,000 bytes. The
+static audit's last pass found one more: the trailing slashes of a territory or allowance pattern, stripped
+from every slash of a run (7.7 s for one pattern of 100,000 characters), now stripped from the end.
+`test/unit/analyze-ceilings.test.js` runs 32 shapes at that size under a ceiling of CPU time, and holds the
+heading reader and the glob matcher to the patterns they replace. No release carried the analyzers or the comment
+reader. `rules --for` and `propose` read their globs through the same matcher, with the same answers.
+
+### The saboteur corpus joins the repository (ADR-0117, ADR-0124)
+
+`node test/saboteur-corpus.js` replays the sabotages of the shipped example that the investigation of
+2026-11-05 measured and the variants ADR-0124 wrote: 22 cases, each with a stable identifier, built on
+the fly from `init --example` and judged by the real CLI. Each asserts the exit code measured after
+ADR-0124, with no seal, sealed before the sabotage, and with the example's hook where an execution is
+what refuses it. Two sabotages are pinned green without a seal, a placeholder that keeps every name and a
+decision rewritten as a well-formed record, each with the limit ADR-0124 writes, so that the change
+that closes one of them flips its test knowingly. `test/unit/saboteur-corpus.test.js` runs it with the
+suite. The `--hooks` cases install the example's dependencies with npm; `--no-hooks` leaves them out, and
+a machine that cannot reach the npm registry (the network cut) skips them with that reason, in the suite and
+in the corpus's own run: offline they never fail and never pass.
+
+### Changed: runward says what a seal and `--through` do, and no longer that it certifies
+
+`docs/spec/witness.md` says that nothing in runward calls a verdict certified, and the gate still wrote
+it. The help of `check --through` now says that it judges only the phases up to the one you declare, a
+prefix of the arc; the refusal of `--through` with `--freeze`, the two refusals of `--freeze` (a red
+gate, a cited JUnit report that records failures) and the HTML report's deferred section say that a
+seal is taken on a complete crossing and that a declared horizon judges a prefix; so does the README's
+command table. Nothing else moves: the same refusals, exit codes and JSON. ADR-0053 keeps its file name,
+so links hold, and gets a dated note.
+
+### Changed: four sabotages that passed `check --strict` are refused (ADR-0124)
+
+Measured on 2026-11-06, on the integration train, with the saboteur corpus of 2026-11-05: four cases still
+exited 0 under `check --strict` with no seal. Each part below refuses one of them on `init --example`,
+sealed or not, and none moves runward's own mission or the example as shipped.
+
+- **One bar for a decision record.** An ADR of the example replaced by a 47-character stub (a title,
+  `**Status**: accepted`, "Nothing here.") passed every `adr:` pointer and every table that cites it,
+  because the evidence layer took any file over 40 characters whose status is accepted for a decision,
+  while the structure contract set the same file aside in the same run. Under the structure contract, an
+  `adr:` pointer, a deviated row's ADR, a declared uncarriable nature, and the tables of the architecture
+  note, the topology and the decision matrix that cite an ADR now refuse a record of the mission's own
+  `runward/adr/` that the journal sets aside (no `**Date**` line, a status outside proposed, accepted,
+  superseded and deprecated, no reevaluation trigger), with the reason; a table that cites a refused ADR
+  says why instead of saying that no journal holds it. A journal outside the mission (`docs/adr/`,
+  `doc/adr/`, `adr/`) and a mission without the opt-in read as before. A mission whose cited ADR lacks its
+  date or its trigger turns red, and the reason names the line to add; so does a status written with a
+  capital (`Accepted`), which the structure contract has always read as written, case included. Section 7.6 of
+  `docs/spec/witness.md` gives a checker the new condition.
+- **A linkage family in the built-in analyzers**, in `runward-analysis/1` before its first release. The
+  example's `code/src/core/domain/triage.ts`, cited bare, replaced by one word, kept every pointer
+  resolving and every committed report green. A name the delivered code imports, by a relative path, from
+  a file a manifest cites or from the declared core must now be exported by that file: the reading names
+  each import that does not link (a value) or does not type-check (a type), with its file and line. A
+  JavaScript file shipped with its declaration file exports what either declares; CommonJS, `export =`, a
+  destructured export and a re-export the reading cannot follow are never refused, and are listed as not
+  analysed. Like every family, it reads the delivered tree only. A placeholder that keeps every imported
+  name still links: what the code does needs an execution (`--hooks` today, `attested` with
+  `runward-run`).
+- **The example cites every case of its suite.** Deleting a case no row cites, and regenerating the
+  report, leaves a tree no reading can tell from an honest deletion: only a declaration or a baseline can.
+  The example's `provider-no-crash-missing-env` row says that every case of the suite runs the keyword
+  adapter, and cited one; it now cites the fourteen, so a deleted case is a cited case absent from the
+  report, which the evidence layer refuses. On your own mission, a case no row cites is still outside
+  the verdict unless a seal covers its test file. A line that says how many recorded cases no row cites
+  is decided and comes in a later release.
+- **The seal covers the decisions the manifests name.** The example's ADR-0002 is named by its rows, its
+  decision table and a link, never by `adr:`, so `check --freeze` left it out, and a stub, or a dated,
+  accepted record that reverses the decision, replaced it under an intact seal. `--freeze` now also seals
+  every ADR a gated manifest names by its id, found where `adr:` finds it; on the example the seal grows
+  by that one file. A lock written before verifies exactly the files it lists and stays intact; the next
+  `--freeze` widens it. A sealed mission turns red when a decision its manifests name changes, as for any
+  sealed file: seal what has stopped moving (ADR-0021).
+
+### The forbidden-claim list catches a national qualification, "sovereign", "tamper-proof", "platform" and "mathematical proof" said of runward
+
+An adversarial review of `docs/isolated-environments.md` wrote four sentences that
+`src/lib/claims-rules.ts` let through: "runward is certified by ANSSI", "SecNumCloud-ready", "a
+sovereign delivery gate" and "a tamper-proof platform". Six rules are added, each anchored on the claim
+rather than the word: a SecNumCloud or ANSSI qualification claimed for runward, "sovereign" said of a
+product, "tamper-proof", runward called a platform, a mathematical proof, and runward said to be
+certified or compliant. A cloud offer ANSSI has qualified, sovereignty by class of data (a design
+dimension the topology rules name) and a CI platform stay writable, and the test holds both
+directions. Against `main`'s list, the four sentences fired nothing. The list is read by
+`test/unit/no-overclaim.test.js` over runward's own surface and exported as `runward/claims`; no command
+applies it to a mission, so `init --example` and runward's own mission read the same. A site guard that
+consumes the export gains the rules when it moves its pin. "no human" is not added: the list's
+negation screen exempts every line holding the word "no", so a rule on it could never fire.
+
+### The regulated sheet says what reaches a network, and what the offline CI job runs
+
+`docs/compliance/regulated-adoption.md` said runward "makes no network call"; it now says the package
+opens no connection of its own and names, in the same sentence, what does reach a network: installing
+it, `npx` without a local install of the pinned version, the commands given to `check --hooks`, and,
+in a partial clone up to 0.46.0, the git that `characterize`, `doctor` and `sample` start
+(RWD-2026-0202), with a link to `docs/isolated-environments.md`. The vendor-control row no longer uses
+the word "sovereign" for hosting. The CI-hardening row said the offline job runs three things and that
+the drift guard does not check what runs inside the cut; it now lists what the job's test step runs
+under `sudo unshare -n`, says `npm ci` and the build run with the network, and that the guard reads the
+block. No ADR file is renamed.
+
+### The runtime-boundary test names `dns`, `http2` and `undici`, each with a planted control
+
+`test/unit/runtime-boundary.test.js` scanned the `runward` package for `http`, `https`, `http2`, `net`,
+`tls`, `dgram` and `undici` imports, and its walk of the verdict's import closure looked for
+`http`, `https`, `net`, `tls` and `dgram` among the sockets. `dns`, which reaches a resolver, was read
+only by the CI grep of `src/`, and the closure walk did not name `http2` or `undici`. Both lists now
+carry `dns` (and `dns/promises`), `http2` and `undici`; planted static and dynamic imports of each,
+in both spellings, must turn the package scan red, and anchored names (`dnsmasq`, `undici-types`) must
+not. Measured against `main`'s two expressions, the plants of `dns` were missed by both and those of
+`http2` and `undici` by the closure. No module of the package imports any of them: 12 tests of 12
+pass.
+
+### CI: `verify`, `report` and `ratify --agent` run with the network cut, and the posture guard reads the cut itself
+
+The `core tests, network-isolated` job of `.github/workflows/ci.yml` now also attests the example mission
+and verifies the attestation, writes its delivery report, and has an agent ratify a proposed row, all
+inside `sudo unshare -n`, on missions made inside the cut: the three commands `docs/isolated-environments.md`
+measured on a workstation and no CI job ran with the network cut. `test/unit/regulated-posture.test.js`
+read only that `unshare -n` and each command appeared somewhere in `ci.yml`; it now extracts the
+network-cut block and fails when one of the ten things the sheets cite (the route check, the smoke
+suite, the two schema tests, the self-gate, the corpus test, the attestation, `verify`, `report`,
+`ratify --agent`) is not inside it. A positive control moves `verify` out of the block, and removes the
+block, and both are caught. On `main`'s `ci.yml`, the same reading finds `verify`, `report` and
+`ratify --agent` missing from the cut.
+
+### Documented: running runward with no network, or inside a qualified cloud offer
+
+Documentation only. `docs/isolated-environments.md` answers "does anything leave the environment?" for
+the `runward` package on `main` (`382e2f0`, unreleased). Each command of its measurement table ran on
+2026-11-06 under `sandbox-exec` with the network denied and again with it open, on a full clone on macOS
+26.2 arm64, with the same exit codes, byte-identical output and byte-identical files; `check --strict
+--hooks` with a hook that needs the network was the one difference. It says what holds only under a
+condition (the VSA without `SOURCE_DATE_EPOCH`; `--whole-tree` and `verify`'s exit 2 on another build's
+attestation, which the published 0.46.0 does not have), what a partial clone does (RWD-2026-0202), and
+which steps reach a network, with what replaces each: installing, `npx` without a local install of the
+pinned version, a build from source, the Action, the GitLab template and the plugins fetched from
+GitHub, keyless signing, `check --hooks`, the `drand` round of `sample draw`, the online steps of release
+verification, the `gitlab` adapter of `runward-forge`. The routes measured: a tarball and an npm cache
+carried across, installed with `npm install --offline`, and Step 3 of `docs/verifying-a-release.md` on
+v0.46.0 with no `gh` login, whose trust root stays the public Sigstore instance's and GitHub's. It lists
+what was not measured, and claims no qualification for runward. `docs/compliance/README.md` links it.
+
+### Fixed: in a partial clone, no git runward starts fetches from the remote, and a read git cannot make is unknown, never "not committed" (RWD-2026-0202)
+
+In a clone made with `git clone --filter=blob:none`, three of runward's git reads needed blobs the
+clone did not hold, and git fetched them from the promisor remote on its own: the churn read of
+`characterize` (from 0.21.1), and the `git blame` reads of `doctor` and `sample` (from 0.43.0), with the
+`git show` and `git diff` of `sample draw`. With no network, the failed read was taken for a line not
+committed: `doctor` printed "N entr(ies) not committed yet" for committed entries, and `sample` "the
+review is not committed yet" instead of the review commit's signature status. Every git runward starts
+now runs with `GIT_NO_LAZY_FETCH=1`, honoured from git 2.45.0, so git refuses the fetch. A read that fails
+on a file git tracks is reported "unknown, git could not read <file>:<line>"; `sample draw` refuses a
+population it cannot read whole and writes nothing; `characterize` says the churn is unknown; `doctor`
+names a partial clone, and warns when its git is older than 2.45.0, which ignores the variable.
+`doctor --json` marks such an entry `"unreadable": true` (additive). The verdict path starts no process
+(ADR-0054): `check` and `verify` were not affected. `test/unit/partial-clone-no-fetch.test.js` builds a
+local partial clone over file://, shows first that a plain `git blame` there does fetch, then pins each
+behaviour; the register entry gives the versions, measured through `npx runward@<version>`.
+
 ### What you install is what the release tested: the tarball bundles its dependencies, and the SBOM is the package's (ADR-0116)
 
 Measured on 2026-11-05: installed into an empty project, the 0.46.0 tarball resolved 16 of its 27 runtime
@@ -203,6 +490,49 @@ good), so an attestation written before this change is verified with the version
 bench and the README now say that, with the analyzers on, the strict gate's cost also follows the size of the
 code it reads (on this repository's tree, 470 ms to about 800 ms). ADR-0118 amends ADR-0001, 0005, 0041 and
 0043, and leaves the thesis of ADR-0052 and the crossings of ADR-0054 as they are.
+
+### Fixed: the analyzers' false reds on three repositories runward did not write (ADR-0117 criterion 2)
+
+Before the analysis policy can stay the default of new missions, ADR-0117 asks for zero false reds on three
+real repositories. Run on express, fastify and hono at pinned commits, the analyzers raised 221 findings, and
+two reviewer sessions that wrote neither the analyzers nor the harness classified 129 of them false. The
+reading now follows what those cases assert and what those loaders load, on evidence the tree carries. A
+TypeScript case asserts at compile time when a type check of its project covers the file, as the tree shows
+it (a `package.json` script on its path runs `tsc` or `vue-tsc` with a configuration, `-p` or the
+`tsconfig.json` beside it, whose `files`, `include` and `exclude` cover the file through relative
+`extends`; an `extends` from a package, build mode, another tool or a script that changes directory credits
+nothing), and the assertion is about the code under test: an assertion type constrained `extends true`
+instantiated on it (`type verify = Expect<Equal<Expected, Actual>>`), or a `@ts-expect-error` over a line
+that uses it; on literals alone (`Expect<Equal<1, 1>>`), or where the only type check excludes the tests (a
+build configuration that sets `*.test.ts` aside), it still reads red. An asserting `const` helper may spread
+its parameters over lines.
+A case that hands its `done` to the code under test (under a runner that passes one: node:test, or mocha,
+Jest and Jasmine as the project declares them), builds an object of it, sets it up and awaits it as a
+statement (`await fastify.ready()`), or awaits a promise of its own that can still reject on a failure path,
+is no longer a finding: it is the hypothesis `case-asserts-completion`, which says that the case checks only
+that the code completes without error. The code under test is what the test file imports from a module that
+is not a test, and every name it assigns from it; `done` handed to a package (`request(app).end(done)`), a
+timer or a helper of the tests, and a value awaited and never read, still read red. A loader whose name is a
+`const` initialised with a literal alone, or the parameter of a local function only ever called with a
+literal, is read as that literal import when the name occurs nowhere else. The network is judged by what an
+import of a network module binds and reads: a table of constants (`METHODS`, `STATUS_CODES`, `isIP`) or a
+type-only import is a `core-import-builtin` finding of a declared core (a `network` allowance of the file
+still covers it). A PEM private key block is a finding when a base64 run of key length sits before its END
+line, whatever carries the lines (comments, quotes, `\n` escapes, `\/`, continuations, entities); a body
+that holds `${…}` or a placeholder holds no key. A cited symbol resolves to the module's declaration (a
+function that wraps the module included, a named function's local never), and an empty constant the code
+reads as a value is the hypothesis `symbol-sentinel-constant`, never counted; a stub that is only called,
+exported or typed stays a placeholder. Re-measured with the same harness on that branch's build (`9004563`):
+in a new mission's configuration,
+the 123 false findings are gone and the 12 true ones remain; under the harness's declared core, the 129 false
+ones are gone, the 92 true ones remain, and five findings appear, each what a literal import gives there
+(four `core-import-builtin` where `network` stood, and hono's `src/utils/color.ts` loading
+`cloudflare:workers`); 13 cases of express and fastify are now `case-asserts-completion` hypotheses. The
+bench's sabotages keep their exit codes and their findings; what a file built to slow the readings costs is
+RWD-2026-0203, above. A case with no assertion at all still reads red, a bare call awaited or not, and so does a type case
+with no type assertion; the hypothesis on a case that asserts only on literals no longer says it is by
+design. `test/unit/analyze-false-reds.test.js` holds one test per pattern, each beside a case classified true
+and evasions built against this reading that still fire.
 
 ### Changed: a `#SYMBOL` naming an identifier is looked for outside the file's comments (ADR-0114, RWD-2026-0194)
 
@@ -577,9 +907,11 @@ only turn a kill into a survivor the ratchet then refuses, never a survivor into
 `.github/workflows/mutation-ratchet.yml` builds the map in its plan job, hands it to every leg as an
 artifact, and writes the table per leg (its own commit, pushed by the maintainer). Positive control,
 run on the server and pinned in `test/unit/mutation-select-tests.test.js`: the `ObjectLiteral`
-mutant on `check-contract.js` L41-43 that the release ratchet killed is executed by one unit test
-file of 211, the 24-second CLI-spawning `verdict-witness.test.js`, which the selector names alone and
-which alone kills it. That test file is the suite's most expensive and joins `test/unit-cost.json`'s
+mutant of the `--witness` beside `--freeze` refusal (`check-contract.js` L41-43 in the run's build) that
+the release ratchet killed is executed by one unit test file of 211, the 24-second CLI-spawning
+`verdict-witness.test.js`, which the selector names alone and which alone kills it. The control finds the
+refusal by its text: anchored on its line, it skipped once imports added above moved the refusal, on the
+integration branch of 2026-11-06, and a build without the refusal now fails it. That test file is the suite's most expensive and joins `test/unit-cost.json`'s
 slow list from a single measurement under load (78.5 s). No CLI behaviour, output or verdict changes.
 
 ### The release verification demands a GitHub-hosted runner (RWD-2026-0185), and a deploy-time verification recipe

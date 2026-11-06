@@ -22,6 +22,8 @@ export function renderDeliveryReport(
 ): string {
   const p = payload as {
     runward: string; mission: string; currentGate: string; adrCount: number; verdict: string;
+    /** ADR-0114 and ADR-0119: the level of proof the run required, strict only. */
+    require?: { level: string; met: boolean };
     strict: boolean; exitCode: number;
     gaps: { deliverables: number; conformance: number; hooks: number; deferred: number; proposed: number };
     deliverables: Array<{ phase: string; artifact: string; relPath: string; state: string; cause: string | null }>;
@@ -125,6 +127,8 @@ export function renderDeliveryReport(
 <p><span class="verdict ${clean ? "clean" : "gaps"}">${clean ? "CLEAN" : p.verdict === "level-not-met" ? "LEVEL NOT MET" : "GAPS"}</span>
 ${clean
     ? " — every expected deliverable is filled and, under strict, every CRITICAL/HIGH rule mapped to a crossed phase is accounted for."
+    : p.verdict === "level-not-met" && (p.require?.level === "re-derived" || p.require?.level === "attested")
+    ? ` — no gap, and some applied row is below the level of proof the run required (${esc(p.require.level)}, exit 5, runward ADR-0119).`
     : p.verdict === "level-not-met"
     ? " — no gap, and nothing was verified mechanically: no applied row carries a pointer the gate opened and checked, below the level of proof the run required (exit 5, runward ADR-0114)."
     : ` — ${esc(p.gaps.deliverables)} deliverable gap(s), ${esc(p.gaps.conformance)} rule-conformance gap(s)${p.gaps.proposed ? ` (of which ${esc(p.gaps.proposed)} proposal(s) awaiting ratification)` : ""}.`}
@@ -151,7 +155,7 @@ ${wc && (wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length) >
 ${an ? `<p${an.findings.length ? ' class="warn"' : ""}>Delivered code, read under the analysis policy <code>${esc(an.policy)}</code> the mission pins (ADR-0118): ${esc(an.files.analysed)} source file(s) (${esc(an.files.core)} in the declared domain core, ${esc(an.files.tests)} test file(s)) and ${esc(an.files.config)} configuration file(s) read, never run — <strong>${esc(an.findings.length)} finding(s)</strong>, counted against this verdict and listed in the table above${an.hypotheses.length ? `; ${esc(an.hypotheses.length)} hypothesis(es) the reading cannot settle, reported and never counted` : ""}${an.notAnalyzed.length ? `; not analysed: ${an.notAnalyzed.map((x) => `${esc(x.what)}${x.files ? ` (${esc(x.files)})` : ""}`).join("; ")}` : ""}${an.allowances.present ? `; allowances in <code>${esc(an.allowances.file)}</code>: ${esc(an.allowances.used.length)} in use, ${esc(an.allowances.inert.length)} setting aside nothing` : ""}.</p><p><small>${esc(an.nonScope)}</small></p>` : ""}
 
 <h2>3 · What is deferred, and why</h2>
-${p.through ? `<p>This verdict certifies a declared prefix through <strong>${esc(p.through)}</strong> — a construction checkpoint, not a completion. ${esc(p.gaps.deferred)} later deliverable(s) are deferred by that declaration:</p><table><tr><th>Phase</th><th>Deliverable</th><th>Path</th></tr>${deferredRows}</table>` : `<p>No declared horizon: this verdict judges the whole arc, and nothing is deferred by declaration.</p>`}
+${p.through ? `<p>This verdict judges a declared prefix, through <strong>${esc(p.through)}</strong> — a construction checkpoint, not a completion. ${esc(p.gaps.deferred)} later deliverable(s) are deferred by that declaration:</p><table><tr><th>Phase</th><th>Deliverable</th><th>Path</th></tr>${deferredRows}</table>` : `<p>No declared horizon: this verdict judges the whole arc, and nothing is deferred by declaration.</p>`}
 
 <h2>4 · What the gate does not cover</h2>
 <blockquote>${esc(p.gateNonScope ?? "")}</blockquote>

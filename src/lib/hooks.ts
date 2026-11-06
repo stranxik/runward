@@ -68,10 +68,25 @@ export function runHooks(cfg: HooksConfig, phase: HookPhase, cwd: string, opts: 
   // subprocess writing to stdout would otherwise corrupt the single-JSON-object contract, which
   // log() cannot suppress. The hook's output stays visible on stderr; stdout carries only the JSON.
   const stdio: StdioOptions = opts.quietStdout ? ["inherit", 2, "inherit"] : "inherit";
+  const env = hookEnvironment(process.env);
   for (const cmd of cfg[phase]) {
     result.ran++;
-    try { execSync(cmd, { cwd, stdio }); }
+    try { execSync(cmd, { cwd, stdio, env }); }
     catch { result.failed.push(cmd); }
   }
   return result;
+}
+
+/**
+ * The environment a hook runs in: runward's own, less the variable a parent `node --test` sets for its
+ * children (RWD-2026-0204). Under a parent test runner, NODE_TEST_CONTEXT reached the hooks, and a
+ * `node --test` inside a hook read it as its own: it skipped every file it was given and exited 0, a
+ * failing suite answered as a passing hook (measured on Node.js 20, 22 and 24). The variable belongs to
+ * the protocol between that parent and its children, never to the operator's proof; everything else
+ * is passed as it was.
+ */
+export function hookEnvironment(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  const out = { ...env };
+  delete out.NODE_TEST_CONTEXT;
+  return out;
 }

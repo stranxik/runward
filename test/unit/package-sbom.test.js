@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { writeTgz } from "../../scripts/build-qualification-kit.mjs";
-import { packageSbom, render, runtimeTree, uuidV5, npmPurl, licensesOf, resolveFrom, sha512OfIntegrity, InputError, SPEC_VERSION } from "../../scripts/package-sbom.mjs";
+import { packageSbom, render, runtimeTree, uuidV5, npmPurl, licensesOf, resolveFrom, sha512OfIntegrity, authorName, InputError, SPEC_VERSION } from "../../scripts/package-sbom.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SCRIPT = join(ROOT, "scripts", "package-sbom.mjs");
@@ -174,6 +174,29 @@ test("package SBOM: the helpers say what they mean", () => {
   assert.equal(resolveFrom("node_modules/@s/b", "zz", have), null);
   const tree = runtimeTree(lockOf());
   assert.deepEqual([...tree.keys()].sort(), ["node_modules/@s/b", "node_modules/a", "node_modules/c"]);
+});
+
+// RWD-2026-0208. CodeQL read the old cut, `raw.replace(/<[^>]*>|\([^)]*\)/g, "")`, as an incomplete
+// sanitization: an address left open stayed in the name. The SBOM is JSON, not markup, so nothing was
+// injected, but the name was not the one npm reads, an object's name lost its parentheses, and the cut
+// restarted from every `<` that did not close (3.2 s for 64,000 of them).
+test("package SBOM: an author's name is the one npm reads, and a long field is read in linear time", () => {
+  assert.equal(authorName("A Maintainer <a@example.org> (https://example.org)"), "A Maintainer");
+  assert.equal(authorName("A Maintainer <a@example.org"), "A Maintainer", "an address left open is not part of the name");
+  assert.equal(authorName("A Maintainer (https://example.org) <a@example.org>"), "A Maintainer");
+  assert.equal(authorName("A Maintainer <a@example.org> Jr"), "A Maintainer", "npm's parsePerson stops at the first < or (");
+  assert.equal(authorName({ name: "James C. (Jamie) Davis", email: "j@example.org" }), "James C. (Jamie) Davis", "an object's name is read as written");
+  assert.equal(authorName("<a@example.org>"), null);
+  assert.equal(authorName({ email: "a@example.org" }), null);
+  assert.equal(authorName(undefined), null);
+  for (const unit of ["<", "(", "a <", "a ("]) {
+    const field = unit.repeat(Math.floor(1_000_000 / unit.length));
+    const t0 = process.cpuUsage();
+    authorName(field);
+    const t = process.cpuUsage(t0);
+    const ms = (t.user + t.system) / 1000;
+    assert.ok(ms < 2000, `${JSON.stringify(unit)} x ${field.length / unit.length}: read in ${ms.toFixed(0)} ms of CPU, over the 2000 ms ceiling`);
+  }
 });
 
 // ── the real tree ─────────────────────────────────────────────────────────────────────────────────

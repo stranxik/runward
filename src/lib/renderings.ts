@@ -110,6 +110,9 @@ export interface JUnitContext {
   /** The run's exit code: the `runward gate` case fails exactly when it is not 0 (1, or 5 under
    *  ADR-0114: no gap, and the required level of proof not met). */
   exitCode: 0 | 1 | 5;
+  /** The level of proof the run required (ADR-0114, ADR-0119), when strict; above `mechanical` an exit 5
+   *  says the rows are below that level, not that nothing was verified. */
+  requiredLevel?: string | null;
   /** The declared horizon, or null. */
   through: string | null;
 }
@@ -168,7 +171,12 @@ export function buildJUnit(findings: readonly VerdictFinding[], ctx: JUnitContex
     "  </testsuite>",
   ];
   const gateFailed = ctx.exitCode !== 0;
-  const gateCase = ctx.exitCode === 5
+  const aboveMechanical = ctx.requiredLevel === "re-derived" || ctx.requiredLevel === "attested";
+  const gateCase = ctx.exitCode === 5 && aboveMechanical
+    ? ["    <testcase name=\"runward gate\" classname=\"runward\">",
+       `      <failure message="below the level of proof the run required: ${ctx.requiredLevel} (exit 5)" type="runward/gate">${xmlEscape(`runward check --strict exited 5: no gap, and some applied row is below the level of proof the run required (${ctx.requiredLevel}); the rows and what holds each are under levels.below in check --json (runward ADR-0119).\n${RENDERING_NON_SCOPE}`)}</failure>`,
+       "    </testcase>"]
+    : ctx.exitCode === 5
     ? ["    <testcase name=\"runward gate\" classname=\"runward\">",
        `      <failure message="nothing was verified mechanically (exit 5)" type="runward/gate">${xmlEscape(`runward check --strict exited 5: no gap, and no applied row carries a pointer the gate opened and checked, below the level of proof the run required (runward ADR-0114).\n${RENDERING_NON_SCOPE}`)}</failure>`,
        "    </testcase>"]

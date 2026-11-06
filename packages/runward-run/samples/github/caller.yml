@@ -1,0 +1,22 @@
+# The mission's side (runward ADR-0120 decision 5): a workflow in the mission repository that calls the
+# reusable workflow by commit. The agent can write this file, and that is why it holds nothing that
+# matters: it passes no run policy, no command and no key, and its permissions only cap what the called
+# jobs may ask for. The identity that signs is the called file's, which the certificate names
+# (buildSignerURI and buildSignerDigest) and the trust policy pins; a Statement signed from THIS file
+# instead names the mission's own workflow, and runward-fleet verify-run refuses it.
+name: runward-run
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions: {}
+
+jobs:
+  runward-run:
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    uses: your-org/your-ci-repo/.github/workflows/runward-run.yml@0000000000000000000000000000000000000000 # REPLACE: the commit of your copy of the reusable workflow
