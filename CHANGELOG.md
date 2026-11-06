@@ -414,11 +414,15 @@ Before the analysis policy can stay the default of new missions, ADR-0117 asks f
 real repositories. Run on express, fastify and hono at pinned commits, the analyzers raised 221 findings, and
 two reviewer sessions that wrote neither the analyzers nor the harness classified 129 of them false. The
 reading now follows what those cases assert and what those loaders load, on evidence the tree carries. A
-TypeScript case asserts at compile time when its project runs a type-checker (`tsc`, `tsd`, `tstyche`,
-`--typecheck` in a `package.json` script) and the assertion is about the code under test: an assertion type
-constrained `extends true` instantiated on it (`type verify = Expect<Equal<Expected, Actual>>`), or a
-`@ts-expect-error` over a line that uses it; on literals alone (`Expect<Equal<1, 1>>`) or with nothing that
-type-checks the tests, it still reads red. An asserting `const` helper may spread its parameters over lines.
+TypeScript case asserts at compile time when a type check of its project covers the file, as the tree shows
+it (a `package.json` script on its path runs `tsc` or `vue-tsc` with a configuration, `-p` or the
+`tsconfig.json` beside it, whose `files`, `include` and `exclude` cover the file through relative
+`extends`; an `extends` from a package, build mode, another tool or a script that changes directory credits
+nothing), and the assertion is about the code under test: an assertion type constrained `extends true`
+instantiated on it (`type verify = Expect<Equal<Expected, Actual>>`), or a `@ts-expect-error` over a line
+that uses it; on literals alone (`Expect<Equal<1, 1>>`), or where the only type check excludes the tests (a
+build configuration that sets `*.test.ts` aside), it still reads red. An asserting `const` helper may spread
+its parameters over lines.
 A case that hands its `done` to the code under test (under a runner that passes one: node:test, or mocha,
 Jest and Jasmine as the project declares them), builds an object of it, sets it up and awaits it as a
 statement (`await fastify.ready()`), or awaits a promise of its own that can still reject on a failure path,

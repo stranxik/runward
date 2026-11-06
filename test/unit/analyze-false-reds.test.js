@@ -34,8 +34,10 @@ const at = (r, path) => r.findings.filter((f) => f.path === path).map((f) => `${
 const said = (r, path, check) => r.hypotheses.filter((h) => h.path === path && h.check === check).map((h) => h.line);
 const lines = (...l) => `${l.join("\n")}\n`;
 const without = (files, ...names) => Object.fromEntries(Object.entries(files).filter(([k]) => !names.includes(k)));
-// What a project declares about its tests: a type-checker it runs, a runner that hands `done`.
+// What a project declares about its tests: a type check it runs over them (a script, and the configuration
+// it names, which covers the tests: hono's own `tsconfig.spec.json` includes `src`), a runner that hands `done`.
 const TYPE_CHECKED = JSON.stringify({ scripts: { test: "tsc -p tsconfig.spec.json && vitest run" } });
+const SPEC_CONFIG = JSON.stringify({ compilerOptions: { noEmit: true, types: ["vitest/globals"] }, include: ["src"] });
 const MOCHA = JSON.stringify({ scripts: { test: "mocha test/" }, devDependencies: { mocha: "^10.0.0" } });
 
 // ── test-integrity ────────────────────────────────────────────────────────────────────────────────
@@ -43,6 +45,7 @@ const MOCHA = JSON.stringify({ scripts: { test: "mocha test/" }, devDependencies
 test("test-integrity: a type alias instantiating an assertion type constrained `extends true` asserts (hono src/client/client.test.ts:654)", () => {
   const files = {
     "package.json": TYPE_CHECKED,
+    "tsconfig.spec.json": SPEC_CONFIG,
     "src/utils/types.ts": lines(
       "export type Expect<T extends true> = T",
       "export type Equal<X, Y> =",
@@ -101,6 +104,7 @@ test("test-integrity: a type alias instantiating an assertion type constrained `
 test("test-integrity: a `// @ts-expect-error` directive inside the case asserts, in a TypeScript file (hono src/middleware/jsx-renderer/index.test.tsx:69)", () => {
   const files = {
     "package.json": TYPE_CHECKED,
+    "tsconfig.spec.json": SPEC_CONFIG,
     "src/jsx-renderer.ts": "export const jsxRenderer = (f: () => string) => f\n",
     "src/jsx-renderer.test.tsx": lines(
       "import { jsxRenderer } from './jsx-renderer'",

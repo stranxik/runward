@@ -1625,8 +1625,179 @@ function arrowAfterParams(code: string, from: number): string | null {
 const ASSERTION_TYPE = /(?<![\w$.])type\s+([A-Za-z_$][\w$]*)\s*<\s*[A-Za-z_$][\w$]*\s+extends\s+true\s*[,=>]/g;
 const GENERIC_TYPE = /(?<![\w$.])type\s+([A-Za-z_$][\w$]*)\s*</g;
 const TYPESCRIPT = /\.[cm]?tsx?$/;
-/** A script that type-checks: the compiler, or a runner of type tests. */
-const TYPE_CHECK = /(?:^|[\s;&|(])(?:tsc|vue-tsc|tsd|tstyche)(?=$|[\s;&|)])|--typecheck\b/;
+// ── Which test files a type check covers ─────────────────────────────────────────────────────────
+// A compile-time assertion (`Expect<Equal<…>>`, `@ts-expect-error`) fails nothing unless a type check reads
+// the file. A script that named a type checker was taken as reading the tests, and a configuration that
+// excludes them (hono's `tsconfig.build.json`, `src/**/*.test.ts` excluded) credited them all the same: a
+// false green, found by the reviewer of 2026-11-06. A case is credited now only when the files show it: a
+// script runs `tsc` (or `vue-tsc`) with a configuration, `-p`/`--project` or the `tsconfig.json` beside its
+// `package.json`, whose `files`, `include` and `exclude` cover the test file, followed through relative
+// `extends`, as TypeScript reads them. What the reading cannot follow (an `extends` from a package, build
+// mode, another tool, a script that changes directory or passes the files itself) credits nothing.
+
+/** A script's commands, split on `&&`, `||`, `;`, `|` and `&` outside quotes, each as its words. */
+function scriptCommands(script: string): string[][] {
+  const out: string[][] = [];
+  let words: string[] = [];
+  let word = "";
+  let quote = "";
+  let inWord = false;
+  const endWord = (): void => { if (inWord) { words.push(word); word = ""; inWord = false; } };
+  const endCommand = (): void => { endWord(); if (words.length) out.push(words); words = []; };
+  for (let i = 0; i < script.length; i++) {
+    const ch = script[i];
+    if (quote) { if (ch === quote) quote = ""; else word += ch; continue; }
+    if (ch === "'" || ch === '"') { quote = ch; inWord = true; continue; }
+    if (ch === "&" || ch === "|" || ch === ";") { endCommand(); if (script[i + 1] === ch) i++; continue; }
+    if (/\s/.test(ch)) { endWord(); continue; }
+    word += ch; inWord = true;
+  }
+  endCommand();
+  return out;
+}
+
+/** What one script asks `tsc` to read, for each of its type checks: a configuration (relative to the
+ *  package directory) or the files given on the command line. A command after a `cd` runs elsewhere and is
+ *  not followed; build mode follows references, which this reading does not. */
+type TypeCheck = { project: string } | { files: string[] };
+function typeChecksOf(script: string): TypeCheck[] {
+  const out: TypeCheck[] = [];
+  for (const words of scriptCommands(script)) {
+    let w = 0;
+    while (w < words.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(words[w])) w++;
+    if (words[w] === "cd" || words[w] === "pushd") break;
+    if (words[w] === "npx" || words[w] === "bunx") w++;
+    else if ((words[w] === "pnpm" || words[w] === "npm") && words[w + 1] === "exec") w += words[w + 2] === "--" ? 3 : 2;
+    else if (words[w] === "pnpm" || words[w] === "yarn") w++;
+    const program = (words[w] ?? "").split("/").pop() ?? "";
+    if (program !== "tsc" && program !== "vue-tsc") continue;
+    let project: string | null = null;
+    const files: string[] = [];
+    let unread = false;
+    for (let k = w + 1; k < words.length; k++) {
+      const a = words[k];
+      if (a === "-p" || a === "--project") { project = words[++k] ?? null; continue; }
+      if (a === "-b" || a === "--build" || a.startsWith("-p=") || a.startsWith("--project=")) { unread = true; break; }
+      if (!a.startsWith("-")) files.push(a);
+    }
+    if (unread || (project !== null && files.length > 0)) continue;
+    out.push(files.length > 0 ? { files } : { project: project ?? "." });
+  }
+  return out;
+}
+
+/** JSON with comments and trailing commas, as TypeScript reads a configuration; null when unreadable. */
+function parseJsonc(text: string): unknown {
+  let out = "";
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"') {
+      let j = i + 1;
+      while (j < text.length && text[j] !== '"') j += text[j] === "\\" ? 2 : 1;
+      out += text.slice(i, j + 1); i = j; continue;
+    }
+    if (ch === "/" && text[i + 1] === "/") { while (i < text.length && text[i] !== "\n") i++; out += "\n"; continue; }
+    if (ch === "/" && text[i + 1] === "*") { const e = text.indexOf("*/", i + 2); i = e === -1 ? text.length : e + 1; out += " "; continue; }
+    if (ch === "}" || ch === "]") out = out.replace(/,\s*$/, "");
+    out += ch;
+  }
+  try { return JSON.parse(out); } catch { return null; }
+}
+
+/** A path written in a configuration, relative to the project root, or null when it leaves the project or is
+ *  absolute. `${configDir}` is the directory of the configuration the check was asked to read. */
+function configPath(written: string, base: string, leafDir: string): string | null {
+  const p = written.replace(/\$\{configDir\}/g, leafDir === "." ? "." : leafDir);
+  if (p.startsWith("/") || /^[A-Za-z]:/.test(p)) return null;
+  const joined = posix.normalize(posix.join(base, p));
+  if (joined === ".." || joined.startsWith("../")) return null;
+  return joined === "." ? "" : joined.replace(/\/$/, "");
+}
+
+/** A TypeScript wildcard path matched by segment: `**` any number of directories, `*` and `?` within one
+ *  name; `prefix` also matches a directory holding the path (an exclusion of `dist` sets aside its files). */
+function tsWildcard(pattern: string, path: string, prefix: boolean): boolean {
+  const ps = pattern === "" ? [] : pattern.split("/");
+  const xs = path.split("/");
+  const name = (pat: string, x: string): boolean => {
+    // `*` and `?` within one name, by dynamic programming over the two strings.
+    let cur = new Uint8Array(x.length + 1);
+    cur[0] = 1;
+    for (const c of pat) {
+      const next = new Uint8Array(x.length + 1);
+      for (let j = 0; j <= x.length; j++) {
+        if (cur[j] !== 1) continue;
+        if (c === "*") { for (let k = j; k <= x.length; k++) next[k] = 1; break; }
+        if (j < x.length && (c === "?" || c === x[j])) next[j + 1] = 1;
+      }
+      cur = next;
+    }
+    return cur[x.length] === 1;
+  };
+  // reach[i][j]: the first i segments of the pattern match the first j of the path.
+  let reach = new Uint8Array(xs.length + 1);
+  reach[0] = 1;
+  for (const seg of ps) {
+    const next = new Uint8Array(xs.length + 1);
+    for (let j = 0; j <= xs.length; j++) {
+      if (reach[j] !== 1) continue;
+      if (seg === "**") { for (let k = j; k <= xs.length; k++) next[k] = 1; break; }
+      if (j < xs.length && name(seg, xs[j])) next[j + 1] = 1;
+    }
+    reach = next;
+  }
+  return prefix ? reach.some((v, j) => v === 1 && j > 0) : reach[xs.length] === 1;
+}
+
+/** Does the configuration at `configRel` (relative to the root) cover `testRel`? `read` returns a delivered
+ *  file's text, or null. Fail closed: anything not followed reads as not covered. */
+function configCovers(configRel: string, testRel: string, read: (rel: string) => string | null): boolean {
+  if (testRel.split("/").some((part) => part.startsWith(".") || part === "node_modules" || part === "bower_components" || part === "jspm_packages")) return false;
+  const leafDir = posix.dirname(configRel);
+  type Spec = { list: string[]; base: string };
+  type Effective = { files?: Spec; include?: Spec; exclude?: Spec; outDir?: string | null };
+  const effective = (rel: string, depth: number): Effective | null => {
+    if (depth > 16) return null;
+    const text = read(rel);
+    if (text === null) return null;
+    const json = parseJsonc(text) as { extends?: unknown; files?: unknown; include?: unknown; exclude?: unknown; compilerOptions?: { outDir?: unknown } } | null;
+    if (json === null || typeof json !== "object" || Array.isArray(json)) return null;
+    const dir = posix.dirname(rel);
+    let eff: Effective = {};
+    const bases = json.extends === undefined ? [] : Array.isArray(json.extends) ? json.extends : [json.extends];
+    for (const b of bases) {
+      if (typeof b !== "string" || !(b.startsWith("./") || b.startsWith("../"))) return null; // a package: not followed
+      const target = configPath(b, dir, leafDir);
+      if (target === null) return null;
+      const found = read(target) !== null ? target : !target.endsWith(".json") && read(`${target}.json`) !== null ? `${target}.json` : null;
+      if (found === null) return null;
+      const sub = effective(found, depth + 1);
+      if (sub === null) return null;
+      eff = { ...eff, ...Object.fromEntries(Object.entries(sub).filter(([, v]) => v !== undefined)) };
+    }
+    const list = (v: unknown): string[] | null => (Array.isArray(v) && v.every((x) => typeof x === "string") ? v as string[] : null);
+    for (const key of ["files", "include", "exclude"] as const) {
+      if (json[key] === undefined) continue;
+      const l = list(json[key]);
+      if (l === null) return null;
+      eff[key] = { list: l, base: dir };
+    }
+    const out = json.compilerOptions?.outDir;
+    if (typeof out === "string") eff.outDir = configPath(out, dir, leafDir);
+    return eff;
+  };
+  const eff = effective(configRel, 0);
+  if (eff === null) return false;
+  const paths = (spec: Spec): string[] => spec.list.map((x) => configPath(x, spec.base, leafDir)).filter((x): x is string => x !== null);
+  if (eff.files && paths(eff.files).includes(testRel)) return true;
+  const include = eff.include ? paths(eff.include) : eff.files ? [] : [leafDir === "." ? "**/*" : `${leafDir}/**/*`];
+  const implicit = (p: string): string => (/[.*?]/.test(p.split("/").pop() ?? "") ? p : p === "" ? "**/*" : `${p}/**/*`);
+  if (!include.some((p) => tsWildcard(implicit(p), testRel, false))) return false;
+  const exclude = eff.exclude ? paths(eff.exclude) : eff.outDir ? [eff.outDir] : [];
+  return !exclude.some((p) => tsWildcard(p, testRel, true) || tsWildcard(p, testRel, false));
+}
+
+/** A script that type-checks the tests: no longer read from the name of a tool alone (above). */
 /** A runner that hands a case its `done` as the first parameter. */
 const DONE_RUNNER = /(?:^|[\s;&|(/])(?:mocha|jest|jasmine)(?=$|[\s;&|)/])/;
 
@@ -1640,7 +1811,8 @@ interface TestContext {
    *  alone says nothing about the code. */
   assertionTypes: Set<string>;
   typeOperators: Set<string>;
-  /** A package.json on the file's path runs a type-checker, or a runner whose first parameter is `done`. */
+  /** A package.json on the file's path runs a type check whose configuration covers the file (see
+   *  `configCovers`), or a runner whose first parameter is `done`. */
   typeChecked: boolean;
   doneRunner: boolean;
 }
@@ -1663,10 +1835,21 @@ function testContexts(texts: FileText[], config: ScopeFile[], isTest: (rel: stri
     return s;
   };
   const manifests = new Map(config.filter((c) => posix.basename(c.rel) === "package.json").map((c) => [posix.dirname(c.rel), c]));
-  const evidence = new Map<string, { typeChecked: boolean; doneRunner: boolean } | null>();
-  const evidenceAt = (dir: string): { typeChecked: boolean; doneRunner: boolean } | null => {
+  const configs = new Map(config.map((c) => [c.rel, c]));
+  const configTexts = new Map<string, string | null>();
+  const readConfig = (rel: string): string | null => {
+    if (!configTexts.has(rel)) {
+      const f = configs.get(rel);
+      let v: string | null = null;
+      if (f) { try { v = readFileSync(f.abs, "utf8"); } catch { v = null; } }
+      configTexts.set(rel, v);
+    }
+    return configTexts.get(rel) ?? null;
+  };
+  const evidence = new Map<string, { checks: TypeCheck[]; doneRunner: boolean } | null>();
+  const evidenceAt = (dir: string): { checks: TypeCheck[]; doneRunner: boolean } | null => {
     if (evidence.has(dir)) return evidence.get(dir) ?? null;
-    let v: { typeChecked: boolean; doneRunner: boolean } | null = null;
+    let v: { checks: TypeCheck[]; doneRunner: boolean } | null = null;
     const f = manifests.get(dir);
     if (f) {
       try {
@@ -1674,7 +1857,7 @@ function testContexts(texts: FileText[], config: ScopeFile[], isTest: (rel: stri
         const scripts = Object.values(j?.scripts ?? {}).filter((x): x is string => typeof x === "string");
         const deps = [...Object.keys(j?.devDependencies ?? {}), ...Object.keys(j?.dependencies ?? {})];
         v = {
-          typeChecked: scripts.some((x) => TYPE_CHECK.test(x)),
+          checks: scripts.flatMap((x) => typeChecksOf(x)),
           doneRunner: scripts.some((x) => DONE_RUNNER.test(x)) || deps.some((d) => /^(?:mocha|jest|jasmine|@jest\/globals)$/.test(d)),
         };
       } catch { v = null; }
@@ -1688,9 +1871,18 @@ function testContexts(texts: FileText[], config: ScopeFile[], isTest: (rel: stri
     if (known) return known;
     let typeChecked = false;
     let doneRunner = false;
+    const at = (dir: string, rel: string): string => (dir === "." ? rel : `${dir}/${rel}`).replace(/^\.\//, "");
     for (let dir = posix.dirname(t.file.rel); ; dir = posix.dirname(dir)) {
       const e = evidenceAt(dir);
-      if (e) { typeChecked ||= e.typeChecked; doneRunner ||= e.doneRunner; }
+      if (e) {
+        doneRunner ||= e.doneRunner;
+        typeChecked ||= TYPESCRIPT.test(t.file.rel) && e.checks.some((c) => {
+          if ("files" in c) return c.files.some((f) => posix.normalize(at(dir, f)) === t.file.rel);
+          const named = posix.normalize(at(dir, c.project));
+          const project = named.endsWith(".json") ? named : `${named === "." ? "" : `${named}/`}tsconfig.json`;
+          return configCovers(project, t.file.rel, readConfig);
+        });
+      }
       if (dir === "." || dir === "/" || dir === "") break;
     }
     const own = typesOf(t.file.rel);
