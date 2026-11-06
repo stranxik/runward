@@ -1,0 +1,587 @@
+{
+  "format": "runward-assess-grid/1",
+  "grid": "grille@1",
+  "minor": 0,
+  "frozen": "2026-11-06",
+  "source": "Design of 2026-11-05 (35 criteria, axes, classes, profiles, cumulative tiers), frozen with runward-assess 0.1.0. A change that can move a result opens grille@2; a correction that cannot opens grille@1.(m+1). Thresholds live in the conditions below, never in code.",
+  "axes": [
+    { "id": "FIA", "title": "Reliability and test evidence" },
+    { "id": "SEC", "title": "Security and supply chain" },
+    { "id": "GOU", "title": "Governance and continuity" },
+    { "id": "PRV", "title": "Evidence and conformity" },
+    { "id": "PRO", "title": "Public promises" },
+    { "id": "ADO", "title": "Adoption experience" },
+    { "id": "MAR", "title": "Market signals" }
+  ],
+  "profiles": {
+    "L": "CLI or library published in a registry",
+    "W": "web application or SaaS, deployed",
+    "A": "agentic system: calls a model or executes tools at run time"
+  },
+  "classes": {
+    "M": "mechanical: computed from the repository tree at one commit with pinned tools; replayable on a past commit",
+    "X": "external snapshot: read from a captured file (API, registry, site) with its request, status and sha256; never re-collectable after the fact",
+    "J": "judged: annex with fixed questions and scales, judge identified; never in a tier",
+    "noisy": "sub-class of M or X whose value varies with equal input (durations, model scores): an indicator with N runs and dispersion, outside the tiers"
+  },
+  "states": ["met", "not-met", "na", "not-observed", "error"],
+  "tiers": ["P1", "P2", "P3"],
+  "rules": {
+    "axisTier": "the highest P such that every applicable criterion's every tier <= P is met",
+    "noVacuity": "a tier with no applicable criterion caps the axis at the tier below; an axis whose every criterion is na reads na",
+    "blocking": "na does not block; not-observed and error block and are counted apart from not-met",
+    "noComposite": "no global score, no average, no composite percentage; the face is the vector of axis tiers and its regressions",
+    "comparability": "two results compare only when (id, rev) are equal",
+    "coverage": "a record carries every criterion of the version, or the score refuses to emit"
+  },
+  "criteria": [
+    {
+      "id": "FIA-01", "rev": 1, "axis": "FIA", "class": ["M"],
+      "title": "The test suite passes, stably",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "3 x test_cmd in the reference container; each JUnit normalised to a census (case, verdict); a timeout is never a pass",
+      "evidence": ["junit-1.xml", "junit-2.xml", "junit-3.xml", "fia-01.json"],
+      "tiers": {
+        "P1": { "text": "at least one case; run 1 without failure", "all": [
+          { "fact": "m.fia01.cases", "op": "gte", "value": 1 },
+          { "fact": "m.fia01.run1_failures", "op": "eq", "value": 0 } ] },
+        "P2": { "text": "three runs without failure, identical censuses", "all": [
+          { "fact": "m.fia01.clean_runs", "op": "eq", "value": 3 },
+          { "fact": "m.fia01.census_identical", "op": "is_true" } ] }
+      },
+      "positiveControl": "a fixture with a random test: P2 not met; a test past its timeout never counts green",
+      "values": ["m.fia01.cases", "m.fia01.clean_runs"]
+    },
+    {
+      "id": "FIA-02", "rev": 1, "axis": "FIA", "class": ["M"],
+      "title": "Statement and branch coverage",
+      "applies": { "profiles": ["L", "W", "A"], "when": { "fact": "p.coverage_tool_absent", "op": "is_false" }, "naReason": "no free coverage tool exists for the language (the reason OpenSSF Best Practices accepts)" },
+      "procedure": "test_cmd with the pinned coverage tool; lcov or cobertura read for statements and branches",
+      "evidence": ["coverage.lcov"],
+      "tiers": {
+        "P1": { "text": "a coverage report is produced", "all": [ { "fact": "m.fia02.report", "op": "is_true" } ] },
+        "P2": { "text": ">= 80 % of statements (OpenSSF Best Practices silver)", "all": [ { "fact": "m.fia02.statements", "op": "ratio_gte", "value": [80, 100] } ] },
+        "P3": { "text": ">= 90 % of statements and >= 80 % of branches (gold)", "all": [
+          { "fact": "m.fia02.statements", "op": "ratio_gte", "value": [90, 100] },
+          { "fact": "m.fia02.branches", "op": "ratio_gte", "value": [80, 100] } ] }
+      },
+      "positiveControl": "a fixture covered at 79 %: P2 not met; at 91 % statements and 79 % branches: P3 not met",
+      "values": ["m.fia02.statements", "m.fia02.branches"]
+    },
+    {
+      "id": "FIA-03", "rev": 1, "axis": "FIA", "class": ["M"],
+      "title": "The tests catch sabotaged code",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "exhaustive, no sample: every source file of the declared perimeter (perimetre_sabotage) has its exported function bodies replaced by a neutral stub, and the suite runs on a fresh copy; a file whose suite stays green is a hole",
+      "evidence": ["sabotages.json"],
+      "tiers": {
+        "P2": { "text": ">= 80 % of the perimeter's files turn the suite red", "all": [ { "fact": "m.fia03.files_caught", "op": "ratio_gte", "value": [80, 100] } ] },
+        "P3": { "text": "100 %", "all": [ { "fact": "m.fia03.files_caught", "op": "ratio_gte", "value": [100, 100] } ] }
+      },
+      "positiveControl": "a fixture whose tests assert nothing: 0 % caught; a well-tested fixture: 100 %",
+      "values": ["m.fia03.files_caught"]
+    },
+    {
+      "id": "FIA-04", "rev": 1, "axis": "FIA", "class": ["M", "X"],
+      "title": "The build is reproducible",
+      "applies": { "profiles": ["L", "W", "A"], "when": { "fact": "p.build_cmd", "op": "nonempty" }, "naReason": "no build step (OpenSSF Best Practices build_reproducible)" },
+      "procedure": "two clean builds in the reference container, a third on a second environment, compared with the published digest",
+      "evidence": ["build-1.sha256", "build-2.sha256", "build-alt.sha256", "registry-digest.json"],
+      "tiers": {
+        "P2": { "text": "build 1 equals build 2", "all": [ { "fact": "m.fia04.two_builds_equal", "op": "is_true" } ] },
+        "P3": { "text": "the second environment's build equals the published digest", "all": [ { "fact": "x.fia04.alt_equals_published", "op": "is_true" } ] }
+      },
+      "positiveControl": "a fixture that embeds its build date: P2 not met",
+      "values": ["m.fia04.two_builds_equal"]
+    },
+    {
+      "id": "FIA-05", "rev": 1, "axis": "FIA", "class": ["M", "noisy"],
+      "title": "Evaluations of the agentic behaviour",
+      "applies": { "profiles": ["A"] },
+      "procedure": "evaluation set versioned in the repository (profile: evals.set), runner declared (evals.runner), exact model id recorded, per-case outputs archived; the score is a noisy indicator, outside the tiers",
+      "evidence": ["evals-manifest.json", "evals-outputs.jsonl", "guards-junit.xml"],
+      "tiers": {
+        "P1": { "text": "set and runner present, the set's digest recorded", "all": [
+          { "fact": "m.fia05.eval_set", "op": "is_true" },
+          { "fact": "m.fia05.eval_runner", "op": "is_true" } ] },
+        "P2": { "text": "run at the assessed commit, model pinned, outputs archived", "all": [ { "fact": "m.fia05.executed", "op": "is_true" } ] },
+        "P3": { "text": "the deterministic guards (validation, routing, refusal) have tests, green with no model call", "all": [ { "fact": "m.fia05.guards_offline_green", "op": "is_true" } ] }
+      },
+      "positiveControl": "a fixture whose guard calls the model: P3 not met (the test runs without model access)",
+      "values": ["m.fia05.eval_set_digest"]
+    },
+    {
+      "id": "FIA-06", "rev": 1, "axis": "FIA", "class": ["X"],
+      "title": "Reliability in operation",
+      "applies": { "profiles": ["W", "A"], "when": { "any": [ { "fact": "p.is_W", "op": "is_true" }, { "fact": "p.deploie_service", "op": "nonempty" } ] }, "naReason": "an agentic system that deploys no service" },
+      "procedure": "SLO declared in data (profile: slo_file); export of the SLI and of the deployment and incident logs over the window",
+      "evidence": ["slo.json", "sli-export.json", "deployments.jsonl", "incidents.jsonl"],
+      "tiers": {
+        "P1": { "text": "an SLO declared in data (objective, SLI query)", "all": [ { "fact": "m.fia06.slo_declared", "op": "is_true" } ] },
+        "P2": { "text": "the SLI export attached; the SLO held over the window", "all": [ { "fact": "x.fia06.slo_held", "op": "is_true" } ] },
+        "P3": { "text": "change failure rate, recovery time and rework computed from the logs, with their denominators (indicators, never targets: DORA)", "all": [ { "fact": "x.fia06.dora_with_denominator", "op": "is_true" } ] }
+      },
+      "positiveControl": "a log without denominator (deployments not listed): P3 not met",
+      "values": ["m.fia06.slo_declared"]
+    },
+    {
+      "id": "FIA-07", "rev": 1, "axis": "FIA", "class": ["M", "noisy"], "indicator": true,
+      "title": "Mutation (an instrument, never a tier: runward ADR-0046)",
+      "applies": { "profiles": ["L", "W", "A"], "when": { "fact": "p.perimetre_mutation", "op": "nonempty" }, "naReason": "no mutation perimeter declared" },
+      "procedure": "the language's mutation tool, pinned, on perimetre_mutation, at tag records only; the committed survivors register is read for its counts",
+      "evidence": ["mutation.json"],
+      "tiers": {},
+      "values": ["m.fia07.perimeter_files", "m.fia07.register_survivors", "m.fia07.register_holes", "m.fia07.holes_by_default"]
+    },
+    {
+      "id": "SEC-01", "rev": 1, "axis": "SEC", "class": ["M", "X"],
+      "title": "Coordinated disclosure",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "SECURITY.md read for a channel and for delays in days; the forge's private vulnerability reporting setting",
+      "evidence": ["security-md.json", "pvr.json"],
+      "tiers": {
+        "P1": { "text": "SECURITY.md with a contact channel", "all": [
+          { "fact": "m.sec01.security_md", "op": "is_true" },
+          { "fact": "m.sec01.channel", "op": "is_true" } ] },
+        "P2": { "text": "private reporting enabled; delays written in days", "all": [
+          { "fact": "x.sec01.pvr_enabled", "op": "is_true" },
+          { "fact": "m.sec01.delay_days", "op": "is_true" } ] }
+      },
+      "positiveControl": "a SECURITY.md with no channel: P1 not met",
+      "values": ["m.sec01.channel", "x.sec01.pvr_enabled"]
+    },
+    {
+      "id": "SEC-02", "rev": 1, "axis": "SEC", "class": ["M", "X"],
+      "title": "What is installed is what was tested; the product's SBOM",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "fresh install from the registry (L) or image build (W) in a sandbox; the resolved tree compared with the tag's lockfile; SBOM attached to the release",
+      "evidence": ["installed-tree.json", "lock-tag.json", "sbom.cdx.json"],
+      "tiers": {
+        "P1": { "text": "a versioned lockfile; an install from it succeeds", "all": [
+          { "fact": "m.sec02.lockfile", "op": "is_true" },
+          { "fact": "x.sec02.install_from_lock", "op": "is_true" } ] },
+        "P2": { "text": "installed tree equals the tested lock (0 diverging version)", "all": [ { "fact": "x.sec02.installed_diverging", "op": "eq", "value": 0 } ] },
+        "P3": { "text": "an SBOM attached to the release, naming the product and its version, components equal to the installed tree", "all": [ { "fact": "x.sec02.release_sbom_named", "op": "is_true" } ] }
+      },
+      "positiveControl": "a fixture published without shrinkwrap with a ranged dependency: P2 not met",
+      "values": ["m.sec02.lockfile"]
+    },
+    {
+      "id": "SEC-03", "rev": 1, "axis": "SEC", "class": ["X"],
+      "title": "Known vulnerabilities; visibility of the project's advisories",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "every package@version of the lockfile at the commit queried in OSV; a known vulnerable control queried in the same batch (the base is blind without it); the project's published advisories looked up in the GitHub database and in OSV; affected npm versions checked for deprecation",
+      "evidence": ["osv.json", "osv-control.json", "advisories.json", "deprecations.json"],
+      "tiers": {
+        "P1": { "text": "0 high or critical vulnerability without a written exception (reason, date)", "all": [ { "fact": "x.sec03.high_unexcepted", "op": "eq", "value": 0 } ] },
+        "P2": { "text": "0 vulnerability open more than 30 days after its advisory was published (dates read in the snapshot)", "all": [ { "fact": "x.sec03.open_over_30d", "op": "eq", "value": 0 } ] },
+        "P3": { "text": "every advisory the project published is visible in a global database and its affected versions are deprecated", "all": [
+          { "fact": "x.sec03.advisories_not_visible", "op": "eq", "value": 0 },
+          { "fact": "x.sec03.affected_not_deprecated", "op": "eq", "value": 0 } ],
+          "na": { "when": { "fact": "x.sec03.advisories_published", "op": "eq", "value": 0 }, "reason": "the project has published no advisory (read in the snapshot)" } }
+      },
+      "positiveControl": "the control package returns nothing: every SEC-03 fact is not-observed (blind base)",
+      "values": ["x.sec03.vulnerable_packages", "x.sec03.high_unexcepted", "x.sec03.advisories_published"]
+    },
+    {
+      "id": "SEC-04", "rev": 1, "axis": "SEC", "class": ["M"],
+      "title": "Static analysis and secrets",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "every blob reachable from the commit scanned with the grid's fixed secret patterns (secret-patterns@1), after a planted control is seen; SAST with rules pinned by digest",
+      "evidence": ["secrets.json", "sast.sarif", "exceptions.json"],
+      "tiers": {
+        "P1": { "text": "0 secret detected outside motivated exceptions", "all": [ { "fact": "m.sec04.secrets_unexcepted", "op": "eq", "value": 0 } ] },
+        "P2": { "text": "0 high-severity SAST result without a motivated exception", "all": [ { "fact": "m.sec04.sast_high_unexcepted", "op": "eq", "value": 0 } ] }
+      },
+      "positiveControl": "a fixture with a fake key of a known format in its history: P1 not met",
+      "values": ["m.sec04.blobs_scanned", "m.sec04.secrets_unexcepted"]
+    },
+    {
+      "id": "SEC-05", "rev": 1, "axis": "SEC", "class": ["M", "X"],
+      "title": "Hardened CI; Scorecard",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "the grid's workflow reader on .github/workflows (W1 pull_request_target that checks out the head, W2 action not pinned by a full SHA, W3 no top-level permissions or write-all); the OpenSSF Scorecard result whose commit is the assessed one, version recorded",
+      "evidence": ["workflows.json", "scorecard.json"],
+      "tiers": {
+        "P1": { "text": "0 high finding in the workflows (dangerous triggers, unpinned actions, broad permissions)", "all": [ { "fact": "m.sec05.workflow_high", "op": "eq", "value": 0 } ] },
+        "P2": { "text": "Scorecard: no critical- or high-risk check at 0, Code-Review and Contributors excepted (counted in GOU)", "all": [ { "fact": "x.sec05.scorecard_zero_crit_high", "op": "eq", "value": 0 } ] },
+        "P3": { "text": "every check >= 8, the same two excepted", "all": [ { "fact": "x.sec05.scorecard_below_8", "op": "eq", "value": 0 } ] }
+      },
+      "positiveControl": "a fixture with pull_request_target and a checkout of the head: P1 not met",
+      "comparison": "two Scorecard results of different versions: marked 'tool differs', no transition counted",
+      "values": ["m.sec05.workflow_high", "x.sec05.scorecard_score", "x.sec05.scorecard_version"]
+    },
+    {
+      "id": "SEC-06", "rev": 1, "axis": "SEC", "class": ["X", "M"],
+      "title": "Provenance of the deliverables",
+      "applies": { "profiles": ["L", "W", "A"], "when": { "any": [ { "fact": "p.is_L", "op": "is_true" }, { "fact": "p.image_published", "op": "is_true" }, { "all": [ { "fact": "p.is_A", "op": "is_true" }, { "fact": "p.publie_paquet", "op": "nonempty" } ] } ] }, "naReason": "nothing is published: no image (W) and no package (A)" },
+      "procedure": "attestation verified offline against a captured trust root with the signer workflow pinned; the signing job read statically",
+      "evidence": ["attestation-verify.txt", "npm-signatures.txt", "signing-workflow.yml"],
+      "tiers": {
+        "P2": { "text": "provenance verified offline, signer workflow pinned", "all": [ { "fact": "x.sec06.provenance_verified", "op": "is_true" } ] },
+        "P3": { "text": "the job that holds the signing token runs no install and no test (read in the workflow)", "all": [ { "fact": "m.sec06.signing_job_clean", "op": "is_true" } ] }
+      },
+      "positiveControl": "an artefact changed by one byte: verification refused; a signing job that runs npm ci: P3 not met",
+      "values": ["m.sec06.signing_jobs", "m.sec06.signing_job_clean"]
+    },
+    {
+      "id": "SEC-07", "rev": 1, "axis": "SEC", "class": ["M"],
+      "title": "Agentic surface",
+      "applies": { "profiles": ["A"] },
+      "procedure": "a tool manifest in data (profile: tools_manifest); every tool the code registers (profile: tools_pattern) must be in it; a fixed corpus of untrusted inputs replayed against the guards; tool execution tested without network",
+      "evidence": ["tools.json", "injections-junit.xml", "sandbox-junit.xml"],
+      "tiers": {
+        "P1": { "text": "a tool manifest, present and complete (every tool the code registers is in it)", "all": [ { "fact": "m.sec07.manifest_complete", "op": "is_true" } ] },
+        "P2": { "text": "100 % of the corpus refused by the deterministic guards", "all": [ { "fact": "m.sec07.corpus_refused", "op": "ratio_gte", "value": [100, 100] } ] },
+        "P3": { "text": "egress outside the allow-list fails the test", "all": [ { "fact": "m.sec07.egress_blocked", "op": "is_true" } ] }
+      },
+      "positiveControl": "a fixture with a tool missing from the manifest: P1 not met",
+      "values": ["m.sec07.tools_registered", "m.sec07.tools_missing"]
+    },
+    {
+      "id": "SEC-08", "rev": 1, "axis": "SEC", "class": ["X"],
+      "title": "Web surface",
+      "applies": { "profiles": ["W"] },
+      "procedure": "each production URL (deploie_service) fetched once: TLS protocol and certificate validity, security headers; a pinned dynamic baseline scan",
+      "evidence": ["tls.json", "headers.json", "zap.json"],
+      "tiers": {
+        "P1": { "text": "0 high TLS or header finding (TLS below 1.2, invalid certificate, no HSTS)", "all": [ { "fact": "x.sec08.high_findings", "op": "eq", "value": 0 } ] },
+        "P2": { "text": "0 high alert in a baseline dynamic scan", "all": [ { "fact": "x.sec08.zap_high", "op": "eq", "value": 0 } ] }
+      },
+      "positiveControl": "a test URL with no security header: P1 not met",
+      "values": ["x.sec08.urls", "x.sec08.high_findings"]
+    },
+    {
+      "id": "GOU-01", "rev": 1, "axis": "GOU", "class": ["M"],
+      "title": "Governance files",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "a licence file recognised as an SPDX identifier; README, CONTRIBUTING (public repositories), SECURITY; GOVERNANCE with fixed sections (roles, decisions, succession)",
+      "evidence": ["governance.json"],
+      "tiers": {
+        "P1": { "text": "recognised SPDX licence, README, CONTRIBUTING (if public), SECURITY", "all": [
+          { "fact": "m.gou01.license_spdx", "op": "is_true" },
+          { "fact": "m.gou01.readme", "op": "is_true" },
+          { "any": [ { "fact": "m.gou01.contributing", "op": "is_true" }, { "fact": "p.repo_public", "op": "is_false" } ] },
+          { "fact": "m.gou01.security", "op": "is_true" } ] },
+        "P2": { "text": "GOVERNANCE with roles, decision-making and succession", "all": [
+          { "fact": "m.gou01.gov_roles", "op": "is_true" },
+          { "fact": "m.gou01.gov_decisions", "op": "is_true" },
+          { "fact": "m.gou01.gov_succession", "op": "is_true" } ] }
+      },
+      "positiveControl": "a fixture without SECURITY.md: P1 not met",
+      "values": ["m.gou01.license_id"]
+    },
+    {
+      "id": "GOU-02", "rev": 1, "axis": "GOU", "class": ["X"],
+      "title": "Independent review and branch protection",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "the default branch's effective rules (rulesets and classic protection); pull requests merged between the two window bounds, approved by a human other than their author",
+      "evidence": ["rules.json", "prs-window.json", "reviews.json"],
+      "tiers": {
+        "P1": { "text": "force-push and deletion refused on the default branch; at least one required status check", "all": [
+          { "fact": "x.gou02.force_push_blocked", "op": "is_true" },
+          { "fact": "x.gou02.deletion_blocked", "op": "is_true" },
+          { "fact": "x.gou02.required_checks", "op": "gte", "value": 1 } ] },
+        "P2": { "text": ">= 50 % of the window's changes approved by another human (OpenSSF Best Practices gold two_person_review)", "all": [ { "fact": "x.gou02.reviewed", "op": "ratio_gte", "value": [50, 100] } ] },
+        "P3": { "text": "review required by the forge, administrators included, and >= 90 % of the changes reviewed", "all": [
+          { "fact": "x.gou02.review_enforced_admins", "op": "is_true" },
+          { "fact": "x.gou02.reviewed", "op": "ratio_gte", "value": [90, 100] } ] }
+      },
+      "positiveControl": "a pull request approved by its own author or by a bot: not counted",
+      "values": ["x.gou02.reviewed", "x.gou02.required_checks"]
+    },
+    {
+      "id": "GOU-03", "rev": 1, "axis": "GOU", "class": ["X"],
+      "title": "Continuity of access",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "human administrators of the repository; owners of the published package; type of the owning account",
+      "evidence": ["admins.json", "registry-owners.json", "owner-type.json"],
+      "tiers": {
+        "P2": { "text": ">= 2 human administrators of the repository and of the package (OpenSSF Best Practices silver access_continuity)", "all": [
+          { "fact": "x.gou03.admin_humans", "op": "gte", "value": 2 },
+          { "any": [ { "fact": "p.publie_paquet", "op": "empty" }, { "fact": "x.gou03.registry_owners", "op": "gte", "value": 2 } ] } ] },
+        "P3": { "text": "the owner is an organisation, not a personal account", "all": [ { "fact": "x.gou03.owner_is_org", "op": "is_true" } ] }
+      },
+      "positiveControl": "two accounts of one person (mailmap): counted once",
+      "values": ["x.gou03.admin_humans", "x.gou03.registry_owners"]
+    },
+    {
+      "id": "GOU-04", "rev": 1, "axis": "GOU", "class": ["M"],
+      "title": "Dependence on few people (CHAOSS)",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "git log --use-mailmap between the window bounds, merges excluded, the grid's fixed bot list excluded; absence factor and elephant factor at 50 % (organisation = e-mail domain, a free-mail or noreply domain counts the person alone); identities hashed, never written",
+      "evidence": ["contributions.json"],
+      "tiers": {
+        "P2": { "text": "absence factor >= 2", "all": [ { "fact": "m.gou04.absence_factor", "op": "gte", "value": 2 } ] },
+        "P3": { "text": "absence factor >= 2 and elephant factor >= 2", "all": [
+          { "fact": "m.gou04.absence_factor", "op": "gte", "value": 2 },
+          { "fact": "m.gou04.elephant_factor", "op": "gte", "value": 2 } ] }
+      },
+      "positiveControl": "a fixture where a bot makes 60 % of the commits: the factor is computed without it",
+      "values": ["m.gou04.window_commits", "m.gou04.authors", "m.gou04.absence_factor", "m.gou04.elephant_factor"]
+    },
+    {
+      "id": "GOU-05", "rev": 1, "axis": "GOU", "class": ["M"],
+      "title": "Decisions recorded and kept current",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "every ADR of the journals (runward/adr, docs/adr, doc/adr, adr) parsed: a status in a closed list, a dated re-evaluation trigger; a trigger is overdue when its latest date is before the commit's date and no later date appears in the record",
+      "evidence": ["adr.json"],
+      "tiers": {
+        "P1": { "text": "a decision journal, 100 % of its statuses readable", "all": [
+          { "fact": "m.gou05.adrs", "op": "gte", "value": 1 },
+          { "fact": "m.gou05.status_readable", "op": "ratio_gte", "value": [100, 100] } ] },
+        "P2": { "text": "every ADR has a dated trigger; 0 overdue trigger without a dated note", "all": [
+          { "fact": "m.gou05.trigger_dated", "op": "ratio_gte", "value": [100, 100] },
+          { "fact": "m.gou05.overdue_unnoted", "op": "eq", "value": 0 } ] }
+      },
+      "positiveControl": "an ADR whose trigger is dated the day before, with no note: P2 not met",
+      "values": ["m.gou05.adrs", "m.gou05.trigger_dated", "m.gou05.overdue_unnoted"]
+    },
+    {
+      "id": "GOU-06", "rev": 1, "axis": "GOU", "class": ["M", "X"],
+      "title": "Versions and support",
+      "applies": { "profiles": ["L", "W"], "when": { "any": [ { "fact": "p.is_L", "op": "is_true" }, { "fact": "p.versions_published", "op": "is_true" } ] }, "naReason": "no versions are published" },
+      "procedure": "tags merged into the commit and CHANGELOG headings at the commit, against the versions the registry published before the commit's date; a support policy in data (support.json)",
+      "evidence": ["versions.json", "changelog.json", "support.json"],
+      "tiers": {
+        "P1": { "text": "every published version has a tag and a CHANGELOG entry", "all": [
+          { "fact": "d.gou06.published_without_tag", "op": "eq", "value": 0 },
+          { "fact": "d.gou06.published_without_changelog", "op": "eq", "value": 0 } ] },
+        "P2": { "text": "a support policy in data, consistent with the registry", "all": [
+          { "fact": "m.gou06.support_policy", "op": "is_true" },
+          { "fact": "d.gou06.support_consistent", "op": "is_true" } ] },
+        "P3": { "text": "at least one fix backported to a maintained line during the window", "all": [ { "fact": "d.gou06.backport_in_window", "op": "is_true" } ] }
+      },
+      "positiveControl": "a version published without a tag: P1 not met",
+      "values": ["d.gou06.published_before_commit", "d.gou06.published_without_tag", "d.gou06.published_without_changelog"]
+    },
+    {
+      "id": "PRV-01", "rev": 1, "axis": "PRV", "class": ["M"],
+      "title": "Traceability from requirement or decision to evidence",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "a machine-readable trace: the rule tables of a runward mission's five gated manifests, or a trace file (profile: trace_file); every pointer resolved at the commit by this package's own reader (file, symbol, JUnit case, ADR)",
+      "evidence": ["trace.json"],
+      "tiers": {
+        "P1": { "text": "a trace with stable identifiers", "all": [
+          { "fact": "m.prv01.trace", "op": "is_true" },
+          { "fact": "m.prv01.ids_unique", "op": "is_true" } ] },
+        "P2": { "text": "100 % of the pointers resolved", "all": [ { "fact": "m.prv01.pointers", "op": "ratio_gte", "value": [100, 100] } ] }
+      },
+      "positiveControl": "a pointer to a renamed symbol: P2 not met",
+      "values": ["m.prv01.rows", "m.prv01.pointers"]
+    },
+    {
+      "id": "PRV-02", "rev": 1, "axis": "PRV", "class": ["M"],
+      "title": "The cited evidence is fresh",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "every machine report the repository cites (JUnit, SARIF, coverage) regenerated during the measure and compared by census and verdicts (the freshness recipe), never by bytes",
+      "evidence": ["freshness.json"],
+      "tiers": {
+        "P3": { "text": "0 difference between the cited reports and the regenerated ones", "all": [ { "fact": "m.prv02.stale_reports", "op": "eq", "value": 0 } ] }
+      },
+      "positiveControl": "a cited case removed from the suite with the committed report unchanged: P3 not met",
+      "values": ["m.prv02.stale_reports"]
+    },
+    {
+      "id": "PRV-03", "rev": 1, "axis": "PRV", "class": ["M"],
+      "title": "The declared gate withstands the sabotage catalogue",
+      "applies": { "profiles": ["L", "W", "A"], "when": { "fact": "p.gate_declare", "op": "nonempty" }, "naReason": "no gate declared" },
+      "procedure": "the gate pinned at the commit (the runward version of the lockfile, or the CLI built from the commit for runward itself), run offline on the commit's mission; its JSON verdict re-derived under two time zones, two locales and, when given, a second runtime; the versioned catalogue saboteur@1 applied case by case on fresh copies",
+      "evidence": ["gate.json", "gate-rederive.json", "sabotages-gate.json"],
+      "tiers": {
+        "P1": { "text": "the gate is green at the commit", "all": [ { "fact": "m.prv03.gate_exit", "op": "eq", "value": 0 } ] },
+        "P2": { "text": "the verdict re-derived offline, byte for byte", "all": [ { "fact": "m.prv03.rederive_identical", "op": "is_true" } ] },
+        "P3": { "text": "every must-refuse case refused, no refusal on the legitimate rename or on an invariance case", "all": [
+          { "fact": "m.prv03.must_refuse", "op": "ratio_gte", "value": [100, 100] },
+          { "fact": "m.prv03.false_red", "op": "eq", "value": 0 } ] }
+      },
+      "positiveControl": "the catalogue replays the healthy mission and the legitimate rename: a refusal on either is a false red, P3 not met",
+      "values": ["m.prv03.gate_version", "m.prv03.gate_exit", "m.prv03.must_refuse", "m.prv03.false_red"]
+    },
+    {
+      "id": "PRV-04", "rev": 1, "axis": "PRV", "class": ["M"],
+      "title": "Defect register",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "the register declared in the profile (defect_register) parsed with closed fields (id, class, effect, affected-from, fixed-in, found-by, advisory); an entry is unclassified when its advisory reads unclassified; a fixed entry must name a regression test that exists",
+      "evidence": ["register.json"],
+      "tiers": {
+        "P1": { "text": "a register, 100 % of its entries parsed", "all": [
+          { "fact": "m.prv04.register", "op": "is_true" },
+          { "fact": "m.prv04.parsed", "op": "ratio_gte", "value": [100, 100] } ] },
+        "P2": { "text": "0 entry unclassified for more than 30 days (before the commit's date)", "all": [ { "fact": "m.prv04.unclassified_over_30d", "op": "eq", "value": 0 } ] },
+        "P3": { "text": "every fixed defect names a regression test that exists", "all": [ { "fact": "m.prv04.fixed_without_test", "op": "eq", "value": 0 } ] }
+      },
+      "positiveControl": "an entry without a class field: P1 not met",
+      "values": ["m.prv04.entries", "m.prv04.unclassified_over_30d", "m.prv04.fixed_without_test"]
+    },
+    {
+      "id": "PRV-05", "rev": 1, "axis": "PRV", "class": ["X"],
+      "title": "The regulatory texts cited are current",
+      "applies": { "profiles": ["L", "W", "A"], "when": { "fact": "p.docs_conformite", "op": "nonempty" }, "naReason": "no conformity document declared" },
+      "procedure": "each declared conformity document is data naming its text and that text's version; compared with a snapshot of the amending acts (EUR-Lex)",
+      "evidence": ["conformity.json", "eurlex.json"],
+      "tiers": {
+        "P1": { "text": "identifier and version cited in data", "all": [ { "fact": "m.prv05.cited", "op": "ratio_gte", "value": [100, 100] } ] },
+        "P2": { "text": "0 document behind a captured amending act", "all": [ { "fact": "x.prv05.late", "op": "eq", "value": 0 } ] }
+      },
+      "positiveControl": "a document citing a text without its latest amending act: P2 not met",
+      "values": ["m.prv05.cited"]
+    },
+    {
+      "id": "PRO-01", "rev": 1, "axis": "PRO", "class": ["M", "X"],
+      "title": "Factual statements tagged and checked (runward ADR-0092)",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "the declared public surfaces captured (repository files at the commit, site pages in the snapshot); a fixed lexical detector counts factual sentences (a number next to a noun, or a version); a claims register with closed types and checkers",
+      "evidence": ["surfaces/", "claims.json"],
+      "tiers": {
+        "P1": { "text": "the surfaces captured, the count of untagged factual sentences published", "all": [ { "fact": "d.pro01.captured", "op": "ratio_gte", "value": [100, 100] } ] },
+        "P2": { "text": "a claims register, 0 typed claim false", "all": [
+          { "fact": "m.pro01.claims_register", "op": "is_true" },
+          { "fact": "m.pro01.claims_false", "op": "eq", "value": 0 } ] },
+        "P3": { "text": "0 untagged factual sentence in the declared zones", "all": [ { "fact": "d.pro01.untagged", "op": "eq", "value": 0 } ] }
+      },
+      "positiveControl": "a version-ref claim naming a version that is not the published one: P2 not met",
+      "values": ["d.pro01.captured", "d.pro01.untagged"]
+    },
+    {
+      "id": "PRO-02", "rev": 1, "axis": "PRO", "class": ["M", "X"],
+      "title": "Public numbers are consistent",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "a fixed list of public facts declared in the profile (public_facts), each with a source of truth computed in the tree and a fixed pattern; every surface read for each pattern",
+      "evidence": ["public-facts.json"],
+      "tiers": {
+        "P2": { "text": "0 difference between surfaces and with the source of truth", "all": [
+          { "fact": "d.pro02.checked", "op": "gte", "value": 1 },
+          { "fact": "d.pro02.mismatches", "op": "eq", "value": 0 } ] }
+      },
+      "positiveControl": "two pages giving two different numbers of rules: P2 not met",
+      "values": ["d.pro02.checked", "d.pro02.mismatches"]
+    },
+    {
+      "id": "PRO-03", "rev": 1, "axis": "PRO", "class": ["M", "X"],
+      "title": "Overpromise lexicon",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "the grid's versioned lexicon (overpromise@1) and the project's own, searched on every declared surface; a sentence that negates the term, by the lexicon's fixed negation list, is counted apart",
+      "evidence": ["overpromise.json"],
+      "tiers": {
+        "P1": { "text": "0 occurrence outside motivated exceptions", "all": [ { "fact": "d.pro03.hits", "op": "eq", "value": 0 } ] }
+      },
+      "positiveControl": "a page that says 'no hallucination': P1 not met",
+      "values": ["d.pro03.hits", "d.pro03.negated"]
+    },
+    {
+      "id": "ADO-01", "rev": 1, "axis": "ADO", "class": ["M"],
+      "title": "Clean install",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "the documented install method in a blank reference container; a second OS on a pinned runner; duration recorded as a noisy indicator",
+      "evidence": ["install-linux.log", "install-alt.log"],
+      "tiers": {
+        "P1": { "text": "succeeds in the reference container", "all": [ { "fact": "m.ado01.install_ref", "op": "is_true" } ] },
+        "P2": { "text": "also succeeds on the second OS", "all": [ { "fact": "m.ado01.install_alt", "op": "is_true" } ] }
+      },
+      "positiveControl": "a documented method that assumes a tool absent from the image: P1 not met",
+      "values": ["m.ado01.install_ref"]
+    },
+    {
+      "id": "ADO-02", "rev": 1, "axis": "ADO", "class": ["M", "X"],
+      "title": "The documented start runs as written; links",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "command blocks of fixed sections (Quickstart, first steps) run in a sandbox and their documented outputs compared; relative links of every Markdown file resolved in the tree; external links checked",
+      "evidence": ["quickstart.json", "links.json"],
+      "tiers": {
+        "P1": { "text": "every command exits as documented; 0 broken internal link", "all": [
+          { "fact": "m.ado02.quickstart", "op": "is_true" },
+          { "fact": "m.ado02.internal_broken", "op": "eq", "value": 0 } ] },
+        "P2": { "text": "documented outputs found; 0 broken external link", "all": [
+          { "fact": "m.ado02.outputs_found", "op": "is_true" },
+          { "fact": "x.ado02.external_broken", "op": "eq", "value": 0 } ] }
+      },
+      "positiveControl": "a documented command whose real output differs: P1 not met",
+      "values": ["m.ado02.internal_links", "m.ado02.internal_broken"]
+    },
+    {
+      "id": "ADO-03", "rev": 1, "axis": "ADO", "class": ["M"],
+      "title": "The documented interface is the real one",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "L: --help options against the reference table; W: the OpenAPI schema against the routes (contract tests); A: tool schemas against the manifest",
+      "evidence": ["interface-diff.json"],
+      "tiers": {
+        "P2": { "text": "0 difference", "all": [ { "fact": "m.ado03.interface_gaps", "op": "eq", "value": 0 } ] }
+      },
+      "positiveControl": "an option renamed in the code and not in the documentation: P2 not met",
+      "values": ["m.ado03.interface_gaps"]
+    },
+    {
+      "id": "ADO-04", "rev": 1, "axis": "ADO", "class": ["M"],
+      "title": "Automated accessibility",
+      "applies": { "profiles": ["W"] },
+      "procedure": "axe-core pinned on a fixed list of pages of the local build, browser pinned",
+      "evidence": ["axe.json"],
+      "tiers": {
+        "P1": { "text": "0 critical violation", "all": [ { "fact": "m.ado04.critical", "op": "eq", "value": 0 } ] },
+        "P2": { "text": "0 critical or serious violation", "all": [
+          { "fact": "m.ado04.critical", "op": "eq", "value": 0 },
+          { "fact": "m.ado04.serious", "op": "eq", "value": 0 } ] }
+      },
+      "positiveControl": "a page with an image without a text alternative: P1 not met",
+      "values": ["m.ado04.critical", "m.ado04.serious"]
+    },
+    {
+      "id": "MAR-01", "rev": 1, "axis": "MAR", "class": ["X"],
+      "title": "Third-party signals",
+      "applies": { "profiles": ["L", "W", "A"], "when": { "fact": "p.repo_public", "op": "is_true" }, "naReason": "a private repository: no third party can see it" },
+      "procedure": "authors of issues and pull requests opened between the window's dates, the owner, collaborators and the grid's bots excepted; public dependents outside the author's domains; published references",
+      "evidence": ["third-parties.json", "dependents.json", "references/"],
+      "tiers": {
+        "P1": { "text": ">= 1 active third-party human", "all": [ { "fact": "x.mar01.third_party_humans", "op": "gte", "value": 1 } ] },
+        "P2": { "text": ">= 5 third-party humans and >= 1 third-party pull request merged", "all": [
+          { "fact": "x.mar01.third_party_humans", "op": "gte", "value": 5 },
+          { "fact": "x.mar01.third_party_merged_prs", "op": "gte", "value": 1 } ] },
+        "P3": { "text": ">= 3 public dependents outside the author and >= 1 reference published outside the author's domains", "all": [
+          { "fact": "x.mar01.dependents", "op": "gte", "value": 3 },
+          { "fact": "x.mar01.references", "op": "gte", "value": 1 } ] }
+      },
+      "positiveControl": "an issue opened by a collaborator or a bot: not counted",
+      "values": ["x.mar01.third_party_humans", "x.mar01.third_party_merged_prs"]
+    },
+    {
+      "id": "MAR-02", "rev": 1, "axis": "MAR", "class": ["X"], "indicator": true,
+      "title": "Market indicators",
+      "applies": { "profiles": ["L", "W", "A"] },
+      "procedure": "downloads of the last closed calendar month; stars and forks; values and differences only, never a tier",
+      "evidence": ["market/"],
+      "tiers": {},
+      "values": ["x.mar02.downloads_last_month", "x.mar02.stars", "x.mar02.forks"]
+    }
+  ],
+  "annex": {
+    "rules": [
+      "fixed questions and scales, versioned in the grid",
+      "two independent judgments (two models, or a model and a person); judge, version, digest of the prompt and of the inputs recorded",
+      "a disagreement is shown, never averaged, never turned into a tier",
+      "an item becomes mechanical (new rev, new class) as soon as a checker exists"
+    ],
+    "items": [
+      { "id": "J-01", "question": "Is the value proposition understood from the home page alone?", "scale": ["0", "1", "2", "3"] },
+      { "id": "J-02", "question": "Overlap with each actor of the market list", "scale": ["low", "medium", "high"] },
+      { "id": "J-03", "question": "Do provoked errors (outputs captured in M) state the cause and the gesture?", "scale": ["0", "1", "2", "3"] },
+      { "id": "J-04", "question": "Status of each dated promise of the roadmap", "scale": ["kept", "partial", "abandoned", "not-started"] },
+      { "id": "J-05", "question": "Design review by a person not involved (NIST SSDF PW.2)", "scale": ["attested", "absent"] }
+    ]
+  },
+  "tables": {
+    "scorecardRisk": {
+      "source": "OpenSSF Scorecard docs/checks.md, risk of each check, read 2026-11-05",
+      "critical": ["Dangerous-Workflow", "Webhooks"],
+      "high": ["Binary-Artifacts", "Branch-Protection", "Code-Review", "Dependency-Update-Tool", "Maintained", "Signed-Releases", "Token-Permissions", "Vulnerabilities"],
+      "excepted": ["Code-Review", "Contributors"],
+      "minimumAtP3": 8
+    },
+    "vulnerabilities": { "highSeverities": ["HIGH", "CRITICAL"], "openDays": 30 },
+    "web": { "protocols": ["TLSv1.2", "TLSv1.3"], "highFindings": ["certificate-invalid", "hsts-missing", "tls-below-1.2", "tls-unreachable"] },
+    "register": { "unclassifiedDays": 30 },
+    "chaoss": { "share": [1, 2] },
+    "windowRule": "a window runs from the previous record's commit (excluded) to the assessed commit; at the first record, from the 100th first-parent commit before it",
+    "referenceDate": "an M criterion that needs a date reads the commit's committer date; an X criterion reads the snapshot's as-of date"
+  }
+}

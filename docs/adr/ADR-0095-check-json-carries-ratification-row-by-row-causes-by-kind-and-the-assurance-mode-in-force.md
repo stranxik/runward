@@ -146,6 +146,16 @@ that a renamed or moved ratification field broke it.
 **Trigger set on**: 2026-10-13 · **Watched via**: the payload golden tests, `verify`'s additive-key
 tests, the D1 Markdown golden test.
 
+## Note, 2026-11-05: the re-derivation paragraph is refined by ADR-0113
+
+Recorded so a reader of this record finds the later decision; the decision above is not rewritten.
+"Stripping all three passes, like deleting any additive field: it removes information, never adds any"
+and "`verify` on a 0.43.1 attestation and an unchanged tree still exits 0" no longer describe `verify`.
+[ADR-0113](ADR-0113-verify-says-verified-only-for-what-it-re-derives-names-what-it-covers-and-sends-an-attestation-back-to-the-runward-that-produced-it.md) records the producer of each attestation and compares every key both ways under it:
+under the build that produced it, a removed field is a difference (a removed disclosure changes what a
+reader believes, RWD-2026-0192); an attestation from 0.43.x names 0.43.x and is answered by it, exit 2,
+with the command. The three fields are still named apart when they differ.
+
 ## References
 
 - `src/lib/conformance.ts`, `src/lib/check-contract.ts`, `src/commands/verify.ts`, `src/lib/witness.ts`

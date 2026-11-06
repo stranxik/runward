@@ -1,15 +1,24 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { findMissionRoot } from "../lib/mission.js";
+import { declaredMissionName, findMissionRoot, THROUGH_PHASE_IDS } from "../lib/mission.js";
 import { computeVerdict } from "../lib/verdict.js";
-import { missionStateDigest, rawFileSha256, IN_TOTO_STATEMENT_TYPE, RUNWARD_PREDICATE_TYPE, RUNWARD_BUNDLE_PREDICATE_TYPE } from "../lib/attestation.js";
+import {
+  buildVerdictStatement, deliveredTreeOf, digestOfFiles, missionStateFiles, missionStateScope, producerIdentity, rawFileSha256,
+  DELIVERED_TREE_RULE, DELIVERED_TREE_SUBJECT_SUFFIX, IN_TOTO_STATEMENT_TYPE, RUNWARD_PREDICATE_TYPE, RUNWARD_BUNDLE_PREDICATE_TYPE,
+  type DeliveredTree,
+} from "../lib/attestation.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
-import { VERSION } from "../lib/paths.js";
-import { GATE_NON_SCOPE } from "../lib/rules.js";
-import { conformanceRows, conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, nextStep, delegationPayload, causesByKind, committedJUnitPayload, CONFORMANCE_ADDITIVE_KEYS } from "../lib/check-contract.js";
+import { PACKAGE_NAME, VERSION } from "../lib/paths.js";
+import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
+import {
+  attestedQuestion, conformanceRowsLocated, coverageSummary, currentGateLabel, deliverableRowsWithPhaseId, machinePayload, nextPayload, nextStep, redPhases,
+} from "../lib/check-contract.js";
 import { manifestLineLocator } from "../lib/sarif.js";
-import { decisionCoverage } from "../lib/conformance.js";
+import { decisionCoverage, rulesDir } from "../lib/conformance.js";
 import { citedJUnitNotGreen } from "../lib/evidence.js";
+// Read only: `verify` imports the reader of hooks.json and nothing that executes a command; a test holds
+// it to that (verify-claims-only-what-it-checks.test.js).
+import { readHooksConfig } from "../lib/hooks.js";
 
 /** Verify a bundle (ADR-0055 layer 4): re-hash each referenced artifact by its raw bytes and confirm
  *  it is present and unchanged. Offline, no mission, no key. */
@@ -36,22 +45,135 @@ function verifyBundle(statement: { subject?: Array<{ name?: string; digest?: { s
     console.log(`  ${r.matches ? status.success(r.name) : status.error(`${r.name} — ${r.present ? "changed since bundling" : "missing"}`)}`);
   }
   console.log(section("Result"));
-  if (verified) console.log("  " + status.success("verified — every bundled artifact is present and unchanged."));
+  // ADR-0113 decision 3: the result names what it covers, as the verdict's does.
+  if (verified) console.log("  " + status.success(`verified — the ${subjects.length} bundled artifact(s) are present and unchanged, by their raw bytes. A file the bundle does not list is not covered.`));
   else { console.log("  " + status.error("NOT verified — a bundled artifact is missing or changed.")); process.exitCode = 1; }
   console.log();
 }
 
+const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
+
+/** KEY ORDER IS NOT MEANING. Comparing through `JSON.stringify` alone made the order of a payload's keys
+ *  load-bearing (found 2026-08-27, an honest attestation reported different for a reordered block).
+ *  Arrays keep their order: there, order IS meaning. */
+const canon = (v: unknown): unknown => {
+  if (Array.isArray(v)) return v.map(canon);
+  if (isObj(v)) return Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])]));
+  return v;
+};
+const same = (a: unknown, b: unknown): boolean => JSON.stringify(canon(a)) === JSON.stringify(canon(b));
+
+/** The keys of `attested` agree with `current`, recursively; a key only `current` has is not looked at.
+ *  Used ONLY for the advisory reading of another producer's attestation (ADR-0113 decision 4): an older
+ *  producer did not emit what was added since, and that reading never decides an exit code. */
+const subsetSame = (attested: unknown, current: unknown): boolean => {
+  if (Array.isArray(attested)) return Array.isArray(current) && attested.length === current.length && attested.every((x, i) => subsetSame(x, current[i]));
+  if (isObj(attested)) return isObj(current) && Object.keys(attested).every((k) => k in current && subsetSame(attested[k], current[k]));
+  return same(attested, current);
+};
+
+/** The blocks whose children are named one by one when they differ: `gaps` and `next` whole, and the
+ *  lists published apart inside three others, so a reader learns WHICH part moved. */
+const SPLIT: Record<string, "*" | string[]> = { gaps: "*", next: "*", evidence: ["proseRows"], ratification: ["byRow"], delegation: ["assurance"] };
+
 /**
- * Verify a runward verdict attestation offline (ADR-0055 layer 2).
+ * Every predicate key where the attestation and the re-derivation differ (ADR-0113 decision 1).
  *
- * Given a `check --attest` Statement and the repository, re-derive the mission-state digest and the
- * verdict from the CURRENT tree, and confirm the attestation binds to it: the subject digest must
- * still match (the tree has not drifted), and the predicate's verdict must re-derive (the predicate
- * was not tampered). No network, no trust root, no second tree, no base ref (ADR-0054): the survival
- * property made portable — anyone can re-check a verdict months later on the repo alone.
+ * `exact`: both ways. A key the attestation carries that this build does not emit is a difference
+ * (a field nobody re-derives can no longer be blessed: `independentAudit`, a strict block added to a
+ * presence attestation, RWD-2026-0192), and so is a key this build emits that the attestation lacks
+ * (emptying or deleting a disclosure such as `prosePointers` is a removal, never an older producer: the
+ * producer is named in `producer`). `subset`: only the keys the attestation carries, for the advisory
+ * reading of another producer's attestation.
+ */
+export function predicateDiffs(attested: Record<string, unknown>, expected: Record<string, unknown>, mode: "exact" | "subset"): string[] {
+  const eq = mode === "exact" ? same : subsetSame;
+  const keysOf = (a: Record<string, unknown>, e: Record<string, unknown>): string[] =>
+    (mode === "exact" ? [...new Set([...Object.keys(a), ...Object.keys(e)])] : Object.keys(a)).sort();
+  const out: string[] = [];
+  for (const k of keysOf(attested, expected)) {
+    if (k === "deliveredTree") continue; // the second subject is compared on its own
+    // Under another producer, who produced it is the finding itself, printed apart: never a field that
+    // "reads differently" here.
+    if (mode === "subset" && (k === "runward" || k === "producer")) continue;
+    const a = attested[k];
+    const e = expected[k];
+    const split = SPLIT[k];
+    if (split && isObj(a) && isObj(e)) {
+      const children = split === "*" ? keysOf(a, e) : split.filter((x) => (mode === "exact" ? x in a || x in e : x in a));
+      for (const ch of children) {
+        if (mode === "subset" && !(ch in e)) { out.push(`${k}.${ch}`); continue; }
+        if (!eq(a[ch], e[ch])) out.push(`${k}.${ch}`);
+      }
+      if (split !== "*") {
+        const rest = (o: Record<string, unknown>) => Object.fromEntries(Object.entries(o).filter(([x]) => !split.includes(x)));
+        if (!eq(rest(a), rest(e))) out.push(k);
+      }
+      continue;
+    }
+    if (mode === "subset" && !(k in expected)) { out.push(k); continue; }
+    if (!eq(a, e)) out.push(k);
+  }
+  return out;
+}
+
+/** The envelope around the predicate: no top-level key in-toto does not define, and the subject this
+ *  build writes (its name, a SHA-256 digest and nothing else, and one more subject only for the tree). */
+function statementDiffs(attested: Record<string, unknown>, expected: Record<string, unknown>): string[] {
+  const out: string[] = [];
+  for (const k of Object.keys(attested)) if (!["_type", "subject", "predicateType", "predicate"].includes(k)) out.push(`statement.${k}`);
+  const sa = Array.isArray(attested.subject) ? attested.subject : [];
+  const se = expected.subject as Array<{ name: string }>;
+  if (sa.length !== se.length) out.push("subject");
+  const s0 = sa[0];
+  if (!isObj(s0) || s0.name !== se[0].name) out.push("subject.name");
+  if (isObj(s0)) {
+    for (const k of Object.keys(s0)) if (k !== "name" && k !== "digest") out.push(`subject.${k}`);
+    if (!isObj(s0.digest) || Object.keys(s0.digest).some((k) => k !== "sha256")) out.push("subject.digest");
+  }
+  return out;
+}
+
+/** The delivered tree, compared on its own (ADR-0113 decision 5): its record must be coherent (the
+ *  subject's digest is the digest of the listed files, the count is their number, the rule is this
+ *  build's), and the files must match the tree, each change named. */
+function compareTree(sa: unknown[], attestedTree: unknown, expectedName: string, current: DeliveredTree, mode: "exact" | "subset") {
+  const t = isObj(attestedTree) ? attestedTree : null;
+  const entries = t && isObj(t.entries) && Object.values(t.entries).every((h) => typeof h === "string") ? t.entries as Record<string, string> : null;
+  const s1 = sa[1];
+  const coherent = entries !== null && sa.length === 2 && isObj(s1) && s1.name === expectedName &&
+    isObj(s1.digest) && s1.digest.sha256 === digestOfFiles(entries) && Object.keys(s1).every((k) => k === "name" || k === "digest") &&
+    t!.files === Object.keys(entries).length &&
+    (mode === "subset" || (t!.rule === DELIVERED_TREE_RULE && Object.keys(t!).every((k) => k === "files" || k === "rule" || k === "entries")));
+  const attested = entries ?? {};
+  const changed = Object.keys(attested).filter((k) => k in current.entries && current.entries[k] !== attested[k]).sort();
+  const added = Object.keys(current.entries).filter((k) => !(k in attested)).sort();
+  const removed = Object.keys(attested).filter((k) => !(k in current.entries)).sort();
+  return { coherent, matches: coherent && changed.length + added.length + removed.length === 0, files: current.files, attestedFiles: entries ? Object.keys(entries).length : null, changed, added, removed };
+}
+
+const SEMVER = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
+/** One argument of a command printed for a person or an agent to run: quoted unless it is plainly safe. */
+const shellArg = (s: string): string => (/^[A-Za-z0-9_./:@%+=,-]+$/.test(s) ? s : `'${s.replace(/'/g, "'\\''")}'`);
+const plural = (n: number, one: string, many = `${one}s`): string => `${n} ${n === 1 ? one : many}`;
+const listed = (xs: string[], max = 3): string => xs.slice(0, max).join(", ") + (xs.length > max ? `, +${xs.length - max} more` : "");
+
+/**
+ * Verify a runward verdict attestation offline (ADR-0055 layer 2, refined by ADR-0113).
  *
- * Exit codes (the 0/1/2 port, ADR-0012): 0 = verified · 1 = drift or a lying predicate · 2 = the
- * attestation could not be read, is not a runward attestation, or no mission is here to re-derive.
+ * Under the build that produced it, `verify` rebuilds, with the functions `check` emits with, the
+ * Statement this binary emits for this tree and for the question the attestation records (`strict`,
+ * `through`, whether `--hooks` and `--coverage` ran), and compares every key, both ways: a field nobody
+ * re-derives cannot be blessed, because there is no list of fields to forget one from. Under another
+ * build it answers neither verified nor not verified: it names the producer and the command that
+ * re-derives with it, and gives its own reading as advisory. No network, no trust root, no second tree,
+ * no base ref (ADR-0054).
+ *
+ * Exit codes (the 0/1/2 port, ADR-0012, ADR-0083): 0 = verified · 1 = differs (the digest, a field, or
+ * the delivered tree it binds) · 2 = the question cannot be answered here: another build produced it
+ * (`version-skew`), the attesting run executed hook commands this one does not re-run
+ * (`not-re-derivable`), or the attestation could not be read, is not a runward attestation, or no
+ * mission is here to re-derive it.
  */
 export async function verifyCommand(attestationPath: string, opts: { path?: string; json?: boolean }): Promise<void> {
   const fail2 = (msg: string, reason: string): never => {
@@ -62,23 +184,18 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   };
 
   if (!existsSync(attestationPath)) fail2(`Attestation not found: ${attestationPath}`, "attestation-not-found");
-  let statement: {
-    _type?: string; predicateType?: string;
-    subject?: Array<{ name?: string; digest?: { sha256?: string } }>;
-    predicate?: { runward?: string; strict?: boolean; verdict?: string; exitCode?: number; through?: string | null; horizon?: { deferred?: unknown[] } | null };
-  };
+  let statement: Record<string, unknown>;
   try { statement = JSON.parse(readFileSync(attestationPath, "utf8")); }
   catch { fail2(`Attestation is not valid JSON: ${attestationPath}`, "attestation-not-json"); }
+  if (!isObj(statement!)) fail2(`Attestation is not a JSON object: ${attestationPath}`, "not-in-toto");
 
   // A DSSE envelope is TOLERATED, never trusted: cosign wraps the Statement it signs in
-  // { payloadType, payload: base64, signatures[] } — the exact artifact layer 5 will produce and
-  // any cosign-signed runward attestation already has. verify DECODES the payload and proceeds on
-  // the Statement inside; it NEVER verifies the signature — runward holds no key and no trust root
-  // (ADR-0021/ADR-0054), and pretending to check a signature it cannot anchor would be a stronger
-  // claim than the tool is entitled to. The signature count is REPORTED so the operator verifies it
-  // with their own tooling (cosign verify-blob-attestation), and the output says so in words.
+  // { payloadType, payload: base64, signatures[] }. verify DECODES the payload and proceeds on the
+  // Statement inside; it NEVER verifies the signature — runward holds no key and no trust root
+  // (ADR-0021/ADR-0054/ADR-0093). The signature count is REPORTED so the operator verifies it with
+  // their own tooling (cosign verify-blob-attestation), and the output says so in words.
   let dsse: { signaturesPresent: number } | null = null;
-  const maybeEnvelope = statement! as unknown as { payloadType?: unknown; payload?: unknown; signatures?: unknown[] };
+  const maybeEnvelope = statement! as { payloadType?: unknown; payload?: unknown; signatures?: unknown[] };
   if (typeof maybeEnvelope.payloadType === "string" && typeof maybeEnvelope.payload === "string") {
     if (!/in-toto/.test(maybeEnvelope.payloadType)) fail2(`DSSE envelope whose payloadType is "${maybeEnvelope.payloadType}" — not an in-toto payload.`, "dsse-not-in-toto");
     try {
@@ -86,297 +203,243 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
       dsse = { signaturesPresent: Array.isArray(maybeEnvelope.signatures) ? maybeEnvelope.signatures.length : 0 };
       statement = decoded;
     } catch { fail2("DSSE payload is not base64-encoded JSON.", "dsse-payload-invalid"); }
+    if (!isObj(statement!)) fail2("DSSE payload is not a JSON object.", "dsse-payload-invalid");
   }
 
   if (statement!._type !== IN_TOTO_STATEMENT_TYPE) fail2("Not an in-toto Statement (wrong _type).", "not-in-toto");
   // A bundle (ADR-0055 layer 4) is about its listed files, not a verdict: re-hash each by its raw
   // bytes, as any cosign/in-toto tool would, and confirm it is present and unchanged. No mission.
-  if (statement!.predicateType === RUNWARD_BUNDLE_PREDICATE_TYPE) { verifyBundle(statement!, opts, dsse); return; }
+  if (statement!.predicateType === RUNWARD_BUNDLE_PREDICATE_TYPE) { verifyBundle(statement! as Parameters<typeof verifyBundle>[0], opts, dsse); return; }
   if (statement!.predicateType !== RUNWARD_PREDICATE_TYPE) {
     fail2("Not a runward attestation (predicateType is neither a verdict nor a bundle).", "not-a-runward-attestation");
   }
-  const claimedDigest = statement!.subject?.[0]?.digest?.sha256;
+  const subjects: unknown[] = Array.isArray(statement!.subject) ? statement!.subject : [];
+  const s0 = isObj(subjects[0]) ? subjects[0] : null;
+  const claimedDigest = isObj(s0?.digest) && typeof s0!.digest.sha256 === "string" ? s0!.digest.sha256 : null;
   if (!claimedDigest) fail2("Attestation carries no subject digest — nothing to bind to a tree.", "no-subject-digest");
 
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) fail2("No runward/ mission found here or above — verify re-derives the verdict from the mission tree.", "no-mission");
   const mission = join(root!, "runward");
+  const p: Record<string, unknown> = isObj(statement!.predicate) ? statement!.predicate : {};
 
-  // Re-derive from the CURRENT tree, and nothing else: no network, no trust root, no second tree.
-  const currentDigest = missionStateDigest(root!, mission);
-  const strict = !!statement!.predicate?.strict;
-  // ADR-0053: a phase-crossing attestation certifies a declared PREFIX. Re-derive with the SAME
-  // horizon it recorded, or a prefix verdict (clean through floor) would be checked against the
-  // whole-arc verdict (gaps) and a valid attestation would fail. A full-arc attestation carries
-  // `through: null` and re-derives the whole arc, unchanged.
-  const through = statement!.predicate?.through ?? undefined;
-  const verdict = computeVerdict(mission, { strict, through });
+  // ── The question the attestation records, and nothing it does not ────────────────────────────────
+  // ADR-0053: a prefix attestation re-derives under the horizon it recorded. A `through` that names no
+  // phase is re-derived without one, and the comparison names `through`.
+  const strict = p.strict === true;
+  const through = typeof p.through === "string" && THROUGH_PHASE_IDS.includes(p.through) ? p.through : undefined;
+  // The run used --hooks exactly when the payload carries `hooks` (ADR-0030), and --coverage exactly
+  // when it carries `coverage`. Each choice shapes the question, never the answer: an attestation that
+  // drops the block is the honest attestation of the run without the flag, and is compared as one.
+  const hooksAsked = p.hooks !== undefined;
+  const coverageAsked = p.coverage !== undefined;
+
+  // The one input no offline reading can give: which of the operator's hook commands failed. The file
+  // is re-read (pure, nothing runs); the attesting run's record of the failures is taken only when each
+  // entry names a configured command, in the order the run executes them, and then it is DECLARED, never
+  // re-derived (`not-re-derivable`, below).
+  let hookFailed = 0;
+  let hooksExecuted = 0;
+  let expectedHooks: { config: "absent" | "invalid" | "ok"; problem: string | null; failed: Array<{ phase: "before" | "after"; command: string }> } | undefined;
+  if (hooksAsked) {
+    const cfg = readHooksConfig(mission);
+    const order = cfg.state === "ok" ? [...cfg.before.map((command) => ({ phase: "before" as const, command })), ...cfg.after.map((command) => ({ phase: "after" as const, command }))] : [];
+    const claimed = isObj(p.hooks) && Array.isArray(p.hooks.failed) ? p.hooks.failed : null;
+    const failed: Array<{ phase: "before" | "after"; command: string }> = [];
+    let at = 0;
+    let coherent = claimed !== null;
+    for (const f of claimed ?? []) {
+      while (at < order.length && !(isObj(f) && order[at].phase === f.phase && order[at].command === f.command)) at++;
+      if (at === order.length) { coherent = false; break; }
+      failed.push(order[at++]);
+    }
+    expectedHooks = { config: cfg.state, problem: cfg.state === "invalid" ? cfg.problem : null, failed: coherent ? failed : [] };
+    hookFailed = expectedHooks.failed.length + (cfg.state === "invalid" ? 1 : 0);
+    hooksExecuted = order.length;
+  }
+
+  // ── The Statement this build emits for this tree and that question ──────────────────────────────────
+  // The SAME functions `check` publishes with (machinePayload, nextStep, buildVerdictStatement): there
+  // is no second assembly to drift from check.ts, and a field added to one side only stops an honest
+  // attestation from verifying the day it lands, which the tests read.
+  const verdict = computeVerdict(mission, { strict, through, hookFailed });
+  const question = attestedQuestion({ strict, through, hooks: hooksAsked });
+  const payload = machinePayload(verdict, {
+    version: VERSION,
+    missionRoot: root!,
+    currentGate: currentGateLabel(verdict.report, verdict.clean, redPhases(verdict)),
+    adrCount: verdict.report.adrCount,
+    adrSetAside: verdict.report.adrSetAside,
+    clean: verdict.clean,
+    strict,
+    gaps: verdict.gaps,
+    strictGaps: verdict.strictGaps,
+    hookFailed,
+    hooks: expectedHooks,
+    deliverables: deliverableRowsWithPhaseId(verdict.deliverables),
+    conformance: strict ? conformanceRowsLocated(verdict, manifestLineLocator(mission)) : [],
+    corpusPin: corpusStamp(rulesDir(mission)),
+    corpusDrift: corpusDrift(mission, rulesDir(mission)),
+    gateNonScope: GATE_NON_SCOPE,
+    next: nextPayload(nextStep({ gaps: verdict.gaps, strictGaps: verdict.strictGaps, hookFailed, breakdown: verdict.strictBreakdown }, question)),
+    coverage: coverageAsked ? coverageSummary(verdict.report, decisionCoverage(mission)) : undefined,
+    junitNotGreen: citedJUnitNotGreen(mission),
+  });
+  const missionFiles = missionStateFiles(root!, mission);
+  const scope = missionStateScope(missionFiles, mission);
+  const treeBound = subjects.length > 1 || p.deliveredTree !== undefined;
+  const currentTree = treeBound ? deliveredTreeOf(root!) : undefined;
+  const expected = buildVerdictStatement(root!, mission, { ...payload, mission: declaredMissionName(mission) }, { deliveredTree: currentTree, missionFiles });
+  const expectedSubject = (expected.subject as Array<{ name: string; digest: { sha256: string } }>);
+  const currentDigest = expectedSubject[0].digest.sha256;
+
+  // ── Who produced it ─────────────────────────────────────────────────────────────────────────────────
+  // ADR-0113 decision 4. A verdict re-derives only under the logic that produced it. Every attestation
+  // made before the producer was recorded carries `runward` alone and is another build by definition,
+  // since this one always records itself; one that names no producer at all is not an older one (every
+  // runward since 0.35.0 writes `runward`) and is compared under this build, where it differs.
+  const self = producerIdentity();
+  const attestedProducer = isObj(p.producer) ? p.producer : null;
+  const producedBy = typeof attestedProducer?.version === "string" ? attestedProducer.version : typeof p.runward === "string" ? p.runward : null;
+  const sameBuild = attestedProducer !== null && attestedProducer.version === self.version && attestedProducer.build === self.build;
+  const versionSkew = !sameBuild && producedBy !== null;
+  const mode = versionSkew ? "subset" : "exact";
+
+  const digestMatches = claimedDigest === currentDigest;
   const currentVerdict = verdict.clean ? "clean" : "gaps";
-  const deferredCount = statement!.predicate?.horizon?.deferred?.length ?? 0;
-
-  const digestMatches = currentDigest === claimedDigest;
-  const verdictMatches = statement!.predicate?.verdict === currentVerdict && statement!.predicate?.exitCode === verdict.exitCode;
-
-  // THE PREDICATE BODY IS RE-DERIVED, not taken on trust.
-  //
-  // Until 2026-08-26 this function compared exactly two fields — `verdict` and `exitCode` — and
-  // answered "verified" over everything else. Measured by three independent auditors on the shipped
-  // binary: rewrite `evidence` to 36 typed / 0 prose, `seal` to present with 4242 files on a mission
-  // that has no seal, `criticalScope` to 45 of 45, and DELETE `gateNonScope` — or replace it with
-  // "runward proves the code is correct" — and verify still answered `verified: true`, exit 0. The
-  // attestation is unsigned by design, so its bytes are attacker-controllable until the operator
-  // checks a signature runward explicitly does not check. README:93 and docs/interop.md §5 both
-  // promise that a tampered predicate fails loud; it did not.
-  //
-  // Everything below is re-derived from the SAME Verdict this function already computed, so there is
-  // no second assembly to drift from check.ts. Fields that cannot be re-derived offline are named in
-  // `notReDerived` rather than silently blessed: `hooks` requires running the operator's commands,
-  // and `runward`/`currentGate`/`adrCount`/`corpusPin` are reported by their own surfaces.
-  const p = (statement!.predicate ?? {}) as Record<string, any>;
-  const differing: string[] = [];
-  // ABSENCE IS A DIFFERENCE FOR A FIELD THIS BUILD ALWAYS EMITS. The first cut of this comparison
-  // skipped any `undefined`, so that an older predicate would not be called a liar for a field that
-  // did not exist when it was made — and that skip re-opened the hole one spelling over: DELETING
-  // `gateNonScope` from a current attestation passed, where replacing it was caught. A missing
-  // required field is either an older producer, which `versionSkew` names beside this line, or a
-  // removal. Both deserve a not-verified; only one of them is tampering, and the reader is given
-  // what they need to tell them apart.
-  //
-  // KEY ORDER IS NOT MEANING. `JSON.stringify` preserves insertion order, so comparing two objects
-  // through it made the ORDER of the payload's keys load-bearing: adding one field to the emitted
-  // `evidence` block before `duplicated`, and to this re-derivation after it, produced
-  // `differing: ["evidence"]` on an honest attestation with identical contents. Found 2026-08-27
-  // while adding the vacuity disclosure. Aligning the two lists would have hidden it until the next
-  // reorder; canonicalising is what stops it being a trap. Arrays keep their order — there, order
-  // IS meaning (`duplicated` is sorted deterministically, and a different order is a different tree).
-  const canon = (v: unknown): unknown => {
-    if (Array.isArray(v)) return v.map(canon);
-    if (v && typeof v === "object") {
-      const o = v as Record<string, unknown>;
-      return Object.fromEntries(Object.keys(o).sort().map((k) => [k, canon(o[k])]));
-    }
-    return v;
-  };
-  const cmp = (name: string, attested: unknown, current: unknown, required = false) => {
-    if (attested === undefined && !required) return;
-    if (JSON.stringify(canon(attested)) !== JSON.stringify(canon(current))) differing.push(name);
-  };
-  cmp("strict", p.strict, strict);
-  cmp("through", p.through, verdict.through);
-  cmp("gaps.deliverables", p.gaps?.deliverables, verdict.gaps);
-  cmp("gaps.conformance", p.gaps?.conformance, verdict.strictGaps);
-  cmp("gaps.deferred", p.gaps?.deferred, verdict.deferredGaps);
-  // The two tables an assessor reads FIRST, and the horizon that scopes them. Until 2026-09-02 none
-  // of the three was compared, and none was named in `notReDerived` — the worst combination: an
-  // attestation whose `deliverables` table described a mission that does not exist, whose
-  // `conformance` table was invented, and whose `horizon` was falsified answered `verified: true`,
-  // exit 0, printed by the very command whose purpose is "do not trust this attestation". Found by
-  // an adversarial investigation (RWD-2026-0095). All three re-derive from the same Verdict this
-  // function already computed; `conformance` through the ONE implementation `check` publishes with
-  // (conformanceRows, ADR-0059 criterion 5), so the two sides cannot drift apart again.
-  // ADDITIVE KEYS ON ROWS (RWD-2026-0149, RWD-2026-0151). `deliverables[].phaseId` and
-  // `conformance[].{kind,file,line,phaseId}` were added after attestations existed. A table whose
-  // rows carry NONE of them was produced before them: it is compared on the fields it has, which
-  // still re-derive in full, so an honest older attestation keeps verifying. A table where SOME row
-  // carries them is a current producer's, compared whole — a row edited or stripped alone differs.
-  // Stripping every additive key from every row passes, like deleting any other additive field
-  // (`ratification`, `requiresUnmet`): it removes information derived from the tree, never adds any.
-  const olderRows = (rows: unknown, keys: readonly string[]): boolean =>
-    Array.isArray(rows) && rows.every((r) => !r || typeof r !== "object" || keys.every((k) => !(k in (r as object))));
-  cmp("deliverables", p.deliverables,
-    olderRows(p.deliverables, ["phaseId"]) ? verdict.deliverables : deliverableRowsWithPhaseId(verdict.deliverables), true);
-  cmp("horizon", p.horizon, verdict.horizon, true);
-  if (strict) {
-    cmp("conformance", p.conformance,
-      olderRows(p.conformance, CONFORMANCE_ADDITIVE_KEYS) ? conformanceRows(verdict) : conformanceRowsLocated(verdict, manifestLineLocator(mission)), true);
-    // `proseRows` (RWD-2026-0150) is compared on its own, and only when present: an attestation
-    // sealed before it existed carries none, and the rest of the block still re-derives in full.
-    const { proseRows: attestedProseRows, ...attestedEvidence } = (p.evidence ?? {}) as Record<string, unknown>;
-    cmp("evidence.proseRows", attestedProseRows, verdict.breakdown.proseRows);
-    cmp("evidence", p.evidence === undefined ? undefined : attestedEvidence, {
-      rows: verdict.breakdown.rows, applied: verdict.breakdown.applied,
-      deviated: verdict.breakdown.deviated, na: verdict.breakdown.na,
-      typed: verdict.breakdown.typed, prose: verdict.breakdown.prose,
-      signed: verdict.breakdown.signed, duplicated: verdict.breakdown.duplicated,
-      // Added to the payload with the vacuity disclosure. Re-derived here in the same commit,
-      // because RWD-2026-0042 is exactly the defect of a predicate field nobody re-derives: the
-      // suite went red the moment the field landed, which is the guard doing its job.
-      evidenceFiles: verdict.breakdown.evidenceFiles,
-    }, true);
-    cmp("corpus", p.corpus, {
-      status: verdict.corpus.status, missing: verdict.corpus.missing,
-      edited: verdict.corpus.edited, extra: verdict.corpus.extra,
-    }, true);
-    cmp("seal", p.seal, {
-      present: verdict.seal.present, count: verdict.seal.count,
-      sealedAt: verdict.seal.sealedAt ?? null, violations: verdict.seal.violations.length,
-    }, true);
-    cmp("criticalScope", p.criticalScope, verdict.criticalScope, true);
-    // ADR-0066, additive on 0.38: not `required` — an attestation produced before the field
-    // existed is an older producer, not a liar (`versionSkew` names the case); one produced WITH
-    // it and tampered is caught like every other field.
-    // ADR-0095 decision 1: `byRow` is compared on its own, and only when present, on the model of
-    // `evidence.proseRows`: an attestation sealed before the list existed (0.43.x) carries none and
-    // the counts still re-derive in full; one sealed with it and edited is caught. Stripping it
-    // passes, like deleting any additive field: it removes information, never adds any.
-    const { byRow: attestedByRow, ...attestedRatification } = (p.ratification ?? {}) as Record<string, unknown>;
-    cmp("ratification", p.ratification === undefined ? undefined : attestedRatification, verdict.ratification);
-    cmp("ratification.byRow", attestedByRow, verdict.ratificationRows);
-    cmp("requiresUnmet", p.requiresUnmet, verdict.requiresUnmet);
-    cmp("gaps.proposed", p.gaps?.proposed, verdict.strictBreakdown.proposed);
-    // ADR-0095 decision 2, additive: re-derived from the same rows `conformance` is compared with.
-    cmp("gaps.causesByKind", p.gaps?.causesByKind, causesByKind(conformanceRowsLocated(verdict)));
-    // ADR-0080: re-derived whenever the tree opted in; a payload that dropped the field while the
-    // tree carries the flag is a difference, not an older producer — the flag is in the tree.
-    // The whole block is compared, forge claim included: an attestation that says anything about the
-    // tier other than what this tree derives (a forged `forgeApproval`, or a tier the tree does not
-    // declare) is a difference — the RWD-2026-0095 class, an invented field that passed.
-    if (verdict.regulated.on) {
-      cmp("gaps.unboundRows", p.gaps?.unboundRows, verdict.strictBreakdown.unboundRows, true);
-      cmp("regulated", p.regulated, { unbound: verdict.regulated.unbound, forgeApproval: "not verified by this command" }, true);
-    } else {
-      if (p.regulated !== undefined) differing.push("regulated");
-      if (p.gaps?.unboundRows !== undefined) differing.push("gaps.unboundRows");
-    }
-    // ADR-0067 (W3), additive like the two above: a payload sealed before the field existed
-    // carries undefined and cmp skips it — an attestation never rots because the product grew.
-    cmp("workflowContract", p.workflowContract, verdict.workflowContract);
-    // ADR-0098 option B, additive: present when the tree has rows judged on a committed JUnit report.
-    // Not required — an attestation sealed before the field existed is an older producer — but one
-    // that carries the block while this tree derives none carries something the tree does not say.
-    if (verdict.committedJUnit.rows.length > 0) cmp("committedJUnit", p.committedJUnit, committedJUnitPayload(verdict));
-    else if (p.committedJUnit !== undefined) differing.push("committedJUnit");
-    // ADR-0088 decision 5: when the tree holds a charter, its block and its gap count re-derive and
-    // are required — the charter is in the tree, like the regulated flag. A payload that carries
-    // either while the tree holds no charter is carrying something this tree does not say.
-    if (verdict.delegation) {
-      cmp("gaps.charter", p.gaps?.charter, verdict.strictBreakdown.charter, true);
-    } else if (p.gaps?.charter !== undefined) differing.push("gaps.charter");
-    // The declared non-scope is a CONSTANT of this build. An attestation that carries a different
-    // one — or none — is carrying a claim runward did not make, which is the whole point of shipping
-    // the caveat inside the artifact.
-    cmp("gateNonScope", p.gateNonScope, GATE_NON_SCOPE, true);
-  }
-  // ADR-0088 decision 5: the stage banner travels with or without --strict, so it is compared outside
-  // the strict block, through the one implementation `check` published it with.
-  // ADR-0095 decision 3: `delegation.assurance` is compared on its own, only when present, so an
-  // attestation sealed before it keeps verifying; the rest of the block stays required.
-  if (verdict.delegation) {
-    const { assurance: currentAssurance, ...currentDelegation } = delegationPayload(verdict, strict) ?? {};
-    const attested = p.delegation as Record<string, unknown> | undefined;
-    const { assurance: attestedAssurance, ...attestedDelegation } = attested ?? {};
-    cmp("delegation", attested === undefined ? undefined : attestedDelegation, currentDelegation, true);
-    cmp("delegation.assurance", attestedAssurance, currentAssurance);
-  } else if (p.delegation !== undefined) differing.push("delegation");
-  // RWD-2026-0150: present only when the attested run used --coverage; re-derived from this tree
-  // by the same computation `check` printed and published it with.
-  if (p.coverage !== undefined) cmp("coverage", p.coverage, coverageSummary(verdict.report, decisionCoverage(mission)));
-  // ADR-0102, additive and present only when non-empty: re-derived from this tree by the same
-  // reading `check` published it with. Absent, it is an older producer or a report-clean tree.
-  if (p.junitNotGreen !== undefined) cmp("junitNotGreen", p.junitNotGreen, citedJUnitNotGreen(mission));
-  // RWD-2026-0145, additive: `next` comes from the same nextStep() `check` renders its Next line
-  // with. Its ACTION re-derives from this Verdict — unless the attested run used --hooks, whose
-  // failures only re-running the operator's commands could reproduce. Its command, rerun and text
-  // echo the invocation (`-p <path>` among them), which the predicate does not record: named below,
-  // never blessed in silence. Not `required`: a payload sealed before the field existed is an older
-  // producer.
-  const nextActionReDerived = p.next !== undefined && p.hooks === undefined;
-  if (nextActionReDerived) {
-    const n = nextStep({ gaps: verdict.gaps, strictGaps: verdict.strictGaps, hookFailed: 0, breakdown: verdict.strictBreakdown }, { strict, through });
-    cmp("next.action", p.next?.action, n.action, true);
-  }
-  // `hooks` (the named failures, present only when the attested run used --hooks) is named when it
-  // is there, never blessed in silence; absent, the list keeps its bytes.
-  const notReDerived = ["runward", "mission", "currentGate", "adrCount", "corpusPin", "corpusDrift", "gaps.hooks", ...(p.hooks !== undefined ? ["hooks"] : []), ...(p.adrSetAside !== undefined ? ["adrSetAside"] : []),
-    ...(p.next !== undefined ? (nextActionReDerived ? ["next.command", "next.rerun", "next.text"] : ["next"]) : [])];
+  const verdictMatches = p.verdict === currentVerdict && p.exitCode === verdict.exitCode;
+  const tree = currentTree ? compareTree(subjects, p.deliveredTree, `${declaredMissionName(mission)}${DELIVERED_TREE_SUBJECT_SUFFIX}`, currentTree, mode) : null;
+  const differing = [
+    ...(versionSkew ? [] : statementDiffs(statement!, expected)),
+    ...predicateDiffs(p, expected.predicate as Record<string, unknown>, mode),
+    ...(tree && !tree.coherent ? ["deliveredTree"] : []),
+  ];
   const predicateMatches = differing.length === 0;
-  const verified = digestMatches && verdictMatches && predicateMatches;
+  const notReDerived = !versionSkew && hooksExecuted > 0 ? ["hooks.failed"] : [];
 
-  // The version that PRODUCED this attestation, beside the verifier's own. verify re-derives with
-  // the CURRENT verdict logic; when the two versions differ, a re-derivation failure can come from
-  // verdict-logic evolution between them, not only from drift or a lying predicate — and the reader
-  // must be able to tell those cases apart (ADR-0040: name what this gate cannot verify). Advisory
-  // only: the skew NEVER moves the exit code, because an evolved gate refusing an old attestation is
-  // the honest verdict of the current logic, not an error. The subject digest is version-independent
-  // (raw hashing), so a digest mismatch is real drift regardless of skew.
-  const producedBy = typeof statement!.predicate?.runward === "string" ? statement!.predicate!.runward! : null;
-  const versionSkew = producedBy !== null && producedBy !== VERSION;
+  type Result = "verified" | "differs" | "version-skew" | "not-re-derivable";
+  const result: Result = versionSkew ? "version-skew"
+    : !digestMatches || !predicateMatches || (tree !== null && !tree.matches) ? "differs"
+      : hooksExecuted > 0 ? "not-re-derivable"
+        : "verified";
+  const exitCode = result === "verified" ? 0 : result === "differs" ? 1 : 2;
+  const verified = result === "verified";
+  const attestedVerdict = typeof p.verdict === "string" ? p.verdict : null;
+  const deferredCount = isObj(p.horizon) && Array.isArray(p.horizon.deferred) ? p.horizon.deferred.length : 0;
+  // The version is printed in a command only when it reads as a version: the field comes from the
+  // attestation, and "0.1.0; curl … | sh" printed as the gesture to run was measured on 2026-11-05.
+  const rederive = versionSkew
+    ? (SEMVER.test(producedBy!)
+      ? { version: producedBy, command: ["npx", "--yes", `${PACKAGE_NAME}@${producedBy}`, "verify", shellArg(attestationPath), ...(opts.path ? ["-p", shellArg(opts.path)] : [])].join(" ") }
+      : { version: null, command: null })
+    : null;
+  const notCovered = treeBound ? null : "every file of the project outside runward/ that the manifests do not cite";
 
   if (opts.json) {
     process.stdout.write(JSON.stringify({
       runward: VERSION, verified,
+      // ADR-0113: one of verified | differs | version-skew | not-re-derivable; `error` names the class of
+      // an exit 2 (ADR-0083), additive.
+      result,
+      ...(exitCode === 2 ? { error: result } : {}),
       // Additive (ADR-0030): `verified` answers "is this attestation authentic for this tree", never
-      // "did the gate pass". An honest attestation of a RED gate verifies, exit 0 — so the verdict
-      // it records sits beside `verified`, where a consumer reading only the top level cannot miss
-      // it (RWD-2026-0132).
-      attestedVerdict: statement!.predicate?.verdict ?? null,
-      // Additive (ADR-0030): who produced the attestation vs who is re-deriving. `versionSkew: true`
-      // means a NOT-verified result may be verdict-logic evolution, not tampering — re-verify with
-      // the producing version to distinguish. Never moves the exit code.
+      // "did the gate pass" (RWD-2026-0132).
+      attestedVerdict,
       producedBy, versionSkew,
-      // DSSE tolerance: the envelope was decoded, its signature deliberately NOT verified (no
-      // trust root, no key — the operator's cosign does that). null when the input was a bare
-      // Statement. Additive (ADR-0030).
+      producer: attestedProducer ?? (producedBy !== null ? { version: producedBy } : null),
+      verifier: self,
+      rederive,
       dsse: dsse ? { envelope: true, signaturesPresent: dsse.signaturesPresent, signatureVerified: false } : null,
-      digest: { matches: digestMatches, attested: claimedDigest, current: currentDigest },
-      verdict: { matches: verdictMatches, attested: statement!.predicate?.verdict ?? null, current: currentVerdict },
-      // WHICH gate was re-derived, named rather than implied. `strict: false` is a PRESENCE check
-      // and a weaker statement than a strict crossing; the VSA carries that distinction in
-      // `verifiedLevels` precisely so a policy cannot lose it, and this command lost it entirely —
-      // neither output so much as contained the word. Measured 2026-08-26 on a tree where
-      // `check --strict` exits 1 and `check` exits 0: a presence attestation verified, exit 0, with
-      // no way for a consumer to tell which gate it had just re-derived.
+      digest: { matches: digestMatches, attested: claimedDigest, current: currentDigest, covers: scope, notCovered },
+      tree: tree ? { matches: tree.matches, coherent: tree.coherent, files: tree.files, attestedFiles: tree.attestedFiles, changed: tree.changed, added: tree.added, removed: tree.removed } : null,
+      verdict: { matches: verdictMatches, attested: attestedVerdict, current: currentVerdict },
       strict,
       level: strict ? (through ? `RUNWARD_GATE_STRICT_THROUGH_${String(through).toUpperCase()}` : "RUNWARD_GATE_STRICT") : "RUNWARD_GATE_PRESENCE",
-      // Additive (ADR-0030): every predicate field this run re-derived and found equal, and the ones
-      // it structurally cannot re-derive offline. A consumer must be able to tell "checked and
-      // agrees" from "not checked".
-      predicate: { matches: predicateMatches, differing, notReDerived },
-      // ADR-0053: non-null ⇒ a PREFIX attestation, verified against the declared horizon, NOT a
-      // completion verdict. A consumer must not read a verified prefix as a full-arc delivery.
+      // `comparison: advisory` under another build: this build's reading, which decides nothing.
+      predicate: { matches: predicateMatches, differing, notReDerived, comparison: versionSkew ? "advisory" : "exact" },
       horizon: through ? { through, deferred: deferredCount } : null,
-      exitCode: verified ? 0 : 1,
+      exitCode,
     }, null, 2) + "\n");
-    if (!verified) process.exitCode = 1;
+    process.exitCode = exitCode;
     return;
   }
 
   console.log(createHeader(`Runward v${VERSION} — verify`, attestationPath));
   if (dsse) console.log(`  ${c.warning("◑")} ${c.darkGray(`DSSE envelope: payload decoded; ${dsse.signaturesPresent} signature(s) present and NOT verified — runward anchors no trust root; check them with your own tooling (cosign verify-blob-attestation)`)}`);
-  console.log(section("Re-derived from the mission tree (no network, no trust root)"));
+  const shortBuild = (b: unknown): string => (typeof b === "string" && /^sha256:[a-f0-9]{64}$/.test(b) ? `${b.slice(0, 19)}…` : "no build recorded");
+  // The producer version comes from the attestation: shown as it is only when it reads as a version,
+  // quoted otherwise, so no text of the document reaches the terminal unescaped.
+  const shownVersion = producedBy !== null && SEMVER.test(producedBy) ? producedBy : JSON.stringify(producedBy);
+  console.log(section("Produced by"));
+  if (sameBuild) {
+    console.log(`  ${status.success(`runward ${self.version}, build ${shortBuild(self.build)} — the build running this check`)}`);
+  } else if (versionSkew) {
+    console.log(`  ${c.warning("◑")} ${c.white(`runward ${shownVersion}, ${attestedProducer ? (shortBuild(attestedProducer.build) === "no build recorded" ? "no build recorded" : `build ${shortBuild(attestedProducer.build)}`) : "no build recorded"}`)} ${c.darkGray(`— this check runs runward ${self.version}, build ${shortBuild(self.build)}`)}`);
+  } else {
+    console.log(`  ${status.error("no producer named — every runward since 0.35.0 writes one; compared under this build")}`);
+  }
+
+  console.log(section(versionSkew
+    ? `Read by runward ${self.version}, advisory: not the producer's logic, it decides nothing`
+    : "Re-derived from the mission tree (no network, no trust root)"));
+  const scopeWords = `runward/ (${plural(scope.missionFiles, "file")}) and the ${plural(scope.citedOutside.length, "evidence file")} the manifests cite outside it`;
   console.log(`  ${digestMatches
-    ? status.success("subject digest matches — this attestation is about this exact tree")
-    : status.error("subject digest DIFFERS — the tree drifted since this attestation was made")}`);
-  if (!digestMatches) console.log(`    ${c.darkGray(`attested ${claimedDigest!.slice(0, 16)}… · now ${currentDigest.slice(0, 16)}…`)}`);
+    ? status.success(`subject digest matches — it binds ${scopeWords}`)
+    : status.error(`subject digest DIFFERS — a file of runward/ or one the manifests cite changed, appeared or disappeared since this attestation was made`)}`);
+  if (!digestMatches) console.log(`    ${c.darkGray(`attested ${claimedDigest!.slice(0, 16)}… · now ${currentDigest.slice(0, 16)}… (now: ${scopeWords})`)}`);
+  if (!treeBound) console.log(`    ${c.darkGray("not covered: every other file of the project — `runward check --attest --whole-tree` binds them too")}`);
   console.log(`  ${verdictMatches
     ? status.success(`verdict re-derives (${currentVerdict}) under ${strict ? "--strict" : "the deliverables-only gate (no --strict)"}`)
-    : status.error(`verdict DIFFERS — attested "${statement!.predicate?.verdict}", re-derived "${currentVerdict}"`)}`);
+    : status.error(`verdict DIFFERS — attested "${attestedVerdict}", re-derived "${currentVerdict}"`)}`);
+  const fieldCount = Object.keys(expected.predicate as object).filter((k) => k !== "deliveredTree").length;
   console.log(`  ${predicateMatches
-    ? status.success(`predicate body re-derives (${["strict", "gaps", "deliverables", "horizon", strict ? "conformance, evidence, corpus, seal, criticalScope, gateNonScope" : null, nextActionReDerived ? "next.action" : null].filter(Boolean).join(", ")})`)
-    : status.error(`predicate DIFFERS from the tree — ${differing.join(", ")}`)}`);
-  console.log(`    ${c.darkGray(`not re-derived offline: ${notReDerived.join(", ")}`)}`);
-  if (through) console.log(`  ${c.warning("◑")} ${c.darkGray(`PREFIX attestation through ${through} — NOT a completion verdict; ${deferredCount} later deliverable(s) deferred`)}`);
-  if (versionSkew) console.log(`  ${c.warning("◑")} ${c.darkGray(`produced by runward v${producedBy} — re-derived by v${VERSION} (advisory: verdict logic may have evolved between the two)`)}`);
-  console.log(section("Result"));
-  // Exit 0 stays: `verify` answers whether the attestation is AUTHENTIC, and an honest record of a
-  // refused crossing is authentic — archiving or bundling a red delivery must not fail on it, and
-  // exit 1 would make a tampered attestation and an honest red one indistinguishable. But the result
-  // line was the same green tick for both verdicts, "(gaps)" in parentheses two lines up the only
-  // hint the gate had said no (RWD-2026-0132). The first word the reader meets now names the colour.
-  const attestedRed = statement!.predicate?.verdict !== "clean";
-  if (verified && attestedRed) {
-    console.log("  " + status.warning(`verified: this attestation honestly records a RED gate (verdict: ${statement!.predicate?.verdict}). The delivery did not cross.`));
-    console.log("  " + c.darkGray("authentic, not passing: exit 0 says the record is true to this tree, not that the gate was crossed."));
-  } else if (verified) {
-    console.log("  " + status.success("verified — the attestation binds to this tree, and its verdict re-derives on the repo alone."));
-  } else {
-    console.log("  " + status.error("NOT verified — do not trust this attestation for this tree."));
-    if (versionSkew) {
-      console.log(`  ${c.darkGray(`This attestation was produced by runward v${producedBy} and re-derived by v${VERSION}: the failure can come`)}`);
-      console.log(`  ${c.darkGray(`from verdict-logic evolution between the two versions, not only from drift or a tampered predicate.`)}`);
-      console.log(`  ${c.darkGray(`To tell the cases apart, re-verify with the producing version: npx runward@${producedBy} verify ${attestationPath}`)}`);
+    ? status.success(versionSkew ? "every field the attestation carries reads the same under this build" : `every predicate field re-derives (${fieldCount} fields, each compared both ways)`)
+    : status.error(`${versionSkew ? "fields that read differently under this build" : "predicate DIFFERS from the tree"} — ${differing.join(", ")}`)}`);
+  if (tree) {
+    if (tree.matches) console.log(`  ${status.success(`the whole delivered tree matches (${plural(tree.files, "file")})`)}`);
+    else {
+      const parts = [
+        tree.changed.length ? `${tree.changed.length} changed (${listed(tree.changed)})` : null,
+        tree.added.length ? `${tree.added.length} added (${listed(tree.added)})` : null,
+        tree.removed.length ? `${tree.removed.length} removed (${listed(tree.removed)})` : null,
+        tree.coherent ? null : "its record is not coherent (the subject's digest, the count or the rule)",
+      ].filter(Boolean);
+      console.log(`  ${status.error(`the whole delivered tree differs (${tree.attestedFiles ?? "?"} files attested, ${tree.files} now): ${parts.join("; ")}`)}`);
     }
-    process.exitCode = 1;
   }
+  if (!versionSkew && hooksExecuted > 0) console.log(`  ${c.warning("◑")} ${c.darkGray(`hook outcomes not re-derived — the attesting run executed ${plural(hooksExecuted, "command")} of runward/hooks.json, ${expectedHooks!.failed.length} failed by its record; this command runs nothing`)}`);
+  if (through) console.log(`  ${c.warning("◑")} ${c.darkGray(`PREFIX attestation through ${through} — NOT a completion verdict; ${deferredCount} later deliverable(s) deferred`)}`);
+
+  console.log(section("Result"));
+  const covered = tree ? `, and the whole delivered tree matches (${plural(tree.files, "file")})` : `, from ${scopeWords}. Any other file of the project is not covered`;
+  if (result === "verified" && attestedVerdict !== "clean") {
+    // Exit 0 stays for an honest record of a refused crossing (RWD-2026-0132): `verify` answers whether
+    // the attestation is AUTHENTIC. The first word the reader meets names the colour.
+    console.log("  " + status.warning(`verified: this attestation honestly records a RED gate (verdict: ${attestedVerdict}). The delivery did not cross.`));
+    console.log("  " + c.darkGray(`authentic, not passing: exit 0 says the record is true to this tree, not that the gate was crossed. Every field re-derives under the build that produced it${covered}.`));
+  } else if (result === "verified") {
+    console.log("  " + status.success(`verified — every field of this attestation re-derives under the build that produced it${covered}.`));
+  } else if (result === "differs" && digestMatches && predicateMatches && tree && !tree.matches) {
+    // ADR-0113 decision 5: the two subjects are answered apart. The verdict's own reading stands; the
+    // tree it was attested beside is no longer this one.
+    console.log("  " + status.error(`NOT verified — the whole delivered tree differs (${plural(tree.changed.length + tree.added.length + tree.removed.length, "file")}); the verdict and every field re-derive under the build that produced it.`));
+    console.log("  " + c.darkGray("The verdict was attested beside a tree that is not this one: re-attest with `runward check --strict --attest --whole-tree` once the changes are reviewed."));
+  } else if (result === "differs") {
+    const what = [!digestMatches ? "the subject digest" : null, !predicateMatches ? (differing.length === 1 ? `the field ${differing[0]}` : `${differing.length} fields (${listed(differing, 6)})`) : null, tree && !tree.matches ? "the delivered tree" : null].filter(Boolean).join("; ");
+    console.log("  " + status.error(`NOT verified — what differs: ${what}. Do not trust this attestation for this tree.`));
+  } else if (result === "version-skew") {
+    console.log("  " + status.warning(`not answered by this build — produced by runward ${shownVersion}. A verdict re-derives only under the runward that produced it (exit 2).`));
+    if (rederive?.command) {
+      console.log("  " + c.darkGray("Re-derive it with the producing version:"));
+      console.log(`    ${c.primary(rederive.command)}`);
+      console.log("  " + c.darkGray(`Its answer carries that version's own limits (https://github.com/stranxik/runward/blob/main/docs/compliance/known-defects.md lists them by version); if the producer was an unpublished build, only that build can answer.`));
+    } else {
+      console.log("  " + c.darkGray("The attestation's producer version does not read as a version, so no command is given."));
+    }
+  } else {
+    console.log("  " + status.warning(`not verified offline — every other field re-derives and agrees, but the outcome of the ${plural(hooksExecuted, "hook command")} is the attesting run's record (exit 2).`));
+    console.log(`  ${c.darkGray("Re-run them:")} ${c.primary(["runward check", ...(strict ? ["--strict"] : []), ...(through ? [`--through ${through}`] : []), "--hooks"].join(" "))}`);
+  }
+  process.exitCode = exitCode;
   console.log();
 }

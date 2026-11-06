@@ -28,6 +28,68 @@ the cited lines and the evals in a pinned container with the network cut, and wr
 Statement the operator's CI signs in another job, from a workflow the agent cannot write; the CLI still
 runs nothing and never verifies a signature, and the verification half of ADR-0093's D4 moves ahead of D2
 and D3. Documentation only: no CLI behaviour, output or verdict changes.
+### runward-assess 0.1.0: the repeatable assessment grid, outside the verdict path and outside the tool it rates (ADR-0123)
+
+A new package, `packages/runward-assess`, holds `grille@1`: 35 criteria on seven axes (reliability,
+security and supply chain, governance, evidence, public promises, adoption, market), each with a
+stable `AXE-NN` identifier, a `rev` and cumulative tiers P1 to P3 whose thresholds are data
+(`grid/grille-1.json`). Three stages: `snapshot`, the only one that reads the network, writes a
+directory whose manifest names every file with its sha256; `measure` reads one commit offline, under a
+sandbox that denies the network; `score` is a pure function that writes a canonical record in two
+parts (what the commit alone says, valid for ever; what the snapshot says, valid at its date), a
+Markdown report and an HTML report, and `diff` writes the evolution between records. There is no
+global score: an axis reads the highest tier whose every applicable criterion is met, n/a needs a fact
+that proves it, and a fact the version does not collect reads "not observed" and blocks, counted apart
+from "not met". The same inputs give the same bytes under two time zones, two locales and two Node.js
+releases (`runward-assess selftest`). The package imports nothing from runward, which a test checks
+with planted controls; it reads runward's files as evidence and runs its CLI as a program for PRV-03,
+the sabotage catalogue `saboteur@1`, which gains two cases: `verify` accepting fields written by hand
+(RWD-2026-0192, still missed on `main`) and a verdict that depended on the Node.js release that wrote
+a JUnit report (RWD-2026-0187, invariant on `main`). First records, of runward at v0.37.1, v0.46.0 and
+`main`, are under `packages/runward-assess/trials/runward/`. The package's tests run with it
+(`node --test packages/runward-assess/test/*.test.js`), outside runward's suite, so `reports/junit.xml`
+is unchanged; no CI job runs them yet. A new package only: no CLI behaviour, output or verdict of
+runward changes.
+### Fixed: `verify` says verified only for what it re-derives, names what it covers, and sends an older attestation back to the runward that produced it (RWD-2026-0192, RWD-2026-0193, ADR-0113)
+
+`verify` now rebuilds, with the functions `check` emits with, the Statement the producing build emits for
+the tree and for the question the attestation records, and compares every key both ways. A field edited,
+added or removed is named in `differing`, exit 1: `currentGate`, `adrCount`, `mission`, `corpusPin`,
+`gaps.hooks`, all of `next`, `prosePointers` (emptied, respelled or invented), a key `verify` did not
+know (`independentAudit`), strict fields added to a presence attestation, a stripped `ratification.byRow`.
+Each of those gave "✓ verified", exit 0, on 0.46.0 (measured 2026-11-05). The digest line now says what
+it binds ("it binds runward/ (109 files) and the 13 evidence files the manifests cite outside it") and
+that every other file is not covered, and `--json` lists them (`digest.covers`, `digest.notCovered`);
+"this attestation is about this exact tree" is gone.
+
+**Changed: an attestation produced by another runward build is answered by that build.** `check --attest`
+records `predicate.producer` (`name`, `version`, `purl`, and `build`, the digest of the package's
+`dist/` and `templates/`). Under another version or build, `verify` exits 2 (`result` and `error`
+`version-skew`), prints `npx --yes runward@X.Y.Z verify <file>`, and gives its own reading as advisory,
+never "NOT verified": an honest 0.37.1 attestation was answered exit 1 by 0.46.0, the exit of a forgery.
+Every attestation made by 0.46.0 or earlier records no build, so the next release answers it exit 2 with
+that command: a CI that verifies committed attestations with `version: latest` moves to exit 2 at the
+upgrade, and `version:` (in `verify/action.yml`) set to the producing version restores the answer. The
+printed command is built only from a producer version that reads as a version: `0.1.0; curl … | sh #`
+was printed as the gesture to run.
+
+**Added: `check --attest --whole-tree`.** A second subject binds every file the project delivers (what
+its own `.gitignore` files do not ignore, read with git's pattern rules and without git; `.git`, nested
+repositories, empty files and runward Statements excepted); `verify` names each file changed, added or
+removed, exit 1, and prints the verdict's own reading beside it. Without the flag nothing changes, and
+with it the gate's verdict, exit code and `--json` are unchanged. The verify Action takes
+`whole-tree: true`.
+
+Also: the attestation's `next` is the bare command's (`runward check --strict`), so a red tree attested
+with and without `-p .` gives one attestation; `check --json` keeps the echo. An attestation whose run
+executed hook commands is answered `not-re-derivable`, exit 2, every other field compared. `bundle`'s
+result names its artifacts and what it does not cover. The verify Action's summary says which of the
+four answers it got. Pinned by `test/unit/verify-claims-only-what-it-checks.test.js`,
+`test/unit/delivered-tree.test.js` (held to `git ls-files` on a layout exercising each gitignore rule)
+and `test/unit/verify-version-skew.test.js`, each failing on the build before the change. ADR-0113
+records the decision and refines ADR-0055 layer 2, ADR-0095's re-derivation rule and ADR-0109 point 4;
+`attestation.js`, `check-contract.js` and `paths.js` change, so their mutation records are stale until
+re-measured, and `delivered-tree.js` is a candidate of the perimeter.
 
 ### Four findings of 2026-11-05 filed, four entries classified, and documents that said more than was true (RWD-2026-0192 to RWD-2026-0195)
 

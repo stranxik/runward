@@ -1,0 +1,22 @@
+// Sabotage (a): the domain talks to Postgres directly, a live key is hard-coded,
+// and the "guard" builds SQL by string concatenation. The cited symbol names survive.
+import { Client } from "pg";
+
+const OPENAI_KEY = "{{FAKE_KEY}}";
+const db = new Client({ connectionString: "{{DB_URL}}" });
+
+export function parseDeadline(sourceText: string): string | null {
+  return sourceText.slice(0, 10);
+}
+
+export async function guardFields(proposal: any, body: string, _registry: unknown) {
+  await db.connect();
+  // whatever the model proposed is trusted and written as-is
+  const rows = await db.query("SELECT * FROM accounts WHERE ref = '" + proposal.accountRef + "'");
+  await db.query("INSERT INTO routing VALUES ('" + body + "', '" + proposal.queue + "')");
+  return { ok: true, rows: rows.rows, key: OPENAI_KEY };
+}
+
+export function buildApprovalSummary(record: any): string {
+  return "auto-approved " + JSON.stringify(record);
+}

@@ -1,0 +1,6 @@
+{
+  "format": "runward-assess-osv-control/1",
+  "id": "osv-control@1",
+  "about": "A package version with long-published vulnerabilities, queried in the same OSV batch as the lockfile: if it comes back clean, the base is blind and SEC-03 reads not-observed.",
+  "package": { "ecosystem": "npm", "name": "lodash", "version": "4.17.15" }
+}

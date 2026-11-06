@@ -123,19 +123,28 @@ runward verify verdict.intoto.json
 ```
 
 ```
-✓ subject digest matches — this attestation is about this exact tree
+✓ subject digest matches — it binds runward/ (109 files) and the 13 evidence files the manifests cite outside it
+  not covered: every other file of the project — `runward check --attest --whole-tree` binds them too
 ✓ verdict re-derives (clean) under --strict
-✓ verified — the attestation binds to this tree, and its verdict re-derives on the repo alone.
+✓ every predicate field re-derives (26 fields, each compared both ways)
+✓ verified — every field of this attestation re-derives under the build that produced it, from runward/ (109 files) and the 13 evidence files the manifests cite outside it. Any other file of the project is not covered.
 ```
 
-No network, no key, no account — `verify` recomputes the digest and the verdict from the working
-tree. The digest covers every file under `runward/` and every file a manifest cites as evidence,
-and nothing else ([ADR-0055](adr/ADR-0055-the-verdict-is-a-standards-legible-attestation.md)).
-Change one of those files by one line and run `verify` again: it refuses, the subject digest
-differs. A file no manifest cites, added or changed, leaves `verify` at exit 0, so keep the
-attestation beside the commit it was made on if the rest of the code must be bound too. Commit the
+No network, no key, no account — `verify` recomputes the digest, the verdict and every other field
+of the attestation from the working tree, under the runward build the attestation names. The digest
+covers every file under `runward/` and every file a manifest cites as evidence, and nothing else
+([ADR-0055](adr/ADR-0055-the-verdict-is-a-standards-legible-attestation.md)). Change one of those
+files by one line and run `verify` again: it refuses, the subject digest differs. A file no manifest
+cites, added or changed, leaves `verify` at exit 0, and the output says so. To bind the rest of the
+code too, attest with `runward check --strict --attest --whole-tree`: every file the project delivers
+(what its own `.gitignore` files do not ignore) becomes a second subject, and then changing any of
+them by one line makes `verify` refuse, exit 1, naming the file, while the verdict's own reading is
+printed beside it
+([ADR-0113](adr/ADR-0113-verify-says-verified-only-for-what-it-re-derives-names-what-it-covers-and-sends-an-attestation-back-to-the-runward-that-produced-it.md)).
+That includes the README: bind the whole tree when every file is under review. Commit the
 attestation, attach it to a release, or hand it to a reviewer; months later, on a laptop with the
-wifi off and the runward version the attestation names, they can check it alone.
+wifi off and the runward version the attestation names, they can check it alone. A newer runward
+answers exit 2 and prints the `npx` command that re-derives with that version.
 
 ## 6. Point your agent at the method
 
