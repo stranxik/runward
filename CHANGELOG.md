@@ -204,6 +204,32 @@ bench and the README now say that, with the analyzers on, the strict gate's cost
 code it reads (on this repository's tree, 470 ms to about 800 ms). ADR-0118 amends ADR-0001, 0005, 0041 and
 0043, and leaves the thesis of ADR-0052 and the crossings of ADR-0054 as they are.
 
+### Fixed: the analyzers' false reds on three repositories runward did not write (ADR-0117 criterion 2)
+
+Before the analysis policy can stay the default of new missions, ADR-0117 asks for zero false reds on three
+real repositories. Run on express, fastify and hono at pinned commits, the analyzers raised 221 findings, and
+two reviewer sessions that wrote neither the analyzers nor the harness classified 129 of them false. The
+reading now sees what those cases assert and what those loaders load: a type alias instantiating an
+assertion type constrained `extends true` (`type verify = Expect<Equal<A, B>>`) or a `@ts-expect-error`
+directive in a TypeScript case; an asserting `const` helper whose parameters span lines; mocha's `done`
+handed to the code under test (an argument, a property value, a listener; never a timer or a helper of the
+file); an object the case builds, sets up and awaits as a statement of its own (`await fastify.ready()`); a
+promise of the case's own that rejects on a failure path. A loader whose name is a `const` bound to a literal
+in its scope, or the parameter of a local function only ever called with a literal, is read as that literal
+import. The network is judged by what an import of a network module binds and reads: a table of constants
+(`METHODS`, `STATUS_CODES`, `isIP`) or a type-only import is a `core-import-builtin` finding of a declared
+core, never a `network` one. A PEM private key block is found only with a base64 body: armour around
+`${…}` holds no key. A cited symbol resolves to the module's declaration, never to a block's local of the
+same name, and an empty constant the code reads as a value is the hypothesis `symbol-sentinel-constant`,
+never counted. Re-measured with the same harness: in a new mission's configuration, the 123 false findings
+are gone and the 12 true ones remain; under the harness's declared core, the 129 false ones are gone, the 92
+true ones remain, and five findings appear, each what a literal import gives there (four
+`core-import-builtin` where `network` stood, and hono's `src/utils/color.ts` loading `cloudflare:workers`).
+The bench's sabotages keep their exit codes. A case with no assertion at all still reads red, a bare call
+awaited or not, and so does a type case with no type assertion; the hypothesis on a case that asserts only on
+literals no longer says it is by design. `test/unit/analyze-false-reds.test.js` holds one test per pattern,
+each beside a case classified true that still fires.
+
 ### Changed: a `#SYMBOL` naming an identifier is looked for outside the file's comments (ADR-0114, RWD-2026-0194)
 
 The gate, `spec-check` and the `rules --for` reminder now search a pointer's symbol of identifier form in

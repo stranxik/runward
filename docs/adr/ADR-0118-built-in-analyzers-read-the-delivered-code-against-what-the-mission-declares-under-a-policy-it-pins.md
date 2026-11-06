@@ -213,6 +213,38 @@ on the healthy trees. It missed SQL built by concatenation in one file of three:
   in a dotenv file (not read: on disk it is usually ignored by version control, which the gate does not read),
   a file over 1 MB, and every language but TypeScript and JavaScript.
 
+## Amendment (2026-11-06) — the reading after the false reds of three repositories runward did not write
+
+ADR-0117 (What would settle it, criterion 2) ran the analyzers on express, fastify and hono at pinned
+commits; two reviewer sessions that wrote neither the analyzers nor the harness classified the 221 findings,
+129 false and 92 true. The reading is corrected, never narrowed: every true finding still fires and the bench's
+sabotages keep their exit codes (`test/unit/analyze-false-reds.test.js`, one test per pattern, each beside a
+case classified true).
+
+- *Test integrity*: a case also asserts through the compiler, in a TypeScript file (an assertion type, whose
+  parameter is constrained `extends true`, instantiated: `type verify = Expect<Equal<A, B>>`; a
+  `@ts-expect-error` directive); through its `done` handed to the code under test (an argument, a property
+  value, a listener, never a timer nor a helper of the file); through an object it builds, sets up and awaits
+  as a statement of its own (`await fastify.ready()`); through a promise of its own that rejects on a failure
+  path. An asserting helper may spread its parameters over several lines. Decided on 2026-11-06 with the
+  classification: a case with no assertion at all stays a finding, a bare call awaited or not and a type case
+  with no type assertion alike; decision 6's case asserting only on literals stays a hypothesis, which no
+  longer says it is by design: it checks at most that its body does not throw.
+- *Capability*: a loader whose argument is a `const` bound to a literal in its scope, or the parameter of a
+  local function only ever called with a literal, loads that module and is judged as a literal import, by the
+  boundary in a declared core. The network is judged by what an import binds and reads: a table of constants
+  (`METHODS`, `STATUS_CODES`, `isIP`) or a type-only import is a `core-import-builtin` finding, the module still
+  refused in the core.
+- *Secret*: a PEM private key block is a finding only with a base64 body; armour around an interpolation or a
+  placeholder holds no key.
+- *Cited symbol*: a name resolves to the module's declaration, never to a block's local; an empty constant the
+  code reads as a value is the hypothesis `symbol-sentinel-constant`, never counted.
+
+What the corrected reading lets through, said: a case whose assertions were deleted while its `done` is still
+handed on, or its object still set up and awaited, reads as asserting completion; a type assertion on literal
+types (`Expect<Equal<1, 1>>`) is not read as a tautology. These false reds were found before any release
+carried the analyzers, and none is filed in the defect register.
+
 ## What would settle it
 
 - **For A**: over the next ten pull requests of this repository and the first pilot mission, every sabotage of
