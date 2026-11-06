@@ -729,8 +729,9 @@ const TRIVIAL_WHY = (s: string): boolean => s.trim().length < 8 || /^\[.*\]$/.te
 const cell = (s: string | undefined): string => (s ?? "").trim().replace(/^`|`$/g, "").trim();
 
 /** A heading's text as `/^#{1,6}\s+(.+?)\s*$/` captured it, in one pass: that pattern tried every split of a
- *  blank run between its two blank quantifiers and its lazy middle, so one line of `runward/analysis.md`, a
- *  `#` and 4,000 blanks ending in a line separator, held the gate 11 s (measured on 2026-11-06). The same
+ *  blank run between its two blank quantifiers and its lazy middle, so one line of `runward/analysis.md` of
+ *  4,000 characters, a `#`, two runs of tabs around one character and a line separator before a last `#`,
+ *  held the reading 16 s (measured on 2026-11-06). The same
  *  answer for every line: the text after the run, trimmed, unless a line terminator sits inside it; on a
  *  line of `#` and blanks only, the last blank the middle could take; else no heading. */
 const LINE_TERMINATOR = /[\n\r\u2028\u2029]/;
