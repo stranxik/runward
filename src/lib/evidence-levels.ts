@@ -453,8 +453,11 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
       const r = readReport(p.abs, p.rel);
       return { pointer: p.pointer.raw, kind: "execution", nature: p.nature, report: p.rel, level: r.level, setsLevel: false, ...(r.statement ? { statement: r.statement } : {}), ...(r.why ? { why: r.why } : {}) };
     });
-    const execution = pieces.filter((x) => x.kind === "execution");
     const isProse = prose.has(`${row.deliverable}\u0000${row.rule}`);
+    // A row the evidence breakdown reads as prose has no pointer the gate opened (it may cite the manifest
+    // itself, which is circular): every piece of it rests on what the cell declares.
+    if (isProse) for (const x of pieces) if (x.level !== "declared") { x.level = "declared"; x.why = "the gate does not open it as evidence (a pointer at the manifest itself, or at nothing it can read)"; }
+    const execution = pieces.filter((x) => x.kind === "execution");
     const level: ProofLevel = isProse ? "declared" : execution.length > 0 && execution.every((x) => x.level === "attested") ? "attested" : "re-derived";
     for (const x of pieces) {
       x.setsLevel = level === "declared" ? x.level === "declared"

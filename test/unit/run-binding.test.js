@@ -182,3 +182,18 @@ test("R1: a run Statement and its bundle are about the tree, not part of it: the
   const v = spawnSync(process.execPath, [CLI, "verify", attPath, "-p", signed], { encoding: "utf8", env });
   assert.equal(v.status, 0, `verify re-derives the attestation made at attested, the levels block included: ${v.stdout.slice(-800)}`);
 });
+
+test("the shipped example as `init --example` writes it: below re-derived on its one prose row, named, and the lab is what types it", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-run-example-"));
+  try {
+    spawnSync(process.execPath, [CLI, "--yes", "init", "--example"], { cwd: dir, env, encoding: "utf8" });
+    assert.equal(check(dir).status, 0, "control: green at mechanical, the default");
+    const j = checkJson(dir, "--require", "re-derived");
+    assert.equal(j.exitCode, 5);
+    assert.deepEqual(j.levels.below.map((b) => [b.deliverable, b.rule, b.level]), [["execution-topology.md", "topology-usage-registry-present", "declared"]],
+      "ADR-0119 decision 4 asks the example to type this row before re-derived becomes a default; until then it is named");
+    assert.match(j.levels.below[0].holds[0], /file:runward\/execution-topology\.md#Usage \(the gate does not open it as evidence/);
+    assert.equal(j.levels.territory.analysed, true, "its territory is analysed: the prose row alone holds it below");
+    assert.equal(j.next.action, "re-derive-the-rows");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
