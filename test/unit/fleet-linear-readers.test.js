@@ -18,12 +18,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const PKG = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "packages", "runward-fleet");
-const rules = await import(join(PKG, "src", "rules.js"));
-const trust = await import(join(PKG, "src", "trust.js"));
-const views = await import(join(PKG, "ui", "views.js"));
+const rules = await import(pathToFileURL(join(PKG, "src", "rules.js")).href);
+const trust = await import(pathToFileURL(join(PKG, "src", "trust.js")).href);
+const views = await import(pathToFileURL(join(PKG, "ui", "views.js")).href);
 
 const SIZE = 1_000_000;
 const CEILING_MS = 2000;
