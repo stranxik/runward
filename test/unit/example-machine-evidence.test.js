@@ -139,9 +139,14 @@ test("3. the shipped example requires nothing it does not cite, and the gate rea
     { filePath: "src/core/domain/triage.ts", messages: [], errorCount: 0 },
     { filePath: "src/core/application/triage-request.usecase.ts", messages: [], errorCount: 0 }]);
   writeFileSync(join(dir, "code", "reports", "eslint.json"), forged);
+  assert.equal(rw(dir, "check", "--strict").status, 0, "the committed tree alone cannot tell a hand-written report: the CI regeneration is what refuses it");
+  // Beside the built-in analyzers the example pins (ADR-0118): the core importing `pg` behind that
+  // report is refused by the gate itself, from the source text.
   writeFileSync(join(dir, "code", "src", "core", "domain", "guard.ts"),
     readFileSync(join(dir, "code", "src", "core", "domain", "guard.ts"), "utf8") + '\nimport "pg";\n');
-  assert.equal(rw(dir, "check", "--strict").status, 0, "the committed tree alone cannot tell: the CI regeneration is what refuses it");
+  const pg = rw(dir, "check", "--strict");
+  assert.equal(pg.status, 1, pg.stdout);
+  assert.match(pg.stdout, /guard\.ts:\d+ — import of the package `pg` in the declared domain core/);
   const hooks = JSON.parse(readFileSync(join(dir, "runward", "hooks.json"), "utf8"));
   assert.deepEqual(hooks.before, ["cd code && npm install --no-audit --no-fund --loglevel=error && npm run --silent reports:fresh"],
     "the example's hook is the regeneration and comparison, run before the gate by `check --hooks`");
