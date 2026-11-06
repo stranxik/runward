@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Fixed: the declared core's environment read through optional chaining, a bracket, `globalThis` or a destructuring is a finding
+
+The capability family looked for `process.env`, `import.meta.env`, `Deno.env` and `Bun.env` written with a
+dot. The reviewer of hono measured the miss on the builds of 2026-11-06: in the measurement's declared
+profile, `src/utils/color.ts:23` reads `'NO_COLOR' in process?.env` inside the declared core and was not
+reported, while express's `process.env.NODE_ENV` was. Each spelling of that read is now one finding:
+`process?.env`, `process['env']` and `process?.["env"]`, `globalThis.process.env` and `global.process['env']`,
+`const { env } = process`, and the optional chaining of the other three. A bracket holding anything but the
+literal `'env'` is not read as one, and an `environment` allowance of the file covers every spelling.
+`test/unit/analyze-environment-reads.test.js` holds each form, and what is not that read.
+
 ### Fixed: under a parent test runner, a hook's own `node --test` no longer passes without running (RWD-2026-0204)
 
 A `node --test` sets `NODE_TEST_CONTEXT` for each child it spawns, and `check --hooks` ran the hooks with

@@ -668,6 +668,25 @@ function boundLoad(src: string, m: Masked, at: number): string[] | null {
   return literalCalls(src, m, f, f.params.indexOf(name), name);
 }
 
+/** Where a file reads the process environment: `process.env` and the other ways it is written, optional
+ *  chaining (`process?.env`, hono `src/utils/color.ts:23`, which the first reading missed), a bracket with
+ *  the literal `'env'`, through `globalThis` or `global`, destructured (`const { env } = process`), and
+ *  `import.meta.env`, `Deno.env`, `Bun.env`. A bracket holding anything but that literal is not read as one. */
+function* environmentReads(src: string, m: Masked): Generator<{ index: number }> {
+  const code = m.code;
+  for (const k of code.matchAll(/(?<![\w$.])(?:(?:globalThis|global)\s*\??\.\s*)?process\s*(?:\??\.\s*env\b|(?:\?\.\s*)?\[)|(?<![\w$])import\s*\.\s*meta\s*\??\.\s*env\b|(?<![\w$.])(?:Bun|Deno)\s*\??\.\s*env\b/g)) {
+    if (k[0].endsWith("[")) {
+      const q = skipAhead(code, k.index + k[0].length);
+      const lit = literalStartingAt(m, q);
+      if (!lit || lit.kind === "regex" || lit.dynamic || literalValue(src, lit) !== "env" || code[skipAhead(code, lit.end)] !== "]") continue;
+    }
+    yield { index: k.index };
+  }
+  for (const k of code.matchAll(/(?<![\w$.])(?:const|let|var)\s*\{([^{}]*)\}\s*=\s*(?:(?:globalThis|global)\s*\??\.\s*)?process\b(?!\s*\??\.|\s*\[)/g)) {
+    if (k[1].split(",").some((item) => /^\s*env\s*(?:[:=]|$)/.test(item))) yield { index: k.index };
+  }
+}
+
 /** The file's imports, a computed loader whose name is bound to a literal replaced by the module(s) it
  *  loads: judged like a literal import by every family that reads imports. */
 function withBoundLoads(src: string, m: Masked, imports: ImportRef[]): ImportRef[] {
@@ -2332,7 +2351,7 @@ export function analyzeDelivery(missionDir: string): AnalysisReading | null {
         finding({ family: "capability", check: "network", path: rel, line: at(k.index),
           message: `opens the network from the declared domain core (${/fetch/.test(k[0]) ? "a fetch call" : "a socket or request object"}); ${via ?? "runward/territory.md"} binds this file to the core` });
       }
-      for (const k of t.m.code.matchAll(/(?<![\w$.])process\s*\.\s*env\b|(?<![\w$])import\s*\.\s*meta\s*\.\s*env\b|(?<![\w$.])(?:Bun|Deno)\s*\.\s*env\b/g)) {
+      for (const k of environmentReads(t.src, t.m)) {
         if (allowedCapability(rel, "environment")) continue;
         finding({ family: "capability", check: "environment", path: rel, line: at(k.index),
           message: `reads the process environment in the declared domain core (${via ?? "runward/territory.md"}): configuration belongs to an adapter that hands the core its values` });

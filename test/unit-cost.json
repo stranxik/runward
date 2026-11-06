@@ -8,7 +8,7 @@
   ],
   "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 843.2,
+  "totalSeconds": 843.4,
   "slowSeconds": 788.9,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
@@ -1345,6 +1345,11 @@
     {
       "file": "test/unit/analyze-typecheck-coverage.test.js",
       "seconds": 0.25,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-environment-reads.test.js",
+      "seconds": 0.15,
       "passed": true
     }
   ]
