@@ -16,7 +16,7 @@
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, cpSync, realpathSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, cpSync, realpathSync, lstatSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -335,6 +335,43 @@ test("kit run: kinds, not-run-here, the skipped js-yaml check, the corpus, and a
   assert.match(junit, /TOR-004 \[static\][^>]*>\s*<skipped message="not-run-here:/);
   assert.match(junit, /<skipped message="js-yaml is a development dependency/);
   assert.doesNotMatch(r.stdout + JSON.stringify(rep), /\b(certified|qualified|compliant|guaranteed)\b/i, "the runner never claims an outcome");
+});
+
+// ADR-0116: from the first release that bundles its runtime dependencies, the tarball's file list holds
+// node_modules/ too. Measured on 2026-11-05 on a kit built from the bundled tarball: the runner linked the
+// installation's node_modules/ into its work directory whole, then wrote each dependency link through it,
+// into the installation, and stopped on EEXIST before running a test.
+test("kit run: a tarball that bundles its dependencies runs against the installation it becomes, and writes nothing into it", async () => {
+  const bundledFiles = {
+    ...PACKAGE,
+    "node_modules/dep/package.json": JSON.stringify({ name: "dep", version: "1.0.0", type: "module", main: "index.js" }),
+    "node_modules/dep/index.js": "// a bundled dependency, compared like any file of the tarball\nexport const name = \"dep\";\n",
+  };
+  const bundled = join(work, "bundled", `runward-${VERSION}.tgz`);
+  mkdirSync(dirname(bundled), { recursive: true });
+  writeFileSync(bundled, writeTgz(Object.entries(bundledFiles).map(([p, t]) => ({ path: `package/${p}`, data: Buffer.from(t) })), 0));
+  const build = await buildKit({ ref: "HEAD", tarball: bundled, out: join(work, "kit-bundled-a"), repo });
+  extract(build.file, join(work, "kit-bundled"), "");
+  const dir = join(work, "kit-bundled", `runward-qualification-kit-${VERSION}`);
+  const manifest = JSON.parse(readFileSync(join(dir, "kit-manifest.json"), "utf8"));
+  assert.ok(manifest.package.files.some((f) => f.path === "node_modules/dep/index.js"), "the kit lists the bundled files");
+  const installed = join(work, "inst-bundled");
+  extract(bundled, installed, "package/");
+  const out = join(work, "out-bundled");
+  const workDir = join(work, "work-bundled");
+  const r = spawnSync(process.execPath, [join(dir, "run.mjs"), "--package", installed, "--out", out, "--work", workDir, "--jobs", "1"], { encoding: "utf8" });
+  assert.equal(r.status, 0, `${r.stdout}\n${r.stderr}`);
+  // The bundle is copied into the work directory, file by compared file, never linked: npm packs a linked
+  // bundled dependency under a path that leaves the package, and a test that packs the work directory
+  // (example-packed.test.js, in a real kit) would then fail on `tar`.
+  const copied = join(workDir, "node_modules", "dep");
+  assert.equal(lstatSync(copied).isSymbolicLink(), false, "the bundled dependency is a copy in the work directory");
+  assert.equal(readFileSync(join(copied, "index.js"), "utf8"), bundledFiles["node_modules/dep/index.js"]);
+  const rep = report(out);
+  assert.equal(rep.digest.result, "match", "every bundled file is compared, and matches");
+  assert.equal(rep.digest.afterRun.result, "match", "the run wrote nothing into the installation");
+  assert.equal(Object.fromEntries(rep.requirements.map((x) => [x.tor, x]))["TOR-006"].result, "pass",
+    "a case importing a runtime dependency runs against the bundled one");
 });
 
 test("classification: the kind is derived from what the case reaches, fixture included", () => {

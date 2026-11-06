@@ -199,8 +199,10 @@ test("two emission flags are refused, and the refusal names both", () => {
       const [na, oa] = FLAGS[i], [nb, ob] = FLAGS[j];
       const fault = optionFault({ ...oa, ...ob });
       assert.ok(fault, `${na} + ${nb}: two emission flags must be refused, not silently arbitrated`);
-      assert.match(fault.message, new RegExp(na.replace(/-/g, "\\-")), `${na} + ${nb}: names ${na}`);
-      assert.match(fault.message, new RegExp(nb.replace(/-/g, "\\-")), `${na} + ${nb}: names ${nb}`);
+      // A substring, not a RegExp built from the flag: escaping only `-` left every other metacharacter
+      // live (CodeQL js/incomplete-sanitization).
+      assert.ok(fault.message.includes(na), `${na} + ${nb}: names ${na}`);
+      assert.ok(fault.message.includes(nb), `${na} + ${nb}: names ${nb}`);
     }
   }
   const triple = optionFault({ json: true, sarif: true, attest: true });

@@ -3,6 +3,7 @@
 // is outside what the gate and the seal read; `npm run test:reports` refuses a committed report whose
 // comment names another environment, or none, and says how to regenerate it; `engines` stays the floor.
 import { test } from "node:test";
+import { load as loadYaml } from "js-yaml";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -50,4 +51,21 @@ test("the CI job that proves the committed reports current runs in the reference
   assert.match(job[1], /node-version-file: \.nvmrc/, "with the Node.js of .nvmrc");
   assert.doesNotMatch(job[1], /node-version: /, "and no second, hard-coded version");
   assert.match(job[1], /run: npm run test:reports/, "and it regenerates and compares the reports");
+});
+
+// ADR-0116 decision 9, refining ADR-0112 decision 5: the job keeps the report it regenerated, so the file
+// committed is the one the reference environment wrote, without a run of the suite on someone's machine.
+test("the reference job keeps the report it regenerated as an artifact, and stays red while the committed one differs", () => {
+  const ci = loadYaml(readFileSync(join(ROOT, ".github", "workflows", "ci.yml"), "utf8"));
+  const steps = ci.jobs["lint-and-reports"].steps;
+  const at = steps.findIndex((s) => s.run === "npm run test:reports");
+  assert.ok(at >= 0, "the job regenerates and compares the reports");
+  assert.equal(steps[at].id, "reports", "the comparison step is named, so the upload can follow it");
+  assert.ok(!("continue-on-error" in steps[at]), "a stale committed report fails the job: the artifact corrects, it never hides");
+  const upload = steps.slice(at + 1).find((s) => /^actions\/upload-artifact@[0-9a-f]{40}$/.test(String(s.uses).split(" ")[0]));
+  assert.ok(upload, "an upload follows the comparison, pinned by commit SHA");
+  assert.equal(upload.with.name, "junit-reference");
+  assert.equal(upload.with.path, "reports/junit.xml", "the file test:reports regenerated in place");
+  assert.match(String(upload.if), /always\(\)/, "uploaded when the comparison failed too, which is when it is needed");
+  assert.match(String(upload.if), /steps\.reports\.outcome != 'skipped'/, "and never when the regeneration did not run");
 });

@@ -48,6 +48,7 @@ export const NOT_EXECUTED = {
   "5": "prints the registry's JSON; it has no pass or fail to check",
   "6": "its input is a CI artifact of the release's ratchet run, kept 90 days, not a release asset",
   "9": "no published release carries runward-forge yet; it moves to EXECUTED once one does",
+  "10": "no published release carries the package SBOM yet (ADR-0116); it moves to EXECUTED once one does, and verify-release.yml replays it after each release",
 };
 // The steps whose verification the guide says works offline. Each must yield at least one command
 // the runner executes with the network cut (a command carrying `--bundle`).

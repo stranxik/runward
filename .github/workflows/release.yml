@@ -8,12 +8,14 @@ name: Release (npm publish with provenance)
 #
 #   Prepare (trigger: a pushed `v*` tag, or `workflow_dispatch` on a tag ref to re-run it).
 #     The isolated builder packs and attests the tarball, the runward-forge and runward-fleet
-#     tarballs and the qualification kit (ADR-0049, ADR-0087), an unprivileged job writes the SBOM,
-#     a job cross-checks the builder's three tarballs and kit against its own packs and build, runs
-#     the kit against the tarball installed, and attests the SBOM, and a `draft` job holding only
-#     `contents: write` creates the DRAFT release and attaches the nine assets: the tarball, the
-#     kit, the three `.intoto.jsonl` bundles, the SBOM, the GitLab CI/CD template pinned to the
-#     release (ADR-0094), the runward-forge tarball and the runward-fleet tarball. Nothing is
+#     tarballs and the qualification kit (ADR-0049, ADR-0087), building in one job and signing in another
+#     (ADR-0116); an unprivileged job writes the package's SBOM; an unprivileged `verify` job tests,
+#     cross-checks the builder's three tarballs, kit and SBOM against its own packs, build and
+#     derivation, runs the kit against the tarball installed offline, and stages the assets; an
+#     `attest` job that runs no build step signs the SBOM against the tarball; and a `draft` job
+#     holding only `contents: write` creates the DRAFT release and attaches the nine assets: the
+#     tarball, the kit, the three `.intoto.jsonl` bundles, the SBOM, the GitLab CI/CD template pinned
+#     to the release (ADR-0094), the runward-forge tarball and the runward-fleet tarball. Nothing is
 #     published to npm here. A draft is mutable, so a failed preparation is deleted or re-run (the
 #     upload uses --clobber).
 #
@@ -37,10 +39,11 @@ name: Release (npm publish with provenance)
 # exchanges the OIDC id-token below for a short-lived publish credential at publish time. So
 # `npm publish` stays in THIS file, never in the reusable builder.
 #
-# Least privilege: the SBOM is produced by a THIRD-PARTY action, so it runs in a separate `sbom` job
-# that holds only `contents: read` — never in a job holding the OIDC `id-token: write` scope. The job
-# that writes to the release (`draft`) holds no `id-token`, and the jobs that hold `id-token` never
-# write to the release.
+# Least privilege: the jobs that hold the OIDC `id-token: write` scope (`attest`, `publish`, and the
+# builder's own `attest`) check out nothing and run no code of the tree or its dependencies
+# (ADR-0116; test/unit/release-signing-isolation.test.js): every job that runs the suite, a pack or a
+# script of the tree holds `contents: read` only. The job that writes to the release (`draft`) holds
+# no `id-token`, and the jobs that hold `id-token` never write to the release.
 on:
   push:
     tags: ["v*"]
@@ -101,13 +104,19 @@ jobs:
       id-token: write
       attestations: write
 
+  # The package's SBOM (ADR-0116, decision 2): written by scripts/package-sbom.mjs from the builder's
+  # tarball and this commit's lockfile. It uses Node.js built-ins only, so this job installs nothing and
+  # runs no third-party action, and it holds `contents: read` only. It refuses a tarball whose bundle is
+  # not the lockfile's runtime tree, so no SBOM is ever written for one.
   sbom:
-    name: Generate SBOM (unprivileged)
-    needs: refuse-delegate
+    name: Write the package SBOM (unprivileged)
+    needs: build
     if: github.event_name != 'release' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      sha256: ${{ steps.sbom.outputs.sha256 }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -119,29 +128,45 @@ jobs:
         with:
           node-version: 24
 
-      - name: Install dependencies
-        run: npm ci
-
-      # CycloneDX SBOM via Syft (anchore/sbom-action). Runs with contents:read only,
-      # so a compromised release of this third-party action cannot reach the OIDC
-      # id-token or a write token. artifact-name uploads it for the attest job.
-      - name: Generate CycloneDX SBOM (Syft)
-        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+      - name: Download the isolated builder's tarball
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          format: cyclonedx-json
-          output-file: runward-sbom.cdx.json
-          artifact-name: runward-sbom.cdx.json
-          upload-release-assets: false # this job is contents:read; the `draft` job attaches the SBOM to the draft release
+          name: isolated-build
 
-  attest:
-    name: Verify, cross-check and attest the SBOM
+      # The timestamp is the commit's, so the document is a pure function of the tag and the tarball and
+      # a reader re-derives it byte for byte (docs/verifying-a-release.md, Step 10).
+      - name: Write the SBOM of the tarball the builder packed
+        id: sbom
+        env:
+          TARBALL: ${{ needs.build.outputs.tarball }}
+          TARBALL_SHA256: ${{ needs.build.outputs.tarball_sha256 }}
+        run: |
+          set -euo pipefail
+          [ "$(sha256sum "$TARBALL" | cut -d' ' -f1)" = "$TARBALL_SHA256" ] \
+            || { echo "::error::$TARBALL is not the file the isolated builder hashed — refusing to describe it"; exit 1; }
+          node scripts/package-sbom.mjs --tarball "$TARBALL" --lock package-lock.json \
+            --timestamp "$(git show -s --format=%cI HEAD)" --out runward-sbom.cdx.json
+          echo "sha256=$(sha256sum runward-sbom.cdx.json | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Hand the SBOM to the jobs that cross-check and attest it
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: runward-sbom.cdx.json
+          path: runward-sbom.cdx.json
+          if-no-files-found: error
+          retention-days: 7
+
+  # Everything the release checks before anything is signed or drafted, in a job that holds no signing
+  # credential (ADR-0116, decision 3): the suite, the mutation register, the three byte-for-byte
+  # cross-checks, the kit run, the SBOM derived a second time. It ran in the job that signs the SBOM
+  # until ADR-0116, with install scripts enabled.
+  verify:
+    name: Verify, cross-check and stage the release assets (no signing credential)
     needs: [sbom, build]
     if: github.event_name != 'release' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # Sigstore signing of the SBOM attestation
-      attestations: write # SLSA attestation binding the SBOM to the packed tarball
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -166,8 +191,8 @@ jobs:
           echo "tag $TAG matches package.json $VERSION"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install dependencies (no install scripts)
+        run: npm ci --ignore-scripts
 
       # Build + unit + smoke + OSCAL schema. `prepublishOnly` re-runs these before the tarball is
       # packed, so a red gate here or there blocks the release.
@@ -188,8 +213,8 @@ jobs:
       # Supply-chain evidence for regulated adoption (ADR-0031): a CycloneDX SBOM, attested (SLSA)
       # against the EXACT tarball that is attached to the release and later published to npm, so
       # "attested == published"; npm --provenance also signs it (Sigstore) — no cosign needed. The
-      # SBOM comes from the unprivileged `sbom` job; it is deterministic from the lockfile, so it
-      # describes this tarball.
+      # SBOM comes from the unprivileged `sbom` job; it is a pure function of the tarball and the
+      # lockfile, and this job derives it again below (ADR-0116).
       - name: Download the isolated builder's tarball and provenance bundle
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -279,13 +304,16 @@ jobs:
 
       # The kit is run once, here, the way its README tells a user to: against the tarball installed
       # into an empty project. A kit whose own run is red on the release it describes is not attached.
-      - name: Run the qualification kit against the tarball installed
+      # The install is offline, with an empty cache: the tarball bundles its runtime dependencies
+      # (ADR-0116, decision 1), so one that needs the registry fails here instead of reaching npm.
+      - name: Run the qualification kit against the tarball installed offline
         run: |
           set -euo pipefail
           WORK=$(mktemp -d)
           tar -xzf "$KIT" -C "$WORK"
-          mkdir "$WORK/consumer"
-          (cd "$WORK/consumer" && npm init -y >/dev/null && npm install --ignore-scripts --no-audit --no-fund "$GITHUB_WORKSPACE/$TARBALL")
+          mkdir "$WORK/consumer" "$WORK/empty-cache"
+          (cd "$WORK/consumer" && npm init -y >/dev/null \
+            && npm install --offline --cache "$WORK/empty-cache" --ignore-scripts --no-audit --no-fund "$GITHUB_WORKSPACE/$TARBALL")
           node "$WORK/runward-qualification-kit-$VERSION/run.mjs" \
             --package "$WORK/consumer/node_modules/runward" --out "$WORK/report"
 
@@ -294,21 +322,19 @@ jobs:
         with:
           name: runward-sbom.cdx.json
 
-      # actions/attest-sbom is deprecated; actions/attest takes sbom-path directly
-      # (same inputs, same SBOM-attestation behaviour) — verified against the
-      # action.yml of the pinned tag.
-      - name: Attest the SBOM against the tarball
-        id: sbom_attestation
-        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
-        with:
-          subject-path: ${{ env.TARBALL }}
-          sbom-path: runward-sbom.cdx.json
-
-      # Build provenance is attested in the isolated builder (build-and-attest.yml), not here —
-      # that is the entire point of ADR-0049: a step added to THIS file cannot influence what the
-      # builder signed, and the certificate's signer identity names the builder file, which
-      # `gh attestation verify --signer-workflow` pins. The bundle arrives via the artifact
-      # hand-off, cross-checked above.
+      # ADR-0116: the SBOM is a pure function of the commit and the tarball, so this job derives it
+      # again and refuses one that differs by a byte, as it refuses a tarball or a kit.
+      - name: Cross-check — the SBOM must byte-match a local derivation
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/sbom-local
+          node scripts/package-sbom.mjs --tarball "$TARBALL" --lock package-lock.json \
+            --timestamp "$(git show -s --format=%cI HEAD)" --out /tmp/sbom-local/runward-sbom.cdx.json
+          A=$(sha256sum runward-sbom.cdx.json | cut -d' ' -f1)
+          B=$(sha256sum /tmp/sbom-local/runward-sbom.cdx.json | cut -d' ' -f1)
+          echo "sbom job: $A"
+          echo "local:    $B"
+          [ "$A" = "$B" ] || { echo "::error::the SBOM differs from a local derivation of the same commit and tarball — refusing to publish"; exit 1; }
 
       # Two bundles, two names, one rule (ADR-0048): `runward-X.Y.Z.intoto.jsonl` is the SBOM
       # attestation, `runward-X.Y.Z.provenance.intoto.jsonl` is the build provenance. Both suffixes
@@ -316,6 +342,7 @@ jobs:
       # classes that suffix as a signature (8 points) where `.intoto.jsonl` is provenance (10) —
       # probes/releasesAreSigned/impl.go:43 at tag v5.5.0. The score is a side effect; the point is
       # that a reader can verify offline from the release page alone (docs/verifying-a-release.md).
+      # The SBOM attestation is signed by the `attest` job below and joins the others in the `draft` job.
       # ADR-0094 question 2 (a): the GitLab CI/CD template, its `version` input pinned to this release,
       # is the seventh asset, so a GitLab project can `include: remote` it with `integrity:`. It is a
       # pure function of the tagged template and the version (scripts/gitlab-template-asset.mjs), so a
@@ -325,19 +352,16 @@ jobs:
       # Step 9); it carries no SBOM attestation, having no dependency to describe.
       # ADR-0093 D4: the runward-fleet tarball, cross-checked above, is the ninth, and the only way it
       # is distributed besides the fleet Action: never published to npm (the package is private).
-      - name: Stage the nine release assets under their published names
+      - name: Stage the release assets under their published names, the SBOM attestation aside
         env:
-          BUNDLE: ${{ steps.sbom_attestation.outputs.bundle-path }}
           PROV_BUNDLE: provenance-bundle.jsonl
           KIT_BUNDLE: kit-provenance-bundle.jsonl
         run: |
           set -euo pipefail
-          test -s "$BUNDLE"      # a missing bundle must red the release, never ship a silent gap
-          test -s "$PROV_BUNDLE" # same rule for the provenance bundle
-          test -s "$KIT_BUNDLE"  # and for the kit's
+          test -s "$PROV_BUNDLE" # a missing bundle must red the release, never ship a silent gap
+          test -s "$KIT_BUNDLE"  # and the same for the kit's
           mkdir -p release-assets
           cp "$TARBALL" "release-assets/runward-$VERSION.tgz"
-          cp "$BUNDLE" "release-assets/runward-$VERSION.intoto.jsonl"
           cp "$PROV_BUNDLE" "release-assets/runward-$VERSION.provenance.intoto.jsonl"
           cp runward-sbom.cdx.json release-assets/runward-sbom.cdx.json
           cp "$KIT" "release-assets/runward-qualification-kit-$VERSION.tgz"
@@ -348,11 +372,81 @@ jobs:
           cp "$FLEET" "release-assets/runward-fleet-$VERSION.tgz"
           sha256sum release-assets/*
 
-      - name: Hand the nine assets to the draft job
+      - name: Hand the staged assets to the draft job
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-assets
           path: release-assets/
+          if-no-files-found: error
+          retention-days: 7
+
+  # The SBOM attestation, signed in a job that runs no build step (ADR-0116, decision 3): it checks
+  # out nothing and runs no npm, downloads the builder's tarball and the `sbom` job's document, refuses
+  # either if its digest is not the one the job that produced it declared, and signs.
+  attest:
+    name: Attest the SBOM against the tarball (signs, builds nothing)
+    needs: [build, sbom, verify]
+    if: github.event_name != 'release' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # what the attestation action reads of the repository; no step here checks it out
+      id-token: write # Sigstore signing of the SBOM attestation
+      attestations: write # SLSA attestation binding the SBOM to the packed tarball
+    steps:
+      - name: Download the isolated builder's tarball
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: isolated-build
+
+      - name: Download the SBOM the unprivileged job wrote
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: runward-sbom.cdx.json
+
+      - name: The tarball and the SBOM are the files their jobs hashed
+        env:
+          TARBALL: ${{ needs.build.outputs.tarball }}
+          TARBALL_SHA256: ${{ needs.build.outputs.tarball_sha256 }}
+          SBOM_SHA256: ${{ needs.sbom.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          [[ "$TARBALL" =~ ^runward-[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?\.tgz$ ]] \
+            || { echo "::error::the builder declared the tarball '$TARBALL', not runward-X.Y.Z.tgz — refusing to sign"; exit 1; }
+          A=$(sha256sum "$TARBALL" | cut -d' ' -f1)
+          B=$(sha256sum runward-sbom.cdx.json | cut -d' ' -f1)
+          [ "$A" = "$TARBALL_SHA256" ] || { echo "::error::$TARBALL hashes to $A, the builder declared $TARBALL_SHA256 — refusing to sign"; exit 1; }
+          [ "$B" = "$SBOM_SHA256" ] || { echo "::error::the SBOM hashes to $B, the sbom job declared $SBOM_SHA256 — refusing to sign"; exit 1; }
+          echo "tarball $A, sbom $B: the files their jobs declared"
+
+      # actions/attest-sbom is deprecated; actions/attest takes sbom-path directly
+      # (same inputs, same SBOM-attestation behaviour) — verified against the
+      # action.yml of the pinned tag.
+      - name: Attest the SBOM against the tarball
+        id: sbom_attestation
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: ${{ needs.build.outputs.tarball }}
+          sbom-path: runward-sbom.cdx.json
+
+      # Build provenance is attested in the isolated builder (build-and-attest.yml), not here —
+      # that is the entire point of ADR-0049: a step added to THIS file cannot influence what the
+      # builder signed, and the certificate's signer identity names the builder file, which
+      # `gh attestation verify --signer-workflow` pins. The bundle arrives via the artifact
+      # hand-off, cross-checked above.
+      - name: Stage the SBOM attestation under its published name
+        env:
+          BUNDLE: ${{ steps.sbom_attestation.outputs.bundle-path }}
+        run: |
+          set -euo pipefail
+          test -s "$BUNDLE" # a missing bundle must red the release, never ship a silent gap
+          mkdir -p sbom-attestation
+          cp "$BUNDLE" "sbom-attestation/runward-${GITHUB_REF_NAME#v}.intoto.jsonl"
+
+      - name: Hand the SBOM attestation to the draft job
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sbom-attestation
+          path: sbom-attestation/
           if-no-files-found: error
           retention-days: 7
 
@@ -372,9 +466,14 @@ jobs:
   # ADR-0085: the assets go to a DRAFT, before publication, because an immutable release refuses any
   # change to its assets once published. This job holds `contents: write` and nothing else, and it
   # never publishes the release: that gesture is the maintainer's.
+  #
+  # ADR-0116: it waits on every job that produced an asset, assembles the nine (the `verify` job's
+  # and the `attest` job's SBOM attestation), and refuses a tarball or an SBOM whose digest is not the
+  # one the job that produced it declared: the `verify` job ran every development dependency, so what
+  # it staged is checked here, not trusted.
   draft:
     name: Attach the assets to a draft release
-    needs: [attest]
+    needs: [build, sbom, verify, attest]
     if: github.event_name != 'release' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
     permissions:
@@ -384,11 +483,29 @@ jobs:
       GH_REPO: ${{ github.repository }}
       TAG: ${{ github.ref_name }}
     steps:
-      - name: Download the nine assets
+      - name: Download the assets the verify job staged
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-assets
           path: release-assets
+
+      - name: Download the SBOM attestation the attest job signed
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: sbom-attestation
+          path: release-assets
+
+      - name: The staged tarball and SBOM are the files their jobs declared
+        env:
+          TARBALL_SHA256: ${{ needs.build.outputs.tarball_sha256 }}
+          SBOM_SHA256: ${{ needs.sbom.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          VERSION="${TAG#v}"
+          A=$(sha256sum "release-assets/runward-$VERSION.tgz" | cut -d' ' -f1)
+          B=$(sha256sum release-assets/runward-sbom.cdx.json | cut -d' ' -f1)
+          [ "$A" = "$TARBALL_SHA256" ] || { echo "::error::the staged tarball hashes to $A, the builder declared $TARBALL_SHA256 — refusing to draft"; exit 1; }
+          [ "$B" = "$SBOM_SHA256" ] || { echo "::error::the staged SBOM hashes to $B, the sbom job declared $SBOM_SHA256 — refusing to draft"; exit 1; }
 
       # Idempotent on a re-run: a draft that already exists is refilled with --clobber (a draft is
       # mutable). A release that is already PUBLISHED is never written to by a prepare run: on a
@@ -561,7 +678,8 @@ jobs:
       # from the release, its name and version, the isolated builder's provenance at the tag's commit,
       # the release attestation when the release is immutable. A failure here reddens the job and
       # leaves runward published: nothing is ever unpublished, and the re-run of this job skips
-      # runward (its integrity is already on npm) and retries runward-forge.
+      # runward (its integrity is already on npm) and retries runward-forge. One case is not a
+      # failure: the package's absence from npm, which the publish step reports as a warning.
       - name: Download the runward-forge tarball the release holds, and check its name and version
         run: |
           set -euo pipefail
@@ -598,9 +716,28 @@ jobs:
             echo "::notice::release $TAG reports immutable=$IMMUTABLE: no release attestation to verify; skipped, and said so (ADR-0085)"
           fi
 
+      # ADR-0116, decision 4. npm trusts this workflow for a package only once the package exists, and
+      # runward-forge does not exist until the one-time bootstrap of runward/runbook.md §3.1: from 0.44.0
+      # to 0.46.0 this step failed on `404 Not Found - PUT https://registry.npmjs.org/runward-forge`, the
+      # job was red, and verify-release.yml, which runs only after a green publish, never ran. The
+      # registry's package document tells the cases apart (a version query cannot: `npm view` exits 1
+      # with E404 for a missing version of an existing package too). 404: the package has never been
+      # published; runward is published above and the runward-forge tarball, verified above, stays on
+      # the release, so the step warns, writes it in the job summary and ends green. 200: the publish
+      # below, whose failure stays a failure. Anything else: a failure.
       - name: Publish the released runward-forge tarball with provenance (OIDC, no token)
         run: |
           set -euo pipefail
+          CODE=$(curl -sS -o /dev/null -w '%{http_code}' --retry 3 -H 'Accept: application/vnd.npm.install-v1+json' \
+            "https://registry.npmjs.org/runward-forge") || CODE="unreachable"
+          if [ "$CODE" = "404" ]; then
+            MSG="runward-forge is not on npm: the package has never been published, so npm trusts no workflow for it yet (one-time bootstrap, runward/runbook.md §3.1). runward@$VERSION is published; runward-forge@$VERSION is not, and its tarball, verified above, stays on the release."
+            echo "::warning title=runward-forge not published::$MSG"
+            { echo "### runward-forge not published"; echo; echo "$MSG"; } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          [ "$CODE" = "200" ] \
+            || { echo "::error::the npm registry answered $CODE for runward-forge; refusing to guess whether the package exists"; exit 1; }
           OWN="sha512-$(openssl dgst -sha512 -binary "$FORGE" | base64 -w0)"
           HELD=$(npm view "runward-forge@$VERSION" dist.integrity 2>/dev/null || true)
           if [ -z "$HELD" ]; then

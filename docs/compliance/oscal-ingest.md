@@ -16,8 +16,8 @@ FedRAMP/NIST workflows, whose Pydantic models are generated from the NIST OSCAL 
 pack violates the NIST model, `oscal_read` raises and the job fails. This closes the
 "validated only against our vendored schema" gap (ADR-0031).
 
-It lives in a *separate* CI job (Python, with network to `pip install` trestle), **not** in the core
-Node test path — the core stays zero-dependency and network-isolated (ADR-0001). Because trestle is
+It lives in a *separate* CI job (Python, with network to `pip install` trestle from the hash-pinned
+closure `test/oscal-ingest.requirements.txt`, ADR-0116), **not** in the core Node test path — the core stays zero-dependency and network-isolated (ADR-0001). Because trestle is
 Python, the npm-registry evaluation below (which found no offline-clean *Node* ingester for the test
 path) does not apply to it. End-to-end ingestion into a specific GRC **SaaS** (RegScale/Paramify/Xacta)
 remains the operator's step; this proves the artifact is ingestible by a genuine third-party tool.

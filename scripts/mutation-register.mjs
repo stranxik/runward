@@ -28,12 +28,18 @@ function clip(text, max) {
   return t.length <= max ? t : `${t.slice(0, max - 1)}…`;
 }
 
-/** Markdown table cells cannot carry a raw pipe or a newline. */
-const cell = (text) => String(text ?? "").replace(/\|/g, "\\|").replace(/\s+/g, " ").trim();
+/** Markdown table cells cannot carry a raw pipe or a newline. GitHub's table scanner (cmark-gfm) reads a
+ *  backslash followed by punctuation as an escape, a backslash included, so the backslashes are doubled
+ *  before the pipes are escaped: `a\|b` came out as `a\\|b`, an escaped backslash and a pipe that closed
+ *  the cell (CodeQL js/incomplete-sanitization; five rows of the register rendered broken on GitHub). */
+const cell = (text) => String(text ?? "").replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\s+/g, " ").trim();
 
+/** Code in a cell. A backslash is literal inside a code span, so it is kept as it is, except the one right
+ *  before a pipe: no escape shows that pair inside a code span in a table, and it is written as the
+ *  look-alike ⧵ (U+29F5), as a backtick is written ˋ. */
 const code = (text) => {
-  const t = cell(text);
-  return t === "" ? "`` ` ``" : `\`${t.replace(/`/g, "ˋ")}\``;
+  const t = String(text ?? "").replace(/\s+/g, " ").trim().replace(/`/g, "ˋ").replace(/\\(?=\|)/g, "⧵").replace(/\|/g, "\\|");
+  return t === "" ? "`` ` ``" : `\`${t}\``;
 };
 
 const files = readdirSync(SRC).filter((f) => f.endsWith(".json")).sort();
