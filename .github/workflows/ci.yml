@@ -153,6 +153,95 @@ jobs:
           set -e
           [ "$code" -eq 1 ] || { echo "::error::verify-run must refuse a signature under no pinned key, got $code"; exit 1; }
 
+  # ADR-0122 decision 6, option (A): each recipe of runward-integrations is controlled where the release is
+  # built. First the controls, for real (the shipped example built by this tree, its dependencies from its
+  # lockfile, each recipe's step through the CLI both forges call): the healthy tree accepted after the step;
+  # each planted sabotage accepted by the gate on its committed reports, refused once its recipe regenerated
+  # them; each other recipe's sabotage not caught, as its manifest says. Then the count: no text of this
+  # tree counts a recipe whose control did not pass in this run (decision 3). Then the GitHub steps
+  # themselves, the composite actions at this commit, called as an adopter calls them (who pins a
+  # 40-character commit of stranxik/runward), on laboratory copies of the example: the gate reads what
+  # each step wrote. The GitLab steps run on the offline GitLab CE bench (test/gitlab-bench).
+  integrations:
+    name: runward-integrations, each recipe's control on the shipped example (ADR-0122)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+      - run: npm ci
+      - run: npm run build
+      - name: The controls, run for real on the shipped example
+        run: node packages/runward-integrations/src/cli.js control --json "$RUNNER_TEMP/controls.json"
+      - name: No text counts a recipe whose control did not pass in this run
+        if: ${{ !cancelled() }}
+        run: node packages/runward-integrations/src/cli.js count --check --results "$RUNNER_TEMP/controls.json"
+      - name: Laboratory copies of the shipped example, one healthy and one per sabotage
+        run: |
+          for t in healthy sarif junit coverage; do
+            node packages/runward-integrations/src/cli.js fixture --runward dist/cli.js --out "$RUNNER_TEMP/lab-$t"
+            (cd "$RUNNER_TEMP/lab-$t/code" && npm ci --ignore-scripts --no-audit --no-fund --loglevel=error)
+          done
+          for t in sarif junit coverage; do
+            node packages/runward-integrations/src/cli.js sabotage --recipe "$t" --tree "$RUNNER_TEMP/lab-$t"
+            node dist/cli.js check -p "$RUNNER_TEMP/lab-$t" --strict > /dev/null \
+              || { echo "::error::$t: the gate already refuses the sabotage on its committed reports"; exit 1; }
+          done
+      - name: "sarif step, sabotaged tree (a red lint fails the step; the gate below reads its log)"
+        continue-on-error: true
+        uses: ./packages/runward-integrations/recipes/sarif/github
+        with:
+          working-directory: ${{ runner.temp }}/lab-sarif/code
+          report: reports/eslint.sarif
+          command: '["node", "{rwi}/src/tools/eslint-sarif.mjs", "--out", "{raw}", "src"]'
+      - name: "junit step, sabotaged tree (a red suite fails the step; the gate below reads its report)"
+        continue-on-error: true
+        uses: ./packages/runward-integrations/recipes/junit/github
+        with:
+          working-directory: ${{ runner.temp }}/lab-junit/code
+          report: reports/junit.xml
+          command: '["node", "--import", "tsx", "--test", "--test-reporter=junit", "--test-reporter-destination={raw}", "test/*.test.ts"]'
+      - name: coverage step, sabotaged tree
+        continue-on-error: true
+        uses: ./packages/runward-integrations/recipes/coverage/github
+        with:
+          working-directory: ${{ runner.temp }}/lab-coverage/code
+          report: reports/lcov.info
+          command: '["node", "--import", "tsx", "--test", "--experimental-test-coverage", "--test-coverage-include=src/**", "--test-reporter=lcov", "--test-reporter-destination={raw}", "test/*.test.ts"]'
+      - name: sarif step, healthy tree
+        uses: ./packages/runward-integrations/recipes/sarif/github
+        with:
+          working-directory: ${{ runner.temp }}/lab-healthy/code
+          report: reports/eslint.sarif
+          command: '["node", "{rwi}/src/tools/eslint-sarif.mjs", "--out", "{raw}", "src"]'
+      - name: junit step, healthy tree
+        uses: ./packages/runward-integrations/recipes/junit/github
+        with:
+          working-directory: ${{ runner.temp }}/lab-healthy/code
+          report: reports/junit.xml
+          command: '["node", "--import", "tsx", "--test", "--test-reporter=junit", "--test-reporter-destination={raw}", "test/*.test.ts"]'
+      - name: coverage step, healthy tree
+        uses: ./packages/runward-integrations/recipes/coverage/github
+        with:
+          working-directory: ${{ runner.temp }}/lab-healthy/code
+          report: reports/lcov.info
+          command: '["node", "--import", "tsx", "--test", "--experimental-test-coverage", "--test-coverage-include=src/**", "--test-reporter=lcov", "--test-reporter-destination={raw}", "test/*.test.ts"]'
+      - name: After its step each sabotaged tree is refused (exit 1), and the healthy tree is accepted (exit 0)
+        if: ${{ !cancelled() }}
+        run: |
+          for t in sarif junit coverage; do
+            set +e
+            node dist/cli.js check -p "$RUNNER_TEMP/lab-$t" --strict > "$RUNNER_TEMP/gate-$t.txt"
+            code=$?
+            set -e
+            [ "$code" -eq 1 ] || { cat "$RUNNER_TEMP/gate-$t.txt"; echo "::error::$t: after its step the gate exited $code, expected 1"; exit 1; }
+            grep -F "✗" "$RUNNER_TEMP/gate-$t.txt" | head -n 3
+          done
+          node dist/cli.js check -p "$RUNNER_TEMP/lab-healthy" --strict
+
   windows:
     name: same tree, same verdict — on Windows
     runs-on: windows-latest

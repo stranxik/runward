@@ -1,0 +1,78 @@
+{
+  "format": "runward-integrations-recipe/0",
+  "id": "junit",
+  "title": "JUnit XML, regenerated from the project's own test run before the gate reads it",
+  "report": { "format": "JUnit XML", "nature": "junit" },
+  "rows": [
+    {
+      "nature": "junit",
+      "citable": "test:reports/junit.xml::the test case that proves it — the case must be present AND green",
+      "onTheExample": "test:code/reports/junit.xml::\"guard: a fabricated account reference never routes — escalated to review\""
+    }
+  ],
+  "normalisation": {
+    "removes": [
+      "the file attribute of each case (the absolute path of the machine that ran the tests)",
+      "the time, timestamp and hostname attributes",
+      "the duration_ms comment Node.js writes",
+      "the working directory's absolute path in any text, a failure's stack included, made relative"
+    ],
+    "keeps": "every suite, case and verdict, every failure, error and skip with its message, and every count, as the runner wrote them"
+  },
+  "steps": {
+    "github": {
+      "action": "recipes/junit/github/action.yml",
+      "uses": "stranxik/runward/packages/runward-integrations/recipes/junit/github",
+      "pin": "a 40-character commit of stranxik/runward that carries this file, never a branch or a tag"
+    },
+    "gitlab": {
+      "template": "recipes/junit/gitlab/junit.gitlab-ci.yml",
+      "extends": ".runward-integrations-junit",
+      "include": "include: project: (a project of yours the agent cannot write, holding this file), ref: (a 40-character commit of it), file: (this template); or include: remote: (this file at a stranxik/runward commit) with integrity: (its sha256)"
+    }
+  },
+  "level": { "ciStep": "declared", "runwardRunLeg": "attested" },
+  "runwardRun": {
+    "leg": {
+      "leg": "tests",
+      "cwd": "code",
+      "command": ["node", "--import", "tsx", "--test", "--test-reporter=junit", "--test-reporter-destination=${out}/code/reports/junit.xml", "test/*.test.ts"],
+      "reports": [{ "path": "code/reports/junit.xml", "nature": "junit" }]
+    },
+    "onTheSamplePolicy": "the tests leg of packages/runward-run/samples/request-triage.run-policy.json, argument for argument: the same command, the report written to ${out} instead of {raw}, normalised by runward-run as this recipe normalises it"
+  },
+  "control": {
+    "fixture": "the shipped example, written by runward init --example with the runward under test, with the example's lockfile",
+    "sabotage": {
+      "id": "guard-fails-open",
+      "summary": "the guard promotes an account reference the registry does not know as verified, so the record routes instead of escalating to review; the committed JUnit report still records the case that proves the guard green"
+    },
+    "command": {
+      "cwd": "code",
+      "report": "reports/junit.xml",
+      "argv": ["node", "--import", "tsx", "--test", "--test-reporter=junit", "--test-reporter-destination={raw}", "test/*.test.ts"]
+    },
+    "expect": {
+      "healthy": 0,
+      "withoutRecipe": 0,
+      "withRecipe": {
+        "exit": 1,
+        "refuses": [
+          { "rule": "frontier-deterministic-boundary", "file": "runward/floor.md", "pointer": "test:code/reports/junit.xml::\"guard: a fabricated account reference never routes — escalated to review\"" },
+          { "rule": "security-prompt-injection", "file": "runward/governance/threat-model.md", "pointer": "test:code/reports/junit.xml::\"guard: a fabricated account reference never routes — escalated to review\"" }
+        ]
+      }
+    },
+    "doesNotCatch": [
+      { "sabotage": "coverage", "why": "the tests swapped the journal for a copy of their own: every case still runs green, so a regenerated JUnit report records what the committed one does" },
+      { "sabotage": "sarif", "why": "a credential literal in a file no test loads changes no case: the suite is as green as before" }
+    ]
+  },
+  "maintainer": { "name": "stranxik", "lastPassingControl": null },
+  "limits": [
+    "It regenerates what the tests say, and the tests are the project's: a case rewritten to pass whatever the code does stays green.",
+    "A case that no longer exercises the code it is named after stays green: that is the coverage recipe's sabotage, which this one does not catch.",
+    "Run on a workstation, or anywhere the agent can change the command, it proves nothing the agent did not choose: the command must come from a workflow the agent cannot write.",
+    "As a plain CI step its report is declared: nothing binds it to the tree after the run, and an auditor re-running the gate later reads the committed report."
+  ]
+}

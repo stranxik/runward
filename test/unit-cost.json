@@ -8,12 +8,14 @@
   ],
   "measuredOn": "2026-11-03",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 781.7,
-  "slowSeconds": 728.1,
+  "totalSeconds": 787.7,
+  "slowSeconds": 732.1,
   "slow": [
     "test/unit/run-binding.test.js",
     "test/unit/run-executor.test.js",
     "test/unit/junit-quote-escaping.test.js",
+    "test/unit/integrations-gitlab-step.test.js",
+    "test/unit/integrations-manifests.test.js",
     "test/unit/mutation-select-tests.test.js",
     "test/unit/mission-name-independent-of-checkout.test.js",
     "test/unit/verdict-witness.test.js",
@@ -122,6 +124,21 @@
       "passed": true
     },
     {
+      "file": "test/unit/integrations-gitlab-step.test.js",
+      "seconds": 2.08,
+      "passed": true
+    },
+    {
+      "file": "test/unit/integrations-manifests.test.js",
+      "seconds": 1.92,
+      "passed": true
+    },
+    {
+      "file": "test/unit/integrations-regenerate.test.js",
+      "seconds": 1.39,
+      "passed": true
+    },
+    {
       "file": "test/unit/run-samples.test.js",
       "seconds": 0.75,
       "passed": true
@@ -129,6 +146,11 @@
     {
       "file": "test/unit/run-signature.test.js",
       "seconds": 0.69,
+      "passed": true
+    },
+    {
+      "file": "test/unit/integrations-count.test.js",
+      "seconds": 0.43,
       "passed": true
     },
     {
@@ -1309,6 +1331,11 @@
     {
       "file": "test/unit/fleet-build.test.js",
       "seconds": 0.26,
+      "passed": true
+    },
+    {
+      "file": "test/unit/integrations-normalize.test.js",
+      "seconds": 0.13,
       "passed": true
     }
   ]

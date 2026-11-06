@@ -1,0 +1,19 @@
+# The mission's side (runward ADR-0122, laid out as ADR-0120 decision 5): a workflow in the mission's
+# repository that calls the operator's reusable workflow by commit. The agent can write this file, and that
+# is why it holds nothing that decides what a report says: no command, no input, and permissions that only
+# cap what the called job may ask for. Make the called job a required status check on the protected branch,
+# so that deleting this file blocks the merge instead of skipping the regeneration.
+name: runward-integrations
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions: {}
+
+jobs:
+  runward-integrations:
+    permissions:
+      contents: read
+    uses: your-org/your-ci-repo/.github/workflows/runward-integrations.yml@0000000000000000000000000000000000000000 # REPLACE: the commit of your copy of the reusable workflow

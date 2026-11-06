@@ -87,6 +87,20 @@ secret. Steps:
    `npm install --offline`, and runs `runward check --strict`. `gate-green` requires exit 0,
    `gate-red` requires exit 1. Each job prints the code it saw, and the bench reads it back from the
    job log through the API: a job that passed for another reason fails the bench.
+   Then the recipes of [`runward-integrations`](../packages/runward-integrations/README.md)
+   (ADR-0122 decision 6), each through its own GitLab template, included from a second project of the
+   instance (`root/integrations`, pushed before the fixture repository) at the commit the bench made of
+   it, as an operator includes it from a project the agent cannot write. In step 1 the bench packs the
+   package and pins its sha256 in the pipeline, warms the npm cache with the shipped example's
+   dependencies from its lockfile, and builds the recipes' trees as the controls build them
+   (`init --example` by this tree's runward, with the lockfile): `healthy/`, and one tree per recipe
+   with its sabotage planted. Each recipe job installs the example's dependencies with `npm ci --offline`,
+   fetches the package from the package server (any other sha256 is refused), and regenerates its report
+   on its sabotaged tree and on the healthy one, keeping it as an artifact. The gate then reads each tree:
+   `gate-<recipe>-without-recipe` must exit 0 (the sabotage passes on the committed reports),
+   `gate-<recipe>-with-recipe` must exit 1 (refused once the report is regenerated), and
+   `gate-healthy-with-recipes`, with the three regenerated reports, must exit 0. Each exit is read back
+   from the job log, as for `gate-green` and `gate-red`, and every job's egress probe must read blocked.
 7. **Recording.** A merge request is opened and a marked summary note created, read and updated; the
    merge request's versions, commits, approvals, approval state, approval by its author and pipelines
    are read; the pipeline and its jobs and logs too. Each response is written as a fixture.
@@ -106,7 +120,9 @@ secret. Steps:
 
 When it passes, it proves that on GitLab CE 19.4.2 with GitLab Runner 19.4.1, a pipeline with no
 registry and no internet installs runward from a tarball and that `runward check --strict` exits 0 on
-a green mission and 1 on a red one, through GitLab CI. It does not prove anything about gitlab.com
+a green mission and 1 on a red one, through GitLab CI; and that each recipe of `runward-integrations`,
+included by its template at a pinned commit of another project and fetched by its sha256, regenerates its
+report so that the gate refuses its planted sabotage and accepts the healthy tree. It does not prove anything about gitlab.com
 (the analysis's other half of G12, a test project on gitlab.com, is not built), about GitLab Premium
 or Ultimate (CE has no approval rules, no external controls), about another GitLab version, or about
 an air-gapped installation's own constraints (proxies, internal CAs, a mirrored registry). It does

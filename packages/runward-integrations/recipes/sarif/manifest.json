@@ -1,0 +1,76 @@
+{
+  "format": "runward-integrations-recipe/0",
+  "id": "sarif",
+  "title": "A SARIF 2.1.0 log, regenerated from the project's own static analysis before the gate reads it",
+  "report": { "format": "SARIF 2.1.0", "nature": "sarif" },
+  "rows": [
+    {
+      "nature": "sarif",
+      "citable": "file:reports/scan.sarif#the-rule-id — the scan must know the rule and record no open finding",
+      "onTheExample": "file:code/reports/eslint.sarif#no-restricted-syntax"
+    }
+  ],
+  "normalisation": {
+    "removes": [
+      "every startTimeUtc, endTimeUtc and timeUtc",
+      "the machine, account, process id and environment of each invocation",
+      "the working directory's absolute path in every string, each artifactLocation uri made relative with / separators"
+    ],
+    "keeps": "every run, tool, rule in force, result, level, message and location, as the tool wrote them"
+  },
+  "steps": {
+    "github": {
+      "action": "recipes/sarif/github/action.yml",
+      "uses": "stranxik/runward/packages/runward-integrations/recipes/sarif/github",
+      "pin": "a 40-character commit of stranxik/runward that carries this file, never a branch or a tag"
+    },
+    "gitlab": {
+      "template": "recipes/sarif/gitlab/sarif.gitlab-ci.yml",
+      "extends": ".runward-integrations-sarif",
+      "include": "include: project: (a project of yours the agent cannot write, holding this file), ref: (a 40-character commit of it), file: (this template); or include: remote: (this file at a stranxik/runward commit) with integrity: (its sha256)"
+    }
+  },
+  "level": { "ciStep": "declared", "runwardRunLeg": "attested" },
+  "runwardRun": {
+    "leg": {
+      "leg": "reports",
+      "cwd": "code",
+      "command": ["node", "/opt/runward-integrations/src/tools/eslint-sarif.mjs", "--out", "${out}/code/reports/eslint.sarif", "src"],
+      "reports": [{ "path": "code/reports/eslint.sarif", "nature": "sarif" }]
+    },
+    "onTheSamplePolicy": "a leg runward-run accepts, run in an image that carries this package at /opt/runward-integrations; the sample policy's own lint leg runs the example's lint-committable.mjs instead, a script in the judged tree that writes the same log, on the stock Node.js image"
+  },
+  "control": {
+    "fixture": "the shipped example, written by runward init --example with the runward under test, with the example's lockfile",
+    "sabotage": {
+      "id": "credential-literal-in-a-new-adapter",
+      "summary": "a bearer token written as a literal in a new adapter that no row cites, a shape the built-in analyzers do not know and the example's lint configuration refuses; the committed SARIF log still records no result"
+    },
+    "command": {
+      "cwd": "code",
+      "report": "reports/eslint.sarif",
+      "argv": ["node", "{rwi}/src/tools/eslint-sarif.mjs", "--out", "{raw}", "src"]
+    },
+    "expect": {
+      "healthy": 0,
+      "withoutRecipe": 0,
+      "withRecipe": {
+        "exit": 1,
+        "refuses": [
+          { "rule": "checklist-day-zero-project", "file": "runward/floor.md", "pointer": "file:code/reports/eslint.sarif#no-restricted-syntax" }
+        ]
+      }
+    },
+    "doesNotCatch": [
+      { "sabotage": "junit", "why": "the guard's change breaks a test, not a lint rule: the regenerated log records no result, as the committed one" },
+      { "sabotage": "coverage", "why": "the tests and the journal changed within what the lint configuration allows: the regenerated log records no result" }
+    ]
+  },
+  "maintainer": { "name": "stranxik", "lastPassingControl": null },
+  "limits": [
+    "A log says what its rules saw: a credential in a shape the configuration does not list, or a finding of a rule no row cites, refuses nothing.",
+    "The configuration is the project's: a rule switched off disappears from the log, and a row citing it is then refused as absent, never as clean; a rule loosened in its options is not seen.",
+    "For a project linted by ESLint the recipe writes the log itself (src/tools/eslint-sarif.mjs); a tool that writes SARIF on its own is run as the project runs it, and only normalised.",
+    "As a plain CI step its report is declared: nothing binds it to the tree after the run."
+  ]
+}

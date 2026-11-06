@@ -44,7 +44,17 @@ mv "$PKGS"/runward-*.tgz "$PKGS/runward.tgz"
 # installs with `npm install --offline` against it, so no registry is ever asked for anything.
 mkdir -p "$WORK/warm" "$WORK/npm-cache"
 ( cd "$WORK/warm" && npm install --silent --no-audit --no-fund --omit=dev --cache "$WORK/npm-cache" "$PKGS/runward.tgz" )
+# The shipped example's own dependencies, from its lockfile, for the recipes of runward-integrations: the
+# recipe jobs install them with `npm ci --offline` from the same cache.
+mkdir -p "$WORK/warm-example"
+cp "$ROOT/examples/request-triage/code/package.json" "$ROOT/examples/request-triage/code/package-lock.json" "$WORK/warm-example/"
+( cd "$WORK/warm-example" && npm ci --silent --ignore-scripts --no-audit --no-fund --cache "$WORK/npm-cache" )
 tar -czf "$PKGS/npm-cache.tgz" -C "$WORK/npm-cache" .
+# runward-integrations, packed as npm packs it, served by the package server and pinned by its sha256 in
+# the pipeline (the recipes' GitLab templates refuse any other bytes).
+( cd "$ROOT/packages/runward-integrations" && npm pack --silent --pack-destination "$PKGS" >/dev/null )
+mv "$PKGS"/runward-integrations-*.tgz "$PKGS/runward-integrations.tgz"
+RWI_SHA256="$(sha256sum "$PKGS/runward-integrations.tgz" | cut -d' ' -f1)"
 cp "$HERE/serve.mjs" "$PKGS/serve.mjs"
 mark packages-ready
 
@@ -55,7 +65,22 @@ tar -xzf "$PKGS/runward.tgz" -C "$WORK/unpack"
 cp -R "$WORK/unpack/package/examples/request-triage" "$REPO/green"
 cp -R "$WORK/unpack/package/examples/request-triage" "$REPO/red"
 rm "$REPO/red/runward/handover.md"
-sed "s|__NODE_IMAGE__|$NODE_IMAGE|" "$HERE/gitlab-ci.yml" > "$REPO/.gitlab-ci.yml"
+# The recipes' trees: the shipped example as runward's controls build it (init --example by this tree's
+# runward, with the example's lockfile), healthy, and once per recipe with that recipe's sabotage planted.
+RWI_CLI="$ROOT/packages/runward-integrations/src/cli.js"
+for t in healthy sarif junit coverage; do
+  node "$RWI_CLI" fixture --runward "$ROOT/dist/cli.js" --out "$REPO/recipes/$t" >/dev/null
+done
+for t in sarif junit coverage; do node "$RWI_CLI" sabotage --recipe "$t" --tree "$REPO/recipes/$t" >/dev/null; done
+# The templates, in a second project the pipeline includes at a pinned commit: a project of this instance
+# the fixture repository's pipeline cannot write, as an operator's own CI project would be.
+mkdir -p "$WORK/integrations-repo"
+cp -R "$ROOT/packages/runward-integrations/." "$WORK/integrations-repo/"
+git -C "$WORK/integrations-repo" init -q -b main
+git -C "$WORK/integrations-repo" add -A
+git -C "$WORK/integrations-repo" -c user.name=bench -c user.email=bench@example.invalid commit -q -m "runward-integrations templates"
+RWI_TEMPLATES_SHA="$(git -C "$WORK/integrations-repo" rev-parse HEAD)"
+sed -e "s|__NODE_IMAGE__|$NODE_IMAGE|" -e "s|__RWI_TEMPLATES_SHA__|$RWI_TEMPLATES_SHA|" -e "s|__RWI_SHA256__|$RWI_SHA256|" "$HERE/gitlab-ci.yml" > "$REPO/.gitlab-ci.yml"
 git -C "$REPO" init -q -b main
 git -C "$REPO" add -A
 git -C "$REPO" -c user.name=bench -c user.email=bench@example.invalid commit -q -m "bench fixture"
@@ -67,7 +92,9 @@ git -C "$REPO" -c user.name=bench -c user.email=bench@example.invalid commit -q 
 docker network create --internal "$NET" >/dev/null
 mark network-cut
 
-docker run -d --name pkgs --network "$NET" -v "$PKGS:/srv:ro" "$NODE_IMAGE" node /srv/serve.mjs /srv 8080 >/dev/null
+# `z` relabels the served directory for a container on an SELinux host (Fedora, RHEL); elsewhere Docker
+# ignores it. Measured on 2026-11-06: without it, on an enforcing host, the package server reads nothing.
+docker run -d --name pkgs --network "$NET" -v "$PKGS:/srv:ro,z" "$NODE_IMAGE" node /srv/serve.mjs /srv 8080 >/dev/null
 
 # What is cut is measured, and the probe gets a positive control first: the same probe, from the
 # same image, on the default bridge, must reach the registry, or a "blocked" below proves nothing.
@@ -167,7 +194,9 @@ echo "::add-mask::$RUNNER_TOKEN"
 mark project-and-runner-created
 
 # --- The runner: docker executor, job containers on the internal network, no pulls at all. -----
-docker run -d --name runner --network "$NET" -v /var/run/docker.sock:/var/run/docker.sock "$RUNNER_IMAGE" >/dev/null
+# The runner drives the host's Docker through its socket; on an SELinux host a confined container may not
+# open it, so the runner runs unlabelled there (`label=disable`, a no-op where SELinux is off).
+docker run -d --name runner --network "$NET" --security-opt label=disable -v /var/run/docker.sock:/var/run/docker.sock "$RUNNER_IMAGE" >/dev/null
 docker exec runner gitlab-runner register --non-interactive \
   --url http://gitlab --clone-url http://gitlab --token "$RUNNER_TOKEN" --name bench \
   --executor docker --docker-image "$NODE_IMAGE" --docker-helper-image "$HELPER_IMAGE" \
@@ -179,6 +208,10 @@ mark runner-registered
 AUTH="$(printf 'root:%s' "$TOKEN" | base64 | tr -d '\n')"
 docker cp "$REPO" gitlab:/tmp/bench-repo
 gitlab_git() { docker exec gitlab git -c safe.directory='*' -c "http.extraHeader=Authorization: Basic $AUTH" -C /tmp/bench-repo "$@"; }
+api POST /projects '{"name":"integrations","path":"integrations","visibility":"private"}' > "$LOGS/integrations-project.json"
+docker cp "$WORK/integrations-repo" gitlab:/tmp/integrations-repo
+docker exec gitlab git -c safe.directory='*' -c "http.extraHeader=Authorization: Basic $AUTH" -C /tmp/integrations-repo push -q http://localhost/root/integrations.git main
+finding integrations-templates-commit "$RWI_TEMPLATES_SHA"
 gitlab_git push -q http://localhost/root/bench.git main
 mark fixture-pushed
 
@@ -189,7 +222,7 @@ for _ in $(seq 1 60); do
 done
 [ -n "$PIPE" ] || fail "no pipeline was created for the push"
 PSTATUS=""
-for _ in $(seq 1 120); do  # 120 x 10 s = 20 min
+for _ in $(seq 1 240); do  # 240 x 10 s = 40 min: fifteen jobs on one runner
   PSTATUS="$(api GET "/projects/$PID/pipelines/$PIPE" | sed '$d' | jq -r .status)"
   case "$PSTATUS" in success|failed|canceled|skipped) break ;; esac
   sleep 10
@@ -208,6 +241,25 @@ for job in gate-green gate-red; do
   finding "$job-job-status" "$(jq -r --arg n "$job" '.[] | select(.name == $n) | .status' <<<"$JOBS")"
   finding "$job-runward-exit" "$(grep -o 'bench-runward-exit=[0-9]*' <<<"$BODY" | tail -n1 | cut -d= -f2)"
   finding "$job-egress" "$(grep -o 'bench-egress=[a-z]*' <<<"$BODY" | tail -n1 | cut -d= -f2)"
+done
+
+# The recipes of runward-integrations: each gate job's exit, read back from its trace (not recorded as a
+# fixture: these are runward's jobs, not GitLab's API shapes).
+RECIPE_GATES="gate-sarif-without-recipe:0 gate-junit-without-recipe:0 gate-coverage-without-recipe:0 gate-sarif-with-recipe:1 gate-junit-with-recipe:1 gate-coverage-with-recipe:1 gate-healthy-with-recipes:0"
+for pair in $RECIPE_GATES; do
+  job="${pair%%:*}"
+  JID="$(jq -r --arg n "$job" '.[] | select(.name == $n) | .id' <<<"$JOBS")"
+  [ -n "$JID" ] || fail "job $job missing from the pipeline"
+  api GET "/projects/$PID/jobs/$JID/trace" | sed '$d' > "$LOGS/$job.trace.log"
+  finding "$job-runward-exit" "$(grep -o 'bench-runward-exit=[0-9]*' "$LOGS/$job.trace.log" | tail -n1 | cut -d= -f2)"
+  finding "$job-egress" "$(grep -o 'bench-egress=[a-z]*' "$LOGS/$job.trace.log" | tail -n1 | cut -d= -f2)"
+done
+for job in recipe-sarif-sabotaged recipe-junit-sabotaged recipe-coverage-sabotaged recipe-sarif-healthy recipe-junit-healthy recipe-coverage-healthy; do
+  JID="$(jq -r --arg n "$job" '.[] | select(.name == $n) | .id' <<<"$JOBS")"
+  [ -n "$JID" ] || fail "job $job missing from the pipeline"
+  api GET "/projects/$PID/jobs/$JID/trace" | sed '$d' > "$LOGS/$job.trace.log"
+  finding "$job-wrote" "$(grep -c 'runward-integrations [a-z]*: wrote' "$LOGS/$job.trace.log" || true)"
+  finding "$job-egress" "$(grep -o 'bench-egress=[a-z]*' "$LOGS/$job.trace.log" | tail -n1 | cut -d= -f2)"
 done
 
 # --- A merge request, for D1's summary note and G5's approval reads. --------------------------
@@ -248,5 +300,14 @@ get() { awk -F'\t' -v k="$1" '$1 == k { v = $2 } END { print v }' "$WORK/finding
 [ "$(get gate-red-runward-exit)" = 1 ] || fail "gate-red: runward exit $(get gate-red-runward-exit), expected 1"
 for k in gate-green-egress gate-red-egress egress-from-gitlab-container egress-from-gitlab-container-at-end; do
   [ "$(get "$k")" = blocked ] || fail "$k = $(get "$k"), expected blocked"
+done
+for pair in $RECIPE_GATES; do
+  job="${pair%%:*}"; want="${pair#*:}"
+  [ "$(get "$job-runward-exit")" = "$want" ] || fail "$job: runward exit $(get "$job-runward-exit"), expected $want"
+  [ "$(get "$job-egress")" = blocked ] || fail "$job-egress = $(get "$job-egress"), expected blocked"
+done
+for job in recipe-sarif-sabotaged recipe-junit-sabotaged recipe-coverage-sabotaged recipe-sarif-healthy recipe-junit-healthy recipe-coverage-healthy; do
+  [ "$(get "$job-wrote")" = 1 ] || fail "$job: the recipe's step did not write its report"
+  [ "$(get "$job-egress")" = blocked ] || fail "$job-egress = $(get "$job-egress"), expected blocked"
 done
 echo "bench passed in $(elapsed)s"

@@ -254,3 +254,29 @@ test("ADR-0120: the runward tarball ships none of runward-run, and none of its m
   assert.equal(runwardRunInTarball(["dist/lib/x.js"], () => 'const m = await import("../../packages/runward-run/src/run.js");').length, 1, "a planted dynamic import reddens");
   assert.equal(runwardRunInTarball(["dist/lib/x.js"], () => '// run its tests with runward-run in your CI\nconst s = "runward-run";').length, 0, "but not the name in a sentence");
 });
+
+// ADR-0122 decision 4: the `runward` tarball contains none of runward-integrations and no module that
+// imports it. Read from the REAL tarball, as above: a recipe changes which files exist when the gate runs,
+// and a recipe shipped inside the package that judges them would no longer sit outside the verdict.
+const RWI_SPEC = /(?:from|import)\s*\(?\s*["']([^"']*runward-integrations[^"']*)["']/g;
+/** The recipes' files and their importers among a tarball's paths, `read` giving a shipped file's text. */
+function integrationsInTarball(paths, read) {
+  const found = paths.filter((p) => /(^|\/)runward-integrations(\/|-\d|$)|^packages\//.test(p)).map((p) => `${p} is runward-integrations' or another package's file`);
+  for (const p of paths.filter((x) => /\.(?:c|m)?js$/.test(x))) {
+    for (const m of read(p).matchAll(RWI_SPEC)) found.push(`${p} imports "${m[1]}"`);
+  }
+  return found;
+}
+
+test("ADR-0122: the runward tarball ships none of runward-integrations, and none of its modules imports it", () => {
+  const win = process.platform === "win32";
+  const packed = JSON.parse(execFileSync(win ? "npm.cmd" : "npm", ["pack", "--dry-run", "--json"],
+    { cwd: ROOT, encoding: "utf8", stdio: ["pipe", "pipe", "pipe"], shell: win }));
+  const paths = packed[0].files.map((f) => f.path.replaceAll("\\", "/"));
+  assert.ok(paths.length > 100 && paths.includes("dist/lib/evidence.js"), `the tarball was read (${paths.length} files)`);
+  assert.deepEqual(integrationsInTarball(paths, (p) => readFileSync(join(ROOT, p), "utf8")), [], "the runward tarball carries a recipe or a module that imports one");
+  assert.equal(integrationsInTarball(["dist/cli.js", "packages/runward-integrations/src/regenerate.js"], () => "").length, 1, "a planted file of the recipes reddens");
+  assert.equal(integrationsInTarball(["dist/lib/x.js"], () => 'import { regenerate } from "runward-integrations";').length, 1, "a planted import reddens");
+  assert.equal(integrationsInTarball(["dist/lib/x.js"], () => 'const m = await import("../../packages/runward-integrations/src/count.js");').length, 1, "a planted dynamic import reddens");
+  assert.equal(integrationsInTarball(["dist/lib/x.js"], () => '// regenerate it with runward-integrations in your CI\nconst s = "runward-integrations";').length, 0, "but not the name in a sentence");
+});

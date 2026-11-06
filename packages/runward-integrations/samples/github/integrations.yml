@@ -1,0 +1,75 @@
+# runward-integrations, the operator's reusable workflow (runward ADR-0122, laid out as ADR-0120 decision 5).
+# An inert sample: runward installs nothing. Copy it into a repository of YOUR OWN that the agent cannot
+# write (never the mission's), as .github/workflows/runward-integrations.yml, protect that repository's
+# default branch, and call it from the mission by commit (samples/github/caller.yml):
+#
+#   uses: <your-org>/<your-ci-repo>/.github/workflows/runward-integrations.yml@<40-character commit>
+#
+# WHAT LIVES HERE, AND WHY. The commands: they decide what each report says, so they are written in this
+# file, out of the agent's reach, and the caller passes nothing that changes them. The steps are runward's
+# recipes, each called by a 40-character commit of stranxik/runward, a repository the agent cannot write.
+# What stays the agent's: the project's tests, sources and lint configuration, which is what these tools
+# exist to read.
+#
+# WHAT A GREEN RUN SAYS. On this commit, the reports the gate read were written by the project's own tools
+# in this job, not taken from the commit. They are declared (runward ADR-0119 decision 1): nothing binds
+# them to the tree once the job ends, and an auditor re-running the gate later reads the committed ones.
+# For attested, run the same commands as the legs of a runward-run policy (packages/runward-run).
+#
+# Written for the shipped example (runward init --example): the code under code/, Node.js tests run by tsx,
+# ESLint. Replace each REPLACE, and the commands with your project's.
+name: runward-integrations
+
+on:
+  workflow_call: {}
+
+permissions: {}
+
+jobs:
+  gate:
+    name: The cited reports regenerated out of the agent's reach, then the gate
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the mission at the commit this run is for
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "24"
+      - name: The project's dependencies, from its lockfile, install scripts off
+        working-directory: code
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      # Each step replaces the report the rows cite with the one the project's own run writes. A red tool
+      # fails its step and still writes its report: the steps after it and the gate run on `!cancelled()`,
+      # so the gate names every row the red reports refuse.
+      - name: SARIF, from the project's ESLint (runward-integrations sarif)
+        uses: stranxik/runward/packages/runward-integrations/recipes/sarif/github@0000000000000000000000000000000000000000 # REPLACE: a stranxik/runward commit that carries the recipe
+        with:
+          working-directory: code
+          report: reports/eslint.sarif
+          command: '["node", "{rwi}/src/tools/eslint-sarif.mjs", "--out", "{raw}", "src"]'
+      - name: JUnit, from the project's test run (runward-integrations junit)
+        if: ${{ !cancelled() }}
+        uses: stranxik/runward/packages/runward-integrations/recipes/junit/github@0000000000000000000000000000000000000000 # REPLACE: the same commit
+        with:
+          working-directory: code
+          report: reports/junit.xml
+          command: '["node", "--import", "tsx", "--test", "--test-reporter=junit", "--test-reporter-destination={raw}", "test/*.test.ts"]'
+      - name: LCOV, from the project's test run under coverage (runward-integrations coverage)
+        if: ${{ !cancelled() }}
+        uses: stranxik/runward/packages/runward-integrations/recipes/coverage/github@0000000000000000000000000000000000000000 # REPLACE: the same commit
+        with:
+          working-directory: code
+          report: reports/lcov.info
+          command: '["node", "--import", "tsx", "--test", "--experimental-test-coverage", "--test-coverage-include=src/**", "--test-reporter=lcov", "--test-reporter-destination={raw}", "test/*.test.ts"]'
+      # The mission's runward/hooks.json is the agent's to write: the gate runs without it, on the reports
+      # the steps above wrote.
+      - name: The gate, on the regenerated reports
+        if: ${{ !cancelled() }}
+        uses: stranxik/runward@0000000000000000000000000000000000000000 # REPLACE: the runward Action at a commit
+        with:
+          version: "0.46.0" # REPLACE: the runward version your mission pins
+          hooks: "false"

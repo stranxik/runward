@@ -1,0 +1,199 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://runward.dev/schemas/runward-integrations-recipe-0.json",
+  "title": "runward-integrations recipe manifest",
+  "description": "One recipe of runward-integrations (runward ADR-0122 decision 1): the step that regenerates one report out of the agent's reach, the requires: rows the report satisfies, the control that proves the step catches a planted sabotage, and the named maintainer with the last passing control.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "id", "title", "report", "rows", "normalisation", "steps", "level", "runwardRun", "control", "maintainer", "limits"],
+  "properties": {
+    "format": { "const": "runward-integrations-recipe/0" },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "title": { "type": "string", "minLength": 10 },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "nature"],
+      "properties": {
+        "format": { "enum": ["SARIF 2.1.0", "JUnit XML", "LCOV"] },
+        "nature": { "enum": ["junit", "sarif", "eslint", "coverage", "sbom", "loadtest"] }
+      }
+    },
+    "rows": {
+      "description": "The requires: natures the report satisfies, each with the citable form `runward explain` prints for it, verbatim.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["nature", "citable", "onTheExample"],
+        "properties": {
+          "nature": { "enum": ["junit", "sarif", "eslint", "coverage", "sbom", "loadtest"] },
+          "citable": { "type": "string", "pattern": "^(file|test):\\S.* — .+$" },
+          "onTheExample": { "type": "string", "pattern": "^(file|test):code/reports/" }
+        }
+      }
+    },
+    "normalisation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["removes", "keeps"],
+      "properties": {
+        "removes": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 5 } },
+        "keeps": { "type": "string", "minLength": 10 }
+      }
+    },
+    "steps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["github", "gitlab"],
+      "properties": {
+        "github": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action", "uses", "pin"],
+          "properties": {
+            "action": { "type": "string", "pattern": "^recipes/[a-z][a-z0-9-]*/github/action\\.yml$" },
+            "uses": { "type": "string", "pattern": "^stranxik/runward/packages/runward-integrations/recipes/[a-z][a-z0-9-]*/github$" },
+            "pin": { "const": "a 40-character commit of stranxik/runward that carries this file, never a branch or a tag" }
+          }
+        },
+        "gitlab": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["template", "extends", "include"],
+          "properties": {
+            "template": { "type": "string", "pattern": "^recipes/[a-z][a-z0-9-]*/gitlab/[a-z][a-z0-9-]*\\.gitlab-ci\\.yml$" },
+            "extends": { "type": "string", "pattern": "^\\.runward-integrations-[a-z][a-z0-9-]*$" },
+            "include": { "const": "include: project: (a project of yours the agent cannot write, holding this file), ref: (a 40-character commit of it), file: (this template); or include: remote: (this file at a stranxik/runward commit) with integrity: (its sha256)" }
+          }
+        }
+      }
+    },
+    "level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ciStep", "runwardRunLeg"],
+      "properties": {
+        "ciStep": { "const": "declared" },
+        "runwardRunLeg": { "const": "attested" }
+      }
+    },
+    "runwardRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["leg", "onTheSamplePolicy"],
+      "properties": {
+        "leg": {
+          "type": "object",
+          "required": ["leg", "cwd", "command", "reports"],
+          "properties": {
+            "leg": { "enum": ["tests", "reports"] },
+            "cwd": { "type": "string" },
+            "command": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+            "reports": { "type": "array", "minItems": 1 }
+          }
+        },
+        "onTheSamplePolicy": { "type": "string", "minLength": 20 }
+      }
+    },
+    "control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fixture", "sabotage", "command", "expect", "doesNotCatch"],
+      "properties": {
+        "fixture": { "const": "the shipped example, written by runward init --example with the runward under test, with the example's lockfile" },
+        "sabotage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "summary"],
+          "properties": {
+            "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+            "summary": { "type": "string", "minLength": 40 }
+          }
+        },
+        "command": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["cwd", "report", "argv"],
+          "properties": {
+            "cwd": { "type": "string", "minLength": 1 },
+            "report": { "type": "string", "pattern": "^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*$" },
+            "argv": { "type": "array", "minItems": 2, "items": { "type": "string", "minLength": 1 }, "contains": { "type": "string", "pattern": "\\{raw\\}" } }
+          }
+        },
+        "expect": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["healthy", "withoutRecipe", "withRecipe"],
+          "properties": {
+            "healthy": { "const": 0 },
+            "withoutRecipe": { "const": 0 },
+            "withRecipe": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["exit", "refuses"],
+              "properties": {
+                "exit": { "const": 1 },
+                "refuses": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["rule", "file", "pointer"],
+                    "properties": {
+                      "rule": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+                      "file": { "type": "string", "pattern": "^runward/" },
+                      "pointer": { "type": "string", "pattern": "^(file|test):" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "doesNotCatch": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sabotage", "why"],
+            "properties": {
+              "sabotage": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+              "why": { "type": "string", "minLength": 20 }
+            }
+          }
+        }
+      }
+    },
+    "maintainer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "lastPassingControl"],
+      "properties": {
+        "name": { "type": "string", "minLength": 2 },
+        "lastPassingControl": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["date", "runward"],
+              "properties": {
+                "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+                "runward": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$" }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "withdrawn": {
+      "description": "Set when the recipe's control fails and it is withdrawn from the count until fixed: the reason, read on every surface that counts recipes (ADR-0122 decision 3).",
+      "type": "string",
+      "minLength": 10
+    },
+    "limits": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 20 } }
+  }
+}

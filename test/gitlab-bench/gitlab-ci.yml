@@ -9,6 +9,23 @@
 # example mission and requires exit 0; gate-red runs it on the same mission with one deliverable
 # removed and requires exit 1. Each job prints the exit code it saw, and bench.sh reads it back from
 # the job trace, so a job that passes for another reason is caught.
+#
+# Then the recipes of runward-integrations (runward ADR-0122 decision 6), each through its own GitLab
+# template, included from a second project of this instance at a pinned commit, as an operator includes
+# it from a project the agent cannot write. For each recipe: its job regenerates its report on the tree
+# where its sabotage is planted, and on the healthy tree; the gate then reads each tree, and must exit 0
+# on the sabotaged tree without the recipe's report (the sabotage passes on the committed reports), 1 with
+# it, and 0 on the healthy tree with the three regenerated reports. The package the templates fetch is
+# served by the bench's package server and pinned by its sha256; the example's dependencies come from the
+# pre-warmed npm cache, offline.
+include:
+  - project: root/integrations
+    ref: "__RWI_TEMPLATES_SHA__"
+    file:
+      - /recipes/sarif/gitlab/sarif.gitlab-ci.yml
+      - /recipes/junit/gitlab/junit.gitlab-ci.yml
+      - /recipes/coverage/gitlab/coverage.gitlab-ci.yml
+
 default:
   image: __NODE_IMAGE__
 
@@ -17,7 +34,7 @@ variables:
   NPM_CONFIG_FUND: "false"
   NPM_CONFIG_AUDIT: "false"
 
-stages: [gate]
+stages: [gate, regenerate, recipe-gate]
 
 .install:
   script:
@@ -42,3 +59,92 @@ gate-red:
     - !reference [.install, script]
     - cd red
     - code=0; /tmp/rw/node_modules/.bin/runward check --strict || code=$?; echo "bench-runward-exit=$code"; test "$code" -eq 1
+
+# ── runward-integrations ─────────────────────────────────────────────────────────────────────────────
+.example-deps:
+  before_script:
+    - if node -e "fetch('https://registry.npmjs.org/',{signal:AbortSignal.timeout(5000)}).then(()=>process.exit(0),()=>process.exit(1))"; then echo "bench-egress=reachable"; else echo "bench-egress=blocked"; fi
+    - curl -sS -m 30 -o /tmp/npm-cache.tgz http://pkgs:8080/npm-cache.tgz
+    - mkdir -p /tmp/npm-cache && tar -xzf /tmp/npm-cache.tgz -C /tmp/npm-cache
+    - (cd "$RWI_CWD" && npm ci --offline --cache /tmp/npm-cache --ignore-scripts --no-audit --no-fund --loglevel=error)
+
+.rwi:
+  extends: .example-deps
+  stage: regenerate
+  allow_failure: true
+  variables:
+    RWI_PACKAGE_URL: http://pkgs:8080/runward-integrations.tgz
+    RWI_PACKAGE_SHA256: "__RWI_SHA256__"
+
+.rwi-sarif:
+  variables:
+    RWI_REPORT: reports/eslint.sarif
+    RWI_COMMAND: '["node", "{rwi}/src/tools/eslint-sarif.mjs", "--out", "{raw}", "src"]'
+.rwi-junit:
+  variables:
+    RWI_REPORT: reports/junit.xml
+    RWI_COMMAND: '["node", "--import", "tsx", "--test", "--test-reporter=junit", "--test-reporter-destination={raw}", "test/*.test.ts"]'
+.rwi-coverage:
+  variables:
+    RWI_REPORT: reports/lcov.info
+    RWI_COMMAND: '["node", "--import", "tsx", "--test", "--experimental-test-coverage", "--test-coverage-include=src/**", "--test-reporter=lcov", "--test-reporter-destination={raw}", "test/*.test.ts"]'
+
+recipe-sarif-sabotaged:
+  extends: [.rwi, .rwi-sarif, .runward-integrations-sarif]
+  variables: { RWI_CWD: recipes/sarif/code }
+recipe-junit-sabotaged:
+  extends: [.rwi, .rwi-junit, .runward-integrations-junit]
+  variables: { RWI_CWD: recipes/junit/code }
+recipe-coverage-sabotaged:
+  extends: [.rwi, .rwi-coverage, .runward-integrations-coverage]
+  variables: { RWI_CWD: recipes/coverage/code }
+recipe-sarif-healthy:
+  extends: [.rwi, .rwi-sarif, .runward-integrations-sarif]
+  variables: { RWI_CWD: recipes/healthy/code }
+recipe-junit-healthy:
+  extends: [.rwi, .rwi-junit, .runward-integrations-junit]
+  variables: { RWI_CWD: recipes/healthy/code }
+recipe-coverage-healthy:
+  extends: [.rwi, .rwi-coverage, .runward-integrations-coverage]
+  variables: { RWI_CWD: recipes/healthy/code }
+
+# The gate on each tree. Each job prints the exit code it saw, as gate-green and gate-red do.
+.recipe-gate:
+  stage: recipe-gate
+  when: always
+  script:
+    - !reference [.install, script]
+    - cd "recipes/$TREE"
+    - code=0; /tmp/rw/node_modules/.bin/runward check --strict || code=$?; echo "bench-runward-exit=$code"; test "$code" -eq "$EXPECT"
+
+gate-sarif-without-recipe:
+  extends: .recipe-gate
+  needs: []
+  variables: { TREE: sarif, EXPECT: "0" }
+gate-junit-without-recipe:
+  extends: .recipe-gate
+  needs: []
+  variables: { TREE: junit, EXPECT: "0" }
+gate-coverage-without-recipe:
+  extends: .recipe-gate
+  needs: []
+  variables: { TREE: coverage, EXPECT: "0" }
+gate-sarif-with-recipe:
+  extends: .recipe-gate
+  needs: [{ job: recipe-sarif-sabotaged, artifacts: true }]
+  variables: { TREE: sarif, EXPECT: "1" }
+gate-junit-with-recipe:
+  extends: .recipe-gate
+  needs: [{ job: recipe-junit-sabotaged, artifacts: true }]
+  variables: { TREE: junit, EXPECT: "1" }
+gate-coverage-with-recipe:
+  extends: .recipe-gate
+  needs: [{ job: recipe-coverage-sabotaged, artifacts: true }]
+  variables: { TREE: coverage, EXPECT: "1" }
+gate-healthy-with-recipes:
+  extends: .recipe-gate
+  needs:
+    - { job: recipe-sarif-healthy, artifacts: true }
+    - { job: recipe-junit-healthy, artifacts: true }
+    - { job: recipe-coverage-healthy, artifacts: true }
+  variables: { TREE: healthy, EXPECT: "0" }
