@@ -8,10 +8,11 @@
   ],
   "measuredOn": "2026-11-03",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 768.3,
-  "slowSeconds": 716.7,
+  "totalSeconds": 774.5,
+  "slowSeconds": 722.9,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
+    "test/unit/partial-clone-no-fetch.test.js",
     "test/unit/mutation-select-tests.test.js",
     "test/unit/mission-name-independent-of-checkout.test.js",
     "test/unit/verdict-witness.test.js",
@@ -101,6 +102,11 @@
     {
       "file": "test/unit/junit-quote-escaping.test.js",
       "seconds": 6.41,
+      "passed": true
+    },
+    {
+      "file": "test/unit/partial-clone-no-fetch.test.js",
+      "seconds": 6.22,
       "passed": true
     },
     {
