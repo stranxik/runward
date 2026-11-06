@@ -27,29 +27,58 @@ import { pathToFileURL } from "node:url";
 
 const ROOT = join(import.meta.dirname, "..", "..");
 const { junitCases } = await import(pathToFileURL(join(ROOT, "packages", "runward-run", "src", "statement.js")).href);
+const { caseOutcomes, classify } = await import(pathToFileURL(join(ROOT, "packages", "runward-run", "src", "cases.js")).href);
 const SIZE = 1_000_000;
 const CEILING_MS = 2000;
 
-// The former reader, kept as the reference (packages/runward-run/src/statement.js at d85f39b).
-function oldJunitCases(xml) {
+// The former readers, kept as the reference (packages/runward-run/src/statement.js at d85f39b, and
+// packages/runward-run/src/cases.js at da88895), written with regular expressions, with the rule the two
+// readers as shipped share: a case's body runs to its `</testcase>`, or to where the next `<testcase …>`
+// begins, whichever comes first. Before that rule, a case left open read every case after it as its own
+// body, again for each such case: CodeQL raised the comment reader of cases.js on the third integration
+// pull request (alert 96), and the bodies, nested, cost the square of the report.
+function oldTags(xml) {
   const text = xml.replace(/<!--[\s\S]*?-->/g, "");
-  const passed = [], failed = [], warned = [];
   const tag = /<testcase\b((?:[^>"']|"[^"]*"|'[^']*')*?)(\/?)>/gi;
-  const decode = (s) => s.replace(/&(?:#(\d+)|#x([0-9a-f]+)|(lt|gt|amp|quot|apos));/gi, (_, d, h, n) =>
-    n ? { lt: "<", gt: ">", amp: "&", quot: "\"", apos: "'" }[n.toLowerCase()] : String.fromCodePoint(d ? Number(d) : parseInt(h, 16)));
-  for (let m = tag.exec(text); m; m = tag.exec(text)) {
-    const name = /\bname\s*=\s*(?:"([^"]*)"|'([^']*)')/i.exec(m[1]);
-    const n = name ? decode(name[1] ?? name[2]) : "";
-    let outcome = "passed";
-    if (m[2] !== "/") {
-      const end = text.indexOf("</testcase>", tag.lastIndex);
-      const body = text.slice(tag.lastIndex, end === -1 ? undefined : end);
-      outcome = /<(?:error|failure)\b/i.test(body) ? "failed" : /<skipped\b/i.test(body) ? "warned" : "passed";
-    }
+  const tags = [];
+  for (let m = tag.exec(text); m; m = tag.exec(text)) tags.push({ start: m.index, attrs: m[1], self: m[2] === "/", end: tag.lastIndex });
+  return tags.map((t, i) => {
+    if (t.self) return { ...t, body: null };
+    const close = text.indexOf("</testcase>", t.end);
+    const cut = i + 1 < tags.length ? tags[i + 1].start : text.length;
+    return { ...t, body: text.slice(t.end, close === -1 ? cut : Math.min(close, cut)) };
+  });
+}
+const oldDecode = (s) => s.replace(/&(?:#(\d+)|#x([0-9a-f]+)|(lt|gt|amp|quot|apos));/gi, (_, d, h, n) =>
+  n ? { lt: "<", gt: ">", amp: "&", quot: "\"", apos: "'" }[n.toLowerCase()] : String.fromCodePoint(d ? Number(d) : parseInt(h, 16)));
+function oldJunitCases(xml) {
+  const passed = [], failed = [], warned = [];
+  for (const { attrs, body } of oldTags(xml)) {
+    const name = /\bname\s*=\s*(?:"([^"]*)"|'([^']*)')/i.exec(attrs);
+    const n = name ? oldDecode(name[1] ?? name[2]) : "";
+    const outcome = body === null ? "passed" : /<(?:error|failure)\b/i.test(body) ? "failed" : /<skipped\b/i.test(body) ? "warned" : "passed";
     (outcome === "passed" ? passed : outcome === "failed" ? failed : warned).push(n);
   }
   return { passed, failed, warned };
 }
+const RANK = { passed: 0, skipped: 1, failure: 2, error: 3, assertion: 4 };
+function oldCaseOutcomes(xml, names) {
+  const value = (s) => oldDecode(oldDecode(s));
+  const found = oldTags(String(xml ?? "")).map(({ attrs, body }) => {
+    const attr = (k) => { const a = new RegExp(`\\b${k}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, "i").exec(attrs); return a ? value(a[1] ?? a[2]) : null; };
+    return { name: (attr("name") ?? "").toLowerCase(), classname: (attr("classname") ?? "").toLowerCase(), outcome: body === null ? "passed" : classify(body) };
+  });
+  const out = {};
+  for (const wanted of names) {
+    const sep = wanted.indexOf("::");
+    const cls = sep === -1 ? null : oldDecode(wanted.slice(0, sep)).toLowerCase();
+    const nm = oldDecode(sep === -1 ? wanted : wanted.slice(sep + 2)).toLowerCase();
+    const hits = found.filter((c) => c.name === nm && (cls === null || c.classname === cls));
+    out[wanted] = hits.length === 0 ? "absent" : hits.map((c) => c.outcome).sort((a, b) => RANK[b] - RANK[a])[0];
+  }
+  return out;
+}
+const NAMES = ["a", "b", "c::a", "d", "f", "x"];
 
 function prng(seed) {
   let a = seed >>> 0;
@@ -57,7 +86,7 @@ function prng(seed) {
 }
 const answer = (f, xml) => { try { return JSON.stringify(f(xml)); } catch (e) { return `throws ${e.name}`; } };
 
-test("junitCases, as shipped, gives the former reader's answers on every generated report", () => {
+test("junitCases and caseOutcomes, as shipped, give the former readers' answers on every generated report", () => {
   const FRAGMENTS = ["<testsuite", "<testcase", "<TestCase", "<TESTCASE", "</testsuite>", "</testcase>", "</TestCase>", "<testcases", "<testcase-x", " name=\"a\"", " name='b'",
     " classname=\"c\"", " NAME=\"d\"", " xname=\"e\"", ">", "/>", "/", "\"", "'", "<!--", "-->", "<!-", "--", "<failure", "<error", "<skipped", "<Error/>", "<SKIPPED>",
     "<errorx", "<failure>", "<failures", " ", "\n", "&quot;", "&amp;", "&#65;", "&#x42;", "&lt;", "x", "<", "name=\"f\">", "</failure>"];
@@ -69,6 +98,8 @@ test("junitCases, as shipped, gives the former reader's answers on every generat
     for (let j = 0; j < parts; j++) xml += FRAGMENTS[Math.floor(r() * FRAGMENTS.length)];
     const [a, b] = [answer(oldJunitCases, xml), answer(junitCases, xml)];
     if (a !== b) assert.fail(`differs on ${JSON.stringify(xml)}:\n${a}\n${b}`);
+    const [c, d] = [answer((x) => oldCaseOutcomes(x, NAMES), xml), answer((x) => caseOutcomes(x, NAMES), xml)];
+    if (c !== d) assert.fail(`caseOutcomes differs on ${JSON.stringify(xml)}:\n${c}\n${d}`);
     n++;
   }
   assert.equal(n, 40_000);
@@ -76,6 +107,8 @@ test("junitCases, as shipped, gives the former reader's answers on every generat
   for (const rel of [["examples", "request-triage", "code", "reports", "junit.xml"], ["reports", "junit.xml"]]) {
     const committed = readFileSync(join(ROOT, ...rel), "utf8");
     assert.equal(answer(junitCases, committed), answer(oldJunitCases, committed), rel.join("/"));
+    const cited = junitCases(committed).passed.slice(0, 5);
+    assert.deepEqual(caseOutcomes(committed, cited), oldCaseOutcomes(committed, cited), `${rel.join("/")}: caseOutcomes`);
     const c = junitCases(committed);
     assert.ok(c.passed.length > 1, `${rel.join("/")}: the committed report's cases are read`);
   }
@@ -86,9 +119,12 @@ test("junitCases: a positive control, the outcomes as the test-result predicate 
     + "<TestCase NAME=\"d\"><skipped/></testcase><testcase name=\"e\"><error message=\"x\"></error></testcase><testcase name=\"f\">"
     + "<skippedx/></testcase></testsuite>";
   assert.deepEqual(junitCases(xml), { passed: ["a", "f"], failed: ["b & c", "e"], warned: ["d"] });
-  // A body runs to the next `</testcase>`, spelled so, as the former reader read it: a case closed
-  // another way reads on into the next one.
-  assert.deepEqual(junitCases(xml.replace("<skipped/></testcase>", "<skipped/></TestCase>")), { passed: ["a", "f"], failed: ["b & c", "d", "e"], warned: [] });
+  // A body runs to the next `</testcase>`, spelled so, or to where the next case begins: a case closed
+  // another way stops there, and no longer reads the next case's error as its own.
+  assert.deepEqual(junitCases(xml.replace("<skipped/></testcase>", "<skipped/></TestCase>")), { passed: ["a", "f"], failed: ["b & c", "e"], warned: ["d"] });
+  // The mutation leg's reader, on the same report: the same cases, and the same cut.
+  assert.deepEqual(caseOutcomes(xml, ["a", "b & c", "hidden", "d", "e", "f"]), { a: "passed", "b & c": "failure", hidden: "absent", d: "skipped", e: "error", f: "passed" });
+  assert.equal(caseOutcomes(xml.replace("<skipped/></testcase>", "<skipped/></TestCase>"), ["d"]).d, "skipped");
 });
 
 function cpu(fn) {
@@ -109,6 +145,10 @@ for (const [what, xml] of [
 ]) {
   test(`junitCases, ${what}: 1,000,000 characters read in linear time`, () => {
     const ms = cpu(() => junitCases(xml));
+    assert.ok(ms < CEILING_MS, `read in ${ms.toFixed(0)} ms of CPU, over the ${CEILING_MS} ms ceiling`);
+  });
+  test(`caseOutcomes, ${what}: 1,000,000 characters read in linear time`, () => {
+    const ms = cpu(() => caseOutcomes(xml, ["c", "k::c", "absent"]));
     assert.ok(ms < CEILING_MS, `read in ${ms.toFixed(0)} ms of CPU, over the ${CEILING_MS} ms ceiling`);
   });
 }

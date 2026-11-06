@@ -24,7 +24,7 @@ function relativizer({ base, work }) {
 
 function junit(text, r) {
   return r.text(text)
-    .replace(/\s+(?:file|time|timestamp|hostname)="[^"]*"/g, "")
+    .replace(/(?<!\s)\s+(?:file|time|timestamp|hostname)="[^"]*"/g, "")
     .replace(/^[ \t]*<!--\s*duration_ms[^>]*-->\r?\n/gm, "");
 }
 

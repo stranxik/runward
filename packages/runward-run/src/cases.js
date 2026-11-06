@@ -6,6 +6,13 @@
 // against `<failure>`, or the error class the runner writes (Node.js's reporter writes
 // `cause: AssertionError [ERR_ASSERTION]` for an assertion, `cause: TypeError` for an error). Where it
 // gives none, the case reads `failure`, and runward holds the row to « at least one mutant killed ».
+//
+// The report is written by the project's own test runner, from the code under review: it is read in one
+// pass, with the reader of statement.js (its comments dropped, its `<testcase …>` tags found, in linear
+// time), and a case's body runs to its `</testcase>` or to where the next case begins, whichever comes
+// first (the rule both readers of this package share).
+
+import { bodyEnd, forward, testcaseTags, withoutComments } from "./statement.js";
 
 const decode = (s) => s.replace(/&(?:#(\d+)|#x([0-9a-f]+)|(lt|gt|amp|quot|apos));/gi, (_, d, h, name) =>
   name ? { lt: "<", gt: ">", amp: "&", quot: "\"", apos: "'" }[name.toLowerCase()] : String.fromCodePoint(d ? Number(d) : parseInt(h, 16)));
@@ -32,18 +39,15 @@ export function classify(body) {
  * several cases carry reads its worst outcome; a name no case carries reads `absent`.
  */
 export function caseOutcomes(xml, names) {
-  const text = String(xml ?? "").replace(/<!--[\s\S]*?-->/g, "");
+  const text = withoutComments(String(xml ?? ""));
+  const tags = [...testcaseTags(text)];
+  const caseEnd = forward(text, "</testcase>");
   const found = [];
-  const tag = /<testcase\b((?:[^>"']|"[^"]*"|'[^']*')*?)(\/?)>/gi;
-  for (let m = tag.exec(text); m; m = tag.exec(text)) {
-    const attr = (k) => { const a = new RegExp(`\\b${k}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, "i").exec(m[1]); return a ? value(a[1] ?? a[2]) : null; };
-    let outcome = "passed";
-    if (m[2] !== "/") {
-      const end = text.indexOf("</testcase>", tag.lastIndex);
-      outcome = classify(text.slice(tag.lastIndex, end === -1 ? undefined : end));
-    }
+  tags.forEach(({ attrs, self, end }, i) => {
+    const attr = (k) => { const a = new RegExp(`\\b${k}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, "i").exec(attrs); return a ? value(a[1] ?? a[2]) : null; };
+    const outcome = self ? "passed" : classify(text.slice(end, bodyEnd(caseEnd(end), tags[i + 1], text.length)));
     found.push({ name: (attr("name") ?? "").toLowerCase(), classname: (attr("classname") ?? "").toLowerCase(), outcome });
-  }
+  });
   const out = {};
   for (const wanted of names) {
     const sep = wanted.indexOf("::");

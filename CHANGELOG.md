@@ -74,8 +74,16 @@ end once per position, and each case's body by a forward search, as the example'
 RWD-2026-0207, with its own code (runward-run shares none with another package): 1,000,000 characters of
 each shape in 0.12 s or less. The same answers as the former reader on 40,000 generated reports and on the
 JUnit reports this repository commits, and the laboratory's run Statements, run through runward-run with the
-former reader and with this one, keep every byte. runward-run was never released, so no published version
-is affected.
+former reader and with this one, keep every byte. The mutation leg's reader (`caseOutcomes`) had kept the
+former shape: it now reads with the same code, 1.5 s to 2.5 s at 100,000 characters before, 26 ms or less
+after. The two readers share one rule: a case's body runs to its `</testcase>`, or to where the next
+`<testcase …>` begins, whichever comes first, so a case left open no longer reads the cases after it as its
+own; a well-formed report never opens a case inside another, and both give the former readers' answers, with
+that rule, on 40,000 generated reports. The JUnit normalisers of runward-run and runward-integrations
+removed `file`, `time`, `timestamp` and `hostname` with `\s+(?:file|…)`, which read a run of blanks again
+from each of its blanks: 22 s of CPU for 100,000 blanks. The pattern now starts only where a run starts, and
+strips the same bytes on 20,000 generated reports; 1,000,000 blanks read in under 2 s, held by a test.
+Neither runward-run nor runward-integrations was ever released, so no published version is affected.
 
 The analyzers' measurement (`scripts/measure-analyzers.mjs`, ADR-0117 criterion 2) writes its cells as
 GitHub shows them. It escaped `|` in every cell and nothing else. Measured with GitHub's renderer, as the

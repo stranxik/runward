@@ -139,3 +139,32 @@ test("ADR-0122 decision 5: on a run's container paths, the recipe's normaliser a
     assert.equal(normalizeReport(nature, committed(f), { base, work }), committed(f), `runward-run leaves the example's ${f} as it is too`);
   }
 });
+
+// CodeQL raised the attribute pattern on the third integration pull request of 2026-11-06 (alert 99,
+// `js/polynomial-redos`): `\s+(?:file|time|…)` restarted from every blank of a run that no attribute name
+// follows, and read the run again each time. A JUnit report is written by the project's test runner,
+// from the code under review. Measured on 2026-11-06 as CPU time: 22 s for 100,000 blanks with the
+// former pattern; the pattern as shipped starts only where a run of blanks starts, and gives the same
+// bytes (a successful match always started there).
+test("the JUnit normalisers read a run of blanks in linear time and strip what the former pattern stripped", async () => {
+  const { normalizeReport } = await runModule("normalize.js");
+  const former = (t) => t.replace(/\s+(?:file|time|timestamp|hostname)\s*=\s*"[^"]*"/g, "").replace(/\s+(?:file|time|timestamp|hostname)\s*=\s*'[^']*'/g, "");
+  const FRAGMENTS = [" ", "\t", "\n", "  ", "file", "time", "timestamp", "hostname", "xfile", "=", " = ", "\"", "'", "\"v\"", "'v'", "<testcase", "/>", ">", "name=\"a\""];
+  let seed = 7;
+  const next = () => { seed = (seed * 1103515245 + 12345) >>> 0; return seed / 4294967296; };
+  for (let i = 0; i < 20_000; i++) {
+    let body = "";
+    for (let j = Math.floor(next() * 24); j > 0; j--) body += FRAGMENTS[Math.floor(next() * FRAGMENTS.length)];
+    const t = `<testsuites>${body}</testsuites>`;
+    assert.equal(N.normalizeJUnit(t, [W]), former(t), JSON.stringify(t));
+  }
+  const blanks = `<testsuites><testsuite name="s"${" ".repeat(1_000_000)}x="1"/></testsuites>`;
+  for (const [what, fn] of [["runward-integrations", () => N.normalizeJUnit(blanks, [W])],
+    ["runward-run", () => normalizeReport("junit", blanks, { base: "/runward-run/work/code", work: "/runward-run/work" })]]) {
+    const t0 = process.cpuUsage();
+    fn();
+    const u = process.cpuUsage(t0);
+    const ms = (u.user + u.system) / 1000;
+    assert.ok(ms < 2000, `${what}: 1,000,000 blanks read in ${ms.toFixed(0)} ms of CPU, over the 2000 ms ceiling`);
+  }
+});

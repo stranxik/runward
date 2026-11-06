@@ -73,8 +73,8 @@ export function normalizeJUnit(text, roots) {
   if (!isJUnit(t)) throw new Error("not a JUnit XML report: no <testsuites> or <testsuite> element");
   const r = relativizer(roots);
   return r.text(t
-    .replace(/\s+(?:file|time|timestamp|hostname)\s*=\s*"[^"]*"/g, "")
-    .replace(/\s+(?:file|time|timestamp|hostname)\s*=\s*'[^']*'/g, "")
+    .replace(/(?<!\s)\s+(?:file|time|timestamp|hostname)\s*=\s*"[^"]*"/g, "")
+    .replace(/(?<!\s)\s+(?:file|time|timestamp|hostname)\s*=\s*'[^']*'/g, "")
     .replace(/^[ \t]*<!--\s*duration_ms\b[^>]*-->\r?\n/gm, ""));
 }
 

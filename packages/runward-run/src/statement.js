@@ -54,10 +54,14 @@ export function buildRunStatement(run) {
 // every `<testcase` that does not close reads the rest of the file again each time: the reading this
 // replaces (`xml.replace(/<!--[\s\S]*?-->/g, "")`, then a quote-aware `<testcase …>` pattern and a search
 // for each case's body) took seconds of CPU on 100,000 characters of such shapes. It gives the same
-// answers (test/unit/run-junit-reader.test.js keeps it as the reference).
+// answers (test/unit/run-junit-reader.test.js keeps it as the reference), with one rule the two readers
+// of this package share (`junitCases` here, `caseOutcomes` in cases.js): a case's body runs to its
+// `</testcase>`, or to where the next `<testcase …>` begins, whichever comes first. A well-formed report
+// never opens a case inside another, so its answers do not move; a case left open no longer reads the
+// cases after it as its own, and the bodies, disjoint, are read once each.
 
 /** `s` without its comments, each `<!--` to the first `-->` after it, as an XML reader drops them. */
-function withoutComments(s) {
+export function withoutComments(s) {
   let out = "";
   let at = 0;
   for (;;) {
@@ -72,7 +76,7 @@ function withoutComments(s) {
 }
 
 /** The first `what` at or after a position, for positions asked in increasing order: one scan for all. */
-function forward(s, what) {
+export function forward(s, what) {
   let from = Infinity, at = -1;
   return (i) => {
     if (i >= from && (at === -1 || at >= i)) return at;
@@ -91,7 +95,7 @@ const lower = (s) => s.replace(/[A-Z]+/g, (w) => w.toLowerCase());
  * attributes end depends only on where they start, so each position is read once, for every tag that
  * reaches it.
  */
-function* testcaseTags(text) {
+export function* testcaseTags(text) {
   const low = lower(text);
   const ends = new Int32Array(text.length + 1); // 0 not read yet, -1 no end, else the end of the attributes + 1
   const attrsEnd = (from) => {
@@ -121,7 +125,7 @@ function* testcaseTags(text) {
     if (e === -1) continue;
     const self = text[e] === "/";
     const end = e + (self ? 2 : 1);
-    yield { attrs: text.slice(x + 9, e), self, end };
+    yield { start: x, attrs: text.slice(x + 9, e), self, end };
     x = end - 1;
   }
 }
@@ -139,6 +143,13 @@ function within(at, from, to, len) {
   return lo < at.length && at[lo] <= to - len;
 }
 
+/** Where a case's body ends: at its `</testcase>` (`stop`, -1 when none follows), or where the next case
+ *  begins, whichever comes first; at the end of the report when neither follows. */
+export function bodyEnd(stop, next, length) {
+  const cut = next ? next.start : length;
+  return stop === -1 ? cut : Math.min(stop, cut);
+}
+
 /** The test cases of a JUnit report, by outcome, in report order: a small reader, no dependency. */
 export function junitCases(xml) {
   const text = withoutComments(xml);
@@ -148,19 +159,18 @@ export function junitCases(xml) {
     n ? { lt: "<", gt: ">", amp: "&", quot: "\"", apos: "'" }[n.toLowerCase()] : String.fromCodePoint(d ? Number(d) : parseInt(h, 16)));
   const caseEnd = forward(text, "</testcase>");
   const found = { error: marks(low, text, "error"), failure: marks(low, text, "failure"), skipped: marks(low, text, "skipped") };
-  for (const { attrs, self, end } of testcaseTags(text)) {
+  const tags = [...testcaseTags(text)];
+  tags.forEach(({ attrs, self, end }, i) => {
     const name = /\bname\s*=\s*(?:"([^"]*)"|'([^']*)')/i.exec(attrs);
     const n = name ? decode(name[1] ?? name[2]) : "";
     let outcome = "passed";
     if (!self) {
-      // The case's body runs to the next `</testcase>`, or to the end of the report.
-      const stop = caseEnd(end);
-      const to = stop === -1 ? text.length : stop;
+      const to = bodyEnd(caseEnd(end), tags[i + 1], text.length);
       const has = (k) => within(found[k], end, to, k.length + 1);
       outcome = has("error") || has("failure") ? "failed" : has("skipped") ? "warned" : "passed";
     }
     (outcome === "passed" ? passed : outcome === "failed" ? failed : warned).push(n);
-  }
+  });
   return { passed, failed, warned };
 }
 
