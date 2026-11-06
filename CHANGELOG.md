@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Documented: running runward with no network, or inside a qualified cloud offer
+
+Documentation only. `docs/isolated-environments.md` answers "does anything leave the environment?" for
+the `runward` package on `main` (`382e2f0`, unreleased). Each command of its measurement table ran on
+2026-11-06 under `sandbox-exec` with the network denied and again with it open, on a full clone on macOS
+26.2 arm64, with the same exit codes, byte-identical output and byte-identical files; `check --strict
+--hooks` with a hook that needs the network was the one difference. It says what holds only under a
+condition (the VSA without `SOURCE_DATE_EPOCH`; `--whole-tree` and `verify`'s exit 2 on another build's
+attestation, which the published 0.46.0 does not have), what a partial clone does (RWD-2026-0202), and
+which steps reach a network, with what replaces each: installing, `npx` without a local install of the
+pinned version, a build from source, the Action, the GitLab template and the plugins fetched from
+GitHub, keyless signing, `check --hooks`, the `drand` round of `sample draw`, the online steps of release
+verification, the `gitlab` adapter of `runward-forge`. The routes measured: a tarball and an npm cache
+carried across, installed with `npm install --offline`, and Step 3 of `docs/verifying-a-release.md` on
+v0.46.0 with no `gh` login, whose trust root stays the public Sigstore instance's and GitHub's. It lists
+what was not measured, and claims no qualification for runward. `docs/compliance/README.md` links it.
+
 ### Fixed: in a partial clone, no git runward starts fetches from the remote, and a read git cannot make is unknown, never "not committed" (RWD-2026-0202)
 
 In a clone made with `git clone --filter=blob:none`, three of runward's git reads needed blobs the

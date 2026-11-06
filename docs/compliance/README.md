@@ -38,6 +38,8 @@ operator writes, citing each member's emitted artefact by digest: see
 
 For a security / procurement / TPRM review — what applies (and what is moot because runward is local and has no data flow), the supply-chain evidence (provenance, SBOM), the OSPS Baseline alignment, the licence framing, and the honest limits — see **[regulated-adoption.md](regulated-adoption.md)** ([ADR-0031](../adr/ADR-0031-sovereign-engineering-evidence-for-regulated-environments.md)).
 
+To run runward with no network, or inside a qualified cloud offer, see **[isolated-environments.md](../isolated-environments.md)**: what was measured with the network cut, which steps reach a network, and what replaces each.
+
 ## Non-negotiable guardrails (see also `docs/positioning.md`)
 
 - Say **"audit-ready supporting evidence"**, never "compliant", "certified", "ISO 42001 certified", or "EU AI Act compliant". A framework confers neither compliance nor certification.
