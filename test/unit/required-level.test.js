@@ -21,8 +21,12 @@ const CLI = join(ROOT, "dist", "cli.js");
 const env = { ...process.env, NO_COLOR: "1", RUNWARD_YES: "1", SOURCE_DATE_EPOCH: "1" };
 const run = (dir, ...a) => spawnSync("node", [CLI, ...a], { cwd: dir, encoding: "utf8", env });
 const GATED = ["architecture.md", "execution-topology.md", "floor.md", "governance/threat-model.md", "handover.md"];
-// The two applied rows the shipped example answers in prose (its own "row(s) are prose" disclosure).
-const PROSE_ROWS = new Set(["topology-usage-registry-present", "resilience-fail-open"]);
+// Two applied rows answered in prose (the shape of the field report). The shipped example answered
+// `topology-usage-registry-present` and `resilience-fail-open` in prose; since ADR-0115 it cites a JUnit
+// case for the second, and a prose row whose rule requires a kind of evidence is refused for it
+// (`requires-unmet`, a gap, exit 1). The second prose row is therefore one whose rule requires nothing.
+const PROSE_ROWS = new Set(["topology-usage-registry-present", "handover-runbook-executable"]);
+const PROSE_TEXT = { "handover-runbook-executable": "| handover-runbook-executable | applied | the team ran the runbook end to end on the staging copy |" };
 
 /** Every manifest row through `fn(slug, line)`: a replacement line, or null to keep it. */
 function rewriteRows(dir, fn) {
@@ -49,7 +53,7 @@ before(() => {
   rewriteRows(vacuous, (slug) => `| ${slug} | n/a | not applicable at this stage of the mission |`);
   // The field report's shape: the rows that remain applied are all prose.
   proseOnly = fresh(example);
-  rewriteRows(proseOnly, (slug, line) => (PROSE_ROWS.has(slug) ? line : `| ${slug} | n/a | not applicable at this stage of the mission |`));
+  rewriteRows(proseOnly, (slug, line) => (PROSE_ROWS.has(slug) ? PROSE_TEXT[slug] ?? line : `| ${slug} | n/a | not applicable at this stage of the mission |`));
 });
 after(() => rmSync(base, { recursive: true, force: true }));
 
