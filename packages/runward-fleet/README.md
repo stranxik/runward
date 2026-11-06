@@ -114,6 +114,25 @@ Not verified by this version, and shown as `not-verifiable`, never as a pass: a 
 time comes only from an RFC 3161 timestamp (GitHub's instance for private repositories, Rekor v2
 entries), and log entries of a kind other than `dsse`.
 
+## verify-run: the identity half of a runward-run Statement (ADR-0120 D4a)
+
+```sh
+runward-fleet verify-run code/reports/runward-run.sigstore.json --policy trust-policy.json \
+  --repository github.com/org/app --commit <sha> [--ref refs/heads/main] [--statement code/reports/runward-run.intoto.json] [--json]
+```
+
+runward reads a runward-run Statement at `check --strict --require attested`: it re-derives the binding
+to the tree and counts the signature, and never verifies it. `verify-run` verifies it, offline, against
+this trust policy: the bundle as above (log entry, chain, DSSE signature), then the rules of a run
+Statement. It refuses, each by name, a Statement signed from the mission's own workflow (the agent can
+write that file, whatever the policy pins), by a signer workflow the policy does not pin or pins without
+a commit, by the pinned workflow at another commit, for another repository or another commit, and a key
+signature under no key the policy pins. On GitHub the mission's commit is the certificate's; for a
+pipeline that runs in the signer's own project (the GitLab runner project) or a key, it is the signed
+Statement's `mission` claim. A key signer is `"kind": "key"` with `publicKey` (a PEM file: ECDSA P-256 or
+P-384, or Ed25519) and its `keyDigest`. Exit 0 accepted, 1 refused, 2 a question it cannot ask. The
+specification is [docs/spec/runward-run.md](https://github.com/stranxik/runward/blob/main/docs/spec/runward-run.md) §6.
+
 ## Install and run
 
 From the first release that carries it, the release holds `runward-fleet-X.Y.Z.tgz`, packed and

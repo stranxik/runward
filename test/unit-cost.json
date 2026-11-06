@@ -122,6 +122,11 @@
       "passed": true
     },
     {
+      "file": "test/unit/run-signature.test.js",
+      "seconds": 0.69,
+      "passed": true
+    },
+    {
       "file": "test/unit/junit-reference-environment.test.js",
       "seconds": 0.18,
       "passed": true

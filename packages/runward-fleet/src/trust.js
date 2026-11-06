@@ -18,7 +18,7 @@
 import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { readTrustedRoot, verifyBundle } from "./sigstore.js";
-import { MANIFEST_FORMATS, readEd25519Key, readSignedManifest } from "./ed25519.js";
+import { MANIFEST_FORMATS, readEd25519Key, readSignedManifest, readSigningKey } from "./ed25519.js";
 import { BuildError } from "./errors.js";
 
 export const POLICY_FORMAT = "runward-fleet-trust-policy/0";
@@ -95,8 +95,25 @@ export function readPolicy(doc, read) {
       entry.keyDigest = k.digest;
       if (typeof s.manifestFormat !== "string") fail(`${where}: an ed25519 signer names the manifestFormat it signs`);
       entry.manifestFormat = s.manifestFormat;
+    } else if (s.kind === "key") {
+      // ADR-0120 decision 5, on an instance with no keyless signing (an offline GitLab): the operator's
+      // own key signs the run Statement of runward-run into a DSSE envelope (cosign's ECDSA P-256 keys,
+      // or Ed25519). It names its holder, not the workflow: the policy pins the key, the repositories it
+      // may sign for and the protected ref, and runward-fleet verify-run reads the commit from the signed
+      // Statement, which the key vouches for.
+      if (typeof s.publicKey !== "string" || s.publicKey.startsWith("/") || /^[A-Za-z]:[\\/]/.test(s.publicKey)) fail(`${where}: a key signer names its publicKey, a PEM file relative to the policy`);
+      const buf = read(s.publicKey);
+      if (!buf) fail(`${where}: public key ${s.publicKey} is declared and absent`);
+      let k;
+      try { k = readSigningKey(buf.toString("utf8")); } catch (e) { fail(`${where}: ${e.message}`); }
+      if (typeof s.keyDigest !== "string") fail(`${where}: keyDigest pins the key (sha256 of its SPKI), and is required`);
+      if (s.keyDigest !== k.digest) fail(`${where}: keyDigest ${s.keyDigest} is not the digest of the key it names (${k.digest})`);
+      entry.publicKey = s.publicKey;
+      entry.key = k.key;
+      entry.keyDigest = k.digest;
+      entry.algorithm = k.algorithm;
     } else {
-      fail(`${where}: kind must be "sigstore" or "ed25519"`);
+      fail(`${where}: kind must be "sigstore", "ed25519" or "key"`);
     }
     entry.pinned = entry.unpinned.length === 0;
     return entry;
@@ -111,7 +128,8 @@ export function describePolicy(policy) {
     signers: policy.signers.map((s) => ({
       id: s.id, kind: s.kind, repositories: s.repositories, ref: s.ref, pinned: s.pinned, unpinned: s.unpinned,
       ...(s.kind === "sigstore" ? { issuer: s.issuer, workflow: s.workflow, workflowDigests: s.workflowDigests, runnerEnvironment: s.runnerEnvironment ?? null }
-        : { publicKey: s.publicKey, keyDigest: s.keyDigest, manifestFormat: s.manifestFormat }),
+        : s.kind === "key" ? { publicKey: s.publicKey, keyDigest: s.keyDigest, algorithm: s.algorithm }
+          : { publicKey: s.publicKey, keyDigest: s.keyDigest, manifestFormat: s.manifestFormat }),
     })),
   };
 }
