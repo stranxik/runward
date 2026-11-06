@@ -32,6 +32,21 @@ add. Measured on this tree, `check --strict --require re-derived` on it exits 5:
 re-derived, 1 declared, its usage registry row, which still cites its own manifest. Its lock and its copy
 of the rule carry the rule's new text.
 
+### Fixed: what CodeQL raised on the second integration train, runward-run's JUnit reader and the measurement's cells
+
+runward-run reads a JUnit report in linear time. Its reader (`junitCases`, which writes the test-result
+Statement) dropped comments with `xml.replace(/<!--[\s\S]*?-->/g, "")`, then read each `<testcase …>` with
+a quote-aware lazy pattern and searched each case's body: each restarts from every opener that does not
+close, and the report is written by the project's own test runner. Measured as CPU time at 100,000
+characters: 1.3 s for a run of `<!--`, 1.9 s for the tag pattern's attack string, 2.0 s for a quote never
+closed, 0.8 s for cases that never close. It now reads the comments in one pass, where each tag's attributes
+end once per position, and each case's body by a forward search, as the example's `reports.mjs` does since
+RWD-2026-0207, with its own code (runward-run shares none with another package): 1,000,000 characters of
+each shape in 0.12 s or less. The same answers as the former reader on 40,000 generated reports and on the
+JUnit reports this repository commits, and the laboratory's run Statements, run through runward-run with the
+former reader and with this one, keep every byte. runward-run was never released, so no published version
+is affected.
+
 ### The analyzers' classification at the second train's head: zero false reds (ADR-0117 criterion 2)
 
 `docs/compliance/analyzers-on-real-repositories.md` publishes the measurement of `51675dc` on express,

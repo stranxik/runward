@@ -49,21 +49,115 @@ export function buildRunStatement(run) {
   };
 }
 
+// The JUnit reader reads a report in one pass, whatever it holds. The report is written by the project's
+// own test runner, from code under review, and a regular expression that restarts from every `<!--` or
+// every `<testcase` that does not close reads the rest of the file again each time: the reading this
+// replaces (`xml.replace(/<!--[\s\S]*?-->/g, "")`, then a quote-aware `<testcase …>` pattern and a search
+// for each case's body) took seconds of CPU on 100,000 characters of such shapes. It gives the same
+// answers (test/unit/run-junit-reader.test.js keeps it as the reference).
+
+/** `s` without its comments, each `<!--` to the first `-->` after it, as an XML reader drops them. */
+function withoutComments(s) {
+  let out = "";
+  let at = 0;
+  for (;;) {
+    const i = s.indexOf("<!--", at);
+    if (i === -1) break;
+    const j = s.indexOf("-->", i + 4);
+    if (j === -1) break;
+    out += s.slice(at, i);
+    at = j + 3;
+  }
+  return out + s.slice(at);
+}
+
+/** The first `what` at or after a position, for positions asked in increasing order: one scan for all. */
+function forward(s, what) {
+  let from = Infinity, at = -1;
+  return (i) => {
+    if (i >= from && (at === -1 || at >= i)) return at;
+    from = i;
+    at = s.indexOf(what, i);
+    return at;
+  };
+}
+
+const isWord = (c) => c !== undefined && /\w/.test(c);
+const lower = (s) => s.replace(/[A-Z]+/g, (w) => w.toLowerCase());
+
+/**
+ * Each `<testcase …>` of `text`, in order, with its attributes and whether it closes itself: a tag ends
+ * at its first `>` outside a quoted value, and a quote that never closes ends no tag. Where a tag's
+ * attributes end depends only on where they start, so each position is read once, for every tag that
+ * reaches it.
+ */
+function* testcaseTags(text) {
+  const low = lower(text);
+  const ends = new Int32Array(text.length + 1); // 0 not read yet, -1 no end, else the end of the attributes + 1
+  const attrsEnd = (from) => {
+    const seen = [];
+    let y = from;
+    let r;
+    for (;;) {
+      if (ends[y] !== 0) { r = ends[y]; break; }
+      seen.push(y);
+      const c = text[y];
+      if (c === undefined) { r = -1; break; }
+      if (c === ">" || (c === "/" && text[y + 1] === ">")) { r = y + 1; break; }
+      if (c === '"' || c === "'") {
+        const q = text.indexOf(c, y + 1);
+        if (q === -1) { r = -1; break; }
+        y = q + 1;
+        continue;
+      }
+      y++;
+    }
+    for (const p of seen) ends[p] = r;
+    return r === -1 ? -1 : r - 1;
+  };
+  for (let x = low.indexOf("<testcase"); x !== -1; x = low.indexOf("<testcase", x + 1)) {
+    if (isWord(text[x + 9])) continue;
+    const e = attrsEnd(x + 9);
+    if (e === -1) continue;
+    const self = text[e] === "/";
+    const end = e + (self ? 2 : 1);
+    yield { attrs: text.slice(x + 9, e), self, end };
+    x = end - 1;
+  }
+}
+
+/** The positions of `<name` (any case, then no word character) in `text`, in order. */
+function marks(low, text, name) {
+  const at = [];
+  for (let i = low.indexOf(`<${name}`); i !== -1; i = low.indexOf(`<${name}`, i + 1)) if (!isWord(text[i + name.length + 1])) at.push(i);
+  return at;
+}
+/** Whether one of the sorted `at` lies in [from, to - len]. */
+function within(at, from, to, len) {
+  let lo = 0, hi = at.length;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (at[mid] < from) lo = mid + 1; else hi = mid; }
+  return lo < at.length && at[lo] <= to - len;
+}
+
 /** The test cases of a JUnit report, by outcome, in report order: a small reader, no dependency. */
 export function junitCases(xml) {
-  const text = xml.replace(/<!--[\s\S]*?-->/g, "");
+  const text = withoutComments(xml);
+  const low = lower(text);
   const passed = [], failed = [], warned = [];
-  const tag = /<testcase\b((?:[^>"']|"[^"]*"|'[^']*')*?)(\/?)>/gi;
   const decode = (s) => s.replace(/&(?:#(\d+)|#x([0-9a-f]+)|(lt|gt|amp|quot|apos));/gi, (_, d, h, n) =>
     n ? { lt: "<", gt: ">", amp: "&", quot: "\"", apos: "'" }[n.toLowerCase()] : String.fromCodePoint(d ? Number(d) : parseInt(h, 16)));
-  for (let m = tag.exec(text); m; m = tag.exec(text)) {
-    const name = /\bname\s*=\s*(?:"([^"]*)"|'([^']*)')/i.exec(m[1]);
+  const caseEnd = forward(text, "</testcase>");
+  const found = { error: marks(low, text, "error"), failure: marks(low, text, "failure"), skipped: marks(low, text, "skipped") };
+  for (const { attrs, self, end } of testcaseTags(text)) {
+    const name = /\bname\s*=\s*(?:"([^"]*)"|'([^']*)')/i.exec(attrs);
     const n = name ? decode(name[1] ?? name[2]) : "";
     let outcome = "passed";
-    if (m[2] !== "/") {
-      const end = text.indexOf("</testcase>", tag.lastIndex);
-      const body = text.slice(tag.lastIndex, end === -1 ? undefined : end);
-      outcome = /<(?:error|failure)\b/i.test(body) ? "failed" : /<skipped\b/i.test(body) ? "warned" : "passed";
+    if (!self) {
+      // The case's body runs to the next `</testcase>`, or to the end of the report.
+      const stop = caseEnd(end);
+      const to = stop === -1 ? text.length : stop;
+      const has = (k) => within(found[k], end, to, k.length + 1);
+      outcome = has("error") || has("failure") ? "failed" : has("skipped") ? "warned" : "passed";
     }
     (outcome === "passed" ? passed : outcome === "failed" ? failed : warned).push(n);
   }
