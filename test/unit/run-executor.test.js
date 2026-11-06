@@ -154,7 +154,7 @@ test("the policy in the tree, an output inside it, a check output of another tre
 
 test("a red leg is a fact: the reports and the Statement are written, the exit code is 1, the Statement records it", { skip }, () => {
   const pol = labPolicy();
-  pol.legs[0].command = ["node", "-e", `const fs=require("fs");fs.mkdirSync(process.argv[1],{recursive:true});fs.copyFileSync("reports/junit.xml",process.argv[1]+"/junit.xml");process.exit(1)`, "${out}/code/reports"];
+  pol.legs[0].command = ["node", "-e", `const fs=require("fs");fs.copyFileSync("reports/junit.xml",process.argv[1]+"/junit.xml");process.exit(1)`, "${out}/code/reports"];
   const r = runLab(fresh(), lab, { policy: pol });
   assert.equal(r.status, 1, r.stderr);
   const st = JSON.parse(readFileSync(join(r.out, "code", "reports", "runward-run.intoto.json"), "utf8"));

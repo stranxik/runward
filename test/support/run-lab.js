@@ -33,8 +33,10 @@ export function makeLab(dir) {
   return dir;
 }
 
+// The legs write into the report directory and do not create it, as Node.js's test reporter does not:
+// runward-run creates the directory of every report the policy declares before any leg runs.
 const copyLeg = (files) => ["node", "-e",
-  `const fs=require("fs");fs.mkdirSync(process.argv[1],{recursive:true});for(const f of ${JSON.stringify(files)})fs.copyFileSync("reports/"+f,process.argv[1]+"/"+f)`,
+  `const fs=require("fs");for(const f of ${JSON.stringify(files)})fs.copyFileSync("reports/"+f,process.argv[1]+"/"+f)`,
   "${out}/code/reports"];
 
 /** The run policy of the laboratory, with what a test changes in it. */

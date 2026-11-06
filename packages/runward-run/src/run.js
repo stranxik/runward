@@ -138,6 +138,10 @@ export function runPolicy({ policyPath, tree, checkPath, out, runtimeBin = "dock
     //    `node_modules` too (dependencies come from the lockfile, installed below, or not at all).
     cpSync(treeAbs, work, { recursive: true, filter: (src) => { const parts = relative(treeAbs, src).split(sep); return !parts.includes(".git") && !parts.includes("node_modules"); } });
     mkdirSync(stage, { recursive: true });
+    // The directory of each report the policy declares exists before the legs run: a reporter that
+    // writes to a path (Node.js's `--test-reporter-destination`) does not create its directory, and
+    // measured on a real runtime the tests leg then wrote nothing at all.
+    for (const leg of policy.legs) for (const rep of leg.reports) mkdirSync(dirname(join(stage, ...rep.path.split("/"))), { recursive: true });
     let install = null;
     if (policy.install) {
       const i = policy.install;
