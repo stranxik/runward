@@ -110,6 +110,10 @@ interface SummaryPayload {
   gateNonScope?: unknown;
   /** ADR-0118: present only when the mission pins an analysis policy. */
   analysis?: { policy: string; findings: unknown[]; hypotheses: unknown[]; notAnalyzed: unknown[] };
+  /** ADR-0119 decision 6: present only when the run required `re-derived` or `attested`. */
+  levels?: { required: string; source: string; met: boolean; fallback?: string; sentence: string;
+    counts: Record<string, number>; rows: Record<string, Array<{ deliverable: string; rule: string }>>;
+    below: Array<{ deliverable: string; rule: string; level: string; holds: string[] }> };
   delegation?: { file: string; banner: string[]; stage: number | null; accountable: string | null; delegates: string[];
     assurance?: Assurance; sample?: { present: boolean; banner: string[] } };
   next?: { text: string; command: string };
@@ -203,6 +207,14 @@ export function renderSummaryMarkdown(payload: Record<string, unknown>, meta: Su
     rows.push(["Assurance mode in force", "none", "no delegation charter: not-observed"]);
   }
   if (p.regulated) rows.push(["Forge approval", "not verified", "this command has no forge to ask (ADR-0080 part 2)"]);
+  // ADR-0119 decision 6: the level of proof, only when the run required an upper level (every other
+  // summary keeps its bytes). No level is summed into a score.
+  const lv = p.levels;
+  if (lv) {
+    const asked = lv.source === "flag" ? "asked by name" : lv.source === "lock" ? "asked by the mission's lock" : "the default";
+    rows.push(["Level of proof", `${mdCode(p.require?.level ?? lv.required)} required (${asked}), ${lv.met ? "met" : "not met"}`,
+      `computed by the gate: ${lv.counts.attested ?? 0} attested, ${lv.counts["re-derived"] ?? 0} re-derived, ${lv.counts.declared ?? 0} declared applied row(s); ${mdProse(lv.sentence)}`]);
+  }
   rows.push(["Attestation subject", mdCode(digest), "unsigned: runward never signs and never verifies a signature"]);
   L.push(...table(["What", "Reading", "Standing"], rows, false));
   L.push("");
@@ -251,6 +263,20 @@ export function renderSummaryMarkdown(payload: Record<string, unknown>, meta: Su
     L.push("");
     L.push(...table(["Scope", "Rule", "Problem"], conf.slice(0, SUMMARY_TABLE_ROWS).map((c) => [mdProse(c.scope), mdCode(c.rule), mdProse(c.problem, 400)]),
       conf.length > SUMMARY_TABLE_ROWS));
+    L.push("");
+  }
+
+  // ── Level of proof (ADR-0119 decision 6): each applied row at its level ──────
+  if (lv) {
+    L.push("### Level of proof");
+    L.push("");
+    if (lv.fallback) { L.push(`${mdProse(lv.fallback)} (runward ADR-0119).`); L.push(""); }
+    const all = (["attested", "re-derived", "declared"] as const).flatMap((k) => (lv.rows[k] ?? []).map((r) => ({ ...r, level: k })));
+    L.push(...table(["Deliverable", "Rule", "Level", "What holds it below the level required"],
+      all.slice(0, SUMMARY_TABLE_ROWS).map((r) => {
+        const b = lv.below.find((x) => x.deliverable === r.deliverable && x.rule === r.rule);
+        return [mdCode(r.deliverable), mdCode(r.rule), mdCode(r.level), b ? mdProse(b.holds.join("; "), 400) : ""];
+      }), all.length > SUMMARY_TABLE_ROWS));
     L.push("");
   }
 

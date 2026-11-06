@@ -48,6 +48,57 @@ export const REQUIRED_LEVELS: readonly RequiredLevel[] = ["traced", "mechanical"
 export type ProofLevel = "re-derived" | "attested" | "declared";
 export type ExecutionNature = "junit" | "sarif" | "eslint" | "coverage" | "sbom" | "loadtest";
 
+/**
+ * ADR-0119 decision 4: the level the mission's lock asks for (`"requiredLevel"` in
+ * runward/scaffold-lock.json), a lock opt-in like `structureContract`. `null` when the lock holds none;
+ * `{ invalid }` when it holds a value that is not a level, which `check` refuses as a misuse (exit 2)
+ * rather than guess a weaker one.
+ */
+export function lockRequiredLevel(missionDir: string): { level: RequiredLevel } | { invalid: unknown } | null {
+  let j: unknown;
+  try { j = JSON.parse(readFileSync(join(missionDir, "scaffold-lock.json"), "utf8")); } catch { return null; }
+  if (!j || typeof j !== "object" || !("requiredLevel" in (j as Record<string, unknown>))) return null;
+  const v = (j as Record<string, unknown>).requiredLevel;
+  return typeof v === "string" && (REQUIRED_LEVELS as readonly string[]).includes(v) ? { level: v as RequiredLevel } : { invalid: v };
+}
+
+/**
+ * ADR-0119 decision 4: the level `runward init` writes into a new mission's lock. It becomes
+ * `re-derived` in the first release that both ships ADR-0118's analyzers and meets ADR-0117's
+ * criterion 2: the false reds of the analyzers measured on three real repositories runward did not
+ * write, classified by a reviewer who did not write them, and zero left after the fixes. Until that
+ * classification is published, a new mission is born asking for no level, as every mission before it,
+ * and asks for one by adding the line to its lock. Existing missions never move: `update` preserves
+ * what the lock says and never writes the line on its own.
+ */
+export const NEW_MISSION_REQUIRED_LEVEL: RequiredLevel | null = null;
+
+/** ADR-0119 decision 4, at the character: a `re-derived` the lock asks for, on a territory holding a
+ *  language the analyzers do not read. For an `attested` the lock asks for, only the static half falls,
+ *  and the line says which half. */
+export function languageFallbackLine(languages: readonly string[], required: RequiredLevel = "re-derived"): string {
+  const line = `re-derived: not reachable, ${languages.join(", ")} ${languages.length === 1 ? "is" : "are"} not analysed; this run requires mechanical`;
+  return required === "attested" ? `${line} for its static half, and attested for its execution` : line;
+}
+
+/**
+ * ADR-0119 decisions 4 and 6: the level a run that read the levels meets, never overstated. The level it
+ * requires when it meets it, except under the language fallback, where the static half is `mechanical`
+ * and the ladder (each level includes the one below it) puts the run at `mechanical`. `null` when the
+ * run did not read the levels or does not meet them.
+ */
+export function levelMetOf(l: Pick<LevelsReading, "met" | "required" | "fallback"> | null): RequiredLevel | null {
+  if (!l || !l.met) return null;
+  return l.fallback ? "mechanical" : l.required;
+}
+
+/** ADR-0119 decision 4: the level a run that read the levels requires, as `require.level` spells it:
+ *  `mechanical` when a `re-derived` the lock asks for falls back; an `attested` keeps its name, since
+ *  only its static half falls. */
+export function levelRequiredOf(l: Pick<LevelsReading, "required" | "fallback">): RequiredLevel {
+  return l.fallback && l.required === "re-derived" ? "mechanical" : l.required;
+}
+
 /** ADR-0119 decision 5, at the character: printed wherever `attested` is read. */
 export const ATTESTED_SENTENCE = "attested: the binding is re-derived by this command; the signature is verified outside it";
 
@@ -337,7 +388,10 @@ export interface RowProof {
 export interface LevelsReading {
   /** The level the run requires, where it was asked, and whether the verdict meets it. */
   required: RequiredLevel;
-  source: "flag" | "default";
+  source: "flag" | "lock" | "default";
+  /** ADR-0119 decision 4: set when the lock asked for an upper level on a territory holding a language the
+   *  analyzers do not read, so the static half falls to `mechanical`, said at the character. */
+  fallback?: string;
   met: boolean;
   sentence: string;
   signatureVerified: false;
@@ -357,7 +411,7 @@ export interface LevelsReading {
 
 export interface LevelsContext {
   required: RequiredLevel;
-  source: "flag" | "default";
+  source: "flag" | "lock" | "default";
   /** `mechanical` met: at least one applied row carries a pointer the gate verified (ADR-0114). */
   mechanical: boolean;
   /** Rows the evidence breakdown reads as prose: no pointer the gate could open. */
@@ -501,15 +555,23 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
   const territory = { analysed: territoryWhy === null, files: a?.files.analysed ?? 0, languagesNotAnalysed: languages, why: territoryWhy };
 
   const statements = [...statementsByDir.values()].flat().sort((x, y) => byCodeUnit(x.path, y.path)).map(({ doc: _doc, ...s }) => ({ ...s, binds: [...s.binds].sort(byCodeUnit) }));
-  const reDerived = ctx.mechanical && territory.analysed && byLevel.declared.length === 0;
-  const met = ctx.required === "re-derived" ? reDerived
-    : ctx.required === "attested" ? reDerived && below.length === 0
+  // ADR-0119 decision 4: a level the LOCK asks for applies to the languages the analyzers read. On a
+  // territory holding another one, the static half falls to `mechanical`, and every surface says so; a
+  // level asked by name (`--require`) refuses such a territory instead.
+  const fallback = ctx.source === "lock" && a !== null && a.known && a.files.analysed > 0 && languages.length > 0;
+  const staticHalf = fallback ? ctx.mechanical : ctx.mechanical && territory.analysed && byLevel.declared.length === 0;
+  // Under the fallback a declared row holds nothing (the static half asks for `mechanical`), and is still
+  // listed at its level in `rows.declared`; `below` names only what holds the run below its level.
+  const holding = !fallback ? below : ctx.required === "attested" ? below.filter((b) => b.level !== "declared") : [];
+  const met = ctx.required === "re-derived" ? staticHalf
+    : ctx.required === "attested" ? staticHalf && holding.length === 0
       : true;
   const anyMutation = statements.some((s) => s.bound && s.mutation);
   return {
     required: ctx.required, source: ctx.source, met,
+    ...(fallback ? { fallback: languageFallbackLine(languages, ctx.required) } : {}),
     sentence: ATTESTED_SENTENCE, signatureVerified: false,
-    rows: byLevel, territory, below,
+    rows: byLevel, territory, below: holding,
     execution: {
       statements, expected,
       mutation: anyMutation
@@ -523,6 +585,7 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
 export function levelsPayload(l: LevelsReading): Record<string, unknown> {
   return {
     required: l.required, source: l.source, met: l.met,
+    ...(l.fallback ? { fallback: l.fallback } : {}),
     sentence: l.sentence, signatureVerified: l.signatureVerified,
     counts: { "re-derived": l.rows["re-derived"].length, attested: l.rows.attested.length, declared: l.rows.declared.length },
     rows: l.rows,

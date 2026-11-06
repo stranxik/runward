@@ -30,9 +30,8 @@ when the run requires one of the two levels: every other payload keeps its bytes
 GitHub (a reusable workflow: the executing job holds no id-token and no secret, the signing job runs no
 project code) and GitLab (the pipeline of a project the agent cannot write), at parity, with the shipped
 example's run policy. Not delivered yet: the coverage and mutation legs of the cited lines (R2) and the
-evals leg (R3); the required level read from the mission's lock (ADR-0119 decision 4); the shipped
-example still answers one row in prose, which `re-derived` refuses until it is typed. The specification is
-`docs/spec/runward-run.md`.
+evals leg (R3); the shipped example still answers one row in prose, which `re-derived` refuses until it
+is typed. The specification is `docs/spec/runward-run.md`.
 
 ### runward-run is released with runward, as a verified release asset (ADR-0120 decision 1, ADR-0116)
 
@@ -43,6 +42,33 @@ workflow packs it again, refuses a byte of difference, and attaches `runward-run
 asset, read back by digest with the others. It stays private on npm until the bootstrap `runward-forge`
 waits on (RWD-2026-0195), so no job publishes it. `docs/verifying-a-release.md` Step 9 verifies it with
 `gh attestation verify`, pinned to the tag, and the release runbook checks ten assets.
+
+### The level of proof a mission asks for, read from its lock and carried by every surface (ADR-0119 decisions 4 and 6)
+
+Under `--strict`, a full verdict now reads `"requiredLevel"` in `runward/scaffold-lock.json` when
+`--require` names no level: a lock opt-in like `structureContract`, so setting it is the maintainer's act
+(class R, ADR-0088). The flag beats it, a `--through` prefix never reads it, and a value that is not a
+level is a misuse, exit 2, refused before the gate runs. `runward update` carries the line through as
+written and never writes one on its own (a refresh that dropped a lock opt-in is RWD-2026-0106). A
+`re-derived` the lock asks for, on a territory holding a language the analyzers do not read, requires
+`mechanical` instead and says so at the character, « re-derived: not reachable, Python is not analysed;
+this run requires mechanical », in `levels.fallback` and on every surface; asked by name, `--require
+re-derived` refuses that territory. Every strict run prints the level the tree meets and what the next
+level would refuse (« level of proof this tree meets: mechanical; the next level, re-derived, would
+refuse 1 row(s) that rest on a declaration »), for the terminal only. When the run reads the levels, the
+SARIF log carries them in its run's property bag, the witness in a `levels` member with the family
+`levels` under `notWitnessed` (`docs/spec/witness.md` 7.8), the delivery report and the job summary in a
+table naming each applied row's level, and the VSA in one more `verifiedLevels` value naming the level
+met, never overstated: `RUNWARD_PROOF_RE_DERIVED`, `RUNWARD_PROOF_ATTESTED`, or `RUNWARD_PROOF_MECHANICAL`
+when the lock's level fell back. A run that reads no level keeps every byte of its payload, log, witness,
+report and VSA. `runward status` names the level the lock asks for; the session gate (`gate-hook`) asks
+for none, since its question is gaps and an `attested` level needs a run the session cannot make.
+
+Not changed: `runward init` writes no `"requiredLevel"` yet. ADR-0119 moves the default of new missions to
+`re-derived` in the first release that meets ADR-0117's criterion 2, the false reds of the analyzers
+measured on three real repositories and none left, and that classification is not published; the switch
+is one constant, `NEW_MISSION_REQUIRED_LEVEL`. runward's own mission asks for no level either: it pins no
+analysis policy, and re-derived would refuse 1 of its rows, which rests on a declaration.
 
 ### runward-fleet verify-run: the signature on a run Statement, verified offline against the trust policy (ADR-0120 D4a)
 

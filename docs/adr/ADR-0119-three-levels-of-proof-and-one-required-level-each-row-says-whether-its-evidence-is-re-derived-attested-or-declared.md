@@ -305,6 +305,50 @@ cites its own manifest), which `re-derived` refuses: the laboratory of ADR-0120'
 example does not yet. The mutation fact of decision 2 waits for ADR-0120's R2: until then every surface
 says that no run Statement bound here carries a mutation leg.
 
+## Note, 2026-11-06 (later): the lock, the fallback and the surfaces of decisions 4 and 6
+
+Delivered on a second branch, each piece pinned by `test/unit/levels-lock.test.js`:
+
+- **The lock** (decision 4). A full strict verdict reads `"requiredLevel"` in `runward/scaffold-lock.json`
+  when `--require` names none (`lockRequiredLevel`, `requiredLevel(opts, lock)` in `src/lib/verdict.ts`);
+  a `--through` prefix never reads it; a value that is not a level is refused before the gate runs, exit
+  2 (ADR-0083), the flag included, so a typo never reads as a weaker level. `levels.source` is `lock`.
+  `update` carries the line through as written, a refused value included, and writes none on its own:
+  the writer rebuilds the lock, and RWD-2026-0106 is what happened when a lock opt-in was not one of its
+  parameters.
+- **The fallback** (decision 4). A `re-derived` the lock asks for, on a territory holding a language the
+  analyzers do not read, requires `mechanical` (`require.level`), says so at the character in
+  `levels.fallback` and on every surface, and `levels.below` then names only what holds the run, a
+  declared row staying listed under `rows.declared`. For an `attested` the lock asks for, the static half
+  falls and the name is kept; the sentence adds « for its static half, and attested for its execution ».
+  Asked by name, `--require re-derived` still refuses the territory. Measured on `init --example` with
+  `code/tools/convert.py` added: exit 0 under the lock, `require: { level: "mechanical", met: true }`,
+  exit 5 under the flag.
+- **Every strict run prints the level the tree meets** and what the next level would refuse, read at
+  `attested` for the terminal only, so the payload, the renderings and the exit code of a run that asks
+  for no upper level keep their bytes. On `init --example`: « level of proof this tree meets: mechanical;
+  the next level, re-derived, would refuse 1 row(s) that rest on a declaration ». On runward's own mission:
+  mechanical; re-derived would refuse 1 row that rests on a declaration, and the mission pins no analysis
+  policy.
+- **The surfaces** (decision 6), each only when the run reads the levels: the SARIF run's property bag
+  (`levels`, each applied row named under its level), the witness (a `levels` member, and the family
+  `levels` under `notWitnessed` in that witness alone, `docs/spec/witness.md` 7.8), the delivery report and
+  the job summary (a table of each applied row at its level, and what holds it below), and the VSA (one
+  more `verifiedLevels` value naming the level met, never overstated: `RUNWARD_PROOF_RE_DERIVED`,
+  `RUNWARD_PROOF_ATTESTED`, or `RUNWARD_PROOF_MECHANICAL` under the fallback, by the ladder of decision 2).
+  The attestation predicate already carried the level through `require` and `levels`. `status` names the
+  level the lock asks for. `gate-hook` names `mechanical`: the session gate's question is gaps (ADR-0065),
+  and an `attested` level needs a run the session cannot make (ADR-0120).
+
+Not delivered, and why. **`init` still writes no level**: this decision moves the default of new missions
+in the first release that meets ADR-0117's criterion 2, and no classification of false reds on three real
+repositories is published. The switch is one constant, `NEW_MISSION_REQUIRED_LEVEL` in
+`src/lib/evidence-levels.ts`, read by `init`; the release that flips it also types the shipped example's
+prose row (`topology-usage-registry-present`), takes `re-derived` on runward's own mission or says why not
+in its CHANGELOG entry (the mission pins no analysis policy today, and its lock is a pre-merge path), and
+regenerates the goldens that row reaches. The text output names each row below the level and counts the
+others, listed in `--json`; it does not print every row's level.
+
 ## References
 
 - [ADR-0046](ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md),

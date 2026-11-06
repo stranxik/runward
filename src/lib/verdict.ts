@@ -37,7 +37,7 @@ import { corpusDivergence } from "./scaffold-lock.js";
 import { ruleSetDir, readRuleSet } from "./rules.js";
 import { TEMPLATES } from "./paths.js";
 import { analyzeDelivery, type AnalysisReading } from "./analyze.js";
-import { REQUIRED_LEVELS, levelsReading, type LevelsReading, type RequiredLevel } from "./evidence-levels.js";
+import { REQUIRED_LEVELS, levelRequiredOf, levelsReading, lockRequiredLevel, type LevelsReading, type RequiredLevel } from "./evidence-levels.js";
 
 export interface DeliverableRow {
   phase: string;
@@ -166,10 +166,23 @@ export { REQUIRED_LEVELS, type RequiredLevel };
  *  code for "no tests were collected": neither 1, which says gaps, nor 0, which says verified. */
 export const LEVEL_NOT_MET_EXIT = 5;
 
-/** The level a run requires: the one it names, else `mechanical` for a full strict verdict and
- *  `traced` for a prefix one (ADR-0053: a horizon certifies progress, never a crossing). */
-export function requiredLevel(opts: Pick<VerdictOptions, "require" | "through">): RequiredLevel {
-  return opts.require ?? (opts.through != null ? "traced" : "mechanical");
+/** The level a run requires: the one it names, else `traced` for a prefix verdict (ADR-0053: a horizon
+ *  speaks for progress, never a crossing), else the one the mission's lock asks for (ADR-0119 decision
+ *  4: never for a prefix), else `mechanical`, the default of a full strict verdict. */
+export function requiredLevel(opts: Pick<VerdictOptions, "require" | "through">, lock: RequiredLevel | null = null): RequiredLevel {
+  return opts.require ?? (opts.through != null ? "traced" : lock ?? "mechanical");
+}
+
+/** Where the level of a run comes from (ADR-0119 decision 4, ADR-0119 decision 6's `levels.source`). */
+export function requiredLevelSource(opts: Pick<VerdictOptions, "require" | "through">, lock: RequiredLevel | null = null): "flag" | "lock" | "default" {
+  return opts.require !== undefined ? "flag" : opts.through == null && lock !== null ? "lock" : "default";
+}
+
+/** The level the mission's lock asks for, when it asks for one that is a level; an invalid value is
+ *  `check`'s to refuse before any verdict (exit 2), never read here as a weaker one. */
+export function lockLevelOf(missionDir: string): RequiredLevel | null {
+  const r = lockRequiredLevel(missionDir);
+  return r && "level" in r ? r.level : null;
 }
 
 /** Does a breakdown meet the level? `mechanical` asks for one applied row the gate verified, and every
@@ -275,6 +288,12 @@ const GATED_TO_PRESENCE: Record<string, string> = {
 };
 function gatedOrdinal(gatedPhase: string): number {
   return THROUGH_PHASE_IDS.indexOf(GATED_TO_PRESENCE[gatedPhase] ?? gatedPhase);
+}
+
+/** ADR-0053: the fold every strict reading applies under a declared horizon, for a reading made
+ *  outside `computeVerdict` (the level printed on every strict run, ADR-0119). */
+export function withinHorizon(throughIndex: number | null): ((gatedPhase: string) => boolean) | undefined {
+  return throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex;
 }
 
 /**
@@ -618,17 +637,22 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   // ADR-0119: `re-derived` and `attested` read each applied row at its level of proof, and the run
   // Statements beside the reports the rows cite (ADR-0120 decision 6). Only when the run requires one of
   // them: every other verdict reads the same files it read before.
-  const level = requiredLevel(opts);
+  const lock = opts.strict ? lockLevelOf(mission) : null;
+  const level = requiredLevel(opts, lock);
   const levels: LevelsReading | null = opts.strict && (level === "re-derived" || level === "attested")
     ? levelsReading(mission, {
-        required: level, source: opts.require !== undefined ? "flag" : "default",
+        required: level, source: requiredLevelSource(opts, lock),
         mechanical: breakdown.typed > 0, proseRows: breakdown.proseRows, analysis,
         inHorizon: throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex,
       })
     : null;
+  // ADR-0119 decision 4: a `re-derived` the lock asks for, on a territory in a language the analyzers do
+  // not read, requires `mechanical` instead, and says so (`levels.fallback`); the level met is never
+  // overstated. An `attested` the lock asks for keeps its name; only its static half falls.
+  const effective: RequiredLevel = levels ? levelRequiredOf(levels) : level;
   // ADR-0114: the level is read from the count the run prints (`evidence.typed`), never a second one.
   const require: Verdict["require"] = opts.strict
-    ? { level, met: levelMet(level, breakdown, levels) }
+    ? { level: effective, met: effective === "mechanical" ? levelMet("mechanical", breakdown) : levelMet(level, breakdown, levels) }
     : null;
   const { exitCode } = verdictOutcome(clean, require);
 

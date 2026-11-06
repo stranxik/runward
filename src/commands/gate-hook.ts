@@ -61,7 +61,10 @@ export async function gateHookCommand(opts: { harness?: string; path?: string })
 
   const guards = parseHookPayload(await readStdin());
   const mission = join(root, "runward");
-  const verdict = computeVerdict(mission, { strict: true, hookFailed: 0 });
+  // The session gate asks for gaps (ADR-0065), never for a level of proof: a level the lock asks for is
+  // the CI's question (ADR-0119 decision 4), and `attested` needs a run the session cannot make
+  // (ADR-0120). `mechanical` is named so the lock's level is not read here, where it would decide nothing.
+  const verdict = computeVerdict(mission, { strict: true, hookFailed: 0, require: "mechanical" });
   if (verdictFrom(verdict.gaps, verdict.strictGaps, 0).clean) return;
 
   if (guards.alreadyBlocked || (guards.loopCount !== null && guards.loopCount >= LOOP_CEILING)) {
