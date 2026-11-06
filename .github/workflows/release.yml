@@ -3,19 +3,19 @@ name: Release (npm publish with provenance)
 # Publishes runward, and the second package of this repository, runward-forge (ADR-0094, same
 # version, same tag), to npm with a signed SLSA provenance attestation, in the two phases ADR-0085
 # decides: the workflow PREPARES a draft release, the maintainer PUBLISHES it, and npm receives the
-# file the published release holds. The third package, runward-fleet (ADR-0093 D4), is a release
-# asset only: it is private, and nothing here publishes it to npm.
+# file the published release holds. The third package, runward-fleet (ADR-0093 D4), and the fourth,
+# runward-run (ADR-0120), are release assets only: each is private, and nothing here publishes it to npm.
 #
 #   Prepare (trigger: a pushed `v*` tag, or `workflow_dispatch` on a tag ref to re-run it).
-#     The isolated builder packs and attests the tarball, the runward-forge and runward-fleet
-#     tarballs and the qualification kit (ADR-0049, ADR-0087), building in one job and signing in another
+#     The isolated builder packs and attests the tarball, the runward-forge, runward-fleet and
+#     runward-run tarballs and the qualification kit (ADR-0049, ADR-0087), building in one job and signing in another
 #     (ADR-0116); an unprivileged job writes the package's SBOM; an unprivileged `verify` job tests,
-#     cross-checks the builder's three tarballs, kit and SBOM against its own packs, build and
+#     cross-checks the builder's four tarballs, kit and SBOM against its own packs, build and
 #     derivation, runs the kit against the tarball installed offline, and stages the assets; an
 #     `attest` job that runs no build step signs the SBOM against the tarball; and a `draft` job
-#     holding only `contents: write` creates the DRAFT release and attaches the nine assets: the
+#     holding only `contents: write` creates the DRAFT release and attaches the ten assets: the
 #     tarball, the kit, the three `.intoto.jsonl` bundles, the SBOM, the GitLab CI/CD template pinned
-#     to the release (ADR-0094), the runward-forge tarball and the runward-fleet tarball. Nothing is
+#     to the release (ADR-0094), the runward-forge, runward-fleet and runward-run tarballs. Nothing is
 #     published to npm here. A draft is mutable, so a failed preparation is deleted or re-run (the
 #     upload uses --clobber).
 #
@@ -281,6 +281,25 @@ jobs:
           [ "$A" = "$B" ] || { echo "::error::builder runward-fleet tarball differs from a local pack of the same commit — refusing to publish"; exit 1; }
           echo "FLEET=$BUILDER_FLEET" >> "$GITHUB_ENV"
 
+      # ADR-0120: the same cross-check for the runward-run tarball, packed by the builder at this
+      # commit, packed again here, refused if it differs by one byte or carries another version.
+      - name: Cross-check — the builder's runward-run tarball must byte-match a local pack
+        env:
+          BUILDER_RUN: ${{ needs.build.outputs.run }}
+        run: |
+          set -euo pipefail
+          test -s "$BUILDER_RUN"
+          [ "$BUILDER_RUN" = "runward-run-$VERSION.tgz" ] \
+            || { echo "::error::builder run tarball is $BUILDER_RUN, expected runward-run-$VERSION.tgz — refusing to publish"; exit 1; }
+          mkdir -p /tmp/run-local
+          LOCAL=$(cd packages/runward-run && npm pack --silent --pack-destination /tmp/run-local)
+          A=$(sha256sum "$BUILDER_RUN" | cut -d' ' -f1)
+          B=$(sha256sum "/tmp/run-local/$LOCAL" | cut -d' ' -f1)
+          echo "builder: $A"
+          echo "local:   $B"
+          [ "$A" = "$B" ] || { echo "::error::builder runward-run tarball differs from a local pack of the same commit — refusing to publish"; exit 1; }
+          echo "RUN=$BUILDER_RUN" >> "$GITHUB_ENV"
+
       # ADR-0087: the same cross-check for the qualification kit. The builder built it from the tag
       # and the tarball above; this job builds it again from the same commit and the same tarball and
       # refuses a kit that differs by one byte. The build is deterministic (sorted entries, the
@@ -352,6 +371,8 @@ jobs:
       # Step 9); it carries no SBOM attestation, having no dependency to describe.
       # ADR-0093 D4: the runward-fleet tarball, cross-checked above, is the ninth, and the only way it
       # is distributed besides the fleet Action: never published to npm (the package is private).
+      # ADR-0120: the runward-run tarball, cross-checked above, is the tenth: private on npm until the
+      # bootstrap runward-forge waits on (RWD-2026-0195), so the release asset is how it is distributed.
       - name: Stage the release assets under their published names, the SBOM attestation aside
         env:
           PROV_BUNDLE: provenance-bundle.jsonl
@@ -370,6 +391,7 @@ jobs:
           test -s "release-assets/runward-gitlab-gate-$VERSION.yml"
           cp "$FORGE" "release-assets/runward-forge-$VERSION.tgz"
           cp "$FLEET" "release-assets/runward-fleet-$VERSION.tgz"
+          cp "$RUN" "release-assets/runward-run-$VERSION.tgz"
           sha256sum release-assets/*
 
       - name: Hand the staged assets to the draft job
@@ -467,7 +489,7 @@ jobs:
   # change to its assets once published. This job holds `contents: write` and nothing else, and it
   # never publishes the release: that gesture is the maintainer's.
   #
-  # ADR-0116: it waits on every job that produced an asset, assembles the nine (the `verify` job's
+  # ADR-0116: it waits on every job that produced an asset, assembles the ten (the `verify` job's
   # and the `attest` job's SBOM attestation), and refuses a tarball or an SBOM whose digest is not the
   # one the job that produced it declared: the `verify` job ran every development dependency, so what
   # it staged is checked here, not trusted.
@@ -518,7 +540,7 @@ jobs:
           cd release-assets
           ASSETS=("runward-$VERSION.tgz" "runward-$VERSION.intoto.jsonl" "runward-$VERSION.provenance.intoto.jsonl" "runward-sbom.cdx.json"
             "runward-qualification-kit-$VERSION.tgz" "runward-qualification-kit-$VERSION.provenance.intoto.jsonl"
-            "runward-gitlab-gate-$VERSION.yml" "runward-forge-$VERSION.tgz" "runward-fleet-$VERSION.tgz")
+            "runward-gitlab-gate-$VERSION.yml" "runward-forge-$VERSION.tgz" "runward-fleet-$VERSION.tgz" "runward-run-$VERSION.tgz")
           for f in "${ASSETS[@]}"; do
             test -s "$f" || { echo "::error::$f is missing or empty — refusing to draft a release without it"; exit 1; }
           done
@@ -547,13 +569,13 @@ jobs:
           gh api "repos/$GH_REPO/releases/$ID" --jq '.assets[] | "\(.name) \(.digest)"' | sort > held.txt
           for f in "runward-$VERSION.tgz" "runward-$VERSION.intoto.jsonl" "runward-$VERSION.provenance.intoto.jsonl" "runward-sbom.cdx.json" \
             "runward-qualification-kit-$VERSION.tgz" "runward-qualification-kit-$VERSION.provenance.intoto.jsonl" \
-            "runward-gitlab-gate-$VERSION.yml" "runward-forge-$VERSION.tgz" "runward-fleet-$VERSION.tgz"; do
+            "runward-gitlab-gate-$VERSION.yml" "runward-forge-$VERSION.tgz" "runward-fleet-$VERSION.tgz" "runward-run-$VERSION.tgz"; do
             echo "$f sha256:$(sha256sum "$f" | cut -d' ' -f1)"
           done | sort > staged.txt
           cat held.txt
           diff staged.txt held.txt \
-            || { echo "::error::the draft does not hold exactly the nine staged assets"; exit 1; }
-          echo "::notice::draft $TAG holds the nine assets; the maintainer checks them and publishes it (runbook §3)"
+            || { echo "::error::the draft does not hold exactly the ten staged assets"; exit 1; }
+          echo "::notice::draft $TAG holds the ten assets; the maintainer checks them and publishes it (runbook §3)"
 
   # ─── Publish ────────────────────────────────────────────────────────────────────────────────────
 

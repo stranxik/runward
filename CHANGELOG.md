@@ -31,8 +31,18 @@ GitHub (a reusable workflow: the executing job holds no id-token and no secret, 
 project code) and GitLab (the pipeline of a project the agent cannot write), at parity, with the shipped
 example's run policy. Not delivered yet: the coverage and mutation legs of the cited lines (R2) and the
 evals leg (R3); the required level read from the mission's lock (ADR-0119 decision 4); the shipped
-example still answers one row in prose, which `re-derived` refuses until it is typed; runward-run is not
-in the release chain yet. The specification is `docs/spec/runward-run.md`.
+example still answers one row in prose, which `re-derived` refuses until it is typed. The specification is
+`docs/spec/runward-run.md`.
+
+### runward-run is released with runward, as a verified release asset (ADR-0120 decision 1, ADR-0116)
+
+The isolated builder packs `packages/runward-run` in its own directory after the suite has passed, in the
+job that holds `contents: read` only, and declares its digest; the job that signs, which checks out
+nothing and runs no npm, refuses a file under another name or digest and attests it; the release
+workflow packs it again, refuses a byte of difference, and attaches `runward-run-X.Y.Z.tgz` as the tenth
+asset, read back by digest with the others. It stays private on npm until the bootstrap `runward-forge`
+waits on (RWD-2026-0195), so no job publishes it. `docs/verifying-a-release.md` Step 9 verifies it with
+`gh attestation verify`, pinned to the tag, and the release runbook checks ten assets.
 
 ### runward-fleet verify-run: the signature on a run Statement, verified offline against the trust policy (ADR-0120 D4a)
 

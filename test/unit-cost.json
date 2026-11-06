@@ -1287,6 +1287,11 @@
       "passed": true
     },
     {
+      "file": "test/unit/run-release.test.js",
+      "seconds": 0.15,
+      "passed": true
+    },
+    {
       "file": "test/unit/release-signing-isolation.test.js",
       "seconds": 0.14,
       "passed": true

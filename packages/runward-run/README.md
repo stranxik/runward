@@ -162,5 +162,18 @@ trust policy should not have trusted: the policy is the operator's.
 
 ## Install
 
-Not on npm (the bootstrap `runward-forge` still waits on, RWD-2026-0195). Until a release carries its
-tarball, take it from a commit of this repository, as the samples do (`node packages/runward-run/src/cli.js`).
+Not on npm (the bootstrap `runward-forge` still waits on, RWD-2026-0195). From the first release that
+carries it, the release holds `runward-run-X.Y.Z.tgz`, packed and attested by the release workflow's
+isolated builder, like `runward`. Verify it before you install it:
+
+```sh
+gh release download vX.Y.Z --repo stranxik/runward --pattern runward-run-X.Y.Z.tgz
+gh attestation verify runward-run-X.Y.Z.tgz --repo stranxik/runward \
+  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml \
+  --source-ref refs/tags/vX.Y.Z \
+  --deny-self-hosted-runners
+npm install --save-dev ./runward-run-X.Y.Z.tgz
+```
+
+Before that release, take it from a commit of this repository, as the samples do
+(`node packages/runward-run/src/cli.js`).
