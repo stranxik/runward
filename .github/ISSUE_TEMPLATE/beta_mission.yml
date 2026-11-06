@@ -78,9 +78,9 @@ body:
     id: terms
     attributes:
       label: The beta's terms
-      description: All three are required. If the second cannot hold for you, take the private route described at the top of this form.
+      description: All three are required, and the criteria are on the [beta page](https://github.com/stranxik/runward/blob/main/docs/beta.md#the-criteria). If the second cannot hold for you, take the private route described at the top of this form.
       options:
-        - label: "The repository meets the [criteria](https://github.com/stranxik/runward/blob/main/docs/beta.md#the-criteria), and the runward maintainer did not write it."
+        - label: "The repository meets the beta's criteria, and the runward maintainer did not write it."
           required: true
         - label: "This issue is public, and I have written nothing in it that I would not publish myself."
           required: true
