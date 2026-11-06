@@ -1133,6 +1133,7 @@
 	<testcase name="ADR-0119 decision 4: the level the lock asks for is read under --strict, named as its source, and refused below it (exit 5)" classname="test"/>
 	<testcase name="ADR-0119 decision 4: a lock value that is not a level is a misuse (exit 2), refused before the gate runs, never read as a weaker level" classname="test"/>
 	<testcase name="ADR-0119 decision 4: update carries the lock's level through as written, even one check refuses, and never writes one on its own" classname="test"/>
+	<testcase name="ADR-0119 decision 4: a new mission that follows the blank template meets re-derived on its usage registry row; a pointer at the manifest itself is declared" classname="test"/>
 	<testcase name="ADR-0119 decision 4: the lock's re-derived on a territory holding Python requires mechanical and says so at the character; asked by name, it refuses" classname="test"/>
 	<testcase name="ADR-0119 decision 4: every strict run prints the level the tree meets and what the next level would refuse, and its payload carries no levels" classname="test"/>
 	<testcase name="ADR-0119 decision 6: SARIF, witness, VSA, report and summary carry the levels only when the run read them" classname="test"/>
@@ -1148,6 +1149,8 @@
 	<testcase name="sync migrates a renamed slug in place, preserving status and evidence" classname="test"/>
 	<testcase name="sync reports duplicates and unknown slugs, deletes nothing" classname="test"/>
 	<testcase name="a missing deliverable is reported, never created" classname="test"/>
+	<testcase name="the harness writes the cells GitHub rendered, and GitHub showed every one as written" classname="test"/>
+	<testcase name="positive control: the base harness's prose cells of the same sources show 8 of them otherwise" classname="test"/>
 	<testcase name="the ADR-NNNN name shape is load-bearing: a stray note in adr/ is not a decision" classname="test"/>
 	<testcase name="a properly numbered ADR is accepted, and the other two terms still hold" classname="test"/>
 	<testcase name="an adr/ holding only ordinary markdown is untouched — the gate must not read it as filled" classname="test"/>
@@ -1165,7 +1168,7 @@
 	<testcase name="observability schema: an unbackticked Carrier field is refused while the cost ceilings carry numbers" classname="test"/>
 	<testcase name="observability schema: the Cost ceilings heading as the file's last line, with or without a newline, carries no number" classname="test"/>
 	<testcase name="hand-over: a redone-task Evidence line without a typed pointer is refused" classname="test"/>
-	<testcase name="the mission layout holds exactly the sixteen declared destinations" classname="test"/>
+	<testcase name="the mission layout holds exactly the seventeen declared destinations" classname="test"/>
 	<testcase name="the workflow set holds exactly the eleven declared names" classname="test"/>
 	<testcase name="a real init puts every declared destination on disk" classname="test"/>
 	<testcase name="RWD-2026-0186: check --strict --attest is byte-identical across two checkout folder names" classname="test"/>
@@ -1637,7 +1640,7 @@
 	<testcase name="R1: a run that could not cut the network leaves nothing the gate reads as evidence" classname="test"/>
 	<testcase name="R1: a Sigstore bundle around the Statement is read too, its signature counted, never verified" classname="test"/>
 	<testcase name="R1: a run Statement and its bundle are about the tree, not part of it: the delivered tree and the analyzers leave them out" classname="test"/>
-	<testcase name="the shipped example as `init --example` writes it: below re-derived on its one prose row, named, and the lab is what types it" classname="test"/>
+	<testcase name="the shipped example as `init --example` writes it: its lock asks for re-derived, and every applied row meets it" classname="test"/>
 	<testcase name="every rendering of a run below attested names the level, and no surface says nothing was verified when rows were" classname="test"/>
 	<testcase name="the run policy: an evals leg runs like the tests; one whose evals need a remote model names its reports and runs nothing" classname="test"/>
 	<testcase name="R3: an eval that needs a remote model reads declared, named; the local eval, run with the network cut, reads attested" classname="test"/>
@@ -1650,6 +1653,14 @@
 	<testcase name="a red leg is a fact: the reports and the Statement are written, the exit code is 1, the Statement records it" classname="test"/>
 	<testcase name="the normalisers take out absolute paths and timings, touch no verdict, and are idempotent" classname="test"/>
 	<testcase name="the policy is read strictly: shapes refused as usage, what would make a run unprovable refused as a refusal" classname="test"/>
+	<testcase name="junitCases, as shipped, gives the former reader's answers on every generated report" classname="test"/>
+	<testcase name="junitCases: a positive control, the outcomes as the test-result predicate names them" classname="test"/>
+	<testcase name="junitCases, comment openers that never close (CodeQL's line): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="junitCases, a quoted tag restarted from every `&lt;` (the tag pattern's attack string): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="junitCases, a quote opened in a tag and never closed, the tag restarted from every `&lt;testcase`: 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="junitCases, cases that open and never close, each read to the end before: 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="junitCases, cases whose body holds a failure that never closes: 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="junitCases, cases with quoted names, in the shape a writer produces: 1,000,000 characters read in linear time" classname="test"/>
 	<testcase name="the mutator changes one operator at a time, in code only, on the cited lines only" classname="test"/>
 	<testcase name="the cited lines are runward's: a symbol's declaration to the end of its block, a line, else the file" classname="test"/>
 	<testcase name="a cited case reads as the runner tells it: a failed assertion, another error, a failure with no class, skipped, absent" classname="test"/>
@@ -2088,6 +2099,7 @@
 	<testcase name="snapshot: a path is spelled with forward slashes whatever the platform's separator" classname="test"/>
 	<testcase name="snapshot: an LF and a CRLF checkout of one mission have one snapshot and get one verdict" classname="test"/>
 	<testcase name="snapshot: the canonical rendering of a verdict ignores list and key order, never content" classname="test"/>
+	<testcase name="the relations compare the whole verdict but the bound inventory: one moved field, and only that one, is folded" classname="test"/>
 	<testcase name="MR-1: renaming a file no row cites leaves the verdict unchanged" classname="test"/>
 	<testcase name="MR-2: reversing the order of a manifest's rule rows leaves the verdict unchanged" classname="test"/>
 	<testcase name="MR-3: re-padding the cells of every rule row leaves the verdict unchanged" classname="test"/>
@@ -2107,7 +2119,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 56063, runward 61664 -->
+	<!-- witness bytes: example 66950, runward 61664 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -2258,9 +2270,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2254 -->
+	<!-- tests 2266 -->
 	<!-- suites 0 -->
-	<!-- pass 2253 -->
+	<!-- pass 2265 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->
