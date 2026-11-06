@@ -325,6 +325,19 @@ jobs:
             # read only committed bytes — a green run here is a STRUCTURAL proof of the no-fetch
             # invariant (any socket attempt fails the job), not a grep of src/.
             node --test test/unit/corpus-no-fetch.test.js
+            # docs/isolated-environments.md measured these on a workstation with the network denied;
+            # they are held here: a verdict attested then verified, a delivery report written, and a
+            # proposed row ratified by an agent, on missions made inside the cut.
+            W=$PWD; E=$(mktemp -d); R=$(mktemp -d)
+            (cd "$E" && git init -q . && node "$W/dist/cli.js" --yes init --example > /dev/null &&
+              node "$W/dist/cli.js" check --strict --attest > verdict.intoto.json &&
+              node "$W/dist/cli.js" verify verdict.intoto.json &&
+              node "$W/dist/cli.js" report)
+            (cd "$R" && git init -q . && node "$W/dist/cli.js" --yes init > /dev/null &&
+              node "$W/dist/cli.js" manifest --sync > /dev/null && mkdir -p code/config &&
+              printf "export const key = process.env.vault_secret;\n" > code/config/settings.ts &&
+              node "$W/dist/cli.js" propose > /dev/null &&
+              node "$W/dist/cli.js" ratify --agent ci-agent --for ci-operator --accept floor.md:config-secrets-boundary)
           '
 
   oscal-ingest:

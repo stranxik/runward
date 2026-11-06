@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### CI: `verify`, `report` and `ratify --agent` run with the network cut, and the posture guard reads the cut itself
+
+The `core tests, network-isolated` job of `.github/workflows/ci.yml` now also attests the example mission
+and verifies the attestation, writes its delivery report, and has an agent ratify a proposed row, all
+inside `sudo unshare -n`, on missions made inside the cut: the three commands `docs/isolated-environments.md`
+measured on a workstation and no CI job ran with the network cut. `test/unit/regulated-posture.test.js`
+read only that `unshare -n` and each command appeared somewhere in `ci.yml`; it now extracts the
+network-cut block and fails when one of the ten things the sheets cite (the route check, the smoke
+suite, the two schema tests, the self-gate, the corpus test, the attestation, `verify`, `report`,
+`ratify --agent`) is not inside it. A positive control moves `verify` out of the block, and removes the
+block, and both are caught. On `main`'s `ci.yml`, the same reading finds `verify`, `report` and
+`ratify --agent` missing from the cut.
+
 ### Documented: running runward with no network, or inside a qualified cloud offer
 
 Documentation only. `docs/isolated-environments.md` answers "does anything leave the environment?" for

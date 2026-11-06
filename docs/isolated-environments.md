@@ -97,9 +97,10 @@ files for network modules and `fetch` found none; the same search finds network 
   loopback brought up, and stops if a default route is left; `npm ci` and the build before it run with
   the network. That step runs the smoke suite, the OSCAL schema test, the in-toto schema test (which runs
   `check --strict --attest`, `bundle` and `check --strict --vsa`), runward's own `check --strict`, and
-  the vendored-corpus test (`update --corpus <dir>` takes a local path, never a registry coordinate). It
-  covers part of the table above: `verify`, `ratify` and `report` are not in it, and for them the run
-  above is the measurement.
+  the vendored-corpus test (`update --corpus <dir>` takes a local path, never a registry coordinate),
+  then attests and verifies the example mission, writes its delivery report, and ratifies a proposed row
+  as an agent; `test/unit/regulated-posture.test.js` fails if any of these commands leaves the cut. It
+  covers part of the table above, on Linux only.
 - The CI job `test` searches `src/` for network modules (`dns` among them, which nothing else checks),
   `fetch(`, `eval` and calls to network tools such as `curl`. It finds none on `main`, and a copy with a
   planted `fetch(` fails it (both run for this page). It reads `src/` only.
