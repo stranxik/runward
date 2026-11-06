@@ -120,7 +120,10 @@ test("ADR-0113: verify names what the digest covers, and an uncited file is said
     writeFileSync(join(m.dir, "code", "src", "added.ts"), "export const run = (s: string) => s;\n");
     const a = verify(m.dir, name);
     assert.equal(a.code, 1, "the analyzers read it");
-    assert.deepEqual(a.predicate.differing, ["analysis"]);
+    // and so does the levels block, which the example's lock asks for since `re-derived` became the default
+    // of new missions (ADR-0119 decision 4): its territory counts the files the analyzers read, and the
+    // inventory a run is bound to lists them (ADR-0120 decision 4).
+    assert.deepEqual(a.predicate.differing, ["analysis", "levels"]);
     assert.equal(a.digest.matches, true, "not bound by the digest: re-derived");
     rmSync(join(m.dir, "code", "src", "added.ts"));
     assert.match(v.digest.notCovered, /outside runward\/ that the manifests do not cite/);

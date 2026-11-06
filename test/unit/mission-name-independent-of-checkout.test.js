@@ -67,20 +67,32 @@ test("RWD-2026-0186: check --strict --vsa under SOURCE_DATE_EPOCH is byte-identi
   } finally { f.drop(); }
 });
 
-test("RWD-2026-0186: check --strict --json differs across folders ONLY in `mission`, the documented project root", () => {
+/** Every string of a JSON value that is an absolute path, or holds the folder the copies live in. */
+function absolutePaths(value, under, at = "$") {
+  if (typeof value === "string") return /^\/|^[A-Za-z]:[\\/]/.test(value) || value.includes(under) ? [`${at}: ${value}`] : [];
+  if (Array.isArray(value)) return value.flatMap((v, i) => absolutePaths(v, under, `${at}[${i}]`));
+  if (value && typeof value === "object") return Object.entries(value).flatMap(([k, v]) => absolutePaths(v, under, `${at}.${k}`));
+  return [];
+}
+
+test("RWD-2026-0186, RWD-2026-0199: check --strict --json is the same across folders, `mission` included: the declared name, never the project root", () => {
   const f = twoFolders();
   try {
-    const a = JSON.parse(run(f.a, ["check", "--strict", "--json"]));
-    const b = JSON.parse(run(f.b, ["check", "--strict", "--json"]));
-    // docs/interop.md: `mission` is the project root, an absolute path, on purpose — the local
-    // payload says where it ran. It is the one field that may differ.
-    // (The real path: macOS resolves /var to /private/var, so the tail is what is compared; and
-    // Windows separates with a backslash, so the last segment is read with either separator.)
-    const last = (p) => p.split(/[\\/]/).pop();
-    assert.equal(last(a.mission), "demo-mac", a.mission);
-    assert.equal(last(b.mission), "w", b.mission);
-    delete a.mission; delete b.mission;
-    assert.deepEqual(a, b, "a field other than `mission` carries the checkout folder");
+    // docs/interop.md: `mission` names what the contract declares, as --attest does. Until
+    // RWD-2026-0199 it was the project root's absolute path, which names the account of whoever
+    // checked out under a home directory, in every copy of the payload (an artifact, a log, an upload).
+    const ra = run(f.a, ["check", "--strict", "--json"]);
+    assert.equal(sha(ra), sha(run(f.b, ["check", "--strict", "--json"])), "the --json payload depends on the checkout folder");
+    const a = JSON.parse(ra);
+    assert.equal(a.mission, "Inbound Request Triage", "`mission` names what the contract declares");
+    assert.equal(a.mission, JSON.parse(run(f.a, ["check", "--strict", "--attest"])).predicate.mission, "--json and --attest name the mission alike");
+    const parent = dirname(f.a);
+    assert.deepEqual(absolutePaths(a, parent), [], "the payload carries an absolute path");
+    // Typed with the absolute path, the payload still carries none (a clean tree: no Next command echoes -p).
+    const abs = JSON.parse(execFileSync(process.execPath, [CLI, "check", "--strict", "--json", "-p", f.a], { encoding: "utf8", env: { ...process.env, NO_COLOR: "1" } }));
+    assert.deepEqual(absolutePaths(abs, parent), [], "an absolute -p reaches the payload");
+    // Positive control: the scanner sees the field as it was until RWD-2026-0199.
+    assert.equal(absolutePaths({ ...a, mission: f.a }, parent).length, 1, "the scanner does not see a planted project root");
   } finally { f.drop(); }
 });
 

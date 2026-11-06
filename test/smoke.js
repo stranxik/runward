@@ -40,6 +40,7 @@ try {
     "runward/governance/threat-model.md",
     "runward/governance/evaluation-rubric.md",
     "runward/governance/observability-schema.md",
+    "runward/governance/usage-registry.md",
     "runward/contracts/port-contract.md",
     "runward/runbook.md",
     "runward/workflows/method.md",
@@ -219,7 +220,11 @@ try {
     "check --strict rejects a signed rule whose evidence lacks the rule's shape (ADR-0020)");
   writeFileSync(join(tmp, "guard-impl.ts"), "export function assertGrounded() { /* fail-closed */ }\n");
   writeFileSync(join(tmp, "runward/floor.md"), "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| frontier-deterministic-boundary | applied | file:guard-impl.ts#assertGrounded |\n");
-  const evOut = run(["check", "--strict"], { expectFail: true }); // other floor rules still unaccounted — red, but not on this row
+  // other floor rules still unaccounted — red, but not on this row. A new mission's lock asks for
+  // `re-derived` (ADR-0119 decision 4), so the run prints its level of proof, whose `attested` line
+  // names the signature verified outside the CLI: that line is not about this row.
+  const evOut = run(["check", "--strict"], { expectFail: true })
+    .replace(/^\s*attested: the binding is re-derived by this command; the signature is verified outside it\n/m, "");
   assert(!evOut.includes("signature") && !evOut.includes('symbol "'),
     "a typed pointer at real guard-shaped evidence satisfies the signed rule (ADR-0019/0020)");
   writeFileSync(join(tmp, "runward/floor.md"), "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| frontier-deterministic-boundary | applied | file:guard-impl.ts#missingSym |\n");

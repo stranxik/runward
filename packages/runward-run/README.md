@@ -14,8 +14,8 @@ runward writes; runward imports nothing from it, never spawns it and does not sh
 planted controls). Unlike runward, it runs processes: the container runtime, and through it the
 project's code. It holds no key, opens no socket of its own and keeps no state between runs.
 
-This version delivers R1: the tests leg and the declared-reports leg. The coverage and mutation legs of
-the cited lines (R2) and the evals leg (R3) are refused by name until they ship.
+This version delivers R1, the tests leg and the declared-reports leg; R2, the coverage and the mutation
+of the cited lines, JavaScript and TypeScript first; and R3, the evals leg.
 
 ## What it does, in order, and when it refuses
 
@@ -38,7 +38,9 @@ runward-run run --policy run-policy.json --tree mission --check check.json --out
 5. A probe container started with `--network none` must see the loopback only. A runtime that cannot
    cut the network, or accepts the flag and leaves an interface up, is refused.
 6. Each leg runs in its own container, the network cut, as the calling user, writing only to the output
-   directory.
+   directory. The mutation leg runs last: its command once on the unmutated copy, then once per mutant
+   of the lines runward cited (`levels.execution.mutationTargets` of `check.json`), each mutant written
+   into the copy and the file restored after its run.
 7. Each report is normalised (no absolute path, no timing, no verdict touched), the sources are hashed
    again, and only then are the reports, the run Statement and its in-toto test-result Statement
    written.
@@ -59,7 +61,10 @@ The shipped example's is [samples/request-triage.run-policy.json](https://github
   "legs": [
     { "leg": "tests", "cwd": "code",
       "command": ["node", "--import", "tsx", "--test", "--test-reporter=junit", "--test-reporter-destination=${out}/code/reports/junit.xml", "test/*.test.ts"],
-      "reports": [{ "path": "code/reports/junit.xml", "nature": "junit" }] }
+      "reports": [{ "path": "code/reports/junit.xml", "nature": "junit" }] },
+    { "leg": "mutation", "cwd": "code",
+      "command": ["node", "--import", "tsx", "--test", "--test-reporter=junit", "--test-reporter-destination=${out}/code/reports/junit.xml", "test/*.test.ts"],
+      "junit": "code/reports/junit.xml" }
   ]
 }
 ```
@@ -68,6 +73,21 @@ A command is an argument vector, never a shell line. `${out}` is the output dire
 sees it, `${work}` the copy of the tree. Every report of a run is written to one directory, the one its
 Statement is written to, because runward reads a run Statement beside the reports it binds. The natures
 are runward's: `junit`, `sarif`, `eslint`, `coverage`, `sbom`, `loadtest`.
+
+The mutation leg binds no report: its facts go into the run Statement (`predicate.mutation`). For each
+applied row that cites a code location and a test, runward reads whether one of its cited tests failed
+on an assertion against a mutant of its cited lines; a row whose tests kill none that way is below
+`attested`, named, its survivors listed. Each mutant's run is bounded (`timeoutSeconds`, default 300), and
+so are the mutants of one cited location (`maxMutantsPerLocation`, default 40, the first in source order,
+the Statement recording how many there were). A coverage leg writes the LCOV runward-run reads for the
+coverage of the cited lines, shown on each row; it sets no level. `docs/spec/runward-run.md` §7 gives the
+whole contract.
+
+An evals leg runs like the tests, the network cut, so only evals that replay recorded outputs or run a
+pinned local model. Evals that need a remote model are outside runward-run: name their reports in a leg
+`{ "leg": "evals", "remote": true, "reports": [...], "why": "..." }` with no command. runward-run runs
+nothing for it and records the reports in the Statement as declared; runward reads a row citing one as
+`declared`, with that reason, never as « no Statement binds it ».
 
 ## The CI layout: two jobs, a workflow the agent cannot write
 
@@ -156,11 +176,26 @@ instance). Exit 0 accepted, 1 refused, 2 a question it cannot ask. A signature o
 ## What this does not catch
 
 The project's code runs inside the container as written: a test written to print results it did not
-compute is executed as written. A run policy written too loosely, a compromised CI provider or runner,
+compute, or to recognise a mutant, is executed as written. A weak assertion that kills one mutant and
+misses the rest meets the row: its survivors are listed, never summed. The mutator changes one operator
+at a time, by a lexer and not a parser: an equivalent mutant survives as any other. A run policy written too loosely, a compromised CI provider or runner,
 or an agent that holds the operator's CI administration credentials, are outside it. So is anything the
 trust policy should not have trusted: the policy is the operator's.
 
 ## Install
 
-Not on npm (the bootstrap `runward-forge` still waits on, RWD-2026-0195). Until a release carries its
-tarball, take it from a commit of this repository, as the samples do (`node packages/runward-run/src/cli.js`).
+Not on npm (the bootstrap `runward-forge` still waits on, RWD-2026-0195). From the first release that
+carries it, the release holds `runward-run-X.Y.Z.tgz`, packed and attested by the release workflow's
+isolated builder, like `runward`. Verify it before you install it:
+
+```sh
+gh release download vX.Y.Z --repo stranxik/runward --pattern runward-run-X.Y.Z.tgz
+gh attestation verify runward-run-X.Y.Z.tgz --repo stranxik/runward \
+  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml \
+  --source-ref refs/tags/vX.Y.Z \
+  --deny-self-hosted-runners
+npm install --save-dev ./runward-run-X.Y.Z.tgz
+```
+
+Before that release, take it from a commit of this repository, as the samples do
+(`node packages/runward-run/src/cli.js`).

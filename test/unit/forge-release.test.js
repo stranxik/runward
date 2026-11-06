@@ -111,12 +111,14 @@ test("release chain: the forge tarball is byte-matched, attached as the eighth a
   const names = (t) => [...t.matchAll(/"(runward-[^"]+)"/g)].map((m) => m[1]);
   const uploaded = names(draft[indexOf(draft, /gh release upload/, "uploads the assets")]);
   const readBack = names(draft[indexOf(draft, /held\.txt/, "reads the draft back")]);
-  assert.equal(new Set(uploaded).size, 9, `the draft uploads nine assets, runward-fleet's the ninth (${uploaded.join(", ")})`);
+  assert.equal(new Set(uploaded).size, 11, `the draft uploads eleven assets, runward-integrations' the eleventh (${uploaded.join(", ")})`);
   assert.deepEqual(readBack, uploaded, "the read-back checks exactly what was uploaded");
   assert.ok(uploaded.includes("runward-forge-$VERSION.tgz"));
   const releaseText = readFileSync(join(ROOT, ".github/workflows/release.yml"), "utf8");
   assert.ok(!/\bseven\b/.test(releaseText.replace(/seventh asset/g, "")), "no step or message of release.yml still counts seven assets");
   assert.ok(!/\beight\b/.test(releaseText), "nor eight, since runward-fleet's tarball is the ninth (ADR-0093 D4)");
+  assert.ok(!/\bnine (assets|staged)\b|assembles the nine\b/.test(releaseText), "nor nine, since runward-run's tarball is the tenth (ADR-0120)");
+  assert.ok(!/\bten (assets|staged)\b|assembles the ten\b/.test(releaseText), "nor ten, since runward-integrations' tarball is the eleventh (ADR-0122)");
 });
 
 test("release chain: the publish job publishes runward, then verifies and publishes runward-forge from the release", () => {
@@ -160,6 +162,14 @@ test("release chain: the publish job runs in the `release` environment, so a bra
     "the publish job must declare environment: release (its deployment rule admits only tags v*)");
   assert.equal(publish.if, "github.event_name == 'release'", "the publish job runs on the release event only");
   assert.equal(publish.permissions["id-token"], "write", "the OIDC exchange npm checks is the one the environment gates");
+  // The npm half of the same decision: runward-forge's trusted publisher, configured once by hand
+  // (runbook §3.1 step 2), is bound to that environment, as runward's is. The step said "no environment"
+  // until 2026-11-06, the opposite of the decision and of the job above.
+  const runbook = readFileSync(join(ROOT, "runward", "runbook.md"), "utf8");
+  const bootstrap = runbook.slice(runbook.indexOf("### 3.1"), runbook.indexOf("## 4."));
+  assert.match(bootstrap, /workflow filename\s+`release\.yml`, environment `release`, exactly as for `runward`/,
+    "runbook §3.1 binds runward-forge's trusted publisher to the environment the publish job declares");
+  assert.doesNotMatch(bootstrap, /no environment/, "runbook §3.1 never configures a trusted publisher without the environment");
 });
 
 // ADR-0116 decision 4. From 0.44.0 to 0.46.0 the publish job ended red on `404 Not Found - PUT

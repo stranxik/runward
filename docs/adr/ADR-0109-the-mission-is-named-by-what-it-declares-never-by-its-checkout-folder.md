@@ -173,6 +173,35 @@ no longer "verifies against its tree exactly as before": it names its producer, 
 back to that version, exit 2, with the command that re-derives it there, where its `mission` reads as
 the folder it was made in.
 
+## Note, 2026-11-06: point 3 no longer holds for `check --json` (RWD-2026-0199)
+
+Recorded with the first code it governs, as [ADR-0121](ADR-0121-runward-fleet-and-the-hosted-product-one-interface-two-deployments.md)
+decision 7 announced; the decision above is not rewritten. ADR-0121 decision 7 amended point 3 by name for
+a payload exported to a fleet and left the fix to the register, between an additive field beside `mission`
+and a change of its value. Written by an agent session in the pull request that adds what a hosted
+deployment needs from `runward-fleet` (the maintainer adopted that pull request's scope on 2026-11-06); the
+choice below is the session's, and lands when the maintainer approves the pull request.
+
+- **The value changes.** `check --json` names the mission as `--attest` does: `mission` is
+  `declaredMissionName`, the title of the contract or `mission`. The checkout's absolute path is in no
+  emission of `check` any more, whatever `-p` was typed, on a clean tree; on a red one, `next.command`,
+  `next.rerun` and `next.text` still echo the `-p` as typed (RWD-2026-0145), so a CI that types it
+  relative carries no path at all.
+- **Why not an additive field.** A field beside `mission` leaves the path in every copy of the payload: a
+  CI artifact, a log, an upload a fleet refuses when it holds an absolute path. The point of the defect is
+  the bytes that travel, and ADR-0121 discarded scrubbing them in each consumer.
+- **What a consumer loses, and how it gets it back.** A consumer that read `mission` as a path reads a
+  name from now on, once. The project root is the directory it ran `check` in, or the `-p` it gave: it
+  already holds it. The other read paths (`status`, `doctor`, `manifest`, `propose`, `report`,
+  `compliance`) keep `mission` as the project root; they are not exports a fleet reads.
+- **What it gains.** The same tree gives the same `--json` bytes whatever folder it was cloned in (point
+  2's property, now for `--json` too); the JUnit rendering's `payload-sha256` is the digest of the payload
+  `--json` prints, with no substitution; the attestation's predicate is that payload with its `next`.
+
+Held by `test/unit/mission-name-independent-of-checkout.test.js`: `--json` byte-identical across
+`demo-mac/` and `w/`, `mission` the declared name, no absolute path in the payload even with an absolute
+`-p`, and a planted project root the scan sees.
+
 ## References
 
 - `src/lib/mission.ts` (`declaredMissionName`, `UNDECLARED_MISSION_NAME`), `src/lib/attestation.ts`,

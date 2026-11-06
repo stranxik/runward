@@ -1,0 +1,53 @@
+# runward-integrations, recipe `sarif` (runward ADR-0122): the step, for GitLab CI.
+#
+# A hidden job your own job extends. It fetches runward-integrations by a URL pinned with its sha256,
+# runs the project's own command, normalises the SARIF 2.1.0 report it wrote as runward ADR-0073 option 1 does
+# (no absolute path, no timing, every verdict and count kept), and replaces the report the mission cites.
+# The job keeps that report as an artifact, red or green, for the gate job that reads it.
+#
+# Out of the agent's reach, the protected equivalent of a workflow pinned by commit:
+#   - this file: include it from a project of yours the agent cannot write, at a 40-character commit,
+#       include:
+#         - project: "<your-group>/<your-ci-project>"
+#           ref: "<40-character commit>"
+#           file: "/recipes/sarif/gitlab/sarif.gitlab-ci.yml"
+#     or from runward's repository, pinned by its content (GitLab 17.9 or later):
+#       include:
+#         - remote: "https://raw.githubusercontent.com/stranxik/runward/<40-character commit>/packages/runward-integrations/recipes/sarif/gitlab/sarif.gitlab-ci.yml"
+#           integrity: "sha256-<base64 of this file's sha256>"
+#   - the job that extends it, and its variables: the command decides what the report says, so they live in
+#     a pipeline the agent cannot write (a pipeline of that project, run for the mission's commit, as
+#     runward ADR-0120 decision 5 lays out), never in the mission's own .gitlab-ci.yml alone.
+#
+# The variables the extending job sets:
+#   RWI_PACKAGE_URL     where runward-integrations is fetched: the release asset runward-integrations-X.Y.Z.tgz
+#                       once a release carries it, or a copy you host (an offline instance)
+#   RWI_PACKAGE_SHA256  its sha256, 64 hexadecimal characters: a different file is refused, nothing runs
+#   RWI_CWD             the directory the command runs in (the report path is relative to it)
+#   RWI_REPORT          the report the mission's rows cite, for example reports/eslint.sarif
+#   RWI_COMMAND         the project's own command, a JSON argument vector writing its report to {raw}:
+#                       ["node", "{rwi}/src/tools/eslint-sarif.mjs", "--out", "{raw}", "src"]
+#
+# What it writes is declared (runward ADR-0119 decision 1): a plain CI job binds nothing to the tree. The
+# same command as a leg of a runward-run policy reaches attested (ADR-0120, ADR-0122 decision 5). The image
+# must carry Node.js 22.12 or later and tar; pin it by digest. The job fails when the tool fails; the gate
+# job reads the artifact with `needs:` and `when: always`, so it names the rows the red report refuses.
+.runward-integrations-sarif:
+  variables:
+    RWI_RECIPE: "sarif"
+  artifacts:
+    when: always
+    paths:
+      - $RWI_CWD/$RWI_REPORT
+  script:
+    - >-
+      node -e 'const [url, want, out] = process.argv.slice(1);
+      const { createHash } = require("node:crypto"); const { writeFileSync } = require("node:fs");
+      if (!/^[0-9a-f]{64}$/.test(want)) { console.error("runward-integrations: RWI_PACKAGE_SHA256 is not a sha256, nothing runs"); process.exit(3); }
+      fetch(url).then(async (r) => { if (!r.ok) throw new Error(url + " answered " + r.status);
+      const b = Buffer.from(await r.arrayBuffer()); const got = createHash("sha256").update(b).digest("hex");
+      if (got !== want) { console.error("runward-integrations: " + url + " has sha256 " + got + ", not the pinned " + want + ": nothing runs"); process.exit(3); }
+      writeFileSync(out, b); }).catch((e) => { console.error("runward-integrations: " + e.message); process.exit(3); });'
+      "$RWI_PACKAGE_URL" "$RWI_PACKAGE_SHA256" "${TMPDIR:-/tmp}/runward-integrations.tgz"
+    - mkdir -p "${TMPDIR:-/tmp}/runward-integrations" && tar -xzf "${TMPDIR:-/tmp}/runward-integrations.tgz" -C "${TMPDIR:-/tmp}/runward-integrations"
+    - node "${TMPDIR:-/tmp}/runward-integrations/package/src/cli.js" regenerate --recipe "$RWI_RECIPE" --cwd "$RWI_CWD" --report "$RWI_REPORT" --command "$RWI_COMMAND"

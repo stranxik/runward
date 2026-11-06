@@ -1,0 +1,215 @@
+{
+  "schema": "reviewer-classification-delta/1",
+  "repository": "hono",
+  "reviewer": "independent reviewer session for hono (wrote neither the analyzers, their corrections, nor the harness); compared messages with the code, never with the analyzers' implementation",
+  "date": "2026-11-06",
+  "entries": [
+    {
+      "id": "hono-b885ee1078",
+      "profile": "declared",
+      "family": "capability",
+      "verdict": "TRUE",
+      "reason": "src/utils/color.ts:23 `'NO_COLOR' in process?.env` tests a variable of the process environment, `process` being the global itself (`const { process, Deno } = globalThis as any` at :16, the file's only binding of the name); color.ts is core by `src/utils/**` (runward/territory.md:9): true against the harness's declaration, and the only process-environment read of the declared core (no other `process.env`, `Deno.env`, `Bun.env`, `import.meta.env` in its non-test files); shown by `sed -n '16p;23p' src/utils/color.ts; sed -n 9p runward/territory.md` in the declared tree of hono of the measurement 0.46.0-51675dc, and by the finding's own command `node \"$RUNWARD\" check --strict --json --path hono | jq -c '.analysis.findings[] | select(.path==\"src/utils/color.ts\" and .line==23 and .check==\"environment\")'`",
+      "pattern": "capability/environment: process environment read in the declared core through a binding destructured from globalThis (harness declaration)"
+    }
+  ],
+  "delta": {
+    "comparedWith": "hono-9004563.json (measurement 0.46.0-9004563, 14 hono findings, all TRUE)",
+    "measurement": "the measurement 0.46.0-51675dc (build 51675dcf7ddab8665087663eb128773148bd1eb2, clean); trees run-0.46.0-51675dc, hono at eb754bd5, identical to run-0.46.0-9004563 in both profiles (runward/ included)",
+    "summary": {
+      "oldIds": 14,
+      "newIds": 15,
+      "kept": 14,
+      "keptAllTrue": true,
+      "messagesChangedAmongKept": [],
+      "keptCheck": "message, path, line, lineText, family, check and profile group compared field by field with 9004563, and the raw analyses (raw/{default,declared}/hono.analysis.json) compared by path, line and check: identical",
+      "goneTrue": [],
+      "goneTrueAssessment": "no hono id disappeared, so no disappearance is a false green",
+      "goneFalse": 0,
+      "falseStillPresent": [],
+      "falseStillPresentAssessment": "no FALSE id was left to keep: 9004563 already had none on hono",
+      "newClassified": [
+        "hono-b885ee1078"
+      ]
+    },
+    "kept": [
+      {
+        "id": "hono-b6bde056b6",
+        "profile": "default",
+        "family": "capability",
+        "verdictBefore": "TRUE",
+        "where": "benchmarks/fetch/bench.mts:27",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-df3e9c2f50",
+        "profile": "default",
+        "family": "capability",
+        "verdictBefore": "TRUE",
+        "where": "benchmarks/fetch/bench.mts:28",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-b3eb34d95d",
+        "profile": "default",
+        "family": "capability",
+        "verdictBefore": "TRUE",
+        "where": "benchmarks/http-server/benchmark.ts:17",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-8ed24847f4",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "TRUE",
+        "where": "src/compose.test.ts:505",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-edea697994",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "TRUE",
+        "where": "src/hono.test.ts:578",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-8abd2f999e",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "TRUE",
+        "where": "src/hono.test.ts:3745",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-1d45c6c225",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "TRUE",
+        "where": "src/types.test.ts:2007",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-ed14a2f76e",
+        "profile": "default",
+        "family": "test-integrity",
+        "verdictBefore": "TRUE",
+        "where": "src/validator/validator.test.ts:1094",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-e8525087ae",
+        "profile": "declared",
+        "family": "boundary",
+        "verdictBefore": "TRUE",
+        "where": "src/request.ts:3",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-5ecd867d44",
+        "profile": "declared",
+        "family": "boundary",
+        "verdictBefore": "TRUE",
+        "where": "src/utils/color.ts:48",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-deaa6ea14b",
+        "profile": "declared",
+        "family": "boundary",
+        "verdictBefore": "TRUE",
+        "where": "src/utils/ipaddr.ts:6",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-71345e27fa",
+        "profile": "declared",
+        "family": "boundary",
+        "verdictBefore": "TRUE",
+        "where": "src/utils/jwt/jws.ts:7",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-345d54752c",
+        "profile": "declared",
+        "family": "boundary",
+        "verdictBefore": "TRUE",
+        "where": "src/utils/mount.ts:2",
+        "messageUnchanged": true
+      },
+      {
+        "id": "hono-5b92eeff10",
+        "profile": "declared",
+        "family": "capability",
+        "verdictBefore": "TRUE",
+        "where": "src/utils/jwt/jwt.ts:238",
+        "messageUnchanged": true
+      }
+    ],
+    "goneFalse": [],
+    "hypotheses": {
+      "added": [],
+      "unchanged": "10 hono hypotheses, same ids and messages as 9004563 (9 file-no-visible-case, 1 symbol-sentinel-constant hono-c162647772); not classified: hypotheses never count",
+      "case-asserts-completion": {
+        "hono": 0,
+        "note": "none on hono, as at 9004563"
+      }
+    },
+    "typecheckCoverage": {
+      "answer": "unchanged: same trees, same tsconfig.spec.json coverage of the 103 compile-time cases (see hono-9004563.json); none of them is a finding at this head either",
+      "reProbe51675dc": "the black-box probes rerun on the 51675dc build (the head of integration/2026-11-06-b, clean, dist newer than every src file; the head commit touches reports only): a type check that does not cover the test file (only `tsc -p tsconfig.build.json` excluding src/**/*.test.ts, in build or in test) now reads red, three case-asserts-nothing findings, where 9004563 credited it; the covering `tsc -p tsconfig.spec.json` is still credited; no type checker still reads red. The let-through reported on 9004563 is closed on these fixtures"
+    },
+    "outsideComparison": [
+      "the miss reported on 9004563 (src/utils/color.ts:23 reading process?.env in the declared core) is now reported: it is hono-b885ee1078, classified TRUE",
+      "still on 51675dc, probe only, no hono case: a type case whose Expect/Equal are exported by the same module as the type under test reads case-asserts-nothing under a covering tsc (residual false red); with the helpers in their own module it is credited"
+    ]
+  },
+  "counts": {
+    "newMeasurement": {
+      "default": {
+        "capability": {
+          "TRUE": 3,
+          "FALSE": 0
+        },
+        "test-integrity": {
+          "TRUE": 5,
+          "FALSE": 0
+        },
+        "total": {
+          "TRUE": 8,
+          "FALSE": 0,
+          "UNDECIDABLE": 0
+        }
+      },
+      "declared": {
+        "capability": {
+          "TRUE": 5,
+          "FALSE": 0
+        },
+        "test-integrity": {
+          "TRUE": 5,
+          "FALSE": 0
+        },
+        "boundary": {
+          "TRUE": 5,
+          "FALSE": 0
+        },
+        "total": {
+          "TRUE": 15,
+          "FALSE": 0,
+          "UNDECIDABLE": 0
+        }
+      }
+    },
+    "earlierMeasurement": {
+      "default": {
+        "TRUE": 8,
+        "FALSE": 0
+      },
+      "declared": {
+        "TRUE": 14,
+        "FALSE": 0
+      }
+    }
+  }
+}

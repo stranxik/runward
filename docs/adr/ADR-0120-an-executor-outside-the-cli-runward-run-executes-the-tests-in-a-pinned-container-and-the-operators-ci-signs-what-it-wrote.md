@@ -378,6 +378,68 @@ repository's runs, the offline GitLab CE bench, and the release runs of `runward
     (`build-and-attest.yml`, `release.yml`), so no release carries it. The required level read from the
     lock (ADR-0119 decision 4). D4b, R2, R3.
 
+- **2026-11-06, decision 1 completed and R2 implemented, and what was measured.** Written by the agent
+  session that built them, in pull request form; the maintainer has not reviewed it.
+  - **Decision 1, the release chain.** `build-and-attest.yml` packs `packages/runward-run` in the isolated
+    builder, after the suite, and declares its digest; the job that signs refuses another name or digest
+    and attests it; `release.yml` packs it again, refuses a byte of difference, attaches it as the tenth
+    asset and reads it back. npm stays closed to it until the bootstrap (RWD-2026-0195). Held by
+    `test/unit/run-release.test.js`.
+  - **What R2 landed.** runward derives each row's cited lines (`src/lib/mutation-targets.ts`: a symbol's
+    declaration to the end of its block, read on the code with comments, strings, templates and regular
+    expressions blanked; a line; else the file) and publishes them with the row's cited cases, each with
+    its report (`levels.execution.mutationTargets`). runward-run's mutation leg runs the leg's command once
+    unmutated, then once per mutant of those lines (the mutator `runward-run/js-ts/1`, by a lexer of its
+    own: equality, relational between spaces, logical, arithmetic after an operand, boolean, negation
+    before an operand, `if` condition, block, string literal), the file restored after each run, and
+    records every cited case of the report its command writes: failed on an assertion, on another error,
+    with no class the runner tells, skipped or absent. The coverage leg records the cited lines the LCOV
+    instruments and executes. runward reads the fact from a bound, signed Statement and compares the
+    recorded target with the one the tree implies.
+  - **Choices this record left open, made here.** A row whose cited lines hold no mutant (an interface) is
+    below `attested` (ADR-0119's note of the same day): two rows of the shipped example cite an
+    interface, and the laboratory also cites the adapter that implements each. The mutants of one cited
+    location are bounded (40 by default, the first in source order, the Statement recording how many there
+    were), and so is each mutant's run (300 s). The mutation leg runs the cases of the one JUnit report its
+    command writes: a cited case of another report (an eval's) is not its to read. Containers are named,
+    and one that outlives its timeout is removed by name: a container's PID 1 ignores the SIGTERM a stopped
+    client forwards.
+  - **Measured.** On the laboratory with the fake runtime (`test/unit/run-mutation.test.js`, macOS,
+    8 mutants per location): the original tests exit 0 at `attested`, each of the 8 rows that cite a code
+    location and a test with a mutant killed through a failed assertion; with the 42 assertions of the
+    example's test file replaced by `assert.ok(true)`, exit 5, the same 8 rows refused and nothing else.
+    On a real container runtime, the maintainer's NAS (Fedora, SELinux enforcing, Docker 29.0.4, 4 CPUs),
+    with the shipped example's run policy and image: on the laboratory, the mutation leg ran 79 mutants of
+    8 cited locations in 91.1 s of wall clock (the whole run 102 s, the install included); one signature
+    counted, exit 0 at `attested`, 16 rows attested and 8 re-derived (they cite no report), each of the 8
+    rows with a mutant killed through a failed assertion (from 2 of 6 to 13 of 20); weakened, 91.3 s, exit
+    5, the 8 rows refused, none with a mutant killed through an assertion. On the shipped example as
+    `init --example` writes it: 59 mutants of 7 cited locations in 69.2 s (the whole run 80 s), exit 5 at
+    `attested`: 6 rows attested by the mutation fact, the 2 rows citing an interface below (no mutant),
+    and the prose row. No scratch directory and no container left behind. The full suite on the NAS, on
+    the code of this delivery: exit 0 in 1093 s, 2061 tests, 2050 passing, 0 failing, 11 skipped; the
+    attack corpus 18 of 18.
+  - **The « Against » bound.** 69.2 s on the shipped example and 91.3 s on the laboratory, against 30 minutes: the
+    leg runs in the pipeline on every run, and no schedule is needed, so nothing of the level says so. The
+    real repositories of ADR-0117's criterion 2 are not measured: no classification of them is published,
+    and the bound is read again on each of them when it is.
+- **2026-11-06, R3 implemented.** Written by the agent session that built it; not reviewed. The evals leg
+  runs like the tests leg, the network cut. An evals leg with `"remote": true` names the reports of evals
+  that need a remote model, with no command: runward-run runs nothing for it and records them in the run
+  Statement as `declared`, with the reason, never as subjects; runward reads a cited report listed there as
+  `declared`, named, instead of « no run Statement binds it ». Measured on the laboratory
+  (`test/unit/run-evals.test.js`, the fake runtime): a row citing a local eval and a remote one reads the
+  first `attested` and the second `declared`, « an eval that needs a remote model: runward-run runs every
+  leg with the network cut, so this report is produced outside it and its result stays declared », and
+  the row stays below `attested`. A choice made here: the remote evals are named by the operator's run
+  policy, not detected; a remote eval the policy does not name reads `declared` too, as any report no run
+  Statement binds, with the generic reason. The full suite on the NAS, on the code of this delivery: exit 0 in 979 s,
+  2064 tests, 2053 passing, 0 failing, 11 skipped; the attack corpus 18 of 18. Every leg of decision 2 is
+  delivered. Not done here: the committed reports (`reports/junit.xml`, `reports/eslint.json`) are not
+  regenerated by these deliveries, which add test files; the integration regenerates them once, in the
+  reference environment (ADR-0112). D4b, the display of `machine-established` cells from run Statements
+  in the fleet view, is not built.
+
 ## References
 
 - [ADR-0005](ADR-0005-baseline-worktree-test-validation-out-of-scope.md),

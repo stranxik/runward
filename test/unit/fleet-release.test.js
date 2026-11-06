@@ -115,7 +115,7 @@ test("release chain: the fleet tarball is byte-matched, attached as the ninth as
   const uploaded = names(draft[indexOf(draft, /gh release upload/, "uploads the assets")]);
   assert.ok(uploaded.includes("runward-fleet-$VERSION.tgz"));
   assert.deepEqual(names(draft[indexOf(draft, /held\.txt/, "reads the draft back")]), uploaded, "the read-back checks exactly what was uploaded");
-  assert.equal(uploaded.length, 9, "nine assets");
+  assert.equal(uploaded.length, 11, "eleven assets, runward-integrations' the eleventh (ADR-0122)");
   const publish = runOf(rel.jobs.publish.steps).join("\n");
   assert.ok(!/runward-fleet/.test(publish), "the publish job never touches runward-fleet: npm is not one of its channels");
 });

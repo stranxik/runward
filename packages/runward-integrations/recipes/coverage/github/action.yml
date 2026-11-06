@@ -1,0 +1,51 @@
+# runward-integrations, recipe `coverage` (runward ADR-0122): the step, for GitHub Actions.
+#
+# It regenerates the LCOV report a mission cites from the project's own run, normalises it as runward
+# ADR-0073 option 1 does (no absolute path, no timing, every verdict and count kept) and replaces the cited
+# report before the gate reads it. The gate step comes after it, in the same job.
+#
+# Out of the agent's reach, two ways, both needed:
+#   - the step's code: call it by a 40-character commit of stranxik/runward, a repository the agent cannot
+#     write, never by a branch or a tag:
+#       uses: stranxik/runward/packages/runward-integrations/recipes/coverage/github@<40-character commit>
+#   - its inputs: the command decides what the report says, so it belongs in a workflow the agent cannot
+#     write either, a reusable workflow in a repository of yours, called by commit from the mission
+#     (packages/runward-integrations/samples/github). Called from the mission's own workflow, the step's code
+#     is still pinned, and the command is the agent's to change.
+#
+# What it writes is declared (runward ADR-0119 decision 1): a plain CI step binds nothing to the tree. The
+# same command as a leg of a runward-run policy reaches attested (ADR-0120, ADR-0122 decision 5).
+#
+# It needs Node.js 22.12 or later on the PATH (actions/setup-node in the job). The step fails when the
+# tool fails (a red run is recorded in the report all the same): run the gate after it with
+# `if: ${{ !cancelled() }}`, so the gate names the rows the red report refuses.
+name: "runward-integrations: coverage"
+description: "Regenerates the LCOV report a runward mission cites from the project's own run, normalised, before the gate reads it (runward ADR-0122)."
+author: stranxik
+inputs:
+  working-directory:
+    description: "The directory the command runs in; the report path is relative to it."
+    required: false
+    default: "."
+  report:
+    description: "The report the mission's rows cite, relative to working-directory (for example reports/lcov.info)."
+    required: true
+  command:
+    description: >-
+      The project's own test command, with coverage written as LCOV to {raw}, as a JSON argument vector, never a shell line. For example: ["node", "--import", "tsx", "--test", "--experimental-test-coverage", "--test-coverage-include=src/**", "--test-reporter=lcov", "--test-reporter-destination={raw}", "test/*.test.ts"]
+    required: true
+outputs:
+  tool-exit:
+    description: "The command's own exit code."
+    value: ${{ steps.regenerate.outputs.tool-exit }}
+runs:
+  using: composite
+  steps:
+    - id: regenerate
+      name: "Regenerate the LCOV report from the project's own run (declared: a plain CI step)"
+      shell: bash
+      env:
+        RWI_CWD: ${{ inputs.working-directory }}
+        RWI_REPORT: ${{ inputs.report }}
+        RWI_COMMAND: ${{ inputs.command }}
+      run: node "$GITHUB_ACTION_PATH/../../../src/cli.js" regenerate --recipe coverage --cwd "$RWI_CWD" --report "$RWI_REPORT" --command "$RWI_COMMAND" --github-output "$GITHUB_OUTPUT" --summary "$GITHUB_STEP_SUMMARY"

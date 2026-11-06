@@ -1,13 +1,48 @@
 // The static site: one page, the index and the views inlined, the fonts embedded, nothing loaded
 // from elsewhere. A pure function of its inputs: the same index gives the same bytes.
+//
+// Exported as `runward-fleet/site` (ADR-0121 decision 1): a hosted deployment renders the page the
+// static build writes, or reads the same template, views and fonts, from the package it pins instead
+// of a copy of them. `renderPage(index)` is what `runward-fleet build` writes to index.html.
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { BuildError } from "./build.js";
 import { checkIndex, checkPage, checkView } from "./rules.js";
+import * as api from "../ui/views.js";
 
+const UI = join(dirname(fileURLToPath(import.meta.url)), "..", "ui");
+const FONTS = [
+  { family: "Inter", weight: 300, file: "inter-latin-300-normal.woff2" },
+  { family: "Inter", weight: 400, file: "inter-latin-400-normal.woff2" },
+  { family: "Inter", weight: 500, file: "inter-latin-500-normal.woff2" },
+  { family: "Inter", weight: 600, file: "inter-latin-600-normal.woff2" },
+  { family: "Departure Mono", weight: 400, file: "DepartureMono-Regular.woff2" },
+];
 const NOSCRIPT = {
   en: "This page renders its index with JavaScript; the same index is in index.json, next to it.",
   fr: "Cette page affiche son index avec JavaScript ; le même index est dans index.json, à côté d'elle.",
 };
 const THEME = { en: "theme", fr: "thème" };
+
+/**
+ * What the page is made of, read from this package's own files: `template` (ui/template.html, the
+ * shell and the identity's tokens), `views` (the source text of ui/views.js), `api` (the same module,
+ * imported) and `fonts` ({ family, weight, file, bytes }). It reads those files and nothing else.
+ */
+export function siteAssets() {
+  return {
+    template: readFileSync(join(UI, "template.html"), "utf8"),
+    views: readFileSync(join(UI, "views.js"), "utf8"),
+    api,
+    fonts: FONTS.map((f) => ({ ...f, bytes: readFileSync(join(UI, "fonts", f.file)) })),
+  };
+}
+
+/** The page `runward-fleet build` writes for this index, byte for byte; refused as renderSite refuses. */
+export function renderPage(index) {
+  return renderSite(index, siteAssets());
+}
 
 /**
  * Assemble the page. `views` is the source text of ui/views.js and `api` the same module, imported:

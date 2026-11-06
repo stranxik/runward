@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { declaredMissionName, findMissionRoot, THROUGH_PHASE_IDS } from "../lib/mission.js";
-import { computeVerdict, verdictOutcome, LEVEL_NOT_MET_EXIT, REQUIRED_LEVELS, type RequiredLevel } from "../lib/verdict.js";
+import { computeVerdict, verdictOutcome, lockLevelOf, requiredLevel, LEVEL_NOT_MET_EXIT, REQUIRED_LEVELS, type RequiredLevel } from "../lib/verdict.js";
 import {
   buildVerdictStatement, deliveredTreeOf, digestOfFiles, missionStateFiles, missionStateScope, producerIdentity, rawFileSha256,
   DELIVERED_TREE_RULE, DELIVERED_TREE_SUBJECT_SUFFIX, IN_TOTO_STATEMENT_TYPE, RUNWARD_PREDICATE_TYPE, RUNWARD_BUNDLE_PREDICATE_TYPE,
@@ -239,6 +239,15 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   // without the block is a removal (ADR-0113 decision 1); an older producer's is read at `traced`.
   const attestedLevel = isObj(p.require) ? p.require.level : undefined;
   const level: RequiredLevel = REQUIRED_LEVELS.includes(attestedLevel as RequiredLevel) ? attestedLevel as RequiredLevel : "traced";
+  // ADR-0119 decision 4: the level may come from the mission's lock. The question is re-asked the way the
+  // attesting run asked it: by name when it named the level (its `levels.source`, or a level other than
+  // the one this tree implies), else left to the lock and the default, as the run left it.
+  const lockLevel = lockLevelOf(mission);
+  const implied = requiredLevel({ through }, lockLevel);
+  const levelsSource = isObj(p.levels) ? p.levels.source : undefined;
+  const asked: RequiredLevel | undefined = levelsSource === "flag" ? level
+    : levelsSource === "lock" || levelsSource === "default" ? undefined
+      : level !== implied ? level : undefined;
 
   // The one input no offline reading can give: which of the operator's hook commands failed. The file
   // is re-read (pure, nothing runs); the attesting run's record of the failures is taken only when each
@@ -268,8 +277,8 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   // The SAME functions `check` publishes with (machinePayload, nextStep, buildVerdictStatement): there
   // is no second assembly to drift from check.ts, and a field added to one side only stops an honest
   // attestation from verifying the day it lands, which the tests read.
-  const verdict = computeVerdict(mission, { strict, through, hookFailed, require: level });
-  const question = attestedQuestion({ strict, through, hooks: hooksAsked, require: level });
+  const verdict = computeVerdict(mission, { strict, through, hookFailed, require: asked });
+  const question = attestedQuestion({ strict, through, hooks: hooksAsked, require: level }, lockLevel);
   const payload = machinePayload(verdict, {
     version: VERSION,
     missionRoot: root!,

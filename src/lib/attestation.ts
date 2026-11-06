@@ -286,7 +286,7 @@ export const RUNWARD_POLICY_URI = "https://runward.dev/docs/concepts/the-gate/";
  */
 export function buildVsaStatement(
   root: string, missionDir: string,
-  opts: { resourceUri: string; passed: boolean; strict: boolean; timeVerified: string; through?: string | null },
+  opts: { resourceUri: string; passed: boolean; strict: boolean; timeVerified: string; through?: string | null; proofLevel?: string | null },
 ): Record<string, unknown> {
   return {
     _type: IN_TOTO_STATEMENT_TYPE,
@@ -317,11 +317,15 @@ export function buildVsaStatement(
       // evaluation failed"), and it is not an `SLSA_`-prefixed value, so emitting it breaks no rule
       // the comment above states. A failed verification therefore says FAILED in both fields, and
       // the level it did not reach is named nowhere.
+      // ADR-0119 decision 6: the level of proof the run required and met travels as one more custom
+      // value, `RUNWARD_PROOF_<LEVEL>`, never an `SLSA_` one, and only when the run read the levels
+      // (`re-derived` or `attested`): every other VSA keeps its bytes.
       verifiedLevels: opts.passed
         ? [
             opts.through
               ? `RUNWARD_GATE_${opts.strict ? "STRICT" : "PRESENCE"}_THROUGH_${opts.through.toUpperCase()}`
               : `RUNWARD_GATE_${opts.strict ? "STRICT" : "PRESENCE"}`,
+            ...(opts.proofLevel ? [`RUNWARD_PROOF_${opts.proofLevel.toUpperCase().replace(/-/g, "_")}`] : []),
           ]
         : ["FAILED"],
     },

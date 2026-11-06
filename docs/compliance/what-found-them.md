@@ -3,17 +3,17 @@
 The objection this page answers: *"we already do code review."*
 
 Every entry in the [defect register](known-defects.md) carries a `found-by` field, a closed
-vocabulary guarded by `test/unit/known-defects-register.test.js`. Across all 208 entries:
+vocabulary guarded by `test/unit/known-defects-register.test.js`. Across all 210 entries:
 
 | What found it | `found-by` | Entries |
 | --- | --- | ---: |
 | Adversarial audit: multi-agent, run as a deliberate task | `adversarial-audit` | 119 |
 | Mutation instruction: filing every surviving mutant, one argued verdict each | `mutation-instruction` | 18 |
-| A measurement someone chose to take | `measurement` | 22 |
+| A measurement someone chose to take | `measurement` | 23 |
 | While reproducing another defect | `while-reproducing` | 13 |
 | An existing guard reddening | `existing-guard` | 11 |
 | Declared at design time, as a limitation | `declared` | 4 |
-| An operator's report, from using the product | `operator-report` | 16 |
+| An operator's report, from using the product | `operator-report` | 17 |
 | Not recorded: nobody wrote it down, and guessing would be fabrication | `not-recorded` | 2 |
 | A CI leg on another OS | `ci-os-leg` | 1 |
 | The conformance corpus | `conformance-corpus` | 2 |
@@ -26,9 +26,9 @@ below stop matching it. Until 2026-09-29 they were kept by hand and had drifted:
 
 The point is not that review fails: the 119 audit entries **are** review, run as a scheduled
 adversarial task with a filing obligation, not as a by-product of merging. The point is that
-nothing here was free. 137 of 208 came from two instruments that only produce anything when they
+nothing here was free. 137 of 210 came from two instruments that only produce anything when they
 are run on purpose and their results filed. Most of the rest came from work someone chose to do:
-22 measurements someone decided to take, 13 defects surfaced while reproducing another one, 4
+23 measurements someone decided to take, 13 defects surfaced while reproducing another one, 4
 limitations declared at design time, two discoveries from an adversarial corpus and one from an
 OS-specific CI leg. The closest things to a free catch are the 11 `existing-guard` entries, where
 a guard reddened on its own, and even those guards were built on purpose: five sit in the mutation
@@ -39,7 +39,7 @@ RWD-2026-0183 showed it could not block a release), two are the
 the net-shrink guard, which counted sixteen removed cases that only a newer Node.js had escaped
 differently (RWD-2026-0187), and three are the repository's CodeQL code scanning, whose eleven alerts on
 the first integration pull request of 2026-11-06 named code no release carried (RWD-2026-0206 to
-RWD-2026-0208). Of the sixteen
+RWD-2026-0208). Of the seventeen
 `operator-report` entries, one came from the maintainer ratifying runward's own mission, three
 from an adopter reporting how the gate read the test names of their JUnit report (RWD-2026-0168 to
 RWD-2026-0170), one from an adopter whose pre-commit hook gave one tree two verdicts depending
@@ -50,7 +50,7 @@ fresh by a `touch` (RWD-2026-0175, RWD-2026-0176), and two from an adopter who w
 independent checker of the witness from its specification alone: a sentence of that specification
 the code contradicted, and an ADR lookup whose verdict depends on file names (RWD-2026-0177,
 RWD-2026-0178), and one from an adopter whose compliance pack counted two superseded decisions as
-not ratified (RWD-2026-0179), and three from the same adopter sealing its own mission and generating the three packs: an OSCAL file each regime overwrote, a sealed JUnit report that drifts on every run, and a cited report sealed with a failure on a case no pointer cited (RWD-2026-0180 to RWD-2026-0182).
+not ratified (RWD-2026-0179), three from the same adopter sealing its own mission and generating the three packs: an OSCAL file each regime overwrote, a sealed JUnit report that drifts on every run, and a cited report sealed with a failure on a case no pointer cited (RWD-2026-0180 to RWD-2026-0182), and one from an adopter's independent checker of the witness, written from its specification alone like the one behind RWD-2026-0177 and RWD-2026-0178: a build of an unpublished tree that names the last release in its witness (RWD-2026-0210).
 
 Three entries, one line each, checkable in the register:
 

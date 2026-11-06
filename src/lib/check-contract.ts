@@ -19,7 +19,7 @@
 
 import { resolve } from "node:path";
 import { GATED_DELIVERABLES, UNBOUND_CAUSE_TEXT } from "./conformance.js";
-import { requiredLevel, verdictOutcome, type Verdict } from "./verdict.js";
+import { requiredLevel, verdictOutcome, type RequiredLevel, type Verdict } from "./verdict.js";
 import { PHASES, type GapReport } from "./mission.js";
 import { analysisPayload } from "./analyze.js";
 import { levelsPayload } from "./evidence-levels.js";
@@ -155,12 +155,13 @@ export function impliesStrict(opts: CheckOptions): boolean {
  * flags that shape the verdict, which the predicate records (`strict`, `through`, the presence of
  * `hooks`), and never the path. `check` and `verify` both call it, so the two cannot disagree.
  */
-export function attestedQuestion(opts: Pick<CheckOptions, "strict" | "freeze" | "through" | "hooks" | "require">): CheckOptions {
+export function attestedQuestion(opts: Pick<CheckOptions, "strict" | "freeze" | "through" | "hooks" | "require">, lock: RequiredLevel | null = null): CheckOptions {
   // ADR-0114 beside ADR-0113: the level of proof shapes the verdict and the predicate records it
   // (`require.level`), so it is part of the question; it is named only when it is not the level the
-  // question implies (`requiredLevel`), so `--require mechanical` typed or left out gives one attestation.
+  // question implies (`requiredLevel`, the mission's lock included, ADR-0119 decision 4), so
+  // `--require mechanical` typed or left out gives one attestation.
   const strict = impliesStrict(opts);
-  const level = strict && opts.require && opts.require !== requiredLevel({ through: opts.through }) ? opts.require : undefined;
+  const level = strict && opts.require && opts.require !== requiredLevel({ through: opts.through }, lock) ? opts.require : undefined;
   return { strict, ...(opts.through ? { through: opts.through } : {}), ...(level ? { require: level } : {}), ...(opts.hooks ? { hooks: true } : {}) };
 }
 

@@ -245,7 +245,7 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
       // ADR-0088 decision 1: the stage banner joins the bag when the mission has a charter.
       // RWD-2026-0166: rows changed since their ratification, counted as ratified nowhere: a
       // disclosure in the same bag, present only when non-zero.
-      ...(verdict.ratification.agent || verdict.delegation || verdict.ratification.changed ? { properties: {
+      ...(verdict.ratification.agent || verdict.delegation || verdict.ratification.changed || verdict.levels ? { properties: {
         ...(verdict.ratification.changed ? { ratificationChanged: { rows: verdict.ratification.changed, changedRows: verdict.ratification.changedRows ?? [] } } : {}),
         ...(verdict.ratification.agent ? { agentRatification: { rows: verdict.ratification.agent, agents: verdict.ratification.agents ?? [],
           // ADR-0088 decision 4, additive: present only when rows were ratified as agent (single accountable).
@@ -255,6 +255,16 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
         ...(verdict.delegation ? { delegation: { file: verdict.delegation.file, stage: verdict.delegation.stage, banner: verdict.delegation.banner,
           ...(verdict.delegation.sample.present ? { sample: verdict.delegation.sample.banner } : {}),
           ...(verdict.delegation.sample.notice ? { unsampled: verdict.delegation.sample.notice } : {}) } } : {}),
+        // ADR-0119 decision 6, additive: each applied row's level of proof, present only when the run
+        // required `re-derived` or `attested`, so every other log keeps its bytes. A signature is counted
+        // by runward, never verified (`signatureVerified: false`).
+        ...(verdict.levels ? { levels: {
+          required: verdict.levels.required, source: verdict.levels.source, met: verdict.levels.met,
+          ...(verdict.levels.fallback ? { fallback: verdict.levels.fallback } : {}),
+          sentence: verdict.levels.sentence, signatureVerified: false,
+          rows: Object.fromEntries((["re-derived", "attested", "declared"] as const).map((k) => [k, verdict.levels!.rows[k].map((r) => ({ deliverable: r.deliverable, rule: r.rule }))])),
+          below: verdict.levels.below,
+        } } : {}),
       } } : {}),
     }],
   };

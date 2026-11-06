@@ -8,10 +8,12 @@
   ],
   "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 845.7,
-  "slowSeconds": 788.9,
+  "totalSeconds": 852.8,
+  "slowSeconds": 792.9,
   "slow": [
+    "test/unit/run-mutation.test.js",
     "test/unit/run-binding.test.js",
+    "test/unit/levels-lock.test.js",
     "test/unit/run-executor.test.js",
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
@@ -64,6 +66,7 @@
     "test/unit/update-newly-gated.test.js",
     "test/unit/sarif-emit.test.js",
     "test/unit/characterize-governed.test.js",
+    "test/unit/run-evals.test.js",
     "test/unit/readiness-golden.test.js",
     "test/unit/rules-for-cited.test.js",
     "test/unit/verify-findings-out-of-verdict.test.js",
@@ -111,12 +114,24 @@
     "test/unit/saboteur-corpus.test.js",
     "test/unit/analyze-ceilings.test.js",
     "test/unit/evidence-conformance-ceilings.test.js",
-    "test/unit/hooks-parent-test-runner.test.js"
+    "test/unit/hooks-parent-test-runner.test.js",
+    "test/unit/integrations-gitlab-step.test.js",
+    "test/unit/integrations-manifests.test.js"
   ],
   "files": [
     {
+      "file": "test/unit/run-mutation.test.js",
+      "seconds": 40.42,
+      "passed": true
+    },
+    {
       "file": "test/unit/run-binding.test.js",
-      "seconds": 12.21,
+      "seconds": 35.72,
+      "passed": true
+    },
+    {
+      "file": "test/unit/levels-lock.test.js",
+      "seconds": 30.65,
       "passed": true
     },
     {
@@ -127,6 +142,11 @@
     {
       "file": "test/unit/junit-quote-escaping.test.js",
       "seconds": 6.41,
+      "passed": true
+    },
+    {
+      "file": "test/unit/run-evals.test.js",
+      "seconds": 3.68,
       "passed": true
     },
     {
@@ -1295,6 +1315,11 @@
       "passed": true
     },
     {
+      "file": "test/unit/run-release.test.js",
+      "seconds": 0.15,
+      "passed": true
+    },
+    {
       "file": "test/unit/release-signing-isolation.test.js",
       "seconds": 0.14,
       "passed": true
@@ -1375,6 +1400,36 @@
       "passed": true
     },
     {
+      "file": "test/unit/integrations-gitlab-step.test.js",
+      "seconds": 2.08,
+      "passed": true
+    },
+    {
+      "file": "test/unit/integrations-manifests.test.js",
+      "seconds": 1.92,
+      "passed": true
+    },
+    {
+      "file": "test/unit/integrations-regenerate.test.js",
+      "seconds": 1.39,
+      "passed": true
+    },
+    {
+      "file": "test/unit/integrations-count.test.js",
+      "seconds": 0.43,
+      "passed": true
+    },
+    {
+      "file": "test/unit/integrations-normalize.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/integrations-release.test.js",
+      "seconds": 0.19,
+      "passed": true
+    },
+    {
       "file": "test/unit/fleet-linear-readers.test.js",
       "seconds": 1.15,
       "passed": true
@@ -1382,6 +1437,16 @@
     {
       "file": "test/unit/example-report-readers.test.js",
       "seconds": 1.21,
+      "passed": true
+    },
+    {
+      "file": "test/unit/run-junit-reader.test.js",
+      "seconds": 0.8,
+      "passed": true
+    },
+    {
+      "file": "test/unit/measure-analyzers-cells.test.js",
+      "seconds": 0.1,
       "passed": true
     }
   ]

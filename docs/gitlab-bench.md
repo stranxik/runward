@@ -12,6 +12,7 @@ any GitLab code it is meant to test.
 |---|---|
 | Layer 1: fixtures and stub | in the tree; the 7 fixtures are still **GitLab documentation examples**, not recordings (`"source": "docs-example"`): no run has been asked to upload its recordings (`update_fixtures`) |
 | Layer 2: GitLab CE in CI | **runs**: first by hand on 2026-10-13 (run 38451580587), then on schedule every Wednesday (2026-10-14, 10-21, 10-28 and 11-04). All five passed, in 300 to 347 seconds: GitLab CE ready 240 to 276 seconds after the start, `gate-green` exiting 0 and `gate-red` exiting 1, every egress probe blocked and the positive control on the default bridge reachable |
+| The recipes of runward-integrations (ADR-0122) | **passed by hand** on 2026-11-06, on a self-hosted Linux machine (Fedora, SELinux enforcing), driven from a `node:24` container through the host's Docker socket: in 1086 seconds, GitLab CE ready 753 seconds after the start (capped to 3 CPUs there), the 15 jobs of the pipeline green, `gate-<recipe>-without-recipe` exiting 0, `gate-<recipe>-with-recipe` exiting 1 and `gate-healthy-with-recipes` 0 for `sarif`, `junit` and `coverage`, each recipe job writing its report, every egress probe blocked. Not yet run by the workflow with these jobs |
 | GitLab version | the bench pins GitLab CE 19.4.2 (`gitlab/gitlab-ce:19.4.2-ce.0`) and GitLab Runner 19.4.1 by digest in [`test/gitlab-bench/images.env`](../test/gitlab-bench/images.env), and each run read back `19.4.2 (ecff27ae760)`; no fixture is from that version yet |
 
 Read on 2026-11-05 in the five runs' logs (`gh run list -R stranxik/runward -w gitlab-bench.yml`, then
@@ -87,6 +88,20 @@ secret. Steps:
    `npm install --offline`, and runs `runward check --strict`. `gate-green` requires exit 0,
    `gate-red` requires exit 1. Each job prints the code it saw, and the bench reads it back from the
    job log through the API: a job that passed for another reason fails the bench.
+   Then the recipes of [`runward-integrations`](../packages/runward-integrations/README.md)
+   (ADR-0122 decision 6), each through its own GitLab template, included from a second project of the
+   instance (`root/integrations`, pushed before the fixture repository) at the commit the bench made of
+   it, as an operator includes it from a project the agent cannot write. In step 1 the bench packs the
+   package and pins its sha256 in the pipeline, warms the npm cache with the shipped example's
+   dependencies from its lockfile, and builds the recipes' trees as the controls build them
+   (`init --example` by this tree's runward, with the lockfile): `healthy/`, and one tree per recipe
+   with its sabotage planted. Each recipe job installs the example's dependencies with `npm ci --offline`,
+   fetches the package from the package server (any other sha256 is refused), and regenerates its report
+   on its sabotaged tree and on the healthy one, keeping it as an artifact. The gate then reads each tree:
+   `gate-<recipe>-without-recipe` must exit 0 (the sabotage passes on the committed reports),
+   `gate-<recipe>-with-recipe` must exit 1 (refused once the report is regenerated), and
+   `gate-healthy-with-recipes`, with the three regenerated reports, must exit 0. Each exit is read back
+   from the job log, as for `gate-green` and `gate-red`, and every job's egress probe must read blocked.
 7. **Recording.** A merge request is opened and a marked summary note created, read and updated; the
    merge request's versions, commits, approvals, approval state, approval by its author and pipelines
    are read; the pipeline and its jobs and logs too. Each response is written as a fixture.
@@ -106,7 +121,9 @@ secret. Steps:
 
 When it passes, it proves that on GitLab CE 19.4.2 with GitLab Runner 19.4.1, a pipeline with no
 registry and no internet installs runward from a tarball and that `runward check --strict` exits 0 on
-a green mission and 1 on a red one, through GitLab CI. It does not prove anything about gitlab.com
+a green mission and 1 on a red one, through GitLab CI; and that each recipe of `runward-integrations`,
+included by its template at a pinned commit of another project and fetched by its sha256, regenerates its
+report so that the gate refuses its planted sabotage and accepts the healthy tree. It does not prove anything about gitlab.com
 (the analysis's other half of G12, a test project on gitlab.com, is not built), about GitLab Premium
 or Ultimate (CE has no approval rules, no external controls), about another GitLab version, or about
 an air-gapped installation's own constraints (proxies, internal CAs, a mirrored registry). It does
@@ -147,6 +164,13 @@ fixtures with the new version in the same pull request.
 `test/gitlab-bench/bench.sh <workdir>` runs the same bench locally (it needs `docker`, `jq`, `node`
 and `npm`, and the network for its first phase). Clean up with
 `docker rm -f gitlab runner pkgs; docker network rm rwbench`.
+
+On a host where SELinux is enforcing (Fedora, RHEL), the bench relabels the directory its package server
+reads (`-v …:ro,z`) and runs the GitLab Runner unlabelled (`--security-opt label=disable`), so that it may
+open the Docker socket; elsewhere Docker ignores both. Without them, measured on 2026-11-06, the package
+server reads nothing and the runner cannot start a job. A driver container that runs `bench.sh` there needs
+the same `label=disable` to reach the socket, and the bench's directories at the same path on the host
+and in the container, since `bench.sh` hands host paths to `docker run`.
 
 ## If GitLab CE cannot boot there
 

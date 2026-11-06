@@ -19,11 +19,7 @@ Traces are data: this floor exports none to a third party (see the conformance n
 
 ## 3. Usage registry
 
-Risk is classed by deployment, not by platform. This floor is one deployment.
-
-| Deployment | Risk class | Data classes touched | Action scopes | Owner / responsible | Last review |
-|---|---|---|---|---|---|
-| triage-bot / prod | medium | request text (personal possible), `TriageRecord` | read intake; write to ticketing (approval-gated for compliance-flagged records) | triage product owner | — |
+Risk is classed by deployment, not by platform. This floor is one deployment, `triage-bot / prod`, registered in [governance/usage-registry.md](governance/usage-registry.md) with its risk class, data classes, action scopes and owner.
 
 ## Rule conformance
 
@@ -32,7 +28,7 @@ Risk is classed by deployment, not by platform. This floor is one deployment.
 | topology-port-placement-mapped | applied | file:code/src/core/ports/routing.port.ts#RoutingPort; adr:0003 — §2 map — all four ports placed; the two non-in-app placements (ModelPort → managed vendor runtime, RoutingPort → existing ticketing infra) are locked in ADR-0003 (the infra ADR family) |
 | topology-sovereignty-by-data-class | applied | file:code/src/adapters/hardcoded-account-registry.adapter.ts; adr:0003 — §2 map — a data class and a sovereignty level per port; request text is bound to the approved model deployment (residency), the `TriageRecord` is kept internal |
 | topology-trace-export-decision | n/a | the floor exports no execution traces to a third party; observability is in-app structured logs per governance/observability-schema.md |
-| topology-usage-registry-present | applied | file:runward/execution-topology.md#Usage — §3 usage registry holds the single prod deployment with its risk class, data classes, action scopes and owner |
+| topology-usage-registry-present | applied | file:runward/governance/usage-registry.md#triage-bot — §3 usage registry holds the single prod deployment with its risk class, data classes, action scopes and owner |
 
 ## Cross-references
 

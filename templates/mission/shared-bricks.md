@@ -63,7 +63,7 @@ Sovereignty is not one rule per brick; it is one rule per **class of data** cros
 
 ## The usage registry
 
-Keep a registry of who deploys what on which brick, because risk is classed **by deployment, not by platform**. The same internal platform hosts a harmless FAQ bot and an agent with write access to payments; a platform-level risk label would either strangle the first or wave the second through. Governance attaches to each deployment — its data classes, its action scopes, its approval points — and the registry is what lets you answer, at audit time, "what runs where, touching what."
+Keep a registry of who deploys what on which brick, because risk is classed **by deployment, not by platform**. The same internal platform hosts a harmless FAQ bot and an agent with write access to payments; a platform-level risk label would either strangle the first or wave the second through. Governance attaches to each deployment — its data classes, its action scopes, its approval points — and the registry, `governance/usage-registry.md`, is what lets you answer, at audit time, "what runs where, touching what."
 
 ## The lesson of the layers
 

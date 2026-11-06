@@ -221,9 +221,15 @@ test("every entry says whether it has a security advisory, from the closed vocab
   const entries = readRegister(TEXT);
   const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).version;
   assert.deepEqual(advisoryProblems(entries, pkg), []);
-  // The field must carry the published advisories, not only reasons: ADR-0086 published twelve.
+  // The field must carry the published advisories, not only reasons: ADR-0086 published twelve. On
+  // 2026-11-06 the repository's published advisories, read back that day, were seventeen (fourteen dated
+  // 2026-10-11, one 2026-10-21, two 2026-11-06), the same seventeen identifiers the register carries.
   const ghsa = entries.filter((e) => GHSA.test(e.advisory));
-  assert.ok(ghsa.length >= 12, `${ghsa.length} entries name an advisory; twelve were published on 2026-10-11`);
+  assert.ok(ghsa.length >= 17, `${ghsa.length} entries name an advisory; seventeen were published by 2026-11-06`);
+  // The two published on 2026-11-06 at 09:55 UTC, each on the entry it describes.
+  const advisoryOf = Object.fromEntries(entries.map((e) => [e.id, e.advisory]));
+  assert.equal(advisoryOf["RWD-2026-0170"], "GHSA-jmh3-p2wj-5wfw");
+  assert.equal(advisoryOf["RWD-2026-0178"], "GHSA-x9qr-gw4f-69v9");
   // `unclassified` is honest and must stay rare, as `not-recorded` and `unknown` above: a register
   // where it grows has stopped reading new entries against the criteria (ADR-0086's watch).
   const unclassified = entries.filter((e) => e.advisory === "unclassified").map((e) => e.id);

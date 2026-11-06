@@ -113,6 +113,26 @@ test("snapshot: the canonical rendering of a verdict ignores list and key order,
 // ---------------------------------------------------------------------------------------------
 // The eight relations.
 
+/**
+ * The verdict a relation compares: the whole verdict, less one field, `levels.execution.expected`.
+ * The shipped example's lock asks for `re-derived` since ADR-0119 decision 4 made it the default of
+ * new missions, so its verdict carries the levels block, and that block carries the inventory a
+ * runward-run Statement is bound to (ADR-0120 decision 4): the files the analyzers read and the rows
+ * cite, by path, and the digest of the manifests' bytes. It is sensitive to bytes by construction, the
+ * very bytes MR-1 (a renamed file), MR-2 (reordered rows), MR-3 (re-padded cells) and MR-5 (an added
+ * row) change, so it moves under the relations that must leave the judgement unchanged. Everything
+ * else is compared, the rest of the levels block included; the inventory is present on both sides or
+ * on neither, under the same rule.
+ */
+function judgement(v, other) {
+  const expected = v.levels?.execution?.expected;
+  const peer = other.levels?.execution?.expected;
+  assert.equal(expected === undefined, peer === undefined, "the bound inventory is present on one side only");
+  if (expected === undefined) return v;
+  assert.equal(expected.rule, peer.rule, "the bound inventory is derived under another rule");
+  return { ...v, levels: { ...v.levels, execution: { ...v.levels.execution, expected: "(excluded: the bound inventory)" } } };
+}
+
 /** Check one relation over RUNS generated missions. */
 function holds(id) {
   const rel = RELATIONS.find((r) => r.id === id);
@@ -126,7 +146,8 @@ function holds(id) {
     ran++;
     const v = judge(after);
     if (rel.expect === "same") {
-      assert.equal(renderVerdict(v), renderVerdict(before), `the verdict changed (first difference: ${firstDifference(v, before)})`);
+      const [a, b] = [judgement(v, before), judgement(before, v)];
+      assert.equal(renderVerdict(a), renderVerdict(b), `the verdict changed (first difference: ${firstDifference(a, b)})`);
     } else if (rel.expect === "same-but-one-row") {
       // The added row is disclosed, and must be: the evidence breakdown and the ratification ledger
       // count it. Everything else, exit code and violations first, is unchanged.
@@ -142,7 +163,8 @@ function holds(id) {
       const folded = { ...v, breakdown: { ...v.breakdown, rows: before.breakdown.rows, na: before.breakdown.na },
         ratification: { ...v.ratification, untraced: before.ratification.untraced },
         ratificationRows: v.ratificationRows.filter((r) => had.has(key(r))) };
-      assert.equal(renderVerdict(folded), renderVerdict(before), `the verdict changed beyond the disclosed count (first difference: ${firstDifference(folded, before)})`);
+      const [a, b] = [judgement(folded, before), judgement(before, folded)];
+      assert.equal(renderVerdict(a), renderVerdict(b), `the verdict changed beyond the disclosed count (first difference: ${firstDifference(a, b)})`);
     } else {
       assert.equal(v.exitCode, 1, `a green mission stayed green after: ${rel.name}`);
       assert.equal(v.clean, false);
@@ -158,6 +180,20 @@ function holds(id) {
 
 // The names are written out, not built from RELATIONS, because the requirements register cites each
 // one by its exact text (test/unit/tor-traceability.test.js reads this file for it).
+test("the relations compare the whole verdict but the bound inventory: one moved field, and only that one, is folded", () => {
+  const v = judge(exampleTree());
+  assert.ok(v.levels?.execution?.expected, "the control: the example's verdict carries the bound inventory its lock's level implies");
+  const moved = { ...v, levels: { ...v.levels, execution: { ...v.levels.execution, expected: { ...v.levels.execution.expected, files: [], manifestsDigest: "0".repeat(64) } } } };
+  assert.notEqual(renderVerdict(moved), renderVerdict(v), "the control: the inventory moved");
+  assert.equal(renderVerdict(judgement(moved, v)), renderVerdict(judgement(v, moved)), "the inventory alone is folded");
+  const counted = { ...moved, levels: { ...moved.levels, counts: { ...moved.levels.counts, declared: (moved.levels.counts?.declared ?? 0) + 1 } } };
+  assert.notEqual(renderVerdict(judgement(counted, v)), renderVerdict(judgement(v, counted)), "any other field of the levels block still counts");
+  const red = { ...moved, exitCode: 1 };
+  assert.notEqual(renderVerdict(judgement(red, v)), renderVerdict(judgement(v, red)), "and so does every field outside it");
+  const ruled = { ...moved, levels: { ...moved.levels, execution: { ...moved.levels.execution, expected: { ...moved.levels.execution.expected, rule: "another rule" } } } };
+  assert.throws(() => judgement(ruled, v), /another rule/, "an inventory derived under another rule is not folded");
+});
+
 test("MR-1: renaming a file no row cites leaves the verdict unchanged", () => holds("MR-1"));
 test("MR-2: reversing the order of a manifest's rule rows leaves the verdict unchanged", () => holds("MR-2"));
 test("MR-3: re-padding the cells of every rule row leaves the verdict unchanged", () => holds("MR-3"));

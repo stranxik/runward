@@ -5,11 +5,12 @@
 // its positive control.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { build, exampleCheck, fixture, indexFrom, manifestOf, missionWith, pageFor, PKG, realCheck, ROOT, rules } from "../support/fleet.js";
+import { build, exampleCheck, fixture, indexFrom, manifestOf, missionWith, pageFor, PKG, realCheck, ROOT, rules, site } from "../support/fleet.js";
 
 const records = () => fixture("exports", "runward.records.jsonl");
 
@@ -183,11 +184,74 @@ test("the build reads no clock, and the scan for one sees a planted one", () => 
 test("the specification names every key the index carries: a key added without its line reddens", () => {
   const spec = readFileSync(join(ROOT, "docs", "spec", "runward-fleet-index.md"), "utf8");
   const { manifest, files } = realFleet();
-  const index = indexFrom({ ...manifest, missions: [{ ...manifest.missions[0], signatures: [{ covers: "check", kind: "sigstore-bundle", file: "b.jsonl" }] }, manifest.missions[1]] },
+  const index = indexFrom({ ...manifest, missions: [{ ...manifest.missions[0], commitSource: "the upload's workload identity token", signatures: [{ covers: "check", kind: "sigstore-bundle", file: "b.jsonl" }] }, manifest.missions[1]] },
     { ...files, "b.jsonl": fixture("sigstore", "runward-0.46.0.provenance.intoto.jsonl") });
   const m = index.missions[0];
-  const keys = new Set([...Object.keys(index), ...Object.keys(index.fleet), ...Object.keys(m), ...Object.keys(m.latest), ...Object.keys(m.signatures[0]), ...Object.keys(index.sources[0]), ...Object.keys(m.history.series[0]), ...Object.keys(m.history.series[0].records[0])]);
+  const keys = new Set([...Object.keys(index), ...Object.keys(index.fleet), ...Object.keys(m), ...Object.keys(m.commit), ...Object.keys(m.latest), ...Object.keys(m.signatures[0]), ...Object.keys(index.sources[0]), ...Object.keys(m.history.series[0]), ...Object.keys(m.history.series[0].records[0])]);
   const missing = [...keys].filter((k) => !new RegExp(`\`${k}\`|\\b${k}\\b`).test(spec));
   assert.deepEqual(missing, [], "docs/spec/runward-fleet-index.md names every key of runward-fleet-index/0");
   assert.ok(new RegExp("\\bnotAKeyOfTheIndex\\b").test(spec) === false, "control: a key the spec does not name is detected as missing");
+});
+
+test("commitSource: the inventory may say where its commit was read from; the index carries it as declared, only when declared", () => {
+  const SOURCE = "claim sha of the upload's workload identity token";
+  const commit = "32d8425b1cb41568eab3ce29dce24f63bad8a32a";
+  const index = indexFrom(manifestOf([missionWith("a", { commit, commitSource: SOURCE }), missionWith("b", { commit })]), { "exports/a/check.json": realCheck(), "exports/b/check.json": realCheck() });
+  assert.deepEqual(index.missions[0].commit, { value: commit, source: "fleet.json (declared)", commitSource: SOURCE });
+  assert.deepEqual(index.missions[1].commit, { value: commit, source: "fleet.json (declared)" }, "without one, the member is absent and the index keeps its bytes");
+  assert.deepEqual(rules.checkIndex(index), []);
+  // Refused, nothing built: a source with no commit to qualify, a source that is not a short label, a private path.
+  assert.throws(() => indexFrom(manifestOf([missionWith("a", { commitSource: SOURCE })])), /commit is absent/);
+  for (const bad of [42, "", " ", "x".repeat(201)]) assert.throws(() => indexFrom(manifestOf([missionWith("a", { commit, commitSource: bad })])), /200 characters at most/, JSON.stringify(bad).slice(0, 20));
+  assert.throws(() => indexFrom(manifestOf([missionWith("a", { commit, commitSource: "read at /home/ci/work" })])), (e) => e instanceof build.BuildError && /missions\[0\]\.commit\.commitSource/.test(e.message));
+  // Positive control: 200 characters is a label.
+  assert.equal(indexFrom(manifestOf([missionWith("a", { commit, commitSource: "x".repeat(200) })])).missions[0].commit.commitSource.length, 200);
+});
+
+// ADR-0121 decision 1, and its "what would settle it": the same index.json, rendered by the static build
+// and by a hosted deployment through runward-fleet/site, gives the same page; the golden files hold the
+// index and the page of one inventory, so a change of either is read in a diff before it lands.
+// Regenerate with UPDATE_GOLDEN=1 node --test test/unit/fleet-build.test.js, then read the diff.
+const GOLDEN = join(ROOT, "test", "fixtures", "golden", "fleet");
+
+test("one interface, two deployments: runward-fleet/site renders, from the index.json the build wrote, the page it wrote; both are golden", async () => {
+  // Through the package's exports map, as a hosted deployment imports it: a consumer directory whose
+  // node_modules holds the package, and a module of that consumer that imports runward-fleet/site.
+  const pkg = JSON.parse(readFileSync(join(PKG, "package.json"), "utf8"));
+  assert.equal(pkg.exports["./site"], "./src/site.js");
+  const dir = mkdtempSync(join(tmpdir(), "rw-fleet-site-"));
+  try {
+    mkdirSync(join(dir, "node_modules"));
+    symlinkSync(PKG, join(dir, "node_modules", "runward-fleet"), "junction");
+    writeFileSync(join(dir, "consumer.mjs"), 'export * from "runward-fleet/site";\nexport { buildIndex } from "runward-fleet";\n');
+    const hosted = await import(pathToFileURL(join(dir, "consumer.mjs")).href);
+    assert.deepEqual(["buildIndex", "renderPage", "renderSite", "siteAssets"].filter((k) => typeof hosted[k] !== "function"), [], "runward-fleet/site exports what a hosted deployment calls");
+    const assets = hosted.siteAssets();
+    assert.equal(assets.views, readFileSync(join(PKG, "ui", "views.js"), "utf8"), "the views it serves are the package's own file, not a copy");
+    assert.equal(assets.template, readFileSync(join(PKG, "ui", "template.html"), "utf8"));
+    assert.deepEqual(assets.fonts.map((f) => [f.family, f.weight]), [["Inter", 300], ["Inter", 400], ["Inter", 500], ["Inter", 600], ["Departure Mono", 400]]);
+
+    // The static build writes index.json and index.html; the hosted rendering of those index.json bytes is index.html.
+    const { manifest, files } = realFleet();
+    for (const [rel, bytes] of Object.entries(files)) { mkdirSync(join(dir, "fleet", rel, ".."), { recursive: true }); writeFileSync(join(dir, "fleet", rel), bytes); }
+    writeFileSync(join(dir, "fleet", "fleet.json"), JSON.stringify(manifest));
+    const { main } = await import(pathToFileURL(join(PKG, "src", "cli.js")).href);
+    assert.equal(await main(["build", join(dir, "fleet", "fleet.json"), "--out", join(dir, "site")], { log: () => {}, error: (e) => assert.fail(e) }), 0);
+    const written = readFileSync(join(dir, "site", "index.html"), "utf8");
+    assert.equal(hosted.renderPage(JSON.parse(readFileSync(join(dir, "site", "index.json"), "utf8"))), written, "the page rendered from the received index.json is not the page the build wrote");
+    // Control: a received index that differs by one value renders another page.
+    const other = JSON.parse(readFileSync(join(dir, "site", "index.json"), "utf8"));
+    other.title = "another fleet";
+    assert.notEqual(hosted.renderPage(other), written);
+
+    // The golden inventory: the real fleet, a mission whose commit names its source, and a silent one.
+    const golden = { ...manifest, missions: [{ ...manifest.missions[0], commitSource: "the upload's workload identity token (claim sha)" }, manifest.missions[1], missionWith("silent", { expects: ["check"] })] };
+    const index = indexFrom(golden, files);
+    const json = `${JSON.stringify(index, null, 2)}\n`;
+    const page = `${createHash("sha256").update(hosted.renderPage(index)).digest("hex")}\n`;
+    if (process.env.UPDATE_GOLDEN === "1") { mkdirSync(GOLDEN, { recursive: true }); writeFileSync(join(GOLDEN, "index.json"), json); writeFileSync(join(GOLDEN, "page.sha256"), page); }
+    for (const f of ["index.json", "page.sha256"]) assert.ok(existsSync(join(GOLDEN, f)), `${f} is missing: run with UPDATE_GOLDEN=1 once, then read the diff`);
+    assert.equal(json, readFileSync(join(GOLDEN, "index.json"), "utf8"), "the index moved: regenerate with UPDATE_GOLDEN=1 and read the diff");
+    assert.equal(page, readFileSync(join(GOLDEN, "page.sha256"), "utf8"), "the page moved: regenerate with UPDATE_GOLDEN=1 and read the diff");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });

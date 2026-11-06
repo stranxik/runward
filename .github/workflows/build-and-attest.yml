@@ -9,8 +9,8 @@ name: Build and attest (isolated builder)
 #   gh attestation verify runward-X.Y.Z.tgz --repo stranxik/runward \
 #     --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml
 #
-# (and the same for runward-forge-X.Y.Z.tgz, runward-fleet-X.Y.Z.tgz and the qualification kit,
-# attested here too).
+# (and the same for runward-forge-X.Y.Z.tgz, runward-fleet-X.Y.Z.tgz, runward-run-X.Y.Z.tgz,
+# runward-integrations-X.Y.Z.tgz and the qualification kit, attested here too).
 #
 # What the isolation buys, concretely: the provenance for the tarball is SIGNED HERE, in a workflow
 # whose steps the calling workflow cannot reach into. A step added to release.yml — the file the
@@ -25,10 +25,10 @@ name: Build and attest (isolated builder)
 # development dependency could have asked for the OIDC token and signed under this file's name. Now:
 #
 #   build   holds `contents: read` and nothing else. It installs without install scripts, tests, packs
-#           both tarballs, builds the kit, and declares the SHA-256 of the three files as job outputs.
+#           the tarballs, builds the kit, and declares the SHA-256 of each file as job outputs.
 #   attest  holds `id-token: write` and `attestations: write`. It checks out nothing and runs no npm and
-#           no file of the tree: it downloads the three files, refuses any whose digest or name is not
-#           the one the build job declared, signs the three provenances and hands them on.
+#           no file of the tree: it downloads the files, refuses any whose digest or name is not the
+#           one the build job declared, signs their provenances and hands them on.
 #
 # Neither job restores a cache: a cache is the channel through which one run reaches another, and
 # test/unit/release-signing-isolation.test.js refuses one anywhere in the release chain.
@@ -56,6 +56,12 @@ on:
       fleet:
         description: "Filename of the packed runward-fleet tarball (packages/runward-fleet, same version)"
         value: ${{ jobs.build.outputs.fleet }}
+      run:
+        description: "Filename of the packed runward-run tarball (packages/runward-run, same version)"
+        value: ${{ jobs.build.outputs.run }}
+      integrations:
+        description: "Filename of the packed runward-integrations tarball (packages/runward-integrations, same version)"
+        value: ${{ jobs.build.outputs.integrations }}
 
 permissions: {}
 
@@ -70,10 +76,14 @@ jobs:
       kit: ${{ steps.kit.outputs.kit }}
       forge: ${{ steps.forge_pack.outputs.forge }}
       fleet: ${{ steps.fleet_pack.outputs.fleet }}
+      run: ${{ steps.run_pack.outputs.run }}
+      integrations: ${{ steps.integrations_pack.outputs.integrations }}
       tarball_sha256: ${{ steps.digests.outputs.tarball_sha256 }}
       kit_sha256: ${{ steps.digests.outputs.kit_sha256 }}
       forge_sha256: ${{ steps.digests.outputs.forge_sha256 }}
       fleet_sha256: ${{ steps.digests.outputs.fleet_sha256 }}
+      run_sha256: ${{ steps.digests.outputs.run_sha256 }}
+      integrations_sha256: ${{ steps.digests.outputs.integrations_sha256 }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -144,6 +154,41 @@ jobs:
           test -s "$FLEET"
           echo "fleet=$FLEET" >> "$GITHUB_OUTPUT"
 
+      # The fourth package at runward's version (ADR-0120 decision 1): runward-run, the executor that
+      # runs a mission's tests in a container pinned by digest, the network cut, in the operator's CI.
+      # A release asset only until the npm bootstrap runward-forge still waits on (RWD-2026-0195): the
+      # package is private, npm refuses to publish it, and no step of this chain tries. Packed in its
+      # own directory like the two before it, attested by the signing job below, so `--signer-workflow`
+      # pins it too, and the caller packs it again and refuses a byte of difference
+      # (test/unit/run-samples.test.js refuses a version that differs).
+      - name: Pack the runward-run tarball
+        id: run_pack
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p 'require("./package.json").version')
+          RUN=$(cd packages/runward-run && npm pack --silent --pack-destination "$GITHUB_WORKSPACE")
+          [ "$RUN" = "runward-run-$VERSION.tgz" ] \
+            || { echo "::error::packed $RUN, expected runward-run-$VERSION.tgz (the packages share one version)"; exit 1; }
+          test -s "$RUN"
+          echo "run=$RUN" >> "$GITHUB_OUTPUT"
+
+      # The fifth package at runward's version (ADR-0122): runward-integrations, the recipes that
+      # regenerate a mission's cited reports out of the agent's reach, and the CLI of their controls and
+      # count. A release asset only: the package is private, npm refuses to publish it, and no step of
+      # this chain tries. Packed in its own directory like the three before it, attested by the signing
+      # job below, so `--signer-workflow` pins it too, and the caller packs it again and refuses a byte of
+      # difference (test/unit/integrations-manifests.test.js refuses a version that differs).
+      - name: Pack the runward-integrations tarball
+        id: integrations_pack
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p 'require("./package.json").version')
+          INTEGRATIONS=$(cd packages/runward-integrations && npm pack --silent --pack-destination "$GITHUB_WORKSPACE")
+          [ "$INTEGRATIONS" = "runward-integrations-$VERSION.tgz" ] \
+            || { echo "::error::packed $INTEGRATIONS, expected runward-integrations-$VERSION.tgz (the packages share one version)"; exit 1; }
+          test -s "$INTEGRATIONS"
+          echo "integrations=$INTEGRATIONS" >> "$GITHUB_OUTPUT"
+
       # The qualification kit (ADR-0087, decision 1): the cited tests, the runner, the requirements
       # and the open anomalies of this tree, plus the SHA-256 of every file of the tarball packed
       # above. Built from the commit through git, so nothing untracked enters it, and deterministic,
@@ -169,16 +214,20 @@ jobs:
           KIT: ${{ steps.kit.outputs.kit }}
           FORGE: ${{ steps.forge_pack.outputs.forge }}
           FLEET: ${{ steps.fleet_pack.outputs.fleet }}
+          RUN: ${{ steps.run_pack.outputs.run }}
+          INTEGRATIONS: ${{ steps.integrations_pack.outputs.integrations }}
         run: |
           set -euo pipefail
-          for v in TARBALL KIT FORGE FLEET; do test -s "${!v}"; done
+          for v in TARBALL KIT FORGE FLEET RUN INTEGRATIONS; do test -s "${!v}"; done
           {
             echo "tarball_sha256=$(sha256sum "$TARBALL" | cut -d' ' -f1)"
             echo "kit_sha256=$(sha256sum "$KIT" | cut -d' ' -f1)"
             echo "forge_sha256=$(sha256sum "$FORGE" | cut -d' ' -f1)"
             echo "fleet_sha256=$(sha256sum "$FLEET" | cut -d' ' -f1)"
+            echo "run_sha256=$(sha256sum "$RUN" | cut -d' ' -f1)"
+            echo "integrations_sha256=$(sha256sum "$INTEGRATIONS" | cut -d' ' -f1)"
           } >> "$GITHUB_OUTPUT"
-          sha256sum "$TARBALL" "$KIT" "$FORGE" "$FLEET"
+          sha256sum "$TARBALL" "$KIT" "$FORGE" "$FLEET" "$RUN" "$INTEGRATIONS"
 
       - name: Hand the unsigned tarballs and the kit to the signing job
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -189,6 +238,8 @@ jobs:
             ${{ steps.kit.outputs.kit }}
             ${{ steps.forge_pack.outputs.forge }}
             ${{ steps.fleet_pack.outputs.fleet }}
+            ${{ steps.run_pack.outputs.run }}
+            ${{ steps.integrations_pack.outputs.integrations }}
           if-no-files-found: error
           retention-days: 1
 
@@ -214,17 +265,21 @@ jobs:
           KIT: ${{ needs.build.outputs.kit }}
           FORGE: ${{ needs.build.outputs.forge }}
           FLEET: ${{ needs.build.outputs.fleet }}
+          RUN: ${{ needs.build.outputs.run }}
+          INTEGRATIONS: ${{ needs.build.outputs.integrations }}
           TARBALL_SHA256: ${{ needs.build.outputs.tarball_sha256 }}
           KIT_SHA256: ${{ needs.build.outputs.kit_sha256 }}
           FORGE_SHA256: ${{ needs.build.outputs.forge_sha256 }}
           FLEET_SHA256: ${{ needs.build.outputs.fleet_sha256 }}
+          RUN_SHA256: ${{ needs.build.outputs.run_sha256 }}
+          INTEGRATIONS_SHA256: ${{ needs.build.outputs.integrations_sha256 }}
         run: |
           set -euo pipefail
           [[ "$TARBALL" =~ ^runward-([0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?)\.tgz$ ]] \
             || { echo "::error::the build job declared the tarball '$TARBALL', not runward-X.Y.Z.tgz — refusing to sign"; exit 1; }
           VERSION="${BASH_REMATCH[1]}"
-          [ "$KIT" = "runward-qualification-kit-$VERSION.tgz" ] && [ "$FORGE" = "runward-forge-$VERSION.tgz" ] && [ "$FLEET" = "runward-fleet-$VERSION.tgz" ] \
-            || { echo "::error::the build job declared '$KIT', '$FORGE' and '$FLEET' beside runward-$VERSION.tgz — refusing to sign"; exit 1; }
+          [ "$KIT" = "runward-qualification-kit-$VERSION.tgz" ] && [ "$FORGE" = "runward-forge-$VERSION.tgz" ] && [ "$FLEET" = "runward-fleet-$VERSION.tgz" ] && [ "$RUN" = "runward-run-$VERSION.tgz" ] && [ "$INTEGRATIONS" = "runward-integrations-$VERSION.tgz" ] \
+            || { echo "::error::the build job declared '$KIT', '$FORGE', '$FLEET', '$RUN' and '$INTEGRATIONS' beside runward-$VERSION.tgz — refusing to sign"; exit 1; }
           check() {
             local got
             got=$(sha256sum "$1" | cut -d' ' -f1)
@@ -235,6 +290,8 @@ jobs:
           check "$KIT" "$KIT_SHA256"
           check "$FORGE" "$FORGE_SHA256"
           check "$FLEET" "$FLEET_SHA256"
+          check "$RUN" "$RUN_SHA256"
+          check "$INTEGRATIONS" "$INTEGRATIONS_SHA256"
 
       - name: Attest build provenance for the tarball
         id: provenance
@@ -251,6 +308,16 @@ jobs:
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: ${{ needs.build.outputs.fleet }}
+
+      - name: Attest build provenance for the runward-run tarball
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ needs.build.outputs.run }}
+
+      - name: Attest build provenance for the runward-integrations tarball
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ needs.build.outputs.integrations }}
 
       - name: Attest build provenance for the qualification kit
         id: kit_provenance
@@ -283,5 +350,7 @@ jobs:
             kit-provenance-bundle.jsonl
             ${{ needs.build.outputs.forge }}
             ${{ needs.build.outputs.fleet }}
+            ${{ needs.build.outputs.run }}
+            ${{ needs.build.outputs.integrations }}
           if-no-files-found: error
           retention-days: 7

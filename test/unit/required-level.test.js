@@ -26,7 +26,12 @@ const GATED = ["architecture.md", "execution-topology.md", "floor.md", "governan
 // case for the second, and a prose row whose rule requires a kind of evidence is refused for it
 // (`requires-unmet`, a gap, exit 1). The second prose row is therefore one whose rule requires nothing.
 const PROSE_ROWS = new Set(["topology-usage-registry-present", "handover-runbook-executable"]);
-const PROSE_TEXT = { "handover-runbook-executable": "| handover-runbook-executable | applied | the team ran the runbook end to end on the staging copy |" };
+const PROSE_TEXT = {
+  "handover-runbook-executable": "| handover-runbook-executable | applied | the team ran the runbook end to end on the staging copy |",
+  // The example's row as it shipped before it cited its registry in a file of its own (ADR-0119 decision 4):
+  // a pointer at the manifest itself, which the gate does not open as evidence.
+  "topology-usage-registry-present": "| topology-usage-registry-present | applied | file:runward/execution-topology.md#Usage — §3 usage registry holds the single prod deployment with its risk class, data classes, action scopes and owner |",
+};
 
 /** Every manifest row through `fn(slug, line)`: a replacement line, or null to keep it. */
 function rewriteRows(dir, fn) {
@@ -48,6 +53,12 @@ before(() => {
   example = join(base, "example");
   execFileSync("git", ["init", "-q", example]);
   execFileSync("node", [CLI, "--yes", "init", "--example"], { cwd: example, env });
+  // ADR-0114's ladder, as a mission whose lock asks for no level reads it: `init` writes `re-derived`
+  // since ADR-0119 decision 4 moved the default of new missions (levels-lock.test.js holds that line).
+  const lockPath = join(example, "runward", "scaffold-lock.json");
+  const lock = JSON.parse(readFileSync(lockPath, "utf8"));
+  delete lock.requiredLevel;
+  writeFileSync(lockPath, `${JSON.stringify(lock, null, 2)}\n`);
   // c4: every row n/a, one generic sentence.
   vacuous = fresh(example);
   rewriteRows(vacuous, (slug) => `| ${slug} | n/a | not applicable at this stage of the mission |`);

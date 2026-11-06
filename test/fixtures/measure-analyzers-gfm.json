@@ -1,0 +1,331 @@
+{
+ "about": "Cells of the analyzers' measurement (scripts/measure-analyzers.mjs) as GitHub's renderer shows them: each source string, written as the base harness wrote a cell (old) and as text() and code() write it now, rendered with POST /markdown, mode gfm, on 2026-11-06, as one table. The 15 first are written to break a cell; the others are every message, reason and sentence of the measurement of the third train's head that holds a backslash, *, _, ~, <, [ or &. Read by test/unit/measure-analyzers-cells.test.js.",
+ "measured": "2026-11-06",
+ "cases": [
+  {
+   "source": "a | b",
+   "markdown": {
+    "old": "a \\| b",
+    "prose": "a \\| b",
+    "code": "`a \\| b`"
+   },
+   "html": {
+    "old": "a | b",
+    "prose": "a | b",
+    "code": "<code class=\"notranslate\">a | b</code>"
+   }
+  },
+  {
+   "source": "path\\.ts and `a\\|b` **bold** <tag> snake_case _x_",
+   "markdown": {
+    "old": "path\\.ts and `a\\\\|b` **bold** <tag> snake_case _x_",
+    "prose": "path\\\\.ts and `a\\\\|b` \\*\\*bold\\*\\* \\<tag> snake_case \\_x\\_",
+    "code": "`` path\\.ts and `a\\\\|b` **bold** <tag> snake_case _x_ ``"
+   },
+   "html": {
+    "old": "path.ts and <code class=\"notranslate\">a\\|b</code> <strong>bold</strong>  snake_case <em>x</em>",
+    "prose": "path\\.ts and <code class=\"notranslate\">a\\|b</code> **bold** &lt;tag&gt; snake_case _x_",
+    "code": "<code class=\"notranslate\">path\\.ts and `a\\|b` **bold** &lt;tag&gt; snake_case _x_</code>"
+   }
+  },
+  {
+   "source": "x\\y",
+   "markdown": {
+    "old": "x\\y",
+    "prose": "x\\y",
+    "code": "`x\\y`"
+   },
+   "html": {
+    "old": "x\\y",
+    "prose": "x\\y",
+    "code": "<code class=\"notranslate\">x\\y</code>"
+   }
+  },
+  {
+   "source": "ends with \\",
+   "markdown": {
+    "old": "ends with \\",
+    "prose": "ends with \\",
+    "code": "`ends with \\`"
+   },
+   "html": {
+    "old": "ends with \\",
+    "prose": "ends with \\",
+    "code": "<code class=\"notranslate\">ends with \\</code>"
+   }
+  },
+  {
+   "source": "a\\|b outside code",
+   "markdown": {
+    "old": "a\\\\|b outside code",
+    "prose": "a\\\\\\|b outside code",
+    "code": "`a\\\\|b outside code`"
+   },
+   "html": {
+    "old": "a|b outside code",
+    "prose": "a\\|b outside code",
+    "code": "<code class=\"notranslate\">a\\|b outside code</code>"
+   }
+  },
+  {
+   "source": "`` a ` b ``",
+   "markdown": {
+    "old": "`` a ` b ``",
+    "prose": "`` a ` b ``",
+    "code": "``` `` a ` b `` ```"
+   },
+   "html": {
+    "old": "<code class=\"notranslate\">a ` b</code>",
+    "prose": "<code class=\"notranslate\">a ` b</code>",
+    "code": "<code class=\"notranslate\">`` a ` b ``</code>"
+   }
+  },
+  {
+   "source": "~~struck~~ and ~one",
+   "markdown": {
+    "old": "~~struck~~ and ~one",
+    "prose": "\\~\\~struck\\~\\~ and \\~one",
+    "code": "`~~struck~~ and ~one`"
+   },
+   "html": {
+    "old": "<del>struck</del> and ~one",
+    "prose": "~~struck~~ and ~one",
+    "code": "<code class=\"notranslate\">~~struck~~ and ~one</code>"
+   }
+  },
+  {
+   "source": "a <b>c</b> d",
+   "markdown": {
+    "old": "a <b>c</b> d",
+    "prose": "a \\<b>c\\</b> d",
+    "code": "`a <b>c</b> d`"
+   },
+   "html": {
+    "old": "a <b>c</b> d",
+    "prose": "a &lt;b&gt;c&lt;/b&gt; d",
+    "code": "<code class=\"notranslate\">a &lt;b&gt;c&lt;/b&gt; d</code>"
+   }
+  },
+  {
+   "source": "glob **/*.ts and lib/**",
+   "markdown": {
+    "old": "glob **/*.ts and lib/**",
+    "prose": "glob \\*\\*/\\*.ts and lib/\\*\\*",
+    "code": "`glob **/*.ts and lib/**`"
+   },
+   "html": {
+    "old": "glob <strong>/*.ts and lib/</strong>",
+    "prose": "glob **/*.ts and lib/**",
+    "code": "<code class=\"notranslate\">glob **/*.ts and lib/**</code>"
+   }
+  },
+  {
+   "source": "under_score and __init__ and _lead",
+   "markdown": {
+    "old": "under_score and __init__ and _lead",
+    "prose": "under_score and \\_\\_init\\_\\_ and \\_lead",
+    "code": "`under_score and __init__ and _lead`"
+   },
+   "html": {
+    "old": "under_score and <strong>init</strong> and _lead",
+    "prose": "under_score and __init__ and _lead",
+    "code": "<code class=\"notranslate\">under_score and __init__ and _lead</code>"
+   }
+  },
+  {
+   "source": "C:\\path\\to and \\n literal",
+   "markdown": {
+    "old": "C:\\path\\to and \\n literal",
+    "prose": "C:\\path\\to and \\n literal",
+    "code": "`C:\\path\\to and \\n literal`"
+   },
+   "html": {
+    "old": "C:\\path\\to and \\n literal",
+    "prose": "C:\\path\\to and \\n literal",
+    "code": "<code class=\"notranslate\">C:\\path\\to and \\n literal</code>"
+   }
+  },
+  {
+   "source": "*",
+   "markdown": {
+    "old": "*",
+    "prose": "\\*",
+    "code": "`*`"
+   },
+   "html": {
+    "old": "*",
+    "prose": "*",
+    "code": "<code class=\"notranslate\">*</code>"
+   }
+  },
+  {
+   "source": "`code \\ with \\| pipe`",
+   "markdown": {
+    "old": "`code \\ with \\\\| pipe`",
+    "prose": "`code \\ with \\\\| pipe`",
+    "code": "`` `code \\ with \\\\| pipe` ``"
+   },
+   "html": {
+    "old": "<code class=\"notranslate\">code \\ with \\| pipe</code>",
+    "prose": "<code class=\"notranslate\">code \\ with \\| pipe</code>",
+    "code": "<code class=\"notranslate\">`code \\ with \\| pipe`</code>"
+   }
+  },
+  {
+   "source": "html &amp; entity",
+   "markdown": {
+    "old": "html &amp; entity",
+    "prose": "html \\&amp; entity",
+    "code": "`html &amp; entity`"
+   },
+   "html": {
+    "old": "html &amp; entity",
+    "prose": "html &amp;amp; entity",
+    "code": "<code class=\"notranslate\">html &amp;amp; entity</code>"
+   }
+  },
+  {
+   "source": "[link](x) and ![img](y)",
+   "markdown": {
+    "old": "[link](x) and ![img](y)",
+    "prose": "\\[link](x) and !\\[img](y)",
+    "code": "`[link](x) and ![img](y)`"
+   },
+   "html": {
+    "old": "<a href=\"x\">link</a> and <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"y\"><img src=\"y\" alt=\"img\" style=\"max-width: 100%;\"></a>",
+    "prose": "[link](x) and ![img](y)",
+    "code": "<code class=\"notranslate\">[link](x) and ![img](y)</code>"
+   }
+  },
+  {
+   "source": "`emptyParam`, cited by runward/architecture.md (row c2-cited-symbols-010), is declared as the empty constant `[]` and read as a value (src/router/reg-exp-router/matcher.ts:24): a shared empty value is behaviour, a placeholder is not, and the reading cannot settle which",
+   "markdown": {
+    "old": "`emptyParam`, cited by runward/architecture.md (row c2-cited-symbols-010), is declared as the empty constant `[]` and read as a value (src/router/reg-exp-router/matcher.ts:24): a shared empty value is behaviour, a placeholder is not, and the reading cannot settle which",
+    "prose": "`emptyParam`, cited by runward/architecture.md (row c2-cited-symbols-010), is declared as the empty constant `[]` and read as a value (src/router/reg-exp-router/matcher.ts:24): a shared empty value is behaviour, a placeholder is not, and the reading cannot settle which",
+    "code": "`` `emptyParam`, cited by runward/architecture.md (row c2-cited-symbols-010), is declared as the empty constant `[]` and read as a value (src/router/reg-exp-router/matcher.ts:24): a shared empty value is behaviour, a placeholder is not, and the reading cannot settle which ``"
+   },
+   "html": {
+    "old": "<code class=\"notranslate\">emptyParam</code>, cited by runward/architecture.md (row c2-cited-symbols-010), is declared as the empty constant <code class=\"notranslate\">[]</code> and read as a value (src/router/reg-exp-router/matcher.ts:24): a shared empty value is behaviour, a placeholder is not, and the reading cannot settle which",
+    "prose": "<code class=\"notranslate\">emptyParam</code>, cited by runward/architecture.md (row c2-cited-symbols-010), is declared as the empty constant <code class=\"notranslate\">[]</code> and read as a value (src/router/reg-exp-router/matcher.ts:24): a shared empty value is behaviour, a placeholder is not, and the reading cannot settle which",
+    "code": "<code class=\"notranslate\">`emptyParam`, cited by runward/architecture.md (row c2-cited-symbols-010), is declared as the empty constant `[]` and read as a value (src/router/reg-exp-router/matcher.ts:24): a shared empty value is behaviour, a placeholder is not, and the reading cannot settle which</code>"
+   }
+  },
+  {
+   "source": "case \"Custom schema object should not trigger FST_ERR_SCH_DUPLICATE\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+   "markdown": {
+    "old": "case \"Custom schema object should not trigger FST_ERR_SCH_DUPLICATE\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+    "prose": "case \"Custom schema object should not trigger FST_ERR_SCH_DUPLICATE\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+    "code": "`case \"Custom schema object should not trigger FST_ERR_SCH_DUPLICATE\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw`"
+   },
+   "html": {
+    "old": "case \"Custom schema object should not trigger FST_ERR_SCH_DUPLICATE\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+    "prose": "case \"Custom schema object should not trigger FST_ERR_SCH_DUPLICATE\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+    "code": "<code class=\"notranslate\">case \"Custom schema object should not trigger FST_ERR_SCH_DUPLICATE\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw</code>"
+   }
+  },
+  {
+   "source": "case \"decorate* should not emit error if string,bool,numbers are passed\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+   "markdown": {
+    "old": "case \"decorate* should not emit error if string,bool,numbers are passed\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+    "prose": "case \"decorate\\* should not emit error if string,bool,numbers are passed\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+    "code": "`case \"decorate* should not emit error if string,bool,numbers are passed\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw`"
+   },
+   "html": {
+    "old": "case \"decorate* should not emit error if string,bool,numbers are passed\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+    "prose": "case \"decorate* should not emit error if string,bool,numbers are passed\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+    "code": "<code class=\"notranslate\">case \"decorate* should not emit error if string,bool,numbers are passed\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw</code>"
+   }
+  },
+  {
+   "source": "case \"decorate* should not emit warning if object with getter/setter is passed\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+   "markdown": {
+    "old": "case \"decorate* should not emit warning if object with getter/setter is passed\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+    "prose": "case \"decorate\\* should not emit warning if object with getter/setter is passed\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+    "code": "`case \"decorate* should not emit warning if object with getter/setter is passed\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw`"
+   },
+   "html": {
+    "old": "case \"decorate* should not emit warning if object with getter/setter is passed\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+    "prose": "case \"decorate* should not emit warning if object with getter/setter is passed\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw",
+    "code": "<code class=\"notranslate\">case \"decorate* should not emit warning if object with getter/setter is passed\" asserts only on literals (such as assert.ok(true)): those assertions cannot fail on the code, so the case checks at most that its body does not throw</code>"
+   }
+  },
+  {
+   "source": "case \"should resolve immediately when reply[kReplyHijacked] is true\" asserts nothing: its body calls no assertion, no helper of this file that asserts, and throws nothing",
+   "markdown": {
+    "old": "case \"should resolve immediately when reply[kReplyHijacked] is true\" asserts nothing: its body calls no assertion, no helper of this file that asserts, and throws nothing",
+    "prose": "case \"should resolve immediately when reply\\[kReplyHijacked] is true\" asserts nothing: its body calls no assertion, no helper of this file that asserts, and throws nothing",
+    "code": "`case \"should resolve immediately when reply[kReplyHijacked] is true\" asserts nothing: its body calls no assertion, no helper of this file that asserts, and throws nothing`"
+   },
+   "html": {
+    "old": "case \"should resolve immediately when reply[kReplyHijacked] is true\" asserts nothing: its body calls no assertion, no helper of this file that asserts, and throws nothing",
+    "prose": "case \"should resolve immediately when reply[kReplyHijacked] is true\" asserts nothing: its body calls no assertion, no helper of this file that asserts, and throws nothing",
+    "code": "<code class=\"notranslate\">case \"should resolve immediately when reply[kReplyHijacked] is true\" asserts nothing: its body calls no assertion, no helper of this file that asserts, and throws nothing</code>"
+   }
+  },
+  {
+   "source": "imports `node:child_process`: it can spawn processes, and runward/analysis.md allows no process execution in this file",
+   "markdown": {
+    "old": "imports `node:child_process`: it can spawn processes, and runward/analysis.md allows no process execution in this file",
+    "prose": "imports `node:child_process`: it can spawn processes, and runward/analysis.md allows no process execution in this file",
+    "code": "`` imports `node:child_process`: it can spawn processes, and runward/analysis.md allows no process execution in this file ``"
+   },
+   "html": {
+    "old": "imports <code class=\"notranslate\">node:child_process</code>: it can spawn processes, and runward/analysis.md allows no process execution in this file",
+    "prose": "imports <code class=\"notranslate\">node:child_process</code>: it can spawn processes, and runward/analysis.md allows no process execution in this file",
+    "code": "<code class=\"notranslate\">imports `node:child_process`: it can spawn processes, and runward/analysis.md allows no process execution in this file</code>"
+   }
+  },
+  {
+   "source": "require call of the Node.js built-in `node:async_hooks` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+   "markdown": {
+    "old": "require call of the Node.js built-in `node:async_hooks` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+    "prose": "require call of the Node.js built-in `node:async_hooks` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+    "code": "`` require call of the Node.js built-in `node:async_hooks` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow ``"
+   },
+   "html": {
+    "old": "require call of the Node.js built-in <code class=\"notranslate\">node:async_hooks</code> in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+    "prose": "require call of the Node.js built-in <code class=\"notranslate\">node:async_hooks</code> in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+    "code": "<code class=\"notranslate\">require call of the Node.js built-in `node:async_hooks` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow</code>"
+   }
+  },
+  {
+   "source": "require call of the Node.js built-in `node:diagnostics_channel` in the declared domain core (runward/territory.md:7), which runward/analysis.md does not allow",
+   "markdown": {
+    "old": "require call of the Node.js built-in `node:diagnostics_channel` in the declared domain core (runward/territory.md:7), which runward/analysis.md does not allow",
+    "prose": "require call of the Node.js built-in `node:diagnostics_channel` in the declared domain core (runward/territory.md:7), which runward/analysis.md does not allow",
+    "code": "`` require call of the Node.js built-in `node:diagnostics_channel` in the declared domain core (runward/territory.md:7), which runward/analysis.md does not allow ``"
+   },
+   "html": {
+    "old": "require call of the Node.js built-in <code class=\"notranslate\">node:diagnostics_channel</code> in the declared domain core (runward/territory.md:7), which runward/analysis.md does not allow",
+    "prose": "require call of the Node.js built-in <code class=\"notranslate\">node:diagnostics_channel</code> in the declared domain core (runward/territory.md:7), which runward/analysis.md does not allow",
+    "code": "<code class=\"notranslate\">require call of the Node.js built-in `node:diagnostics_channel` in the declared domain core (runward/territory.md:7), which runward/analysis.md does not allow</code>"
+   }
+  },
+  {
+   "source": "require call of the Node.js built-in `node:diagnostics_channel` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+   "markdown": {
+    "old": "require call of the Node.js built-in `node:diagnostics_channel` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+    "prose": "require call of the Node.js built-in `node:diagnostics_channel` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+    "code": "`` require call of the Node.js built-in `node:diagnostics_channel` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow ``"
+   },
+   "html": {
+    "old": "require call of the Node.js built-in <code class=\"notranslate\">node:diagnostics_channel</code> in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+    "prose": "require call of the Node.js built-in <code class=\"notranslate\">node:diagnostics_channel</code> in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+    "code": "<code class=\"notranslate\">require call of the Node.js built-in `node:diagnostics_channel` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow</code>"
+   }
+  },
+  {
+   "source": "require call of the Node.js built-in `node:perf_hooks` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+   "markdown": {
+    "old": "require call of the Node.js built-in `node:perf_hooks` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+    "prose": "require call of the Node.js built-in `node:perf_hooks` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+    "code": "`` require call of the Node.js built-in `node:perf_hooks` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow ``"
+   },
+   "html": {
+    "old": "require call of the Node.js built-in <code class=\"notranslate\">node:perf_hooks</code> in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+    "prose": "require call of the Node.js built-in <code class=\"notranslate\">node:perf_hooks</code> in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow",
+    "code": "<code class=\"notranslate\">require call of the Node.js built-in `node:perf_hooks` in the declared domain core (runward/territory.md:8), which runward/analysis.md does not allow</code>"
+   }
+  }
+ ]
+}

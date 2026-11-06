@@ -5,6 +5,7 @@ import { findMissionRoot, structureContractOptIn, regulatedOptIn, agentRatificat
 import { makeWriter } from "../lib/write.js";
 import { classify, hashText, readScaffoldLock, renderScaffoldLock, SCAFFOLD_LOCK } from "../lib/scaffold-lock.js";
 import { analysisPin } from "../lib/analyze.js";
+import { lockRequiredLevel } from "../lib/evidence-levels.js";
 import { corpusStamp } from "../lib/rules.js";
 import { newlyGatedRules, ruleFiles } from "../lib/conformance.js";
 import { stampAdapterVersion } from "../lib/adapter-version.js";
@@ -218,7 +219,11 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
   const corpusPin = corpusDir ? corpusStamp(corpusDir) : (lock?.corpus ?? null);
   // Preserve the operator's hardening flag: the writer rebuilds the lock wholesale, and before
   // this parameter existed a refresh silently disarmed every opted-in mission (RWD-2026-0106).
-  if (!dryRun) w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, nextFiles, corpusPin, structureContractOptIn(mission), regulatedOptIn(mission), agentRatificationOptIn(mission), lockIndependence(mission), analysisPin(mission)?.raw));
+  // ADR-0119 decision 4: and the level of proof the lock asks for, as it is written, even a value `check`
+  // refuses: a refresh repairs nothing and lowers nothing.
+  const asked = lockRequiredLevel(mission);
+  const requiredLevel = asked === null ? undefined : "level" in asked ? asked.level : asked.invalid;
+  if (!dryRun) w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, nextFiles, corpusPin, structureContractOptIn(mission), regulatedOptIn(mission), agentRatificationOptIn(mission), lockIndependence(mission), analysisPin(mission)?.raw, requiredLevel));
 
   console.log(section("Summary"));
   const parts = [status.success(`${same} up to date`)];
