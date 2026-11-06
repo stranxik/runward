@@ -340,7 +340,8 @@ test("secrets: each format of the policy is found, placeholders and documented e
     "slack-token": `xoxb-${"1".repeat(12)}`,
     "npm-token": `npm_${"a".repeat(36)}`,
     "google-api-key": `AIza${"a".repeat(35)}`,
-    "private-key-block": `-----BEGIN ${"RSA PRIVATE"} KEY-----`,
+    // A block holds its key: armour around no base64 body is no credential (ADR-0117 criterion 2, 2026-11-06).
+    "private-key-block": `-----BEGIN ${"RSA PRIVATE"} KEY-----\n${`MII${"A".repeat(61)}`.repeat(2)}\n-----END ${"RSA PRIVATE"} KEY-----`,
     "url-credentials": `postgres://svc:${"hunter2".repeat(2)}@db.internal:5432/x`,
   };
   const placeholders = [`postgres://svc:\${DB_PASSWORD}@db.internal/x`, `http://u:${"p"}@localhost:5432/x`, `AKIA${"IOSFODNN7"}EXAMPLE`, "https://user:pass@api.example.com/v1"];
