@@ -21,6 +21,16 @@ sealed or not, and none moves runward's own mission or the example as shipped.
   date or its trigger turns red, and the reason names the line to add; so does a status written with a
   capital (`Accepted`), which the structure contract has always read as written, case included. Section 7.6 of
   `docs/spec/witness.md` gives a checker the new condition.
+- **A linkage family in the built-in analyzers**, in `runward-analysis/1` before its first release. The
+  example's `code/src/core/domain/triage.ts`, cited bare, replaced by one word, kept every pointer
+  resolving and every committed report green. A name the delivered code imports, by a relative path, from
+  a file a manifest cites or from the declared core must now be exported by that file: the reading names
+  each import that does not link (a value) or does not type-check (a type), with its file and line. A
+  JavaScript file shipped with its declaration file exports what either declares; CommonJS, `export =`, a
+  destructured export and a re-export the reading cannot follow are never refused, and are listed as not
+  analysed. Like every family, it reads the delivered tree only. A placeholder that keeps every imported
+  name still links: what the code does needs an execution (`--hooks` today, `attested` with
+  `runward-run`).
 
 ### What you install is what the release tested: the tarball bundles its dependencies, and the SBOM is the package's (ADR-0116)
 

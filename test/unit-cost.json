@@ -8,8 +8,8 @@
   ],
   "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 783.5,
-  "slowSeconds": 729.9,
+  "totalSeconds": 786.9,
+  "slowSeconds": 733.3,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
@@ -102,7 +102,8 @@
     "test/unit/analyze-bench.test.js",
     "test/unit/example-machine-evidence.test.js",
     "test/unit/package-sbom.test.js",
-    "test/unit/adr-one-bar.test.js"
+    "test/unit/adr-one-bar.test.js",
+    "test/unit/analyze-linkage.test.js"
   ],
   "files": [
     {
@@ -1293,6 +1294,11 @@
     {
       "file": "test/unit/adr-one-bar.test.js",
       "seconds": 1.84,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-linkage.test.js",
+      "seconds": 3.38,
       "passed": true
     }
   ]

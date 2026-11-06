@@ -7,7 +7,7 @@
  * the project tree, blanks their comments and the contents of their literals, and looks for what a
  * declaration says must not be there. Same tree, same policy, same findings (ADR-0054, crossing 4).
  *
- * WHAT IT CHECKS, in five families, under the policy the mission pins (analysis-policy.ts):
+ * WHAT IT CHECKS, in six families, under the policy the mission pins (analysis-policy.ts):
  *   boundary        the files `runward/territory.md` binds to `domain-core` import nothing outside
  *                   the core except the modules `runward/analysis.md` allows;
  *   capability      no analysed file outside the tests executes code built at run time (eval, the
@@ -18,6 +18,8 @@
  *                   cited JUnit report records no case its sources do not declare;
  *   symbol          a symbol a manifest cites is carried by code, not only by strings, and is not a
  *                   placeholder constant (a name only in comments is the evidence layer's refusal, ADR-0114).
+ *   linkage         a name the delivered code imports, by a relative path, from a file a manifest cites
+ *                   or from the declared core is exported by that file (ADR-0124 decision 2).
  *
  * WHAT IT NEVER SAYS. That the code is good. A finding is an invariant the mission declared and the
  * code breaks; an empty list is the absence of those findings, nothing more. What the reading cannot
@@ -38,7 +40,7 @@ import { deliveredEntries } from "./delivered-tree.js";
 /** The mission file that holds the allowances, beside territory.md. Never written by runward. */
 export const ANALYSIS_FILE = "analysis.md";
 
-export type AnalysisFamily = "boundary" | "capability" | "secret" | "test-integrity" | "symbol" | "policy";
+export type AnalysisFamily = "boundary" | "capability" | "secret" | "test-integrity" | "symbol" | "linkage" | "policy";
 
 export interface AnalysisFinding {
   family: AnalysisFamily;
@@ -83,7 +85,7 @@ export interface AnalysisReading {
 export const ANALYSIS_NON_SCOPE =
   "The built-in analyzers read the delivered source text at rest, under the policy the mission pins; they run " +
   "nothing and call no model. A finding is an invariant the mission declared (its territory, its allowances, its " +
-  "cited symbols, its committed reports) that the code breaks. No finding is not a judgment that the code is good, " +
+  "cited files and symbols, its committed reports) that the code breaks. No finding is not a judgment that the code is good, " +
   "correct or secure: it says these checks found nothing, in the languages the policy reads.";
 
 // ── The opt-in ────────────────────────────────────────────────────────────────────────────────────
@@ -560,6 +562,142 @@ function resolveImport(fromRel: string, spec: string, exists: (rel: string) => b
   return { path: candidates.find(exists) ?? base, candidates };
 }
 
+// ── Linkage (ADR-0124 decision 2) ────────────────────────────────────────────────────────────────
+
+const LINK_ID = "[A-Za-z_$][\\w$]*";
+const LINK_ID_RE = new RegExp(`^${LINK_ID}$`);
+
+/** What a file exports, read from its masked code: the names, the module names of its star
+ *  re-exports, and `open` when the file holds a form this reading does not settle (CommonJS, `export =`,
+ *  a destructured export, a name written as a string). An open set never refuses anything. */
+export interface ExportFacts { names: Set<string>; stars: string[]; open: string | null }
+
+/** The names `export const|let|var|using` declares, read from `from` (just after the keyword), or
+ *  null when a declarator is not a plain identifier (destructuring). A comma inside a type argument
+ *  reads as one more name: that can only widen the set, so it can hide a finding, never make one. */
+function declaratorNames(code: string, from: number, budget: { left: number }): string[] | null {
+  const names: string[] = [];
+  let k = from;
+  for (;;) {
+    while (k < code.length && isSpaceCode(code.charCodeAt(k))) k++;
+    if (code[k] === "{" || code[k] === "[") return null;
+    const m = new RegExp(`^${LINK_ID}`).exec(code.slice(k, k + 256));
+    if (!m) return null;
+    names.push(m[0]);
+    k += m[0].length;
+    let depth = 0, next = false;
+    for (; k < code.length; k++) {
+      // Every declaration of a file walks from its own start, so an unclosed bracket in each of many of
+      // them would make the file quadratic to read. The walks of one file share a budget of steps; past
+      // it, the set is left open, which never refuses anything.
+      if (--budget.left < 0) return null;
+      const ch = code[k];
+      if (ch === "(" || ch === "[" || ch === "{") depth++;
+      else if (ch === ")" || ch === "]" || ch === "}") { if (depth === 0) break; depth--; }
+      else if (depth === 0 && ch === ";") break;
+      else if (depth === 0 && ch === ",") { k++; next = true; break; }
+      else if (depth === 0 && ch === "\n") {
+        // A newline ends the declaration unless the line before or after continues it.
+        let j = k + 1; while (j < code.length && isSpaceCode(code.charCodeAt(j))) j++;
+        let q = k - 1; while (q >= 0 && isSpaceCode(code.charCodeAt(q))) q--;
+        const nx = code[j] ?? "", pv = code[q] ?? "";
+        if (nx === "," || /[=+\-*/%&|^!<>?:.,([{]/.test(pv) || /^[.?:+\-*/%&|^=<>]/.test(nx)) continue;
+        break;
+      }
+    }
+    if (!next) break;
+  }
+  return names;
+}
+
+export function exportFacts(src: string, m: Masked): ExportFacts {
+  const code = m.code;
+  const names = new Set<string>();
+  const stars: string[] = [];
+  let open: string | null = null;
+  // Any file that names `exports` may export through it: CommonJS, which this reading does not follow.
+  if (/(?<![\w$.])module\s*\.\s*exports\b|(?<![\w$.])exports\b|(?<![\w$.])export\s*=(?!=)|(?<![\w$.])export\s+as\s+namespace\b/.test(code)) open = "CommonJS exports or `export =`";
+  const specAfter = (at: number): string | null => {
+    const lit = m.literals.find((l) => l.start >= at && l.kind !== "regex");
+    return lit ? literalValue(src, lit) : null;
+  };
+  if (/(?<![\w$.])export\s+default\b/.test(code)) names.add("default");
+  const add = (re: RegExp): void => { for (const k of code.matchAll(re)) names.add(k[1]); };
+  add(new RegExp(`(?<![\\w$.])export\\s+(?:declare\\s+)?(?:async\\s+)?function\\s*\\*?\\s*(${LINK_ID})`, "g"));
+  add(new RegExp(`(?<![\\w$.])export\\s+(?:declare\\s+)?(?:abstract\\s+)?class\\s+(${LINK_ID})`, "g"));
+  add(new RegExp(`(?<![\\w$.])export\\s+(?:declare\\s+)?(?:const\\s+)?enum\\s+(${LINK_ID})`, "g"));
+  add(new RegExp(`(?<![\\w$.])export\\s+(?:declare\\s+)?(?:interface|type|namespace|module)\\s+(${LINK_ID})`, "g"));
+  add(new RegExp(`(?<![\\w$.])export\\s+import\\s+(${LINK_ID})\\s*=`, "g"));
+  add(new RegExp(`(?<![\\w$.])export\\s+(?:type\\s+)?\\*\\s+as\\s+(${LINK_ID})\\s+from\\b`, "g"));
+  const budget = { left: 4 * code.length + 4096 };
+  for (const k of code.matchAll(/(?<![\w$.])export\s+(?:declare\s+)?(?:const|let|var|using)\s+(?!enum\b)/g)) {
+    const d = declaratorNames(code, k.index + k[0].length, budget);
+    if (d === null) { open = open ?? "a destructured export, or one this reading could not walk"; continue; }
+    for (const n of d) names.add(n);
+  }
+  // An export list runs to the first `}` after its `{`. That brace is searched for once and shared by
+  // every list that opens before it: a pattern that looked for it from each `{` read a file of many
+  // unclosed lists in quadratic time (measured 3.5 s on 200,000 characters, before this was written).
+  let close = -2;
+  for (const k of code.matchAll(/(?<![\w$.])export\s+(?:type\s+)?\{/g)) {
+    const start = k.index + k[0].length;
+    if (close !== -1 && close < start) close = code.indexOf("}", start);
+    if (close === -1) { open = open ?? "an export list with no closing brace"; break; }
+    for (const part of code.slice(start, close).split(",")) {
+      const p = part.trim().replace(/^type\s+/, "");
+      if (!p) continue;
+      const as = /\bas\s+(\S+)$/.exec(p);
+      const exported = as ? as[1] : p;
+      if (!LINK_ID_RE.test(exported)) { open = open ?? "an export this reading cannot name"; continue; }
+      names.add(exported);
+    }
+  }
+  for (const k of code.matchAll(/(?<![\w$.])export\s+(?:type\s+)?\*\s+from\b/g)) {
+    const spec = specAfter(k.index + k[0].length);
+    if (spec === null) { open = open ?? "a star re-export this reading cannot name"; continue; }
+    stars.push(spec);
+  }
+  return { names, stars, open };
+}
+
+/** The names a static `import … from` or `export { … } from` statement takes from its module, each
+ *  with whether it is a type; [] for a side-effect or namespace import; null when the statement is not
+ *  read, which never refuses anything. `litStart` is the module literal's index in the masked code. */
+export function importedNames(code: string, litStart: number): Array<{ name: string; type: boolean }> | null {
+  const head = code.slice(Math.max(0, litStart - 4000), litStart);
+  let stmt = -1, kw = "";
+  for (const k of head.matchAll(/(?<![\w$.])(import|export)\b/g)) { stmt = k.index; kw = k[1]; }
+  if (stmt === -1) return null;
+  let clause = head.slice(stmt + kw.length).trim();
+  if (!/(?<![\w$.])from$/.test(clause)) return kw === "import" && clause === "" ? [] : null;
+  clause = clause.replace(/(?<![\w$.])from$/, "").trim();
+  let allType = false;
+  if (/^type\s+(?!from\b)/.test(clause) && clause !== "type") { allType = true; clause = clause.replace(/^type\s+/, ""); }
+  const out: Array<{ name: string; type: boolean }> = [];
+  const braces = (inner: string): boolean => {
+    for (const part of inner.split(",")) {
+      let p = part.trim();
+      if (!p) continue;
+      let type = allType;
+      if (/^type\s+/.test(p) && !/^type\s+as\s/.test(p)) { type = true; p = p.replace(/^type\s+/, ""); }
+      const name = p.split(/\s+as\s+/)[0].trim();
+      if (!LINK_ID_RE.test(name)) return false;
+      out.push({ name, type });
+    }
+    return true;
+  };
+  if (kw === "export") {
+    const b = /^\{([^}]*)\}$/.exec(clause);
+    if (b) return braces(b[1]) ? out : null;
+    return /^\*(?:\s+as\s+[A-Za-z_$][\w$]*)?$/.test(clause) ? [] : null;
+  }
+  const m = new RegExp(`^(?:(${LINK_ID})\\s*(?:,\\s*)?)?(\\{[^}]*\\}|\\*\\s*as\\s+${LINK_ID})?$`).exec(clause);
+  if (!m) return null;
+  if (m[1]) out.push({ name: "default", type: allType });
+  if (m[2] && m[2].startsWith("{") && !braces(m[2].slice(1, -1))) return null;
+  return out;
+}
+
 // ── Test files ───────────────────────────────────────────────────────────────────────────────────
 
 const ASSERTION = /(?<![\w$])(?:assert\w*|expect\w*|should\w*)\b|\.\s*should\b|(?<![\w$])t\s*\.\s*(?:ok|notOk|equal|notEqual|deepEqual|notDeepEqual|strictEqual|is|not|true|false|truthy|falsy|throws|throwsAsync|notThrows|notThrowsAsync|rejects|resolves|regex|notRegex|like|same|match|snapshot|fail|plan)\s*\(|(?<![\w$])throw\b/;
@@ -1034,6 +1172,94 @@ export function analyzeDelivery(missionDir: string): AnalysisReading | null {
           message: `\`${p.symbol}\`, cited by ${cited}, is declared with an empty body` });
       }
     }
+  }
+
+  // Linkage (ADR-0124 decision 2): a file the mission cites, or a file of its declared core, provides
+  // what the delivered code imports from it. A core file replaced by one word kept every pointer
+  // resolving and every committed report green (case b of the 2026-11-05 corpus): the names the use
+  // case, the guard and the adapters import from it were gone, which a reading of the tree can see.
+  {
+    const citedFiles = new Set<string>();
+    for (const { deliverable } of GATED_DELIVERABLES) {
+      let content: string;
+      try { content = readFileSync(join(missionDir, deliverable), "utf8"); } catch { continue; }
+      for (const row of readManifest(content).rows) {
+        if (row.status !== "applied") continue;
+        for (const p of parseEvidencePointers(row.evidence)) {
+          if ((p.kind !== "file" && p.kind !== "test") || !p.path) continue;
+          const abs = resolveEvidencePath(p.path, resolutionBases(missionDir, deliverable));
+          if (abs === null) continue;
+          const rel = relTo(toPosix(abs));
+          if (rel !== null && !rel.startsWith("runward/")) citedFiles.add(rel);
+        }
+      }
+    }
+    const facts = new Map<string, ExportFacts>();
+    const factsOf = (rel: string): ExportFacts | null => {
+      const t = byRel.get(rel);
+      if (!t) return null;
+      let f = facts.get(rel);
+      if (!f) { f = exportFacts(t.src, t.m); facts.set(rel, f); }
+      return f;
+    };
+    const targetOf = (fromRel: string, spec: string): string | null => {
+      if (moduleKind(spec, policy).kind !== "relative") return null;
+      return resolveImport(fromRel, spec, exists, policy)?.candidates.find((c) => byRel.has(c)) ?? null;
+    };
+    // A JavaScript file shipped with its declaration file: the types live in the declaration.
+    const declarationOf = (rel: string): string | null => {
+      const m = /\.([mc]?)js$/.exec(rel);
+      if (!m) return null;
+      const d = `${rel.slice(0, -m[0].length)}.d.${m[1]}ts`;
+      return byRel.has(d) ? d : null;
+    };
+    const exportSet = (rel: string, seen: Set<string>): Set<string> | null => {
+      if (/\.c[jt]s$/.test(rel) && !/\.d\.cts$/.test(rel)) return null; // CommonJS by its extension
+      const f = factsOf(rel);
+      if (!f || f.open) return null;
+      const out = new Set(f.names);
+      const decl = declarationOf(rel);
+      if (decl && !seen.has(decl)) {
+        const d = exportSet(decl, new Set([...seen, decl]));
+        if (d === null) return null;
+        for (const n of d) out.add(n);
+      }
+      for (const spec of f.stars) {
+        const target = targetOf(rel, spec);
+        if (!target || seen.has(target)) return null;
+        const sub = exportSet(target, new Set([...seen, target]));
+        if (sub === null) return null;
+        for (const n of sub) if (n !== "default") out.add(n);
+      }
+      return out;
+    };
+    // One export set per target, however many statements import from it: a barrel file re-exported by
+    // stars is followed once.
+    const sets = new Map<string, Set<string> | null>();
+    const exportSetOf = (rel: string): Set<string> | null => {
+      if (!sets.has(rel)) sets.set(rel, exportSet(rel, new Set([rel])));
+      return sets.get(rel) ?? null;
+    };
+    const unsettled = new Set<string>();
+    for (const t of texts) {
+      for (const imp of t.imports) {
+        if (imp.how !== "static" || imp.spec === null) continue;
+        const target = targetOf(t.file.rel, imp.spec);
+        if (!target || !(citedFiles.has(target) || (core.has(target) && !isTest(target)))) continue;
+        const names = importedNames(t.m.code, imp.index);
+        if (names === null || names.length === 0) continue;
+        const set = exportSetOf(target);
+        if (set === null) { unsettled.add(target); continue; }
+        for (const n of names) {
+          if (set.has(n.name)) continue;
+          finding({ family: "linkage", check: n.type ? "type-import-not-exported" : "import-not-exported", path: t.file.rel, line: lineOf(t.m, imp.index),
+            message: n.type
+              ? `imports the type \`${n.name}\` from \`${imp.spec}\` (${target}), which exports no such name: as delivered, this file does not type-check`
+              : `imports \`${n.name}\` from \`${imp.spec}\` (${target}), which exports no such name: as delivered, this file does not link` });
+        }
+      }
+    }
+    if (unsettled.size > 0) reading.notAnalyzed.push({ what: "linkage: cited or core files whose exports this reading does not settle (CommonJS, `export =`, a destructured export, a re-export it cannot follow)", files: unsettled.size, examples: [...unsettled].sort().slice(0, 3) });
   }
 
   // Disclosures: what the reading did not cover.
