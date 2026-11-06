@@ -497,13 +497,14 @@ line, whatever carries the lines (comments, quotes, `\n` escapes, `\/`, continua
 that holds `${…}` or a placeholder holds no key. A cited symbol resolves to the module's declaration (a
 function that wraps the module included, a named function's local never), and an empty constant the code
 reads as a value is the hypothesis `symbol-sentinel-constant`, never counted; a stub that is only called,
-exported or typed stays a placeholder. Re-measured with the same harness: in a new mission's configuration,
+exported or typed stays a placeholder. Re-measured with the same harness on that branch's build (`9004563`):
+in a new mission's configuration,
 the 123 false findings are gone and the 12 true ones remain; under the harness's declared core, the 129 false
 ones are gone, the 92 true ones remain, and five findings appear, each what a literal import gives there
 (four `core-import-builtin` where `network` stood, and hono's `src/utils/color.ts` loading
 `cloudflare:workers`); 13 cases of express and fastify are now `case-asserts-completion` hypotheses. The
-bench's sabotages keep their exit codes and their findings, and the readings stay linear in the size of a
-file. A case with no assertion at all still reads red, a bare call awaited or not, and so does a type case
+bench's sabotages keep their exit codes and their findings; what a file built to slow the readings costs is
+RWD-2026-0203, above. A case with no assertion at all still reads red, a bare call awaited or not, and so does a type case
 with no type assertion; the hypothesis on a case that asserts only on literals no longer says it is by
 design. `test/unit/analyze-false-reds.test.js` holds one test per pattern, each beside a case classified true
 and evasions built against this reading that still fire.
