@@ -47,6 +47,29 @@ its SPKI) for instances with no keyless signing. Exit 0 accepted, 1 refused, 2 a
 Its result enters no file runward reads. The display half of D4 (cells raised to `machine-established`
 from run Statements in the fleet view) is D4b, not delivered.
 
+### Fixed: what CodeQL raised on runward-fleet, the example's report script and the SBOM generator (RWD-2026-0206 to RWD-2026-0208)
+
+The repository's code scanning raised eleven alerts of severity high on the first integration pull request
+of 2026-11-06, all in code no release carried. Eight are polynomial-time patterns of runward-fleet: the
+view rules (`ownText`, the numbers of a view, the page's inline index and its data URLs), the repository
+names of the trust policy (`normRepo`) and the markdown of the pull-request view. The static analyzers of
+RWD-2026-0203 found four more in the same functions, and reading them found a lookup that is not a pattern:
+every count of a view searched for again in the whole view. Measured at 100,000 characters, a run of `<`
+took 9 s in `ownText` and a run of slashes 7.8 s in `normRepo`; the count lookup took 9.6 s at 400,000.
+Each reader now reads its text in one pass, with the answers of the pattern it replaces (compared on
+310,000 generated inputs); `test/unit/fleet-linear-readers.test.js` holds twelve shapes at 1,000,000
+characters under a ceiling of CPU time. The index path reader CodeQL named measured linear, and was
+rewritten anyway. Three alerts read a sanitization as incomplete. On the markdown view it is not one: `md`
+escapes every character of its input, and a test holds that a `<!--` left in the text is written as text. On
+the example's `reports.mjs` it is not one either, since the JUnit report is read and never written as
+markup, but reading `junit()` for it found the comment reader, the tag pattern and the search for each
+case's body restarting from every opener left open, and the comparison of two reports quadratic in their
+cases (9.4 s of CPU for 50,000): each is linear now, with the same projection
+(`test/unit/example-report-readers.test.js`). On the SBOM generator, an author's address left open stayed in
+the name and an object's name lost what it held in parentheses: the name is now the one npm reads, an
+object's `name` as written and a string up to its first `<` or `(`. No author of the runtime tree the
+release bundles changes.
+
 ### Fixed: the declared core's environment read through optional chaining, a bracket, `globalThis` or a destructuring is a finding
 
 The capability family looked for `process.env`, `import.meta.env`, `Deno.env` and `Bun.env` written with a
