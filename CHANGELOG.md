@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### The runtime-boundary test names `dns`, `http2` and `undici`, each with a planted control
+
+`test/unit/runtime-boundary.test.js` scanned the `runward` package for `http`, `https`, `http2`, `net`,
+`tls`, `dgram` and `undici` imports, and its walk of the verdict's import closure looked for
+`http`, `https`, `net`, `tls` and `dgram` among the sockets. `dns`, which reaches a resolver, was read
+only by the CI grep of `src/`, and the closure walk did not name `http2` or `undici`. Both lists now
+carry `dns` (and `dns/promises`), `http2` and `undici`; planted static and dynamic imports of each,
+in both spellings, must turn the package scan red, and anchored names (`dnsmasq`, `undici-types`) must
+not. Measured against `main`'s two expressions, the plants of `dns` were missed by both and those of
+`http2` and `undici` by the closure. No module of the package imports any of them: 12 tests of 12
+pass.
+
 ### CI: `verify`, `report` and `ratify --agent` run with the network cut, and the posture guard reads the cut itself
 
 The `core tests, network-isolated` job of `.github/workflows/ci.yml` now also attests the example mission

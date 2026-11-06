@@ -86,12 +86,13 @@ files for network modules and `fetch` found none; the same search finds network 
 ### What keeps it true between two measurements
 
 - `test/unit/runtime-boundary.test.js` fails if a module of the `runward` package, in `src/` or in
-  `dist/`, imports `http`, `https`, `http2`, `net`, `tls`, `dgram` or `undici`, or reaches `fetch`, a
-  WebSocket, an EventSource or an `XMLHttpRequest`, and shows it can fail: a planted `fetch` and a planted
-  socket import must turn it red. It also walks the import closure of the verdict and finds no socket
-  module and no process spawner ([ADR-0054](adr/ADR-0054-the-runtime-boundary-is-explicit.md)); that walk
-  follows runward's own modules only, never a dependency (`commander` imports `child_process`). On
-  `main` it passed, 12 tests of 12, with the network open and with it denied.
+  `dist/`, imports `http`, `https`, `http2`, `net`, `tls`, `dgram`, `dns` or `undici`, or reaches
+  `fetch`, a WebSocket, an EventSource or an `XMLHttpRequest`, and shows it can fail: a planted `fetch`,
+  and planted imports of `http`, `https`, `dns`, `http2` and `undici`, must turn it red. It also walks the
+  import closure of the verdict and finds none of these modules and no process spawner
+  ([ADR-0054](adr/ADR-0054-the-runtime-boundary-is-explicit.md)); that walk follows runward's own modules
+  only, never a dependency (`commander` imports `child_process`). It passed, 12 tests of 12, with the
+  network open and with it denied.
 - The CI job `core tests, network-isolated` (`.github/workflows/ci.yml`) runs on every push to `main`
   and every pull request. Its test step, and only that step, runs inside `sudo unshare -n`, with the
   loopback brought up, and stops if a default route is left; `npm ci` and the build before it run with
@@ -101,9 +102,9 @@ files for network modules and `fetch` found none; the same search finds network 
   then attests and verifies the example mission, writes its delivery report, and ratifies a proposed row
   as an agent; `test/unit/regulated-posture.test.js` fails if any of these commands leaves the cut. It
   covers part of the table above, on Linux only.
-- The CI job `test` searches `src/` for network modules (`dns` among them, which nothing else checks),
-  `fetch(`, `eval` and calls to network tools such as `curl`. It finds none on `main`, and a copy with a
-  planted `fetch(` fails it (both run for this page). It reads `src/` only.
+- The CI job `test` searches `src/` for network modules, `fetch(`, `eval` and calls to network tools
+  such as `curl`. It finds none on `main`, and a copy with a planted `fetch(` fails it (both run for this
+  page). It reads `src/` only.
 - Apart from the commands of `runward/hooks.json`, which only `check --hooks` runs, the one program
   runward starts is `git`, for local reads (`log`, `show`, `blame`, `diff`, `ls-tree` and the like) in
   `characterize`, `doctor` and `sample`, never `fetch`, `clone` or `push`, and always with

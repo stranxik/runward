@@ -18,8 +18,11 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const CLI = join(ROOT, "dist", "cli.js");
 
 // Modules whose import anywhere in the verdict path would be a runtime crossing: a socket
-// (http/https/net/tls/dgram), a spawned process (child_process), or a parallel executor.
-const CROSSINGS = /^(node:)?(https?|net|tls|dgram|child_process|worker_threads|cluster|repl)$/;
+// (http/https/http2/net/tls/dgram, and undici, the HTTP client Node's fetch is built on), a name
+// lookup (dns, which reaches a resolver), a spawned process (child_process), or a parallel executor.
+// dns, http2 and undici were added on 2026-11-06: until then dns was read by the CI grep alone, in
+// src/ only, and the closure walk did not name http2 or undici.
+const CROSSINGS = /^(node:)?(https?|http2|net|tls|dgram|dns|dns\/promises|undici|child_process|worker_threads|cluster|repl)$/;
 
 // TWO LIMITS OF THIS FILE, STATED SO NOBODY HAS TO REDISCOVER THEM.
 //
@@ -195,7 +198,7 @@ const RUNWARD_FILES = () => [...listFiles(join(ROOT, "src"), [".ts"]), ...listFi
 const SPECIFIERS = (src) => [...src.matchAll(/(?:from|import)\s*\(?\s*["']([^"']+)["']/g)].map((m) => m[1]);
 // A network call in any spelling Node offers without a dependency: the global fetch, a socket or HTTP
 // module (static or dynamic import), a WebSocket, an EventSource.
-const NETWORK_MODULE = /^(node:)?(https?|http2|net|tls|dgram|undici)$/;
+const NETWORK_MODULE = /^(node:)?(https?|http2|net|tls|dgram|dns|dns\/promises|undici)$/;
 // `fetch` is caught as a call and as a value handed on (`= fetch`, `?? fetch`, `globalThis.fetch`),
 // because the forge package's own client takes it as a default parameter and never writes `fetch(`.
 const NETWORK_CALL = /\bfetch\s*\(|(?:=|\?\?|\|\|)\s*(?:globalThis\.)?fetch\b|globalThis\.fetch\b|\bnew\s+(WebSocket|EventSource|XMLHttpRequest)\b/;
@@ -267,6 +270,13 @@ test("ADR-0094, positive controls: the guard reddens on a planted fetch, a plant
     assert.equal(forgeImportIn("forge.js", read("forge.js")).length, 1, "a planted package import of runward-forge reddens");
     assert.equal(forgeImportIn("rel.js", read("rel.js")).length, 1, "a planted relative import into packages/ reddens");
     assert.equal(networkIn("alias.js", "const f = globalThis.fetch;").length, 1, "and fetch handed on as a value");
+    // dns, http2 and undici, each planted in the two spellings a module can use (2026-11-06).
+    for (const spec of ["node:dns", "dns", "node:dns/promises", "node:http2", "http2", "undici"]) {
+      assert.equal(networkIn("planted.js", `import * as m from "${spec}";`).length, 1, `a planted import of ${spec} reddens the package scan`);
+      assert.equal(networkIn("planted-dyn.js", `export const z = async () => import("${spec}");`).length, 1, `a planted dynamic import of ${spec} reddens the package scan`);
+      assert.ok(CROSSINGS.test(spec), `${spec} is a crossing of the verdict-path closure`);
+    }
+    assert.ok(!CROSSINGS.test("node:path") && !CROSSINGS.test("dnsmasq") && !CROSSINGS.test("undici-types"), "and the names stay anchored: no other module is caught");
     assert.equal(networkIn("prose", '// record a literal "git"/"http" as a dependency').length, 0, "but not the word http in prose");
     assert.equal(networkIn("prose", "// in-tree, read-only, no fetch: fetch it with the URL").length, 0, "nor the word fetch in prose");
   } finally { rmSync(dir, { recursive: true, force: true }); }
