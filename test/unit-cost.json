@@ -122,6 +122,11 @@
       "passed": true
     },
     {
+      "file": "test/unit/run-samples.test.js",
+      "seconds": 0.75,
+      "passed": true
+    },
+    {
       "file": "test/unit/run-signature.test.js",
       "seconds": 0.69,
       "passed": true
@@ -1199,11 +1204,6 @@
     {
       "file": "test/unit/kyverno-reference.test.js",
       "seconds": 0.17,
-      "passed": true
-    },
-    {
-      "file": "test/unit/run-samples.test.js",
-      "seconds": 0.16,
       "passed": true
     },
     {

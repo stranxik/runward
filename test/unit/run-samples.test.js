@@ -103,3 +103,33 @@ test("GitLab at parity: the same run policy, the same three jobs, no id_tokens w
   assert.match(stepsText(gh.jobs.gate), /check -p mission --strict --require attested/);
   assert.match(stepsText(gh.jobs.gate), /runward-fleet\/src\/cli\.js verify-run/);
 });
+
+// The package itself (ADR-0120 decision 1): its own name and tarball, at runward's version, MIT, with no
+// dependency and no install script; until the npm bootstrap it is private, so `npm publish` refuses it.
+const PKG_DIR = join(ROOT, "packages", "runward-run");
+const pkgJson = (p) => JSON.parse(readFileSync(p, "utf8"));
+
+test("runward-run ships at runward's version, MIT, private to npm, with no dependency and no script", () => {
+  const root = pkgJson(join(ROOT, "package.json"));
+  const run = pkgJson(join(PKG_DIR, "package.json"));
+  assert.equal(run.name, "runward-run");
+  assert.equal(run.version, root.version, `packages/runward-run is at ${run.version}, runward at ${root.version}: bump both`);
+  assert.equal(run.license, root.license);
+  assert.equal(run.private, true, "not on npm before the bootstrap runward-forge waits on (RWD-2026-0195)");
+  for (const k of ["dependencies", "optionalDependencies", "peerDependencies", "devDependencies", "scripts"]) assert.ok(!run[k], `runward-run declares no ${k}`);
+  assert.equal(run.bin?.["runward-run"], "src/cli.js");
+  assert.equal(run.engines?.node, root.engines.node);
+  assert.equal(readFileSync(join(PKG_DIR, "LICENSE"), "utf8"), readFileSync(join(ROOT, "LICENSE"), "utf8"), "the package's LICENSE is the repository's, byte for byte");
+});
+
+test("the runward-run tarball holds its modules, its samples, README, package.json and LICENSE, nothing else", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const { readdirSync } = await import("node:fs");
+  const win = process.platform === "win32";
+  const [p] = JSON.parse(execFileSync(win ? "npm.cmd" : "npm", ["pack", "--dry-run", "--json"], { cwd: PKG_DIR, encoding: "utf8", stdio: ["pipe", "pipe", "pipe"], shell: win }));
+  const files = p.files.map((f) => f.path.replaceAll("\\", "/")).sort();
+  const src = readdirSync(join(PKG_DIR, "src")).map((f) => `src/${f}`);
+  const samples = ["samples/github/caller.yml", "samples/github/runward-run.yml", "samples/gitlab/runward-run.gitlab-ci.yml", "samples/request-triage.run-policy.json"];
+  assert.deepEqual(files, ["LICENSE", "README.md", "package.json", ...src, ...samples].sort());
+  assert.ok(!/\]\(\.\.?\//.test(readFileSync(join(PKG_DIR, "README.md"), "utf8")), "the README links nothing relative: in a tarball a relative link points at no file");
+});
