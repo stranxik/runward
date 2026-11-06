@@ -31,7 +31,15 @@ export const KEY_SIGNATURES_RAISE = true;
 
 const sha256hex = (b) => createHash("sha256").update(b).digest("hex");
 const REPO = /^[a-z0-9.-]+\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
-export const normRepo = (s) => String(s ?? "").replace(/^https?:\/\//, "").replace(/\.git$/, "").replace(/\/+$/, "").toLowerCase();
+// A repository as the policy and a signature name it: no scheme, no `.git`, no trailing slash, lower
+// case. The trailing slashes come off from the end, one at a time: `/\/+$/` restarted from every
+// slash of a run and took 7.8 s on a run of 100,000 (RWD-2026-0206).
+export const normRepo = (s) => {
+  const t = String(s ?? "").replace(/^https?:\/\//, "").replace(/\.git$/, "");
+  let end = t.length;
+  while (end > 0 && t[end - 1] === "/") end--;
+  return t.slice(0, end).toLowerCase();
+};
 
 function fail(msg) { throw new BuildError(`trust-policy.json: ${msg}`); }
 

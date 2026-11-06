@@ -8,7 +8,7 @@
   ],
   "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 843.4,
+  "totalSeconds": 844.5,
   "slowSeconds": 788.9,
   "slow": [
     "test/unit/run-binding.test.js",
@@ -1372,6 +1372,11 @@
     {
       "file": "test/unit/analyze-environment-reads.test.js",
       "seconds": 0.15,
+      "passed": true
+    },
+    {
+      "file": "test/unit/fleet-linear-readers.test.js",
+      "seconds": 1.15,
       "passed": true
     }
   ]
