@@ -68,7 +68,8 @@ test("ADR-0113: a removal is a difference — prosePointers emptied, a key delet
   try {
     // One evidence cell that spells a pointer in prose: the tree has one prosePointers entry.
     const floor = join(m.dir, "runward", "floor.md");
-    writeFileSync(floor, readFileSync(floor, "utf8").replace("file:code/src/core/domain/guard.ts#parseDeadline — ", "file:code/src/core/domain/guard.ts#parseDeadline — produced by npm run test:junit — "));
+    // The example's row cites its JUnit case since ADR-0115: the prose goes after that pointer.
+    writeFileSync(floor, readFileSync(floor, "utf8").replace("the model's proposal is discarded\" — ", "the model's proposal is discarded\" — produced by npm run test:junit — "));
     assert.equal(run(m.dir, "check", "--strict").status, 0, "the fixture stays green");
     const att = attest(m.dir, "--strict");
     assert.equal(att.predicate.prosePointers.length, 1, "the fixture carries the disclosure");
@@ -202,7 +203,9 @@ test("ADR-0113: hook outcomes are the attesting run's record — exit 2 when a c
   const m = mission();
   try {
     const name = (n) => save(m.dir, n, attest(m.dir, "--strict", "--hooks"));
-    // No hooks.json: nothing ran, so nothing is taken on trust.
+    // No hooks.json: nothing ran, so nothing is taken on trust. The example ships one since ADR-0115
+    // (its reports' regeneration, which runs npm): this case removes it.
+    rmSync(join(m.dir, "runward", "hooks.json"), { force: true });
     assert.equal(verify(m.dir, name("absent.json")).result, "verified");
     writeFileSync(join(m.dir, "runward", "hooks.json"), JSON.stringify({ before: ["node -e \"process.exit(0)\""] }));
     const v = verify(m.dir, name("ran.json"));
