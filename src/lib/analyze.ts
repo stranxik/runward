@@ -1076,7 +1076,7 @@ const SUBTEST = /(?<![\w$.])(?:t|ctx|context)\s*\.\s*test\s*\(/;
 /** Every bracket of a text paired in one pass each way, under the rule `closing` and `opening` read by:
  *  from an opener, the first closer at which its own depth returns to zero, or -1 when a closer of another
  *  kind or the end of the text comes first; from a closer, the same backwards. A scan from each bracket
- *  read a text of many unclosed ones in quadratic time (`eval(` or `test('a', () => {` repeated over a
+ *  read a text of many unclosed ones in quadratic time (an `eval` call left open, or `test('a', () => {`, repeated over a
  *  file, each scanned to its end: 11 s at 250,000 characters, measured on 2026-11-06 before this was
  *  written). Each opener still open when a closer of another kind arrives would meet that closer before
  *  its own, so all of them get -1 at once; the answer is the scan's, for every bracket. */
