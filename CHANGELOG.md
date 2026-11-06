@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Fixed: under a parent test runner, a hook's own `node --test` no longer passes without running (RWD-2026-0204)
+
+A `node --test` sets `NODE_TEST_CONTEXT` for each child it spawns, and `check --hooks` ran the hooks with
+its whole environment. When runward itself ran under a test runner (a suite that spawns
+`runward check --hooks`), a hook's `node --test` read the variable as its own: it skipped every file it was
+given and exited 0, on Node.js 20, 22 and 24. Measured on 0.46.0 with `init --example` and a hook running
+a failing test file: `check --strict --hooks` exits 1; the same command with `NODE_TEST_CONTEXT=child-v8` in
+its environment exits 0. A hook that regenerates a JUnit report fails instead, since the nested run writes
+none (the example's own hook: exit 1 where it is green). The hooks now run without that one variable, and
+with every other; `test/unit/hooks-parent-test-runner.test.js` shows the nested run skipping first, then the
+failing hook failing under the variable. Every release since 0.8.0, the first with `--hooks`, passed it on.
+On those, run `check --hooks` outside a test runner, or clear the variable for it (`env -u
+NODE_TEST_CONTEXT`).
+
 ### Fixed: a manifest cell or a decision record built for it no longer holds `check --strict` for minutes (RWD-2026-0205)
 
 The audit of RWD-2026-0203 read the evidence and conformance layers too, which every release runs under

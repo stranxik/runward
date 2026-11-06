@@ -8,8 +8,8 @@
   ],
   "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 839.9,
-  "slowSeconds": 785.8,
+  "totalSeconds": 843,
+  "slowSeconds": 788.9,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
@@ -108,7 +108,8 @@
     "test/unit/seal-named-decisions.test.js",
     "test/unit/saboteur-corpus.test.js",
     "test/unit/analyze-ceilings.test.js",
-    "test/unit/evidence-conformance-ceilings.test.js"
+    "test/unit/evidence-conformance-ceilings.test.js",
+    "test/unit/hooks-parent-test-runner.test.js"
   ],
   "files": [
     {
@@ -1334,6 +1335,11 @@
     {
       "file": "test/unit/evidence-conformance-ceilings.test.js",
       "seconds": 3.56,
+      "passed": true
+    },
+    {
+      "file": "test/unit/hooks-parent-test-runner.test.js",
+      "seconds": 3.09,
       "passed": true
     }
   ]
