@@ -64,6 +64,18 @@ JUnit report records a case no source declares. "The gate RUNS nothing" stands; 
 amended to "no language is judged as if covered": the policy reads TypeScript and JavaScript and lists the
 others as not analysed.
 
+## Note, 2026-11-06: amended by ADR-0120, whose first delivery lands
+
+[ADR-0120](ADR-0120-an-executor-outside-the-cli-runward-run-executes-the-tests-in-a-pinned-container-and-the-operators-ci-signs-what-it-wrote.md)
+amends this record by name (its decision 7), and its R1 lands with this note. `runward-run`, a sibling
+package (`packages/runward-run`), runs the project's tests and the commands of its declared reports in
+the operator's CI, in a container pinned by digest with the network cut, and the gate reads what it wrote
+as files at rest, at `check --strict --require attested`. « Run the project's tests in the gate » and
+« Bundle a test runner » stay discarded for the gate: `check` still runs nothing and still prints
+« runward did not run your code ». Language neutrality holds as decision 7 reads it: runward-run runs the
+commands the operator's run policy declares and normalises interchange formats (JUnit XML, ESLint JSON,
+SARIF, LCOV); the mutation leg, per language behind a port, is ADR-0120's R2 and is not delivered.
+
 ## References
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the zero-run, deterministic invariant this decision protects.

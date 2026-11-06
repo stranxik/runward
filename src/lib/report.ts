@@ -22,6 +22,8 @@ export function renderDeliveryReport(
 ): string {
   const p = payload as {
     runward: string; mission: string; currentGate: string; adrCount: number; verdict: string;
+    /** ADR-0114 and ADR-0119: the level of proof the run required, strict only. */
+    require?: { level: string; met: boolean };
     strict: boolean; exitCode: number;
     gaps: { deliverables: number; conformance: number; hooks: number; deferred: number; proposed: number };
     deliverables: Array<{ phase: string; artifact: string; relPath: string; state: string; cause: string | null }>;
@@ -125,6 +127,8 @@ export function renderDeliveryReport(
 <p><span class="verdict ${clean ? "clean" : "gaps"}">${clean ? "CLEAN" : p.verdict === "level-not-met" ? "LEVEL NOT MET" : "GAPS"}</span>
 ${clean
     ? " — every expected deliverable is filled and, under strict, every CRITICAL/HIGH rule mapped to a crossed phase is accounted for."
+    : p.verdict === "level-not-met" && (p.require?.level === "re-derived" || p.require?.level === "attested")
+    ? ` — no gap, and some applied row is below the level of proof the run required (${esc(p.require.level)}, exit 5, runward ADR-0119).`
     : p.verdict === "level-not-met"
     ? " — no gap, and nothing was verified mechanically: no applied row carries a pointer the gate opened and checked, below the level of proof the run required (exit 5, runward ADR-0114)."
     : ` — ${esc(p.gaps.deliverables)} deliverable gap(s), ${esc(p.gaps.conformance)} rule-conformance gap(s)${p.gaps.proposed ? ` (of which ${esc(p.gaps.proposed)} proposal(s) awaiting ratification)` : ""}.`}

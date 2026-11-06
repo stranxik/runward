@@ -288,6 +288,86 @@ mission.
 **Trigger set on**: 2026-11-05 · **Watched via**: `test/unit/runtime-boundary.test.js`, the laboratory
 repository's runs, the offline GitLab CE bench, and the release runs of `runward-run`.
 
+## Notes
+
+- **2026-11-06, R1 and D4a implemented, and what was measured.** Written by the agent session that built
+  them, in pull request form; the maintainer has not reviewed it.
+  - **What landed, by decision.** Decision 1: `packages/runward-run` (MIT, no dependency, versioned with
+    runward, `private` until the npm bootstrap so that `npm publish` refuses it), importing nothing of
+    runward. Decision 2: the tests and declared-reports legs; the coverage, mutation and evals legs are
+    refused by name (R2, R3). Decision 3: the image must be pinned by digest and named by the runtime by
+    that digest; dependencies install from the lockfile on a copy of the tree, the network open and
+    install scripts disabled; a probe container started with `--network none` must see the loopback
+    only; anything else is exit 3 with the output directory never created. Decision 4: the run Statement
+    `https://runward.dev/run/v1` and the in-toto `test-result` Statement beside it, byte for byte the
+    same across two runs of one tree. Decision 5: inert samples for GitHub (a reusable workflow: `execute`
+    with `contents: read` only, `sign` with the identity and no checkout, `gate`, an opt-in `commit`) and
+    GitLab (the pipeline of a runner project: `execute` with no `id_tokens`, `sign` keyless or with the
+    project's own key, `gate`), both writing the shipped example's run policy
+    (`packages/runward-run/samples/request-triage.run-policy.json`). Decision 6: `check --strict --require
+    attested` reads, in the directory of each cited report, a run Statement bare, in a DSSE envelope or in
+    a Sigstore bundle; re-derives its binding (the subject digest, `network: "none"`, the manifests, a
+    recorded source set not narrower than the tree's expected set, every recorded digest); counts its
+    non-empty signatures; reads `attested` with `signatureVerified: false` and ADR-0119's sentence, else
+    `declared`, naming why. D4a: `runward-fleet verify-run` verifies the signature offline against the
+    trust policy, reusing the fleet's Sigstore verifier and policy reader, and refuses each case of this
+    record's acceptance by name; the policy gains the signer kind `key` for instances with no keyless
+    signing. The verifier lives in runward-fleet, so the CLI keeps reading files only. The specification
+    is `docs/spec/runward-run.md`.
+  - **Choices this record left open, made here.** The expected set is the files the analyzers read under
+    the pinned policy (source and configuration files), the cited files and the cited tests, less the
+    execution reports and the in-toto documents; runward publishes it (`levels.execution.expected`) and
+    runward-run records it, so the writer never chooses it. runward looks for a run Statement only beside
+    the report it binds, so one run writes all its reports to one directory. The `levels` block of
+    `check --json` is present only when the run requires `re-derived` or `attested`, so every other
+    payload keeps its bytes. `verify-run` refuses a signer workflow of the mission's own repository even
+    under a policy that pins it. On GitHub the mission's commit is the certificate's; for a pipeline run
+    in the signer's own project (the GitLab runner project) or a key, it is the signed Statement's
+    `mission` claim, which that signer vouches for.
+  - **Two limits found.** A reusable workflow cannot read its own commit from its context
+    (`github.job_workflow_sha` is reported empty inside it, actions/runner issue 2417), so a trust policy
+    cannot live in the workflow file it pins: the samples read it from a repository of the operator's,
+    and the operator adds each new commit of the signer workflow to `workflowDigests`. And a host whose
+    container runtime enforces SELinux makes a bind mount unreadable until it is labelled: runward-run
+    labels its own mounts (`:z`), measured below.
+  - **Measured.** On a laboratory copy of the shipped example (`test/support/run-lab.js`: its lockfile, its
+    one prose row typed) with a fake container runtime (`test/unit/run-binding.test.js`, Node.js 24.22.1,
+    macOS): the healthy example exits 0 at `attested` once its Statement carries one signature, 16 applied
+    rows attested, 8 re-derived (they cite no report), 0 declared; unsigned it exits 5; a hand-committed
+    ESLint report and a hand-written JUnit report carrying every cited case exit 0 at `mechanical` and 5 at
+    `attested`; a source or a manifest edited after the run, a recorded set narrower by one file, a run
+    recording the network open, each unbind (exit 5); a runtime that refuses `--network none`, or accepts it
+    and leaves an interface up, writes nothing (exit 3). The identity half
+    (`test/unit/run-signature.test.js`, the tests' own Sigstore): the pinned reusable workflow at its pinned
+    commit is accepted; the mission's own caller workflow, a signer the policy does not name or names
+    without a commit, the pinned workflow at another commit, another commit of the mission, a key the policy
+    does not pin, a certificate from an authority of the signer's own: each refused by name. The boundary:
+    an import of runward-run planted in `dist/lib/evidence-levels.js` reddens the ADR-0120 assertions of
+    `runtime-boundary.test.js` and `packaging.test.js`; `packages/runward-run/src` planted in the tarball's
+    `files` reddens both and ADR-0094's; restored, 28 of 28 pass. ADR-0117's row 3 replayed on its
+    laboratory tree: exit 1 at `mechanical` and at `attested`, 51 gaps, 17 rows below `attested`. On a real
+    container runtime, the maintainer's NAS (Fedora, SELinux enforcing, Docker 29.0.4), with the example's
+    run policy: the install of 94 packages from the lockfile, scripts disabled, the probe seeing the
+    loopback only, the three legs exiting 0, 12 s in all; the four normalised reports byte for byte the ones
+    the example commits; unsigned, exit 5 with the Statement bound; one signature counted, exit 0;
+    `verify-run` refuses that signature (exit 1). Its first attempt found the two defects fixed in this pull
+    request: the unlabelled mounts, and the report directory Node.js's test reporter does not create, where
+    the run was refused, exit 3, nothing written. On a loaded MacBook, `check --strict --json` on the
+    laboratory takes 0.4 to 0.7 s at `attested` and about 0.5 s at `mechanical`; the `levels` block is 16
+    KB. The full suite on the NAS (Node.js 24, Linux), on the code of this pull request: exit 0 in 841 s,
+    2040 unit tests, 2029 passing, 0 failing, 11 skipped (each bound to an operating system), then the smoke
+    test, the schemas, spelling, the SARIF shape and the attack corpus, 18 of 18. The committed JUnit
+    report, regenerated twice on macOS with the Node.js of `.nvmrc`, is byte for byte the same both times:
+    2040 cases, 0 failures, 2 skipped.
+  - **Not delivered, or not exercised.** R1's « the offline GitLab CE bench passes »: no bench instance
+    was available to this session (the bench runs as `gitlab-bench.yml` on GitHub), so the GitLab sample
+    is held at parity by `test/unit/run-samples.test.js` and has not run on a GitLab. The GitHub samples
+    and the `runward-run-e2e` job of `ci.yml` have not run on GitHub: nothing of this was pushed. The
+    healthy example passes on the laboratory copy; the shipped example, as `init --example` writes it,
+    keeps the prose row and ships no lockfile. runward-run is not packed by the release chain yet
+    (`build-and-attest.yml`, `release.yml`), so no release carries it. The required level read from the
+    lock (ADR-0119 decision 4). D4b, R2, R3.
+
 ## References
 
 - [ADR-0005](ADR-0005-baseline-worktree-test-validation-out-of-scope.md),

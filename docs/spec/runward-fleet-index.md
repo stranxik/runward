@@ -50,7 +50,7 @@ predicate, which carries the same fields.
 | `trustedRoots[]` | paths, relative to the policy, of trusted roots in Sigstore's `trusted_root.json` format |
 | `signers[]` | the identities the operator trusts |
 | `signers[].id` | a plain identifier |
-| `signers[].kind` | `sigstore` or `ed25519` |
+| `signers[].kind` | `sigstore` or `ed25519`; or `key`, read by `verify-run` only (runward-run Statements, [runward-run.md](runward-run.md) §6) |
 | `signers[].repositories[]` | the repositories this signer may sign for, `host/owner/repo` |
 | `signers[].ref` | the protected ref; an entry raises only if it is `refs/heads/main` |
 | `issuer`, `workflow` (sigstore) | the OIDC issuer and the Build Signer URI, compared exactly |
@@ -58,6 +58,7 @@ predicate, which carries the same fields.
 | `runnerEnvironment` (sigstore) | optional, e.g. `github-hosted` |
 | `publicKey` or `jwk` (ed25519) | the key, a PEM file relative to the policy, or a JWK |
 | `keyDigest` (ed25519) | `sha256:` and the hex digest of the key's SPKI, required; a digest that is not the key's stops the build |
+| `publicKey`, `keyDigest` (key) | a PEM file relative to the policy (ECDSA P-256 or P-384, what `cosign generate-key-pair` writes, or Ed25519) and the digest of its SPKI, required; a key that signs DSSE envelopes of run Statements on an instance with no keyless signing |
 | `manifestFormat` (ed25519) | the manifest schema this key signs; `dropyour.preuves-ci.v2` in this version |
 
 An entry is **pinned** when it pins `refs/heads/main` and, for `sigstore`, at least one workflow digest.

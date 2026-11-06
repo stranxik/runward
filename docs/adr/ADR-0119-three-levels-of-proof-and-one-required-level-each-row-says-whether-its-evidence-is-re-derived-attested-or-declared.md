@@ -282,6 +282,29 @@ its result may enter a file the CLI reads, a question this record leaves closed 
 golden tests and `check-contract`'s tests, and the published classification of findings on real
 repositories (ADR-0117, criterion 2).
 
+## Note, 2026-11-06: `re-derived` and `attested` land with ADR-0120's R1, in part
+
+`check --strict --require` takes the four values of decision 2, by rank (`src/lib/evidence-levels.ts`,
+read by `verdictOutcome` as ADR-0114's levels are). Delivered: each applied row's level and its pieces
+(decision 1), `re-derived` (no declared row, the declared territory analysed under the pinned policy,
+a language the analyzers do not read named and refused under the flag) and `attested` (also, every
+execution piece bound to the tree by a signed run Statement, and every `requires:` nature carried by an
+attested report); exit 5 below the level, naming each row and what holds it (decision 3); the CLI's
+two checks of decision 5, the binding re-derived and the signatures counted, the sentence at the
+character on the terminal and in the payload, `signatureVerified: false`; the `levels` block of
+`check --json`, present only when the run requires `re-derived` or `attested`, so every other payload
+keeps its bytes (decision 6, additive), re-derived by `verify` with the rest of the payload. Each row's
+`proof` travels in `levels.rows` rather than on `conformance[]`, which lists only refused rows.
+
+Not delivered, each to land in its own change: the required level read from the mission's lock and the
+language fallback under it (decision 4), so `source` is `flag` in every payload today; `init` writing
+`"requiredLevel"` for new missions; the level printed on every strict run whatever it requires; the SARIF
+properties, the delivery report and the witness naming each row's level (decision 6); a `verifiedLevels`
+value of the VSA. The shipped example still answers one row in prose (`topology-usage-registry-present`
+cites its own manifest), which `re-derived` refuses: the laboratory of ADR-0120's tests types it, the
+example does not yet. The mutation fact of decision 2 waits for ADR-0120's R2: until then every surface
+says that no run Statement bound here carries a mutation leg.
+
 ## References
 
 - [ADR-0046](ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md),

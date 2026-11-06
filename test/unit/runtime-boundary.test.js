@@ -338,3 +338,64 @@ test("ADR-0093, positive controls: a planted runward import, a planted spawn, a 
   assert.equal(fleetCrossings(f, 'import { createHash } from "node:crypto";\nimport { group } from "./build.js";').length, 0, "but built-ins and the package's own modules do not");
   assert.equal(fleetImportIn("x.js", 'import { buildIndex } from "runward-fleet";').length, 1, "a planted import of the satellite into runward reddens");
 });
+
+// ── ADR-0120 decisions 1, 8 and 9: runward-run, the executor, is a PACKAGE boundary, both ways ───────
+// runward-run runs the project's code in the operator's CI; the `runward` package never does. So: no
+// module of runward imports runward-run, spawns it or ships it, and the verdict rings never reach it;
+// runward-run imports nothing of runward's src/ or dist/ (it reads the files runward writes) and opens
+// no socket of its own. UNLIKE runward-forge and runward-fleet it SPAWNS (the container runtime), and
+// this file asserts that it does, so the boundary cannot pass vacuously on a package that spawns nothing.
+const RUN_PKG = join(ROOT, "packages", "runward-run");
+const RUN_FILES = () => listFiles(join(RUN_PKG, "src"), [".js"]);
+/** The executor's boundary, as a function, so the controls below run the very code the guard runs. */
+function runCrossings(file, src) {
+  const found = [];
+  for (const s of SPECIFIERS(src)) {
+    if (s.startsWith(".")) {
+      if (!resolve(dirname(file), s).startsWith(RUN_PKG + sep)) found.push(`${file} reaches outside its package with "${s}"`);
+    } else if (!/^node:/.test(s)) found.push(`${file} imports "${s}": Node built-ins only, and never runward`);
+  }
+  return [...found, ...networkIn(file, src)];
+}
+const runImportIn = (file, src) => SPECIFIERS(src).filter((s) => /(^|\/)runward-run(\/|$)|(^|\/)packages\//.test(s)).map((s) => `${file} imports "${s}"`);
+const RUN_SPAWN = /\b(?:spawn|spawnSync|exec|execSync|execFile|execFileSync|fork)\s*\([^)]*runward-run/;
+
+test("ADR-0120: runward-run imports nothing from runward and opens no socket of its own; it spawns, and this test says so", async () => {
+  const files = RUN_FILES();
+  assert.ok(files.length >= 7, `the executor was walked (${files.length} modules)`);
+  assert.deepEqual(files.flatMap((f) => runCrossings(f, readFileSync(f, "utf8"))), [], "runward-run crosses its boundary (ADR-0120 decision 1)");
+  const spawners = files.filter((f) => SPECIFIERS(readFileSync(f, "utf8")).includes("node:child_process"));
+  assert.deepEqual(spawners.map((f) => f.slice(RUN_PKG.length + 1).split(sep).join("/")), ["src/runtime.js"], "the one module that spawns is the container runtime's port: the boundary is not vacuous, and it is where it is said to be");
+  const { SPAWN_ALLOWED } = await import(pathToFileURL(join(ROOT, "eslint.security.config.js")).href);
+  assert.ok(!SPAWN_ALLOWED.some((p) => p.includes("runward-run")), "runward-run is no entry of the runward package's SPAWN_ALLOWED: it is not part of that package");
+});
+
+test("ADR-0120: the runward package imports nothing from runward-run, never spawns it, and does not ship it", () => {
+  const files = RUNWARD_FILES();
+  assert.deepEqual(files.flatMap((f) => runImportIn(f, readFileSync(f, "utf8"))), [], "runward imports the executor");
+  assert.deepEqual(files.filter((f) => RUN_SPAWN.test(readFileSync(f, "utf8"))), [], "runward spawns the executor");
+  const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+  for (const k of ["dependencies", "optionalDependencies", "peerDependencies", "devDependencies"]) assert.ok(!pkg[k]?.["runward-run"], `runward-run is not a ${k} entry`);
+  assert.ok(!pkg.files.some((f) => f.startsWith("packages")), "packages/ is not in the runward tarball");
+  for (const entry of [join(ROOT, "dist", "lib", "verdict.js"), join(ROOT, "dist", "commands", "check.js"), join(ROOT, "dist", "commands", "gate-hook.js")]) {
+    const { files: ring } = importClosure(entry);
+    assert.ok(![...ring].some((f) => f.startsWith(RUN_PKG)), `${entry}: an executor module is inside a verdict ring`);
+  }
+});
+
+test("ADR-0120, positive controls: a planted import of runward-run into runward, a planted spawn of it, and planted escapes out of it redden", () => {
+  assert.equal(runImportIn("x.ts", 'import { runPolicy } from "runward-run";').length, 1, "a package import of the executor into runward reddens");
+  assert.equal(runImportIn("x.js", 'import { runPolicy } from "../../packages/runward-run/src/run.js";').length, 1, "a relative import into packages/ reddens");
+  assert.equal(runImportIn("x.js", 'const m = await import("runward-run/policy");').length, 1, "a dynamic import of a subpath reddens");
+  assert.ok(RUN_SPAWN.test('execFileSync("npx", ["runward-run", "run"])'), "a spawn of the executor from runward reddens");
+  assert.ok(!RUN_SPAWN.test('log("run its tests with runward-run in your CI")'), "but not the name in a sentence runward prints");
+  const f = join(RUN_PKG, "src", "planted.js");
+  for (const [plant, what] of [
+    ['import { computeVerdict } from "runward/dist/lib/verdict.js";', "a runward import"],
+    ['import { readManifest } from "../../../src/lib/conformance.js";', "a relative escape into runward"],
+    ['import { request } from "node:https";', "a socket of its own"],
+    ['export const x = async () => fetch("https://example.invalid/policy.json");', "a fetch"],
+    ['import chalk from "chalk";', "a dependency"],
+  ]) assert.equal(runCrossings(f, plant).length, 1, `${what} reddens`);
+  assert.equal(runCrossings(f, 'import { spawnSync } from "node:child_process";\nimport { readPolicy } from "./policy.js";').length, 0, "but spawning and its own modules do not: runward-run is the package that runs");
+});

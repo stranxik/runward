@@ -1,0 +1,32 @@
+{
+  "name": "runward-run",
+  "version": "0.46.0",
+  "private": true,
+  "description": "The executor of runward ADR-0120: runs the tests and the declared report commands of a mission in a container pinned by digest, the network cut, and writes the reports and one unsigned run Statement the operator's CI signs in another job. Imports nothing from runward; runward reads what it writes as files.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stranxik/runward.git",
+    "directory": "packages/runward-run"
+  },
+  "homepage": "https://github.com/stranxik/runward/tree/main/packages/runward-run#readme",
+  "exports": {
+    ".": "./src/run.js",
+    "./policy": "./src/policy.js",
+    "./runtime": "./src/runtime.js",
+    "./statement": "./src/statement.js"
+  },
+  "bin": {
+    "runward-run": "src/cli.js"
+  },
+  "files": [
+    "src",
+    "samples",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

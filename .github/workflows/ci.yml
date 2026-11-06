@@ -101,6 +101,58 @@ jobs:
       - name: The Action writes the page the build writes
         run: cmp fleet-ci/site/index.html fleet-ci/action-site/index.html
 
+  runward-run-e2e:
+    name: runward-run, a real container with the network cut, on the shipped example (ADR-0120 R1)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm run build
+      # The unit tests drive runward-run with a fake container runtime (run-executor.test.js,
+      # run-binding.test.js); this job is the real one, on the runner's Docker: a laboratory copy of the
+      # shipped example (its lockfile, its last prose row typed: test/support/run-lab.js), the example's
+      # run policy (packages/runward-run/samples), the image pinned by digest, the install from the
+      # lockfile with scripts off, and the legs in containers whose only interface is the loopback.
+      - name: A laboratory copy of the shipped example
+        run: node --input-type=module -e 'import { makeLab } from "./test/support/run-lab.js"; makeLab(process.argv[1]);' "$RUNNER_TEMP/lab"
+      - name: The expected set, derived from the tree (exit 5 is expected before any run)
+        run: |
+          set +e
+          node dist/cli.js check -p "$RUNNER_TEMP/lab" --strict --require attested --json > "$RUNNER_TEMP/check.json"
+          code=$?
+          set -e
+          [ "$code" -eq 5 ] || { echo "::error::before any run the lab reads declared at attested (exit 5), got $code"; exit 1; }
+      - name: runward-run on the runner's container runtime, the network cut
+        run: |
+          node packages/runward-run/src/cli.js run --runtime docker \
+            --policy packages/runward-run/samples/request-triage.run-policy.json \
+            --tree "$RUNNER_TEMP/lab" --check "$RUNNER_TEMP/check.json" --out "$RUNNER_TEMP/out"
+      - name: Committed with the tree, the unsigned Statement binds and reads declared (exit 5)
+        run: |
+          cp -R "$RUNNER_TEMP/out/." "$RUNNER_TEMP/lab/"
+          set +e
+          node dist/cli.js check -p "$RUNNER_TEMP/lab" --strict --require attested --json > "$RUNNER_TEMP/after.json"
+          code=$?
+          set -e
+          [ "$code" -eq 5 ] || { echo "::error::an unsigned run Statement reads declared (exit 5), got $code"; exit 1; }
+          node -e 'const j=require(process.argv[1]); const s=j.levels.execution.statements; if (s.length!==1||!s[0].bound||s[0].signatures!==0) { console.error(JSON.stringify(s)); process.exit(1); }' "$RUNNER_TEMP/after.json"
+      - name: With one signature counted, the lab reads attested (exit 0); runward-fleet refuses that signature
+        run: |
+          ST="$RUNNER_TEMP/lab/code/reports/runward-run.intoto.json"
+          node -e 'const fs=require("fs"); const b=fs.readFileSync(process.argv[1]); fs.writeFileSync(process.argv[2], JSON.stringify({payloadType:"application/vnd.in-toto+json",payload:b.toString("base64"),signatures:[{keyid:"",sig:Buffer.from("counted, never verified").toString("base64")}]}));' "$ST" "$RUNNER_TEMP/lab/code/reports/runward-run.dsse.json"
+          node dist/cli.js check -p "$RUNNER_TEMP/lab" --strict --require attested
+          echo '{"format":"runward-fleet-trust-policy/0","trustedRoots":[],"signers":[]}' > "$RUNNER_TEMP/trust-policy.json"
+          set +e
+          node packages/runward-fleet/src/cli.js verify-run "$RUNNER_TEMP/lab/code/reports/runward-run.dsse.json" --policy "$RUNNER_TEMP/trust-policy.json" --repository github.com/example/lab --commit 0000000000000000000000000000000000000000
+          code=$?
+          set -e
+          [ "$code" -eq 1 ] || { echo "::error::verify-run must refuse a signature under no pinned key, got $code"; exit 1; }
+
   windows:
     name: same tree, same verdict — on Windows
     runs-on: windows-latest
