@@ -41,7 +41,10 @@ export function containerRuntime(bin = "docker") {
      */
     run(spec) {
       const args = ["run", "--rm", "--network", spec.network === "default" ? "bridge" : "none"];
-      for (const m of spec.mounts) args.push("--volume", `${m.host}:${m.container}`);
+      // `z`: on a host whose runtime enforces SELinux (Fedora, RHEL), a bind mount is readable by the
+      // container only once labelled; `z` labels it for containers, and only the directories runward-run
+      // created for this run are ever mounted. A runtime without SELinux ignores the option.
+      for (const m of spec.mounts) args.push("--volume", `${m.host}:${m.container}:z`);
       args.push("--workdir", spec.workdir);
       if (spec.user) args.push("--user", spec.user);
       for (const [k, v] of Object.entries(spec.env ?? {})) args.push("--env", `${k}=${v}`);

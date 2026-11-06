@@ -49,6 +49,7 @@ test("a run: the sources hashed first, the install with the network open, a prob
   assert.equal(runs[0].mounts.length, 1, "the install sees the copy of the tree, not the output directory");
   for (const leg of runs.slice(2)) {
     assert.deepEqual(leg.mounts.map((m) => m.container), ["/runward-run/work", "/runward-run/out"]);
+    assert.ok(leg.mounts.every((m) => m.options === "z"), "labelled for containers, so a runtime that enforces SELinux lets the leg read its mounts");
     assert.equal(leg.workdir, "/runward-run/work/code");
     assert.equal(leg.image, IMAGE, "every container runs the image the policy pins, by digest");
     assert.match(leg.user, /^\d+:\d+$/, "the legs run as this user, never as root");

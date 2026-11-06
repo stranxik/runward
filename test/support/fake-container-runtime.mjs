@@ -41,7 +41,13 @@ for (; i < argv.length; i++) {
   const a = argv[i];
   if (a === "--rm") spec.rm = true;
   else if (a === "--network") spec.network = argv[++i];
-  else if (a === "--volume") { const v = argv[++i]; const k = v.lastIndexOf(":"); spec.mounts.push({ host: v.slice(0, k), container: v.slice(k + 1) }); }
+  else if (a === "--volume") {
+    // host:container[:options], the host path possibly holding a ":" of its own: the container path is
+    // the last segment that starts with "/", the options what follows it.
+    const parts = argv[++i].split(":");
+    const c = parts.findLastIndex((p) => p.startsWith("/"));
+    spec.mounts.push({ host: parts.slice(0, c).join(":"), container: parts[c], options: parts.slice(c + 1).join(":") });
+  }
   else if (a === "--workdir") spec.workdir = argv[++i];
   else if (a === "--user") spec.user = argv[++i];
   else if (a === "--env") { const v = argv[++i]; const k = v.indexOf("="); spec.env[v.slice(0, k)] = v.slice(k + 1); }
