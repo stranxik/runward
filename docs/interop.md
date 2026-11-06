@@ -76,7 +76,8 @@ wrongly often enough, or are new enough, to be said here:
   `evidence-placeholder`, `applied-without-evidence`, `deviated-without-adr`, `na-without-reason`,
   `unknown-rule`, `duplicate-row`, `deliverable-missing`, `manifest-unreadable`, `mapping-floor`,
   `corpus-missing`, `corpus-edited`, `corpus-extra`, `corpus-unrecorded`, `seal-violation`,
-  `unratified-decision`, `unbound-row`, and under a pinned analysis policy `analysis-boundary`,
+  `unratified-decision`, `unbound-row`, `requires-unmet` (an applied row whose rule requires a kind of
+  evidence none of its pointers carries, ADR-0115), and under a pinned analysis policy `analysis-boundary`,
   `analysis-capability`, `analysis-secret`, `analysis-test-integrity`, `analysis-symbol`,
   `analysis-policy`; values are only ever added), `file` (repository-relative,
   `/`-separated), `line` (the rule's row in that file, or `null` when the refusal has no row; for an

@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+### Changed: under `--strict`, a row that cites another kind of evidence than its rule requires is refused (ADR-0115)
+
+A rule's `requires:` (a JUnit report, a SARIF log, an ESLint report, a coverage report, an SBOM, an ADR or
+a load-test report) was reported on every strict run and never refused (ADR-0073 kept it so until the
+shipped example could carry its own evidence, which it now does). `check --strict` now refuses an
+`applied` row whose pointers resolve to no file of the required kind: one conformance gap on the row, kind
+`requires-unmet` in `conformance[]` and every rendering, counted in the exit code, re-derived by `verify`,
+folded by `--through` like every gap of a deferred deliverable. The refusal names the rule, the kind, a
+form to cite and the ways out: cite a report of that kind; mark the row `deviated` with the ADR that
+decides it; or, when the delivery cannot produce that kind at all, declare it in an accepted ADR
+(`**Nature not carried**: <kind> — why`, ADR-0075), which keeps it listed in `requiresUnmet` and printed
+on every strict run, and not refused. One declaration lifts the refusal of every row of its kind, so it is
+read with the bar the ADR of a deviated row meets: a proposed or set-aside decision, a near-empty file, the
+scaffolded template, or a number two files claim, declares nothing. A `proposed:applied` row that lacks its
+kind is told so inside its own refusal, before anyone ratifies it, and is counted once. No command-line
+flag accepts an unmet kind. The witness gains the
+`notWitnessed` family `requires` (a cause of kind `requires-unmet` is beyond `runward-witness/1`).
+runward's own mission stays green: its one unmet kind is the load test ADR-0075 declares.
+
+**Migration.** Run `runward check --strict --json` before upgrading and read `requiresUnmet`: each entry
+without `declaredIn` becomes a refusal. Cite the report, decide the row (`deviated` with its ADR), or
+declare the kind your delivery cannot produce. Your adapters keep running the version that wrote them
+until `runward update` moves them, which is the window to do it in. A copy of the example scaffolded
+before the previous entry has 17 such rows: lay down a fresh one with `runward init --example`.
+
 ### Changed: the shipped example cites machine evidence, and the CI runward ships regenerates it before the gate (ADR-0115)
 
 `init --example` now lays down a mission whose rows cite four reports a tool writes, committed in

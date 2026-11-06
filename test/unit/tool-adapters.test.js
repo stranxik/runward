@@ -90,6 +90,10 @@ function junitViolation(v, rule) {
 // An unsigned gated rule the example answers n/a — flipping it isolates the JUnit adapter from the
 // signature layer.
 const RULE = "hexa-typescript-native";
+// …and from the required-nature layer (ADR-0115): this rule requires an ESLint report, and the
+// adapters under test are read on other kinds, so its `requires-unmet` refusal is left out here; that
+// refusal has its own tests (requires-nature.test.js).
+const adapterViolations = (v) => v.gated.flatMap((g) => g.violations).filter((x) => x.rule === RULE && x.kind !== "requires-unmet");
 
 test("obj 4: a committed JUnit case that passes resolves the pointer green", () => {
   const m = mission();
@@ -143,7 +147,7 @@ test("RWD-2026-0168: the quoted name reaches the red case, and `; file:` after a
   writeJUnit(m2, `<testcase name="guard suite"/>`);
   assert.ok(setRuleApplied(m2.mission, RULE, "test:code/reports/junit.xml::guard suite; file:code/package.json"));
   const v2 = computeVerdict(m2.mission, { strict: true });
-  assert.equal(v2.gated.flatMap((g) => g.violations).filter((x) => x.rule === RULE).length, 0, "a `;` that starts a pointer is a separator, as it always was");
+  assert.equal(adapterViolations(v2).length, 0, "a `;` that starts a pointer is a separator, as it always was");
   m.drop(); m2.drop();
 });
 
@@ -151,7 +155,7 @@ test("RWD-2026-0170 at the gate: a test name in a source file is matched as a wh
   const m = mission();
   mkdirSync(join(m.dir, "code", "test"), { recursive: true });
   writeFileSync(join(m.dir, "code", "test", "frag.test.ts"), "describe('routes', () => {});\n");
-  const own = (v) => v.gated.flatMap((g) => g.violations).filter((x) => x.rule === RULE);
+  const own = adapterViolations;
   assert.ok(setRuleApplied(m.mission, RULE, "test:code/test/frag.test.ts::es"));
   assert.match(own(computeVerdict(m.mission, { strict: true })).map((x) => x.problem).join(" "), /test named "es" not found/, "`es` inside `describe` and `routes` is a fragment, not a test name");
   assert.ok(setRuleApplied(m.mission, RULE, "test:code/test/frag.test.ts::routes"));
@@ -250,10 +254,10 @@ test("sarif: the gate routes #ruleId on a SARIF file structurally — the substr
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "scan.sarif"), SARIF);
   assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/scan.sarif#pinned-actions"));
-  const clean = computeVerdict(m.mission, { strict: true }).gated.flatMap((g) => g.violations).filter((x) => x.rule === RULE);
+  const clean = adapterViolations(computeVerdict(m.mission, { strict: true }));
   assert.equal(clean.length, 0, "a clean scan rule is evidence");
   assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/scan.sarif#no-hardcoded-secrets"));
-  const red = computeVerdict(m.mission, { strict: true }).gated.flatMap((g) => g.violations).find((x) => x.rule === RULE);
+  const red = adapterViolations(computeVerdict(m.mission, { strict: true }))[0];
   assert.ok(red, "the ruleId IS in the JSON (because there are findings) — substring would have greened this");
   assert.match(red.problem, /open finding/);
   m.drop();
@@ -294,10 +298,10 @@ test("lcov: the gate routes #path on a coverage report — an unexercised file i
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "lcov.info"), LCOV);
   assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/lcov.info#src/lib/guard.ts"));
-  const ok = computeVerdict(m.mission, { strict: true }).gated.flatMap((g) => g.violations).filter((x) => x.rule === RULE);
+  const ok = adapterViolations(computeVerdict(m.mission, { strict: true }));
   assert.equal(ok.length, 0, "a measured, exercised file is evidence");
   assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/lcov.info#src/lib/dead.ts"));
-  const dead = computeVerdict(m.mission, { strict: true }).gated.flatMap((g) => g.violations).find((x) => x.rule === RULE);
+  const dead = adapterViolations(computeVerdict(m.mission, { strict: true }))[0];
   assert.ok(dead, "a file nothing exercises is not evidence the rule was applied in it");
   assert.match(dead.problem, /NOTHING executed it/);
   m.drop();
@@ -366,7 +370,7 @@ test("the three new adapters route at the gate, each refusing what its tool reco
   writeFileSync(join(dir, "cobertura.xml"), COBERTURA);
   writeFileSync(join(dir, "eslint.json"), ESLINT);
   writeFileSync(join(dir, "sbom.json"), SBOM);
-  const violation = () => computeVerdict(m.mission, { strict: true }).gated.flatMap((g) => g.violations).find((x) => x.rule === RULE);
+  const violation = () => adapterViolations(computeVerdict(m.mission, { strict: true }))[0];
 
   assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/cobertura.xml#src/guard.ts"));
   assert.ok(!violation(), "a covered file is evidence");

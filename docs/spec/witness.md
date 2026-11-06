@@ -613,7 +613,7 @@ kind `corpus-unrecorded`, whatever the number of files; under `package`, none. S
 | `family` | Counts in | `kind` values | Witnessed? |
 |---|---|---|---|
 | `deliverable-state` | `gaps` | the state: `in-progress`, `untouched`, `missing` | `missing` only |
-| `conformance` | `strictBreakdown.conformance` (+ `proposed`) | `proposed`, `missing-row`, `empty-status`, `invalid-status`, `applied-without-evidence`, `deviated-without-adr`, `na-without-reason`, `unknown-rule`, `duplicate-row`, `deliverable-missing`, `manifest-unreadable`, `mapping-floor`, `unresolved-pointer`, `evidence-placeholder`, `evidence-refused` | yes, but `evidence-refused` only in part (9.8) |
+| `conformance` | `strictBreakdown.conformance` (+ `proposed`) | `proposed`, `missing-row`, `empty-status`, `invalid-status`, `applied-without-evidence`, `deviated-without-adr`, `na-without-reason`, `unknown-rule`, `duplicate-row`, `deliverable-missing`, `manifest-unreadable`, `mapping-floor`, `unresolved-pointer`, `evidence-placeholder`, `evidence-refused`, `requires-unmet` | yes, but `evidence-refused` only in part (9.8), and `requires-unmet` not at all (family `requires` of 8.2) |
 | `corpus` | `strictBreakdown.corpus` | `corpus-missing`, `corpus-edited`, `corpus-extra`, `corpus-unrecorded` | in part (7.2) |
 | `seal` | `strictBreakdown.seal` | `seal-violation` | no |
 | `unratified-decision` | `strictBreakdown.unratified` | `unratified-decision` | yes (7.7) |
@@ -639,8 +639,10 @@ The families of the verdict this version does not carry the facts of, each
 `{ "family", "why", "causes" }`, `causes` being how many of this run's causes are of that family (0 for
 a family that is not a cause family). In `runward-witness/1`: `deliverable-state`, `corpus-history`,
 `signatures`, `report-natures`, `on-disk-spelling`, `scaffold-identical`, `unreadable`, `seal`,
-`regulated`, `charter`, `workflow-contract`, `analysis`, `hooks`, `disclosures`, and, after 0.46.0, `comments` and
-`required-level` (ADR-0114). A checker that accepts a witness
+`regulated`, `charter`, `workflow-contract`, `analysis`, `hooks`, `requires`, `disclosures` (`requires` added with
+runward's ADR-0115: a `conformance` cause of kind `requires-unmet` is beyond the witness, since the
+witness carries neither a rule's `requires:` nor the natures a journal declares uncarriable), and, after
+0.46.0, `comments` and `required-level` (ADR-0114). A checker that accepts a witness
 says, beside its answer, that these were not re-checked; a cause of one of these families is reported
 as **beyond the witness**, never as a fact that holds.
 
@@ -866,12 +868,19 @@ mission: `runward/architecture.md` line 40 becomes
 
 ```json
 {"verdict":{"checked":5,"deferredGaps":0,"exitCode":1,"gaps":0,"hookFailed":0,"result":"gaps",
-  "strictBreakdown":{"charter":0,"conformance":1,"corpus":0,"proposed":0,"seal":0,"unboundRows":0,"unratified":0},
-  "strictGaps":1},
+  "strictBreakdown":{"charter":0,"conformance":2,"corpus":0,"proposed":0,"seal":0,"unboundRows":0,"unratified":0},
+  "strictGaps":2},
  "causes":[{"family":"conformance","kind":"evidence-refused","path":"runward/architecture.md",
   "problem":"typed pointer file:src/a.ts# — the `#` names nothing to look for (a symbol must be at least 2 characters); drop the `#` or name the symbol",
+  "rule":"hexa-architecture"},
+  {"family":"conformance","kind":"requires-unmet","path":"runward/architecture.md",
+  "problem":"the rule requires eslint evidence, and no pointer in this row resolves to an ESLint JSON report (file:<report>#<source file>) — …",
   "rule":"hexa-architecture"}]}
 ```
+
+(The second cause is runward's ADR-0115: the rule requires an ESLint report and the row cites a source
+file. Its kind is beyond this version of the witness, family `requires` of 8.2; on runward before
+ADR-0115 the run carried the first cause alone.)
 
 and, in `gated[0].rows`, the row at line 40 with the pointer
 `{"kind":"file","raw":"file:src/a.ts#","symbol":null,"symbolDeclared":true,"symbolAt":null,…,"target":{"base":"project","real":"src/a.ts"}}`.

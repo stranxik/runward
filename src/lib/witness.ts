@@ -64,7 +64,8 @@ export const NOT_WITNESSED: Record<string, string> = {
   "workflow-contract": "the workflow contracts (ADR-0067)",
   "analysis": "the built-in analyzers' reading of the delivered code (ADR-0118); the witness carries each finding's file, line and check, not the source text it was read from, and no digest of the files read",
   "hooks": "the operator's hooks; their failures are an input to the verdict, never re-checkable from the tree",
-  "disclosures": "readings that never count: the ratification ledger and its per-row list (`ratification.byRow`, ADR-0095), unmet evidence natures (`requires:`), the critical-scope disclosure",
+  "requires": "a rule's required evidence nature (its `requires:`), and the natures the mission's journal declares uncarriable: a `requires-unmet` cause is the verdict's reading, which the witness carries and does not re-derive (ADR-0115)",
+  "disclosures": "readings that never count: the ratification ledger and its per-row list (`ratification.byRow`, ADR-0095), the `requiresUnmet` ledger of natures declared uncarriable, the critical-scope disclosure",
   "comments": "a symbol read as text is looked for outside the file's comments, in the languages runward knows by extension (ADR-0114); `symbolAt` locates it on the text, comments included, so a refusal of a symbol present only in a comment is beyond the witness",
   "required-level": "whether the verdict meets the level of proof the run required (`verdict.require`, ADR-0114); the witness carries the level and the answer, not their re-derivation",
 };
