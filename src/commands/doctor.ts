@@ -12,6 +12,13 @@ import { c, createHeader, generationDate, section, status } from "../lib/styles.
 import { parseWorkflowContract } from "../lib/workflow-contract.js";
 import { emitJson, humanLog } from "../lib/machine-output.js";
 
+// RWD-2026-0202. In a partial clone, `git blame` of a line whose history the clone lacks made git fetch
+// the blobs from the promisor remote on its own, and with no network the failed read printed "not
+// committed yet". GIT_NO_LAZY_FETCH=1 makes git refuse the fetch; the read fails and is reported
+// unknown. Honoured from git 2.45.0 (the variable is absent from git's environment.h at v2.44.1).
+const GIT_ENV = { ...process.env, GIT_NO_LAZY_FETCH: "1" };
+const NO_LAZY_FETCH_FROM: readonly [number, number] = [2, 45];
+
 /**
  * Environment and installation checks.
  * `-p` points the mission checks at a project other than the working directory, like every other
@@ -36,9 +43,10 @@ export async function doctorCommand(opts: { path?: string; json?: boolean } = {}
   heading("environment", "Environment");
   const nodeMajor = Number(process.versions.node.split(".")[0]);
   nodeMajor >= 20 ? ok(`node ${process.versions.node}`) : fail(`node ${process.versions.node} — v20+ required`);
+  let gitVersion: string | null = null;
   try {
-    const git = execFileSync("git", ["--version"], { encoding: "utf8" }).trim();
-    ok(git);
+    gitVersion = execFileSync("git", ["--version"], { encoding: "utf8", env: GIT_ENV }).trim();
+    ok(gitVersion);
   } catch {
     warn("git not found — the method assumes versioned mission artifacts");
   }
@@ -81,6 +89,7 @@ export async function doctorCommand(opts: { path?: string; json?: boolean } = {}
     existsSync(join(root, "AGENTS.md")) ? ok("AGENTS.md charter present") : warn("AGENTS.md missing — re-run `runward init`");
     const gitDir = join(root, ".git");
     existsSync(gitDir) ? ok("mission is under git") : warn("mission is not a git repository — ADRs and gates should be versioned");
+    if (existsSync(gitDir)) partialCloneCheck(root, gitVersion, { ok, warn });
     const profiles: string[] = [];
     if (existsSync(join(root, ".claude", "commands")) &&
         readdirSync(join(root, ".claude", "commands")).some((f) => f.startsWith("rw-"))) profiles.push("claude");
@@ -127,10 +136,35 @@ export async function doctorCommand(opts: { path?: string; json?: boolean } = {}
 /** One ratification entry's declared ratifier beside the identity that committed its line. */
 interface Binding {
   deliverable: string; line: number; by: string | null; agent: boolean;
-  /** null when the line is not committed yet: the `by:` then stays as declared. */
+  /** null when the line is not committed yet, or when git could not read it (`unreadable`): the `by:` then stays as declared. */
   committer: { name: string; email: string; commit: string } | null;
   /** Does the declared `by:` name the committing identity (folded, alias-resolved)? null when uncommitted. */
   bound: boolean | null;
+  /** RWD-2026-0202, additive: git tracks the file and could not blame the line (a partial clone that
+   *  lacks its history, for one). Who committed it is unknown: never read as "not committed". */
+  unreadable?: true;
+}
+
+/**
+ * RWD-2026-0202. A partial clone holds commits and trees and only some blobs; runward's git reads run
+ * with GIT_NO_LAZY_FETCH=1, so a read that needs a missing blob fails instead of fetching it. That
+ * holds from git 2.45.0; an older git ignores the variable, and this says so where it matters.
+ */
+function partialCloneCheck(root: string, gitVersion: string | null, out: { ok: (m: string) => void; warn: (m: string) => void }): void {
+  let listing = "";
+  try {
+    listing = execFileSync("git", ["-C", root, "config", "--get-regexp", "^remote\\..*\\.promisor$"],
+      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], env: GIT_ENV });
+  } catch { return; } // exit 1: no promisor remote, a full clone
+  const promisors = listing.split("\n").map((l) => l.trim().split(/\s+/))
+    .filter(([key, value]) => key && /^true$/i.test(value ?? "")).map(([key]) => key.replace(/^remote\./, "").replace(/\.promisor$/, ""));
+  if (promisors.length === 0) return;
+  const m = gitVersion?.match(/(\d+)\.(\d+)/);
+  const honoured = m !== null && m !== undefined &&
+    (Number(m[1]) > NO_LAZY_FETCH_FROM[0] || (Number(m[1]) === NO_LAZY_FETCH_FROM[0] && Number(m[2]) >= NO_LAZY_FETCH_FROM[1]));
+  const remotes = promisors.join(", ");
+  if (honoured) out.ok(`partial clone (promisor remote: ${remotes}): runward runs git with GIT_NO_LAZY_FETCH=1, so a read of an object this clone lacks is reported unknown, never fetched`);
+  else out.warn(`partial clone (promisor remote: ${remotes}) and ${gitVersion ?? "a git of unknown version"}: GIT_NO_LAZY_FETCH is honoured from git ${NO_LAZY_FETCH_FROM.join(".")}.0, so this git may fetch the objects the clone lacks from that remote on its own, whatever runward asks`);
 }
 
 /**
@@ -147,6 +181,14 @@ interface Binding {
  */
 function ratifierBindings(root: string, out: { ok: (m: string) => void; warn: (m: string) => void }, bindings: Binding[]): void {
   const identities = missionIdentities(join(root, "runward"));
+  // A file HEAD does not track has no line committed yet; one it tracks and git cannot blame is unknown.
+  // `ls-tree` reads trees only, which a partial clone holds.
+  const tracked = (rel: string): boolean => {
+    try {
+      return execFileSync("git", ["-c", "core.quotepath=false", "-C", root, "ls-tree", "--name-only", "HEAD", "--", rel],
+        { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], env: GIT_ENV }).trim() !== "";
+    } catch { return false; }
+  };
   for (const g of GATED_DELIVERABLES) {
     const rel = `runward/${g.deliverable}`;
     const abs = join(root, rel);
@@ -154,29 +196,37 @@ function ratifierBindings(root: string, out: { ok: (m: string) => void; warn: (m
     const lines = readFileSync(abs, "utf8").split("\n");
     const head = lines.findIndex((l) => l === "### Ratification");
     if (head === -1) continue;
+    let isTracked: boolean | undefined;
     for (let i = head + 1; i < lines.length; i++) {
       if (/^#{1,6}\s/.test(lines[i])) break;
       const [e] = readRatification(`### Ratification\n${lines[i]}`);
       if (!e) continue;
       let porcelain = "";
+      let unreadable = false;
       try {
         porcelain = execFileSync("git", ["-c", "core.quotepath=false", "-C", root, "blame", "--porcelain", "-L", `${i + 1},${i + 1}`, "--", rel],
-          { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
-      } catch { porcelain = ""; }
+          { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], env: GIT_ENV });
+      } catch {
+        porcelain = "";
+        isTracked ??= tracked(rel);
+        unreadable = isTracked;
+      }
       const commit = porcelain.match(/^([0-9a-f]{40}) /)?.[1] ?? "";
       const name = porcelain.match(/^committer (.*)$/m)?.[1] ?? "";
       const email = (porcelain.match(/^committer-mail <(.*)>$/m)?.[1] ?? "");
       const committed = commit !== "" && !/^0+$/.test(commit);
       bindings.push({ deliverable: g.deliverable, line: i + 1, by: e.by ?? null, agent: e.agent === true,
         committer: committed ? { name, email, commit } : null,
-        bound: committed ? (e.by !== undefined && byMatchesCommitter(e.by, { name, email }, identities)) : null });
+        bound: committed ? (e.by !== undefined && byMatchesCommitter(e.by, { name, email }, identities)) : null,
+        ...(unreadable ? { unreadable: true as const } : {}) });
     }
   }
   if (bindings.length === 0) return;
   const committed = bindings.filter((b) => b.committer);
   const bound = committed.filter((b) => b.bound);
   const loose = committed.filter((b) => !b.bound);
-  const pending = bindings.length - committed.length;
+  const unknown = bindings.filter((b) => b.unreadable);
+  const pending = bindings.length - committed.length - unknown.length;
   const at = (b: Binding) => `${b.deliverable}:${b.line} by: ${b.by ?? "(none)"}${b.agent ? " (agent)" : ""}, committed by ${b.committer!.name} <${b.committer!.email}>`;
   if (bound.length > 0) out.ok(`${bound.length} ratification entr(ies): the declared \`by:\` names the identity git recorded as committing the line (a consistency between two declarations, not a signature: commit signatures are not verified here, ADR-0088 stage 1)`);
   // An agent's entry committed under another identity is the attribution ADR-0082 forbids, seen from
@@ -185,6 +235,7 @@ function ratifierBindings(root: string, out: { ok: (m: string) => void; warn: (m
   if (agents.length > 0) out.warn(`${agents.length} agent ratification entr(ies) committed under another identity than the declared \`by:\` — ${agents.slice(0, 3).map(at).join("; ")}${agents.length > 3 ? `; and ${agents.length - 3} more (--json)` : ""}`);
   if (people.length > 0) out.ok(`${people.length} entr(ies) whose declared \`by:\` differs from the committing identity (declare both spellings in scaffold-lock.json "identities" if they are one person) — ${people.slice(0, 3).map(at).join("; ")}${people.length > 3 ? `; and ${people.length - 3} more (--json)` : ""}`);
   if (pending > 0) out.ok(`${pending} entr(ies) not committed yet: their \`by:\` stays as declared until a commit records who wrote them`);
+  if (unknown.length > 0) out.warn(`${unknown.length} entr(ies) unknown, git could not read ${unknown.slice(0, 3).map((b) => `runward/${b.deliverable}:${b.line}`).join(", ")}${unknown.length > 3 ? `, and ${unknown.length - 3} more (--json)` : ""}: who committed them is not established here, and their \`by:\` stays as declared`);
 }
 
 /**

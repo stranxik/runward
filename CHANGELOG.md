@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Fixed: in a partial clone, no git runward starts fetches from the remote, and a read git cannot make is unknown, never "not committed" (RWD-2026-0202)
+
+In a clone made with `git clone --filter=blob:none`, three of runward's git reads needed blobs the
+clone did not hold, and git fetched them from the promisor remote on its own: the churn read of
+`characterize` (from 0.21.1), and the `git blame` reads of `doctor` and `sample` (from 0.43.0), with the
+`git show` and `git diff` of `sample draw`. With no network, the failed read was taken for a line not
+committed: `doctor` printed "N entr(ies) not committed yet" for committed entries, and `sample` "the
+review is not committed yet" instead of the review commit's signature status. Every git runward starts
+now runs with `GIT_NO_LAZY_FETCH=1`, honoured from git 2.45.0, so git refuses the fetch. A read that fails
+on a file git tracks is reported "unknown, git could not read <file>:<line>"; `sample draw` refuses a
+population it cannot read whole and writes nothing; `characterize` says the churn is unknown; `doctor`
+names a partial clone, and warns when its git is older than 2.45.0, which ignores the variable.
+`doctor --json` marks such an entry `"unreadable": true` (additive). The verdict path starts no process
+(ADR-0054): `check` and `verify` were not affected. `test/unit/partial-clone-no-fetch.test.js` builds a
+local partial clone over file://, shows first that a plain `git blame` there does fetch, then pins each
+behaviour; the register entry gives the versions, measured through `npx runward@<version>`.
+
 ### runward-assess 0.1.0: the repeatable assessment grid, outside the verdict path and outside the tool it rates (ADR-0123)
 
 A new package, `packages/runward-assess`, holds `grille@1`: 35 criteria on seven axes (reliability,
