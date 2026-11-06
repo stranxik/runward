@@ -32,16 +32,20 @@ const prepared = (() => {
 })();
 test.after(() => rmSync(prepared, { recursive: true, force: true }));
 
+// The CLI's own CPU time, written by the process at its exit. Until 2026-11-06 the ceiling was read on
+// the wall clock around the spawn, which the load of a busy machine stretches several times over.
+const CPU_PROBE = `data:text/javascript,${encodeURIComponent('import { writeFileSync } from "node:fs"; process.on("exit", () => { const u = process.cpuUsage(); writeFileSync(process.env.RW_CPU_OUT, String((u.user + u.system) / 1000)); });')}`;
+
 /** A copy of the example, one change, and `check --strict` timed. */
 function timed(plant) {
   const dir = mkdtempSync(join(tmpdir(), "rw-ceiling-ec-"));
+  const out = join(mkdtempSync(join(tmpdir(), "rw-ceiling-cpu-")), "cpu.txt");
   try {
     execFileSync("cp", ["-R", `${prepared}/.`, dir]);
     plant(dir);
-    const t0 = process.hrtime.bigint();
-    const r = spawnSync(process.execPath, [CLI, "check", "--strict"], { cwd: dir, encoding: "utf8", env: { ...process.env, NO_COLOR: "1" } });
-    return { code: r.status, ms: Number(process.hrtime.bigint() - t0) / 1e6 };
-  } finally { rmSync(dir, { recursive: true, force: true }); }
+    const r = spawnSync(process.execPath, ["--import", CPU_PROBE, CLI, "check", "--strict"], { cwd: dir, encoding: "utf8", env: { ...process.env, NO_COLOR: "1", RW_CPU_OUT: out } });
+    return { code: r.status, ms: Number(readFileSync(out, "utf8")) };
+  } finally { rmSync(dir, { recursive: true, force: true }); rmSync(dirname(out), { recursive: true, force: true }); }
 }
 /** The evidence of the first applied row of the floor, replaced. */
 const cell = (evidence) => (dir) => {
@@ -64,6 +68,6 @@ for (const [what, plant] of [
   test(`${what}: \`check --strict\` reads it in linear time`, () => {
     const { code, ms } = timed(plant);
     assert.ok(code === 0 || code === 1, `the gate answered (exit ${code})`);
-    assert.ok(ms < CEILING_MS, `read in ${ms.toFixed(0)} ms, over the ${CEILING_MS} ms ceiling`);
+    assert.ok(ms < CEILING_MS, `read in ${ms.toFixed(0)} ms of CPU, over the ${CEILING_MS} ms ceiling`);
   });
 }

@@ -84,7 +84,7 @@ did it, each first measured where it arrived: the path tokens of a cell from 0.8
 status from 0.21.1, the cut of a segment where a pointer starts from 0.32.0, the template placeholder test
 from 0.41.0. Each reads each character one way now, with the same answers (compared on 850,000 generated
 inputs with the former patterns); `test/unit/evidence-conformance-ceilings.test.js` runs the five shapes
-through the CLI under a ceiling. On a release before this one, a manifest cell or a decision longer than a
+through the CLI under a ceiling of its CPU time. On a release before this one, a manifest cell or a decision longer than a
 few thousand characters is the shape to look for in a gate that does not finish.
 
 ### Fixed: the built-in analyzers, the globs of the mission's own files and the comment reader read in linear time (RWD-2026-0203)
@@ -109,8 +109,8 @@ one file makes the reading read is bounded at sixteen times its size: a case pas
 which can only leave a case red. On the 68 shapes the slowest reading now takes 1.4 s at 999,000 bytes. The
 static audit's last pass found one more: the trailing slashes of a territory or allowance pattern, stripped
 from every slash of a run (7.7 s for one pattern of 100,000 characters), now stripped from the end.
-`test/unit/analyze-ceilings.test.js` runs 32 shapes at that size under a ceiling, and holds the heading
-reader and the glob matcher to the patterns they replace. No release carried the analyzers or the comment
+`test/unit/analyze-ceilings.test.js` runs 32 shapes at that size under a ceiling of CPU time, and holds the
+heading reader and the glob matcher to the patterns they replace. No release carried the analyzers or the comment
 reader. `rules --for` and `propose` read their globs through the same matcher, with the same answers.
 
 ### The saboteur corpus joins the repository (ADR-0117, ADR-0124)
