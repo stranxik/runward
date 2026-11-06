@@ -398,6 +398,32 @@ integration train, so the release that publishes the classification carries both
 maintainer's delegation of 2026-11-05, on the recommendation of the session that measured it; the
 maintainer did not review it before it was written.
 
+## Note, 2026-11-06: the default of new missions moved, with the usage registry in a file of its own
+
+`NEW_MISSION_REQUIRED_LEVEL` is `re-derived`: `runward init` writes `"requiredLevel": "re-derived"` in a new
+mission's lock, as the note above on two readings decided, ADR-0117's criterion 2 being published at zero
+false reds. What the note above found in the way is gone. `topology-usage-registry-present` now says the
+registry lives in a file of its own, `runward/governance/usage-registry.md`, cited by deployment from the
+row, and `execution-topology.md` points at it; the blank template ships that file (a seventeenth mission
+template), so a new mission that follows it cites a file the gate opens, and the row is `re-derived`.
+`templates/rule-history.json` gains the rule's new text and loses none. The shipped example cites its
+registry in that file, so `init --example` meets the level it asks for, 24 applied rows re-derived and none
+declared, and the goldens it reaches are regenerated; the goldens of runward's own mission keep their bytes.
+The audit corpus's honest case AC-015 cites the section of the registry's own file and is accepted; no
+refusal case is added, since the corpus holds vectors once found and closed, and the one reading this move
+needs in the other direction, a pointer at the manifest itself read `declared` below the level, is held by
+`test/unit/levels-lock.test.js` and `test/unit/run-binding.test.js`. The metamorphic relations MR-1, MR-2,
+MR-3 and MR-5 compare the whole judgement but `levels.execution.expected`, the inventory a run Statement is
+bound to (ADR-0120 decision 4), which lists the files by path and digests the manifests' bytes, the bytes
+those relations change.
+
+runward's own mission does not take the level: it pins no analysis policy, so its territory is not
+analysed, and its lock is a pre-merge path. Measured at the head of the pull request that moves the
+default, `check --strict --require re-derived` on it exits 5 with 20 applied rows re-derived and 1 declared,
+its usage registry row, which still cites its own manifest. Decided under the maintainer's delegation of
+2026-11-05; the lock of runward's mission and its copy of the rule change in the same pull request, a
+pre-merge path the maintainer approves.
+
 ## References
 
 - [ADR-0046](ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md),

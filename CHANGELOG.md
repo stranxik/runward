@@ -2,6 +2,36 @@
 
 ## Unreleased
 
+### A new mission asks for the level of proof `re-derived`, and the usage registry lives in a file of its own (ADR-0119 decision 4)
+
+`runward init` now writes `"requiredLevel": "re-derived"` in a new mission's lock, since ADR-0117's
+criterion 2 holds (zero false reds on three repositories runward did not write, classified and published in
+`docs/compliance/analyzers-on-real-repositories.md`). Under `--strict`, such a mission is refused, exit 5,
+while an applied row rests on a declaration or its territory is not analysed under a pinned policy; a
+mission asks for another level, or none, by editing the line. Existing missions do not move: `update`
+carries what the lock says and never writes the line.
+
+The rule `topology-usage-registry-present` and the blank template now agree with that level. The rule said
+the registry lives in `execution-topology.md`, and the template put its table there, so the row's one
+pointer was at the manifest itself, which the gate never opens as evidence: at `re-derived`, a new mission
+that followed the template exited 5 on that row, and the audit corpus's honest case AC-015 read exit 5
+where it is accepted. The registry now lives in `runward/governance/usage-registry.md`, which `init`
+scaffolds (a seventeenth mission template, its row a bracketed placeholder), and the row cites it by
+deployment, `file:runward/governance/usage-registry.md#<deployment>`; `execution-topology.md` points at it.
+`templates/rule-history.json` gains the rule's new text and keeps every text runward published. The shipped
+example cites its registry in that file, its last prose row, so `init --example` meets the level it asks
+for: 24 applied rows re-derived, none declared. AC-015 cites the section of the registry's own file; that
+the manifest's own section is read as evidence and its row never stays held at the evidence layer
+(`test/unit/pointer-grammar.test.js`). The metamorphic relations MR-1, MR-2, MR-3 and MR-5 compare the
+whole judgement but one field, `levels.execution.expected`, the inventory a run Statement is bound to,
+which is sensitive to bytes by construction.
+
+runward's own mission does not take the level. It pins no analysis policy, so its territory is not
+analysed, and its lock is a pre-merge path (`runward/delegation.md`), so the line is the maintainer's to
+add. Measured on this tree, `check --strict --require re-derived` on it exits 5: 20 applied rows
+re-derived, 1 declared, its usage registry row, which still cites its own manifest. Its lock and its copy
+of the rule carry the rule's new text.
+
 ### The analyzers' classification at the second train's head: zero false reds (ADR-0117 criterion 2)
 
 `docs/compliance/analyzers-on-real-repositories.md` publishes the measurement of `51675dc` on express,
@@ -143,14 +173,9 @@ when the lock's level fell back. A run that reads no level keeps every byte of i
 report and VSA. `runward status` names the level the lock asks for; the session gate (`gate-hook`) asks
 for none, since its question is gaps and an `attested` level needs a run the session cannot make.
 
-Not changed: `runward init` writes no `"requiredLevel"` yet. ADR-0119 moves the default of new missions to
-`re-derived` in the first release that meets ADR-0117's criterion 2, the false reds of the analyzers
-measured on three real repositories and none left; the switch is one constant, `NEW_MISSION_REQUIRED_LEVEL`.
-That classification is now published, zero false reds (above), and the switch waits on the usage registry
-rule agreeing with the blank template, since at `re-derived` a new mission that follows the template exits 5
-on `topology-usage-registry-present`, its one pointer being at the manifest itself, which reads `declared`.
-runward's own mission asks for no level either: it pins no analysis policy, and re-derived would refuse 1
-of its rows, which rests on a declaration.
+Not changed for existing missions: `update` never writes the line. runward's own mission asks for no
+level: it pins no analysis policy, and its lock is a pre-merge path; at `re-derived` it would refuse 1 of
+its rows, which rests on a declaration. (The default of new missions moved: the entry above.)
 
 ### runward-run R3: the evals leg, and an eval that needs a remote model reads `declared`, named (ADR-0120 R3)
 

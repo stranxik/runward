@@ -152,7 +152,7 @@ The first line writes the JUnit report the `test:` pointer of AC1 reads (commit 
 | `runward characterize` | **Read-only inventory** of an existing codebase (brownfield / retro-documentation) → `runward/characterization.md`: dependencies and lockfiles, entrypoints, CI, tests, git-log shape. Deterministic and zero-LLM; it parses artifacts at rest and never runs, builds, or writes to your code. Facts, not decisions — reconstructing the *why* stays yours. `--mine` also drafts candidate ADRs as `DRAFT-*` hypotheses; without it, none is drafted |
 | `runward compliance <regime>` | **Assemble a regime-framed evidence pack** (`iso-42001`, `nist-ai-rmf`, `eu-ai-act`) from the mission's artifacts → `runward/compliance/…`: a human readiness *draft* (OWASP ASI coverage, rule-conformance status, ADR journal, with the operator-only sections flagged) **and a machine-readable OSCAL** component-definition to feed your GRC/auditor tool. Deterministic, read-only, zero-LLM — supporting evidence, never a compliance claim. The regime mapping is **versioned data** (`--regime-version` pins the lens; the pack stamps which version produced it). The mapping itself is a published, citable mini-spec: [docs/spec/runward-oscal-mapping.md](https://github.com/stranxik/runward/blob/main/docs/spec/runward-oscal-mapping.md) |
 
-Global flags: `--yes`, `--dry-run`, `--verbose`, `--no-color`. Exit codes: 0 success, 1 gaps/warnings, 2 missing prerequisite, 5 (`check --strict`) no gap, below the level of proof the run requires: nothing verified mechanically, which `--require traced` accepts by name (ADR-0114), or, when the run asks for `re-derived` or `attested` (with `--require`, or by `"requiredLevel"` in the mission's `runward/scaffold-lock.json`), a row below that level, named with what holds it there (ADR-0119; `attested` reads the reports, run Statement and signature bundle `runward-run` leaves in the tree, and counts the signature without verifying it, ADR-0120).
+Global flags: `--yes`, `--dry-run`, `--verbose`, `--no-color`. Exit codes: 0 success, 1 gaps/warnings, 2 missing prerequisite, 5 (`check --strict`) no gap, below the level of proof the run requires: nothing verified mechanically, which `--require traced` accepts by name (ADR-0114), or, when the run asks for `re-derived` or `attested` (with `--require`, or by `"requiredLevel"` in the mission's `runward/scaffold-lock.json`, which `init` writes as `re-derived` in a new mission's lock), a row below that level, named with what holds it there (ADR-0119; `attested` reads the reports, run Statement and signature bundle `runward-run` leaves in the tree, and counts the signature without verifying it, ADR-0120).
 
 Machine output: `check`, `verify`, `spec-check`, `rules`, `explain`, `wire`, `ratify --list`, `status`, `doctor`, `manifest`, `propose`, `report` and `compliance` take `--json`, one JSON document on stdout and nothing else, the exit code unchanged (schemas in [`docs/interop.md`](https://github.com/stranxik/runward/blob/main/docs/interop.md)).
 
@@ -180,7 +180,8 @@ your-project/
 │   ├── governance/
 │   │   ├── threat-model.md      # lethal trifecta, 2-of-3 rule on the context window
 │   │   ├── evaluation-rubric.md # test the deterministic, evaluate the non-deterministic
-│   │   └── observability-schema.md
+│   │   ├── observability-schema.md
+│   │   └── usage-registry.md    # one row per deployment: risk class, data classes, action scopes, owner
 │   ├── contracts/               # port contracts (versioned, additive, tolerant reader)
 │   ├── runbook.md               # recovery runbook for the team that inherits the system
 │   ├── adapters/                # inert samples that run the gate at each harness seam (git, GitHub/GitLab CI, Claude Code, Kiro, BMAD)

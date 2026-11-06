@@ -123,8 +123,9 @@ wrongly often enough, or are new enough, to be said here:
 - **`levels`** (strict, additive, ADR-0119 and ADR-0120, present only when the run requires
   `re-derived` or `attested`, asked with `--require` or by the mission's lock): `{ required, source, met,
   fallback?, sentence, signatureVerified, counts, rows, territory, below, execution }`. `source` is `flag`
-  (`--require`), `lock` (`"requiredLevel"` in `runward/scaffold-lock.json`, read for a full strict verdict
-  only, never for a `--through` prefix; a value that is not a level is a misuse, exit 2) or `default`.
+  (`--require`), `lock` (`"requiredLevel"` in `runward/scaffold-lock.json`, which `init` writes as `re-derived` in a
+  new mission's lock, ADR-0119 decision 4; read for a full strict verdict only, never for a `--through`
+  prefix; a value that is not a level is a misuse, exit 2) or `default`.
   `fallback`, present only when the lock asks for `re-derived` or `attested` on a territory holding a
   language the analyzers do not read, is ADR-0119 decision 4's sentence at the character (« re-derived: not
   reachable, <language> is not analysed; this run requires mechanical », and for `attested` « … for its
