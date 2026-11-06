@@ -884,9 +884,11 @@ only turn a kill into a survivor the ratchet then refuses, never a survivor into
 `.github/workflows/mutation-ratchet.yml` builds the map in its plan job, hands it to every leg as an
 artifact, and writes the table per leg (its own commit, pushed by the maintainer). Positive control,
 run on the server and pinned in `test/unit/mutation-select-tests.test.js`: the `ObjectLiteral`
-mutant on `check-contract.js` L41-43 that the release ratchet killed is executed by one unit test
-file of 211, the 24-second CLI-spawning `verdict-witness.test.js`, which the selector names alone and
-which alone kills it. That test file is the suite's most expensive and joins `test/unit-cost.json`'s
+mutant of the `--witness` beside `--freeze` refusal (`check-contract.js` L41-43 in the run's build) that
+the release ratchet killed is executed by one unit test file of 211, the 24-second CLI-spawning
+`verdict-witness.test.js`, which the selector names alone and which alone kills it. The control finds the
+refusal by its text: anchored on its line, it skipped once imports added above moved the refusal, on the
+integration branch of 2026-11-06, and a build without the refusal now fails it. That test file is the suite's most expensive and joins `test/unit-cost.json`'s
 slow list from a single measurement under load (78.5 s). No CLI behaviour, output or verdict changes.
 
 ### The release verification demands a GitHub-hosted runner (RWD-2026-0185), and a deploy-time verification recipe
