@@ -29,7 +29,7 @@ import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "n
 import { join, posix } from "node:path";
 import { ANALYSIS_POLICIES, type AnalysisPolicy } from "./analysis-policy.js";
 import { applyTerritoryMap, readTerritoryMap, type TerritoryMap } from "./territory-map.js";
-import { globToRegExp, normalizeForPath } from "./rules.js";
+import { globMatcher, normalizeForPath } from "./rules.js";
 import { GATED_DELIVERABLES, readManifest } from "./conformance.js";
 import { committedJUnitLedger, parseEvidencePointers, resolutionBases, resolveEvidencePath, symbolPresent } from "./evidence.js";
 import { junitProjection } from "./tool-adapters.js";
@@ -178,6 +178,44 @@ export function maskSource(src: string): Masked {
     return n;
   };
 
+  // Where a regular-expression literal opened just before `from` closes: the first `/` outside a class on
+  // its line, escapes skipped, or -1. A scan from every `/` that may open one read to the end of its line
+  // each time a class stayed open, quadratic on a line of `(/[` repeated (5.5 s at 62,500 characters,
+  // measured on 2026-11-06); on a long text the answer for every position is read once, from the end, for
+  // the two states of the scan (inside a class or not), and is the scan's answer.
+  let ends: [Int32Array, Int32Array] | null = null;
+  const regexEndFrom = (from: number): number => {
+    if (n < 4096) {
+      let j = from;
+      let cls = false;
+      while (j < n) {
+        const c = src.charCodeAt(j);
+        if (c === 10) return -1;
+        if (c === 92) { j += 2; continue; }
+        if (c === 91) cls = true;
+        else if (c === 93) cls = false;
+        else if (c === 47 && !cls) return j;
+        j++;
+      }
+      return -1;
+    }
+    if (ends === null) {
+      const out = new Int32Array(n + 2).fill(-1);
+      const inClass = new Int32Array(n + 2).fill(-1);
+      for (let j = n - 1; j >= 0; j--) {
+        const c = src.charCodeAt(j);
+        if (c === 10) continue; // both stay -1: the line ends the literal
+        if (c === 92) { out[j] = j + 2 < n ? out[j + 2] : -1; inClass[j] = j + 2 < n ? inClass[j + 2] : -1; }
+        else if (c === 91) { out[j] = inClass[j + 1]; inClass[j] = inClass[j + 1]; }
+        else if (c === 93) { out[j] = out[j + 1]; inClass[j] = out[j + 1]; }
+        else if (c === 47) { out[j] = j; inClass[j] = inClass[j + 1]; }
+        else { out[j] = out[j + 1]; inClass[j] = inClass[j + 1]; }
+      }
+      ends = [out, inClass];
+    }
+    return from < n ? ends[0][from] : -1;
+  };
+
   let i = 0;
   if (src.startsWith("#!")) { const e = src.indexOf("\n"); i = e < 0 ? n : e; blank(0, i); }
   while (i < n) {
@@ -189,18 +227,8 @@ export function maskSource(src: string): Masked {
       // A word is the last token only while nothing but white space and comments followed it.
       const afterWord = wordStart !== -1 && REGEX_AFTER_WORD.has(src.slice(wordStart, wordEnd));
       if (last === 0 || (last < 128 && REGEX_AFTER_PUNCT[last] === 1) || afterWord) {
-        let j = i + 1;
-        let cls = false;
-        let ok = false;
-        while (j < n) {
-          const c = src.charCodeAt(j);
-          if (c === 10) break;
-          if (c === 92) { j += 2; continue; }
-          if (c === 91) cls = true;
-          else if (c === 93) cls = false;
-          else if (c === 47 && !cls) { ok = true; break; }
-          j++;
-        }
+        const j = regexEndFrom(i + 1);
+        const ok = j !== -1;
         if (ok && j > i + 1) {
           let k = j + 1;
           while (k < n && isAsciiLetter(src.charCodeAt(k))) k++;
@@ -592,6 +620,7 @@ function literalCalls(src: string, m: Masked, f: FnSpan, pos: number, param: str
  *  `format('./users')`). The name may occur where it is declared and where it is loaded, nowhere else: a
  *  pattern, a parameter, a `catch` or a `for` head could bind it to something computed. Null when it is
  *  computed at run time, or when this reading cannot follow the name. */
+const BOUND_CACHE = new WeakMap<Masked, Map<string, { end: number; value: string | null } | null>>();
 function boundLoad(src: string, m: Masked, at: number): string[] | null {
   const code = m.code;
   const arg = /^(?:import|require)\s*\(\s*([A-Za-z_$][\w$]*)\s*[,)]/.exec(code.slice(at, at + 200));
@@ -600,16 +629,25 @@ function boundLoad(src: string, m: Masked, at: number): string[] | null {
   const decls = declarationsIn(m).get(name) ?? [];
   if (decls.length === 1 && decls[0].kind === "const") {
     const d = decls[0];
-    if (d.at > at || at >= blockAround(code, d.at).end) return null;
-    const init = /^\s*(?::[^=;\n]{1,200})?=\s*/.exec(code.slice(d.end, d.end + 260));
-    const lit = init ? literalStartingAt(m, d.end + init[0].length) : undefined;
-    if (!lit || lit.kind === "regex" || lit.dynamic) return null;
-    if (skipBack(code, expressionEnd(code, lit.start) - 1) + 1 !== lit.end) return null; // `'x'\n + y` is not the literal
-    for (const u of identifierIndex(m).get(name) ?? []) {
-      if (u !== d.end - name.length && !loaderArgument(code, u, name.length)) return null;
+    // What does not depend on the loader is read once per name: the literal, and that the name occurs
+    // nowhere but as a loader's argument. Read again for each of many loaders of one name, every
+    // occurrence of the name was walked once per loader (quadratic: 7 s at 62,500 characters).
+    let byName = BOUND_CACHE.get(m);
+    if (!byName) { byName = new Map(); BOUND_CACHE.set(m, byName); }
+    let bound = byName.get(name);
+    if (bound === undefined) {
+      bound = null;
+      const init = /^\s*(?::[^=;\n]{1,200})?=\s*/.exec(code.slice(d.end, d.end + 260));
+      const lit = init ? literalStartingAt(m, d.end + init[0].length) : undefined;
+      const literal = lit && lit.kind !== "regex" && !lit.dynamic
+        // `'x'\n + y` is not the literal
+        && skipBack(code, expressionEnd(code, lit.start) - 1) + 1 === lit.end
+        && (identifierIndex(m).get(name) ?? []).every((u) => u === d.end - name.length || loaderArgument(code, u, name.length));
+      if (lit && literal) bound = { end: blockAround(code, d.at).end, value: literalValue(src, lit) };
+      byName.set(name, bound);
     }
-    const v = literalValue(src, lit);
-    return v === null ? null : [v];
+    if (bound === null || d.at > at || at >= bound.end) return null;
+    return bound.value === null ? null : [bound.value];
   }
   if (decls.length > 0) return null;
   let byParam = PARAM_CACHE.get(m);
@@ -663,13 +701,33 @@ interface Allowances {
   file: string;
   present: boolean;
   imports: Array<AllowRow & { module: string }>;
-  capabilities: Array<AllowRow & { pattern: string; capability: Capability; re: RegExp }>;
-  excluded: Array<AllowRow & { pattern: string; re: RegExp }>;
+  capabilities: Array<AllowRow & { pattern: string; capability: Capability; re: { test(path: string): boolean } }>;
+  excluded: Array<AllowRow & { pattern: string; re: { test(path: string): boolean } }>;
   problems: Array<{ line: number; text: string; problem: string }>;
 }
 
 const TRIVIAL_WHY = (s: string): boolean => s.trim().length < 8 || /^\[.*\]$/.test(s.trim());
 const cell = (s: string | undefined): string => (s ?? "").trim().replace(/^`|`$/g, "").trim();
+
+/** A heading's text as `/^#{1,6}\s+(.+?)\s*$/` captured it, in one pass: that pattern tried every split of a
+ *  blank run between its two blank quantifiers and its lazy middle, so one line of `runward/analysis.md`, a
+ *  `#` and 4,000 blanks ending in a line separator, held the gate 11 s (measured on 2026-11-06). The same
+ *  answer for every line: the text after the run, trimmed, unless a line terminator sits inside it; on a
+ *  line of `#` and blanks only, the last blank the middle could take; else no heading. */
+const LINE_TERMINATOR = /[\n\r\u2028\u2029]/;
+export function headingText(raw: string): string | null {
+  const hashes = /^#{1,6}\s/.exec(raw);
+  if (!hashes) return null;
+  const at = hashes[0].length - 1;
+  const run = (/^\s+/.exec(raw.slice(at)) as RegExpExecArray)[0];
+  const rest = raw.slice(at + run.length);
+  if (rest !== "") {
+    const text = rest.trimEnd();
+    return LINE_TERMINATOR.test(text) ? null : text;
+  }
+  for (let p = run.length - 1; p >= 1; p--) if (!LINE_TERMINATOR.test(run[p])) return run[p];
+  return null;
+}
 
 export function readAllowances(missionDir: string): Allowances {
   const out: Allowances = { file: `runward/${ANALYSIS_FILE}`, present: false, imports: [], capabilities: [], excluded: [], problems: [] };
@@ -681,9 +739,9 @@ export function readAllowances(missionDir: string): Allowances {
   let section: "imports" | "capabilities" | "excluded" | null = null;
   text.split("\n").forEach((raw, idx) => {
     const line = idx + 1;
-    const heading = /^#{1,6}\s+(.+?)\s*$/.exec(raw);
-    if (heading) {
-      const h = heading[1].toLowerCase();
+    const heading = headingText(raw);
+    if (heading !== null) {
+      const h = heading.toLowerCase();
       section = /^allowed imports in the domain core$/.test(h) ? "imports"
         : /^allowed capabilities$/.test(h) ? "capabilities"
           : /^not analy[sz]ed$/.test(h) ? "excluded" : null;
@@ -709,7 +767,7 @@ export function readAllowances(missionDir: string): Allowances {
       if (!pattern || normalizeForPath(pattern.replace(/\*/g, "x")) === null) return problem(`pattern is not project-relative: \`${pattern}\``);
       if (!(CAPABILITIES as readonly string[]).includes(capability)) return problem(`unknown capability \`${capability}\` — the vocabulary is: ${CAPABILITIES.join(", ")}`);
       if (TRIVIAL_WHY(why)) return problem("the `why` column is empty or a placeholder");
-      out.capabilities.push({ line, text: t, why, uses: 0, pattern, capability: capability as Capability, re: globToRegExp(pattern) });
+      out.capabilities.push({ line, text: t, why, uses: 0, pattern, capability: capability as Capability, re: globMatcher(pattern) });
     } else {
       if (cols.length < 2) return problem("expected 2 columns (path | why)");
       const pattern = cell(cols[0]);
@@ -717,7 +775,7 @@ export function readAllowances(missionDir: string): Allowances {
       if (!pattern || normalizeForPath(pattern.replace(/\*/g, "x")) === null) return problem(`pattern is not project-relative: \`${pattern}\``);
       if (pattern.startsWith("runward/")) return problem("runward/ is never analysed; this row would set aside nothing");
       if (TRIVIAL_WHY(why)) return problem("the `why` column is empty or a placeholder");
-      out.excluded.push({ line, text: t, why, uses: 0, pattern, re: globToRegExp(pattern) });
+      out.excluded.push({ line, text: t, why, uses: 0, pattern, re: globMatcher(pattern) });
     }
   });
   return out;
@@ -900,12 +958,17 @@ export function exportFacts(src: string, m: Masked): ExportFacts {
   // Any file that names `exports` may export through it: CommonJS, which this reading does not follow.
   if (/(?<![\w$.])module\s*\.\s*exports\b|(?<![\w$.])exports\b|(?<![\w$.])export\s*=(?!=)|(?<![\w$.])export\s+as\s+namespace\b/.test(code)) open = "CommonJS exports or `export =`";
   const specAfter = (at: number): string | null => {
-    const lit = m.literals.find((l) => l.start >= at && l.kind !== "regex");
+    // The first literal at or after `at` that is not a regular expression, found by binary search: a scan
+    // from the first literal of the file for every star re-export was quadratic (3 s at 1 MB).
+    let lo = 0, hi = m.literals.length;
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (m.literals[mid].start < at) lo = mid + 1; else hi = mid; }
+    while (lo < m.literals.length && m.literals[lo].kind === "regex") lo++;
+    const lit = m.literals[lo];
     return lit ? literalValue(src, lit) : null;
   };
   if (/(?<![\w$.])export\s+default\b/.test(code)) names.add("default");
   const add = (re: RegExp): void => { for (const k of code.matchAll(re)) names.add(k[1]); };
-  add(new RegExp(`(?<![\\w$.])export\\s+(?:declare\\s+)?(?:async\\s+)?function\\s*\\*?\\s*(${LINK_ID})`, "g"));
+  add(new RegExp(`(?<![\\w$.])export\\s+(?:declare\\s+)?(?:async\\s+)?function\\s*(?:\\*\\s*)?(${LINK_ID})`, "g"));
   add(new RegExp(`(?<![\\w$.])export\\s+(?:declare\\s+)?(?:abstract\\s+)?class\\s+(${LINK_ID})`, "g"));
   add(new RegExp(`(?<![\\w$.])export\\s+(?:declare\\s+)?(?:const\\s+)?enum\\s+(${LINK_ID})`, "g"));
   add(new RegExp(`(?<![\\w$.])export\\s+(?:declare\\s+)?(?:interface|type|namespace|module)\\s+(${LINK_ID})`, "g"));
@@ -962,7 +1025,7 @@ export function importedNames(code: string, litStart: number): Array<{ name: str
       if (!p) continue;
       let type = allType;
       if (/^type\s+/.test(p) && !/^type\s+as\s/.test(p)) { type = true; p = p.replace(/^type\s+/, ""); }
-      const name = p.split(/\s+as\s+/)[0].trim();
+      const name = p.split(/(?<!\s)\s+as\s+/)[0].trim();
       if (!LINK_ID_RE.test(name)) return false;
       out.push({ name, type });
     }
@@ -990,8 +1053,58 @@ const MODIFIER = "(?:\\.\\s*(?:only|skip|todo|concurrent|serial|failing|sequenti
 const CASE_CALL = new RegExp(`(?<![\\w$.])(?:test|it)\\s*(${MODIFIER}${MODIFIER})\\(|(?<![\\w$.])(?:t|ctx|context)\\s*\\.\\s*test\\s*\\(`, "g");
 const SUBTEST = /(?<![\w$.])(?:t|ctx|context)\s*\.\s*test\s*\(/;
 
+/** Every bracket of a text paired in one pass each way, under the rule `closing` and `opening` read by:
+ *  from an opener, the first closer at which its own depth returns to zero, or -1 when a closer of another
+ *  kind or the end of the text comes first; from a closer, the same backwards. A scan from each bracket
+ *  read a text of many unclosed ones in quadratic time (`eval(` or `test('a', () => {` repeated over a
+ *  file, each scanned to its end: 11 s at 250,000 characters, measured on 2026-11-06 before this was
+ *  written). Each opener still open when a closer of another kind arrives would meet that closer before
+ *  its own, so all of them get -1 at once; the answer is the scan's, for every bracket. */
+interface BracketPairs { close: Int32Array; open: Int32Array }
+const CLOSER_OF: Readonly<Record<string, string>> = { "(": ")", "{": "}", "[": "]" };
+const OPENER_OF: Readonly<Record<string, string>> = { ")": "(", "}": "{", "]": "[" };
+/** The texts most recently paired, most recent first. A text shorter than PAIRED_FROM is scanned as
+ *  before: its scans are bounded by its length, and a cache of every slice would evict the files'. */
+const PAIRED: Array<{ code: string; pairs: BracketPairs }> = [];
+const PAIRED_FROM = 4096;
+
+function bracketPairs(code: string): BracketPairs {
+  for (let i = 0; i < PAIRED.length; i++) {
+    if (PAIRED[i].code !== code) continue;
+    const hit = PAIRED[i];
+    if (i > 0) { PAIRED.splice(i, 1); PAIRED.unshift(hit); }
+    return hit.pairs;
+  }
+  const n = code.length;
+  const close = new Int32Array(n).fill(-1);
+  const open = new Int32Array(n).fill(-1);
+  const stack: number[] = [];
+  for (let k = 0; k < n; k++) {
+    const ch = code[k];
+    if (ch === "(" || ch === "{" || ch === "[") stack.push(k);
+    else if ((ch === ")" || ch === "}" || ch === "]") && stack.length > 0) {
+      const j = stack[stack.length - 1];
+      if (CLOSER_OF[code[j]] === ch) { stack.pop(); close[j] = k; } else stack.length = 0;
+    }
+  }
+  stack.length = 0;
+  for (let k = n - 1; k >= 0; k--) {
+    const ch = code[k];
+    if (ch === ")" || ch === "}" || ch === "]") stack.push(k);
+    else if ((ch === "(" || ch === "{" || ch === "[") && stack.length > 0) {
+      const j = stack[stack.length - 1];
+      if (OPENER_OF[code[j]] === ch) { stack.pop(); open[j] = k; } else stack.length = 0;
+    }
+  }
+  const pairs = { close, open };
+  PAIRED.unshift({ code, pairs });
+  if (PAIRED.length > 4) PAIRED.pop();
+  return pairs;
+}
+
 /** The index of the bracket that closes the one at `open`, in masked code (literals are blank). */
 function closing(code: string, open: number): number {
+  if (code.length >= PAIRED_FROM && CLOSER_OF[code[open]] !== undefined) return bracketPairs(code).close[open];
   const pairs: Record<string, string> = { "(": ")", "{": "}", "[": "]" };
   const stack: string[] = [];
   for (let k = open; k < code.length; k++) {
@@ -1013,6 +1126,7 @@ function closing(code: string, open: number): number {
 
 /** The index of the bracket that opens the one closing at `close`, in masked code; -1 when none does. */
 function opening(code: string, close: number): number {
+  if (code.length >= PAIRED_FROM && OPENER_OF[code[close]] !== undefined) return bracketPairs(code).open[close];
   const pairs: Record<string, string> = { ")": "(", "}": "{", "]": "[" };
   const stack: string[] = [];
   for (let k = close; k >= 0; k--) {
@@ -1078,10 +1192,11 @@ function paramNames(list: string): string[] {
 
 /** Where an expression starting at `from` ends: at a `,` `;` or closing bracket of its own level, or at a
  *  line break that no operator carries on. Linear: a run of blanks is read once. */
-function expressionEnd(code: string, from: number): number {
+function expressionEnd(code: string, from: number, limit = code.length): number {
   let depth = 0;
   let last = -1; // the last character of code met, for a line break to look back at
-  for (let k = from; k < code.length; k++) {
+  const stop = Math.min(limit, code.length);
+  for (let k = from; k < stop; k++) {
     const ch = code[k];
     if (ch === "\n" && depth === 0) {
       const q = skipAhead(code, k + 1);
@@ -1096,7 +1211,53 @@ function expressionEnd(code: string, from: number): number {
     else if (depth === 0 && (ch === "," || ch === ";")) return k;
     last = k;
   }
-  return code.length;
+  return stop;
+}
+
+/** `expressionEnd(code, from)` for many starts at once, each the answer the scan gives. Read from the last
+ *  start to the first: a scan reaching, at its own level, a start already read has that start's answer
+ *  (the start is not a blank, so from it on the two scans see the same characters in the same state); a
+ *  bracket is passed in one step to the closer at which the scan's depth would come back (a bracket left
+ *  open never comes back, and the scan runs to the end), so depth never grows. Every character is read
+ *  once per start at most until it meets a start already read, never once per enclosing arrow. */
+function expressionEnds(code: string, starts: number[]): Map<number, number> {
+  const out = new Map<number, number>();
+  if (starts.length === 0) return out;
+  const n = code.length;
+  // The closer at which the untyped depth comes back, for each opener: the pairing `expressionEnd` counts.
+  const back = new Int32Array(n).fill(-1);
+  const open: number[] = [];
+  for (let k = 0; k < n; k++) {
+    const ch = code[k];
+    if (ch === "(" || ch === "{" || ch === "[") open.push(k);
+    else if ((ch === ")" || ch === "}" || ch === "]") && open.length > 0) back[open.pop() as number] = k;
+  }
+  const known = new Int32Array(n + 1).fill(-1);
+  for (const from of [...new Set(starts)].sort((x, y) => y - x)) {
+    let last = -1;
+    let end = n;
+    for (let k = from; k < n; k++) {
+      if (k !== from && known[k] !== -1) { end = known[k]; break; }
+      const ch = code[k];
+      if (ch === "\n") {
+        const q = skipAhead(code, k + 1);
+        const before = last === -1 ? "" : code[last];
+        if (!/[-+*/%&|^!=<>?:,(.]/.test(before) && !/[-+*/%&|^=<>?:.]/.test(code[q] ?? "")) { end = k; break; }
+        k = q - 1;
+        continue;
+      }
+      if (isSpaceCode(code.charCodeAt(k))) continue;
+      if (ch === ")" || ch === "}" || ch === "]") { end = k; break; }
+      if (ch === "(" || ch === "{" || ch === "[") {
+        if (back[k] === -1) { end = n; break; }
+        k = back[k];
+      } else if (ch === "," || ch === ";") { end = k; break; }
+      last = k;
+    }
+    known[from] = end;
+    out.set(from, end);
+  }
+  return out;
 }
 
 /** Every identifier of a text that is not a member (`a.b` gives `a`), for a reading of what it mentions. */
@@ -1117,12 +1278,27 @@ function identifierIndex(m: Masked): Map<string, number[]> {
 }
 
 /** The `{` of a body after a parameter list closing at `close`, a return type between them allowed; -1. */
-function blockAfter(code: string, close: number): number {
+function blockAfter(m: Masked, close: number): number {
+  const code = m.code;
   const k = skipAhead(code, close + 1);
   if (code[k] === "{") return k;
   if (code[k] !== ":") return -1;
-  const brace = code.indexOf("{", k);
-  return brace === -1 || /[;=](?!>)/.test(code.slice(k, brace)) ? -1 : brace;
+  // The next `{`, and whether a `;` or an `=` that is no arrow comes first, from positions read once per
+  // file: a search from each of many functions with a return type and no body read the rest of the file
+  // each time (quadratic).
+  const brace = nextOf(m, "{", k);
+  if (brace === -1) return -1;
+  const stops = stopsOf(m);
+  let lo = 0, hi = stops.length;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (stops[mid] < k) lo = mid + 1; else hi = mid; }
+  return lo < stops.length && stops[lo] < brace ? -1 : brace;
+}
+/** Every `;`, and every `=` not followed by `>`, of a file's masked code, in order. */
+const STOPS_CACHE = new WeakMap<Masked, Int32Array>();
+function stopsOf(m: Masked): Int32Array {
+  let at = STOPS_CACHE.get(m);
+  if (!at) { at = Int32Array.from([...m.code.matchAll(/[;=](?!>)/g)].map((x) => x.index)); STOPS_CACHE.set(m, at); }
+  return at;
 }
 
 interface FnSpan {
@@ -1159,13 +1335,17 @@ function functionsIn(m: Masked): FnSpan[] {
   for (const k of code.matchAll(/(?<![\w$.])function\b(?:\s*\*)?\s*(?:([A-Za-z_$][\w$]*)\s*)?\(/g)) {
     const open = k.index + k[0].length - 1;
     const close = closing(code, open);
-    const brace = close === -1 ? -1 : blockAfter(code, close);
+    const brace = close === -1 ? -1 : blockAfter(m, close);
     const end = brace === -1 ? -1 : closing(code, brace);
     if (end === -1) continue;
     const b = k[1] ? null : bound(k.index);
     push(k[1] ?? b?.name ?? null, k[1] ? k.index + k[0].indexOf(k[1], 8) : b?.at ?? -1, b?.head ?? k.index,
       paramNames(code.slice(open + 1, close)), brace, end + 1);
   }
+  // Arrows: an expression body ends where `expressionEnd` says, read for all of them at once (below), so a
+  // chain `a => a => …` or `(a) => (` repeated is not read to its end once per arrow (quadratic: 21 s at
+  // 250,000 characters, measured on 2026-11-06).
+  const arrows: Array<{ name: string | null; nameAt: number; head: number; params: string[]; b: number; end: number }> = [];
   for (const k of code.matchAll(/=>/g)) {
     const p = skipBack(code, k.index - 1);
     let start: number;
@@ -1184,11 +1364,13 @@ function functionsIn(m: Masked): FnSpan[] {
     const a = wordEndingAt(code, skipBack(code, start - 1) + 1);
     const before = a?.word === "async" ? a.start : start;
     const b = skipAhead(code, k.index + 2);
-    let end: number;
-    if (code[b] === "{") { const e = closing(code, b); if (e === -1) continue; end = e + 1; } else end = expressionEnd(code, b);
+    let end = -1;
+    if (code[b] === "{") { const e = closing(code, b); if (e === -1) continue; end = e + 1; }
     const named = bound(before);
-    push(named?.name ?? null, named?.at ?? -1, named?.head ?? before, params, b, end);
+    arrows.push({ name: named?.name ?? null, nameAt: named?.at ?? -1, head: named?.head ?? before, params, b, end });
   }
+  const ends = expressionEnds(code, arrows.filter((x) => x.end === -1).map((x) => x.b));
+  for (const x of arrows) push(x.name, x.nameAt, x.head, x.params, x.b, x.end === -1 ? ends.get(x.b) as number : x.end);
   // A method: `name(…) {` where a member of a class or an object literal starts (after `{`, `}`, `;`, `,`
   // and its modifiers), never a call in an expression.
   const memberStart = (at: number): boolean => {
@@ -1206,7 +1388,7 @@ function functionsIn(m: Masked): FnSpan[] {
     if (NOT_A_METHOD.has(k[1]) || !memberStart(k.index)) continue;
     const open = k.index + k[0].length - 1;
     const close = closing(code, open);
-    const brace = close === -1 ? -1 : blockAfter(code, close);
+    const brace = close === -1 ? -1 : blockAfter(m, close);
     const end = brace === -1 ? -1 : closing(code, brace);
     if (end === -1) continue;
     push(k[1], k.index, k.index, paramNames(code.slice(open + 1, close)), brace, end + 1);
@@ -1245,6 +1427,14 @@ interface TestCase {
 function testCases(src: string, m: Masked): TestCase[] {
   const out: TestCase[] = [];
   const byStart = new Map(m.literals.map((l) => [l.start, l]));
+  // `{ skip: true }` among a case's arguments, found once over the file: a test of every case's arguments
+  // re-read the arguments of each case nested in it.
+  const skipOptions = [...m.code.matchAll(/\{\s*(?:skip|todo)\s*:\s*(?:true|"|'|`)/g)].map((k) => k.index);
+  const skipIn = (from: number, to: number): boolean => {
+    let lo = 0, hi = skipOptions.length;
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (skipOptions[mid] < from) lo = mid + 1; else hi = mid; }
+    return lo < skipOptions.length && skipOptions[lo] < to;
+  };
   for (const k of m.code.matchAll(CASE_CALL)) {
     const open = k.index + k[0].length - 1;
     const close = closing(m.code, open);
@@ -1255,7 +1445,7 @@ function testCases(src: string, m: Masked): TestCase[] {
     const lit = byStart.get(j);
     const name = lit && lit.kind !== "regex" ? literalValue(src, lit) : null;
     let skipped = /\.\s*(?:skip|todo)\b/.test(k[1] ?? "");
-    if (!skipped && /\{\s*(?:skip|todo)\s*:\s*(?:true|"|'|`)/.test(args)) skipped = true;
+    if (!skipped && skipIn(open + 1, close)) skipped = true;
     // The callback: the last top-level arrow or function expression among the arguments.
     let body: string | null = null;
     let bodyAt = -1;
@@ -1264,7 +1454,9 @@ function testCases(src: string, m: Masked): TestCase[] {
     let fnAt = -1;
     for (let p = 0; p < args.length; p++) {
       const ch = args[p];
-      if (ch === "(" || ch === "{" || ch === "[") level++;
+      // The arguments are balanced (their closing bracket was found), so a nested bracket is skipped to its
+      // closer: a case nested in another is read at its own level only, not once more per enclosing case.
+      if (ch === "(" || ch === "{" || ch === "[") { const e = closing(m.code, open + 1 + p); if (e !== -1) { p = e - open - 1; continue; } level++; }
       else if (ch === ")" || ch === "}" || ch === "]") level--;
       else if (level === 0 && ch === "=" && args[p + 1] === ">") fnAt = p + 2;
       else if (level === 0 && args.startsWith("function", p) && !isWord(args[p - 1]) && !isWord(args[p + 8])) fnAt = p + 8;
@@ -1272,13 +1464,13 @@ function testCases(src: string, m: Masked): TestCase[] {
     if (fnAt !== -1) {
       const absAt = open + 1 + fnAt;
       let q = absAt;
-      params = callbackParams(args, fnAt);
+      params = callbackParams(m, open + 1, args, fnAt);
       // `function (t) {` and `async (t) => {`: skip a parameter list to the body.
       while (q < close && /\s/.test(m.code[q])) q++;
       if (m.code[q] === "(" || isWord(m.code[q])) {
         const isFunctionKeyword = args.slice(fnAt - 8, fnAt) === "function";
         if (isFunctionKeyword) {
-          const params = m.code.indexOf("(", q);
+          const params = nextOf(m, "(", q);
           const pclose = params === -1 ? -1 : closing(m.code, params);
           q = pclose === -1 ? q : pclose + 1;
           while (q < close && /\s/.test(m.code[q])) q++;
@@ -1299,6 +1491,39 @@ function testCases(src: string, m: Masked): TestCase[] {
   return out;
 }
 
+/** Every position of `token` in a file's masked code, in order, read once per file. */
+const TOKEN_CACHE = new WeakMap<Masked, Map<string, Int32Array>>();
+function positionsOf(m: Masked, token: string): Int32Array {
+  let byToken = TOKEN_CACHE.get(m);
+  if (!byToken) { byToken = new Map(); TOKEN_CACHE.set(m, byToken); }
+  let at = byToken.get(token);
+  if (!at) {
+    const found: number[] = [];
+    for (let i = m.code.indexOf(token); i !== -1; i = m.code.indexOf(token, i + 1)) found.push(i);
+    at = Int32Array.from(found);
+    byToken.set(token, at);
+  }
+  return at;
+}
+/** `m.code.indexOf(token, from)`, by binary search over the positions read once: an `indexOf` from each of
+ *  many declarations scanned the rest of the file each time, quadratic on one long line of them. */
+function nextOf(m: Masked, token: string, from: number): number {
+  const at = positionsOf(m, token);
+  let lo = 0, hi = at.length;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (at[mid] < from) lo = mid + 1; else hi = mid; }
+  return lo < at.length ? at[lo] : -1;
+}
+
+/** A name called, `name(` or `name (`: one pass over a text gives every name it calls, the same names a
+ *  pattern per name (`(?<![\w$.])name\s*\(`) finds, since the name ends where a blank or the parenthesis
+ *  begins. */
+const CALLED = /(?<![\w$.])([A-Za-z_$][\w$]*)\s*\(/g;
+const callsOneOf = (text: string, names: Set<string>): boolean => {
+  if (names.size === 0) return false;
+  for (const k of text.matchAll(CALLED)) if (names.has(k[1])) return true;
+  return false;
+};
+
 /** Functions of the file whose body asserts: a case that calls one asserts through it. */
 function assertingHelpers(m: Masked): Set<string> {
   const defs = new Map<string, string>();
@@ -1306,38 +1531,55 @@ function assertingHelpers(m: Masked): Set<string> {
     const end = closing(m.code, open);
     if (end !== -1) defs.set(name, m.code.slice(open, end + 1));
   };
-  for (const k of m.code.matchAll(/(?<![\w$.])function\s*\*?\s*([A-Za-z_$][\w$]*)\s*\(/g)) {
+  for (const k of m.code.matchAll(/(?<![\w$.])function\s*(?:\*\s*)?([A-Za-z_$][\w$]*)\s*\(/g)) {
     const pclose = closing(m.code, k.index + k[0].length - 1);
     if (pclose === -1) continue;
-    const brace = m.code.indexOf("{", pclose);
+    const brace = nextOf(m, "{", pclose);
     if (brace !== -1) add(k[1], brace);
   }
   // `const name = (…) => …`, `const name = async x => …`, `const name = function (…) {…}`: the value is a
   // function when an arrow or the keyword opens it; its body is the block after it, or the rest of the line.
   for (const k of m.code.matchAll(/(?<![\w$.])(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=(?!=)/g)) {
     const from = k.index + k[0].length;
-    const stop = m.code.indexOf("\n", from);
+    const stop = nextOf(m, "\n", from);
     const line = m.code.slice(from, stop === -1 ? m.code.length : stop);
-    const arrow = line.indexOf("=>");
+    const next = nextOf(m, "=>", from);
+    const arrow = next !== -1 && next + 2 <= from + line.length ? next - from : -1;
     const fn = /^\s*async\s+function\b/.exec(line) ?? /^\s*function\b/.exec(line);
     if (arrow === -1 && !fn) {
       const spread = arrowAfterParams(m.code, from);
       if (spread !== null) defs.set(k[1], spread);
       continue;
     }
-    let at = fn ? m.code.indexOf("{", from + fn[0].length) : from + arrow + 2;
+    let at = fn ? nextOf(m, "{", from + fn[0].length) : from + arrow + 2;
     while (at < m.code.length && isSpaceCode(m.code.charCodeAt(at))) at++;
     if (m.code[at] === "{") add(k[1], at);
     else defs.set(k[1], line.slice(arrow + 2));
   }
+  // Which helpers each body calls, read once per body, then which assert: directly, or through a helper
+  // that does, by one walk back along the calls. A fixpoint that re-read every body for every helper found
+  // was cubic on a chain of helpers each calling the next (over 30 s at 62,500 characters, measured on
+  // 2026-11-06). Bodies nest, a helper defined inside another, so the characters read are counted against a
+  // budget of sixteen times the file; a helper past it is not taken as asserting, which can only leave a
+  // case that calls it a finding.
+  const names = new Set(defs.keys());
+  const callers = new Map<string, string[]>();
   const asserting = new Set<string>();
-  for (let changed = true; changed;) {
-    changed = false;
-    for (const [name, body] of defs) {
-      if (asserting.has(name)) continue;
-      if (ASSERTION.test(body) || [...asserting].some((h) => new RegExp(`(?<![\\w$.])${h.replace(RE_SPECIAL, "\\$&")}\\s*\\(`).test(body))) {
-        asserting.add(name); changed = true;
-      }
+  const queue: string[] = [];
+  let budget = 16 * m.code.length + 65536;
+  for (const [name, body] of defs) {
+    budget -= body.length;
+    if (budget < 0) break;
+    if (ASSERTION.test(body)) { asserting.add(name); queue.push(name); continue; }
+    for (const k of body.matchAll(CALLED)) {
+      if (!names.has(k[1])) continue;
+      const list = callers.get(k[1]);
+      if (list) list.push(name); else callers.set(k[1], [name]);
+    }
+  }
+  while (queue.length > 0) {
+    for (const caller of callers.get(queue.pop() as string) ?? []) {
+      if (!asserting.has(caller)) { asserting.add(caller); queue.push(caller); }
     }
   }
   return asserting;
@@ -1345,16 +1587,19 @@ function assertingHelpers(m: Masked): Set<string> {
 
 /** The parameter names of a case's callback, from the masked text of the call's arguments and the offset
  *  `testCases` found the callback at (just after `=>`, or just after the keyword `function`). */
-function callbackParams(args: string, fnAt: number): string[] {
+function callbackParams(m: Masked, base: number, args: string, fnAt: number): string[] {
+  // The brackets are paired in the file's code, at `base + i` for `args[i]`: the arguments are balanced, so
+  // each pair inside them is the same, and the pairing of the file is read once, not once per case.
   if (args.slice(fnAt - 8, fnAt) === "function") {
-    const open = args.indexOf("(", fnAt);
-    const close = open === -1 ? -1 : closing(args, open);
-    return close === -1 ? [] : paramNames(args.slice(open + 1, close));
+    const at = nextOf(m, "(", base + fnAt);
+    const open = at === -1 || at >= base + args.length ? -1 : at - base;
+    const close = open === -1 ? -1 : closing(m.code, base + open);
+    return close === -1 ? [] : paramNames(args.slice(open + 1, close - base));
   }
   const p = skipBack(args, fnAt - 3);
   if (args[p] === ")") {
-    const open = opening(args, p);
-    return open === -1 ? [] : paramNames(args.slice(open + 1, p));
+    const open = opening(m.code, base + p);
+    return open === -1 || open < base ? [] : paramNames(args.slice(open - base + 1, p));
   }
   const w = wordEndingAt(args, p + 1);
   return w ? [w.word] : [];
@@ -1468,7 +1713,18 @@ function testContexts(texts: FileText[], config: ScopeFile[], isTest: (rel: stri
     // What is declared or assigned from the code under test is of it too, to a fixpoint.
     const code = t.m.code;
     const assigned: Array<{ names: string[]; mentions: string[] }> = [];
-    const initOf = (at: number): string[] => mentioned(code.slice(at, Math.min(expressionEnd(code, at), at + 4000)));
+    // An initializer is read up to its end and never past 4,000 characters, and the end is looked for no
+    // further either: a scan to an end far away, from each of many assignments, was quadratic. Initializers
+    // overlap (`a = b = c = …`, `a = (b = (…`), so what they read is counted against sixteen times the file;
+    // past it, an initializer mentions nothing, which can only leave a case without the names it would
+    // have credited.
+    let initBudget = 16 * code.length + 65536;
+    const initOf = (at: number): string[] => {
+      if (initBudget <= 0) return [];
+      const end = expressionEnd(code, at, at + Math.min(4000, initBudget));
+      initBudget -= end - at;
+      return mentioned(code.slice(at, end));
+    };
     for (const k of code.matchAll(/(?<![\w$.#])([A-Za-z_$][\w$]*)\s*(?::[^=;\n]{1,200})?=(?![=>])/g)) {
       assigned.push({ names: [k[1]], mentions: initOf(k.index + k[0].length) });
     }
@@ -1637,7 +1893,10 @@ function awaitsBuiltObject(code: string, fns: FnSpan[], from: number, to: number
       break;
     }
     if (built === -1) continue;
-    for (const s of code.slice(built, at).matchAll(new RegExp(`(?<![\\w$.])${recv}(?:\\s*\\??\\.\\s*[A-Za-z_$][\\w$]*)+\\s*\\(`, "g"))) {
+    // At most 64 links: a pattern started at every occurrence of the name read a chain `app.\tapp.\tapp…` once
+    // per link, in quadratic time (9.5 s at 62,500 characters, measured on 2026-11-06). A longer chain is not
+    // a set-up call this reading credits, so the case stays a finding.
+    for (const s of code.slice(built, at).matchAll(new RegExp(`(?<![\\w$.])${recv}(?:\\s*\\??\\.\\s*[A-Za-z_$][\\w$]*){1,64}\\s*\\(`, "g"))) {
       if (!nestedIn(fns, from, to, built + s.index)) return `${k[1]}${k[2].replace(/\s+/g, "")}()`;
     }
   }
@@ -1649,7 +1908,7 @@ function awaitsBuiltObject(code: string, fns: FnSpan[], from: number, to: number
  *  rejection fails the case. */
 function awaitsRejectingPromise(code: string, fns: FnSpan[], from: number, to: number, ctx: TestContext): boolean {
   const body = code.slice(from, to);
-  for (const k of body.matchAll(/(?<![\w$.])(?:await|return)\s+new\s+Promise\s*(?:<[^>]*>\s*)?\(/g)) {
+  for (const k of body.matchAll(/(?<![\w$.])(?:await|return)\s+new\s+Promise\s*(?:<[^<>]*>\s*)?\(/g)) {
     const at = from + k.index;
     if (nestedIn(fns, from, to, at)) continue;
     const open = at + k[0].length - 1;
@@ -1707,7 +1966,7 @@ function assertsOtherwise(t: FileText, c: TestCase, contextOf: (t: FileText) => 
  *  function, a method or an interface member that happens to be named `eval` or `fetch`
  *  (a port's member typed `Promise<Account>`, an adapter's async method of that name)? */
 function declaredHere(code: string, at: number, open: number): boolean {
-  if (/(?:\bfunction\s*\*?|\bget|\bset|\bstatic|\basync|\babstract|\bpublic|\bprivate|\bprotected|\boverride|\breadonly)\s+$/.test(code.slice(Math.max(0, at - 24), at))) return true;
+  if (/(?:\bfunction(?:\s*\*)?|\bget|\bset|\bstatic|\basync|\babstract|\bpublic|\bprivate|\bprotected|\boverride|\breadonly)\s+$/.test(code.slice(Math.max(0, at - 24), at))) return true;
   const close = closing(code, open);
   if (close === -1) return false;
   const after = code.slice(close + 1, close + 240);
@@ -1932,6 +2191,10 @@ export function analyzeDelivery(missionDir: string): AnalysisReading | null {
   // Test integrity, read from the test sources, never run.
   const declaredNames = new Set<string>();
   let dynamicNames = false;
+  // Cases nest (a case inside a case), and each is read over its whole body: the characters read are
+  // counted per file against sixteen times its size. A case past it is not read, and the file is said
+  // not analysed, as a file over the size limit is: nesting that deep is no suite written by hand.
+  const unreadCases: string[] = [];
   const contextOf = testContexts(texts, scope.config, isTest, (from, spec) => resolveImport(from, spec, exists, policy)?.path ?? null);
   for (const t of texts) {
     if (!t.test) continue;
@@ -1941,10 +2204,15 @@ export function analyzeDelivery(missionDir: string): AnalysisReading | null {
     // cannot be complete for this tree, and says so rather than refuse.
     if (/(?<![\w$.])(?:test|it|describe)\s*\.\s*each\b/.test(t.m.code)) dynamicNames = true;
     const helpers = cases.length > 0 ? assertingHelpers(t.m) : new Set<string>();
-    const callsHelper = (body: string): boolean => [...helpers].some((h) => new RegExp(`(?<![\\w$.])${h.replace(RE_SPECIAL, "\\$&")}\\s*\\(`).test(body));
+    // One pass over the body for every helper of the file at once: a pattern per helper read each body once
+    // per helper, quadratic in a file of many helpers and many cases.
+    const callsHelper = (body: string): boolean => callsOneOf(body, helpers);
+    let budget = 16 * t.m.code.length + 65536;
     for (const c of cases) {
       if (c.name === null) dynamicNames = true; else declaredNames.add(c.name);
       if (c.skipped || c.body === null) continue;
+      budget -= c.body.length;
+      if (budget < 0) { if (unreadCases[unreadCases.length - 1] !== rel) unreadCases.push(rel); continue; }
       const shown = c.name === null ? "(a case whose name is computed)" : `"${c.name.length > 80 ? `${c.name.slice(0, 79)}…` : c.name}"`;
       const plain = !ASSERTION.test(c.body) && !callsHelper(c.body) && !SUBTEST.test(c.body);
       const other = plain ? assertsOtherwise(t, c, contextOf) : null;
@@ -2073,7 +2341,7 @@ export function analyzeDelivery(missionDir: string): AnalysisReading | null {
             message: `\`${p.symbol}\`, cited by ${cited}, is declared as the constant \`${value.replace(/\s+/g, " ")}\`: a placeholder, not behaviour` });
           continue;
         }
-        const empty = new RegExp(`(?:(?<![\\w$.])function\\s*\\*?\\s*${esc}\\s*\\([^)]*\\)\\s*(?::[^{]{1,200})?|(?<![\\w$.])(?:const|let|var)\\s+${esc}\\s*=\\s*(?:async\\s*)?\\([^)]*\\)\\s*=>\\s*)\\{\\s*\\}`).exec(t.m.code);
+        const empty = new RegExp(`(?:(?<![\\w$.])function\\s*(?:\\*\\s*)?${esc}\\s*\\([^()]*\\)\\s*(?::[^{]{1,200})?|(?<![\\w$.])(?:const|let|var)\\s+${esc}\\s*=\\s*(?:async\\s*)?\\([^()]*\\)\\s*=>\\s*)\\{\\s*\\}`).exec(t.m.code);
         if (empty) hypothesis({ family: "symbol", check: "symbol-empty-body", path: rel, line: lineOf(t.m, empty.index),
           message: `\`${p.symbol}\`, cited by ${cited}, is declared with an empty body` });
       }
@@ -2174,6 +2442,7 @@ export function analyzeDelivery(missionDir: string): AnalysisReading | null {
   }
   const coreOther = [...scope.other.values()].flat().filter((p) => core.has(p));
   if (coreOther.length > 0) reading.notAnalyzed.push({ what: "domain-core files in a language the policy does not read: their boundary is not checked", files: coreOther.length, examples: coreOther.slice(0, 3) });
+  if (unreadCases.length > 0) reading.notAnalyzed.push({ what: "test cases nested past the reading's budget (their bodies, counted over the file, past sixteen times its size): not read", files: unreadCases.length, examples: unreadCases.slice(0, 3) });
   if (scope.tooLarge.length > 0) reading.notAnalyzed.push({ what: `files over the policy's size limit (${policy.maxFileBytes} bytes)`, files: scope.tooLarge.length, examples: scope.tooLarge.slice(0, 3) });
   if (scope.links.length > 0) reading.notAnalyzed.push({ what: "symbolic links, never followed (the reading stays inside the tree)", files: scope.links.length, examples: scope.links.slice(0, 3) });
   if (!core.declared) reading.notAnalyzed.push({ what: "the boundary family: runward/territory.md binds no file to `domain-core`, so there is no core to check (the other families ran)", files: 0, examples: [] });

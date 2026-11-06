@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+### Fixed: the built-in analyzers, the globs of the mission's own files and the comment reader read in linear time (RWD-2026-0203)
+
+Measured on 2026-11-06: the symbol family tried each cited name against `function\s*\*?\s*NAME`, whose two
+blank quantifiers around an optional star split a run of blanks every way, so one file holding `function`
+and blanks took 2.6 s at 50 KB, 42 s at 200 KB and 167 s at 400 KB, inside the policy's 1 MB limit. An
+audit of every regular expression the analyzers, the evidence layer's comment reader (ADR-0114) and the
+globs of `runward/territory.md` and `runward/analysis.md` run, and a measurement of each family end to end
+on 68 adversarial shapes at 999,000 bytes, found the same class elsewhere: the same pattern in the linkage
+and test-integrity families, a heading pattern of `runward/analysis.md` that was cubic (16 s on one line
+of 4,000 characters), a glob of many stars compiled to a backtracking pattern (over 60 s for one file
+name), a bracket scan restarted from every opener, a fixpoint re-reading every helper's body once per
+helper found, regular-expression literals left open that both maskers read to the end of the line from
+every slash, an `<!--` left open read to the end of the file once per opener. Each is read in linear time
+now, by an unambiguous pattern, a table read once per file or a search that does not restart, and gives
+the answers it gave: the masker, the comment reader and the glob matcher were compared with their former
+forms on generated inputs, and the analyzers end to end on 750 generated missions, with no difference.
+Where nesting multiplies the work (cases in cases, helpers in helpers, assignments in assignments), what
+one file makes the reading read is bounded at sixteen times its size: a case past it is listed under
+`notAnalyzed`, as a file over the size limit is, and a helper or an initializer past it credits nothing,
+which can only leave a case red. On the 68 shapes the slowest reading now takes 1.4 s at 999,000 bytes;
+`test/unit/analyze-ceilings.test.js` runs 31 of them at that size under a ceiling, and holds the heading
+reader and the glob matcher to the patterns they replace. No release carried the analyzers or the comment
+reader. `rules --for` and `propose` read their globs through the same matcher, with the same answers.
+
 ### The saboteur corpus joins the repository (ADR-0117, ADR-0124)
 
 `node test/saboteur-corpus.js` replays the sabotages of the shipped example that the investigation of

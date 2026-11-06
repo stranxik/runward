@@ -182,6 +182,35 @@ function stringEnd(text: string, from: number, f: StringForm): number {
   return text.length;
 }
 
+/** `/(?:^|[:\-[{,?])\s*$/` tested on the line before `i`, read back over the blanks only: the line was sliced
+ *  and tested from its start for every quote of it (quadratic on a long line of quotes). */
+function atValue(text: string, i: number): boolean {
+  let q = i - 1;
+  while (q >= 0 && text[q] !== "\n" && /\s/.test(text[q])) q--;
+  return q < 0 || text[q] === "\n" || ":-[{,?".includes(text[q]);
+}
+
+/** Every maximal run of backticks of a text, by its length: the starts, in order. */
+function backtickRuns(text: string): Map<number, number[]> {
+  const out = new Map<number, number[]>();
+  for (let i = text.indexOf("`"); i !== -1; i = text.indexOf("`", i)) {
+    let k = i; while (text[k] === "`") k++;
+    const list = out.get(k - i);
+    if (list) list.push(i); else out.set(k - i, [i]);
+    i = k;
+  }
+  return out;
+}
+/** The first start of a run of exactly `length` backticks at or after `from`, or -1. A run of that many
+ *  inside a longer one is no closing run: `text.indexOf(run)` met those and set them aside. */
+function nextRunOf(runs: Map<number, number[]>, length: number, from: number): number {
+  const starts = runs.get(length);
+  if (!starts) return -1;
+  let lo = 0, hi = starts.length;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (starts[mid] < from) lo = mid + 1; else hi = mid; }
+  return lo < starts.length ? starts[lo] : -1;
+}
+
 /** A template literal's text from `from`: where it ends, and whether it stopped at a `${`. */
 function templateEnd(text: string, from: number): { end: number; interpolation: boolean } {
   for (let j = from; j < text.length;) {
@@ -195,6 +224,7 @@ function templateEnd(text: string, from: number): { end: number; interpolation: 
 
 /** The end of a regular-expression literal opening at `from` (a `/`), or -1 when none closes on its line. */
 function regexEnd(text: string, from: number): number {
+  if (text.length >= 4096) return regexEnds(text)[from + 1] ?? -1;
   let inClass = false;
   for (let j = from + 1; j < text.length; j++) {
     const ch = text[j];
@@ -207,6 +237,29 @@ function regexEnd(text: string, from: number): number {
   return -1;
 }
 
+/** `regexEnd` for every position of a long text at once, read from the end in the two states of the scan
+ *  (inside a class or not): a scan from every `/` that may open a literal read to the end of its line each
+ *  time a class stayed open, quadratic on a line of `(/[` repeated (54 s at 250,000 characters, measured on
+ *  2026-11-06). Entry `k` is the answer of a scan that starts at `k` outside a class. */
+let REGEX_ENDS: { text: string; ends: Int32Array } | null = null;
+function regexEnds(text: string): Int32Array {
+  if (REGEX_ENDS !== null && REGEX_ENDS.text === text) return REGEX_ENDS.ends;
+  const n = text.length;
+  const out = new Int32Array(n + 2).fill(-1);
+  const inClass = new Int32Array(n + 2).fill(-1);
+  for (let j = n - 1; j >= 0; j--) {
+    const ch = text[j];
+    if (ch === "\n") continue;
+    if (ch === "\\") { out[j] = j + 2 < n ? out[j + 2] : -1; inClass[j] = j + 2 < n ? inClass[j + 2] : -1; }
+    else if (ch === "[") { out[j] = inClass[j + 1]; inClass[j] = inClass[j + 1]; }
+    else if (ch === "]") { out[j] = out[j + 1]; inClass[j] = out[j + 1]; }
+    else if (ch === "/") { out[j] = j + 1; inClass[j] = inClass[j + 1]; }
+    else { out[j] = out[j + 1]; inClass[j] = inClass[j + 1]; }
+  }
+  REGEX_ENDS = { text, ends: out };
+  return out;
+}
+
 /** YAML: the [start, end) offsets of the lines of every `|` or `>` block scalar, in order. */
 function yamlBlockScalars(text: string): Array<[number, number]> {
   const out: Array<[number, number]> = [];
@@ -215,7 +268,7 @@ function yamlBlockScalars(text: string): Array<[number, number]> {
   for (let i = 0, at = 0; i < lines.length; i++) { starts.push(at); at += lines[i].length + 1; }
   const indent = (l: string): number => l.length - l.trimStart().length;
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].trimStart().startsWith("#") || !YAML_BLOCK_START.test(lines[i].replace(/\s#.*$/, ""))) continue;
+    if (lines[i].trimStart().startsWith("#") || !YAML_BLOCK_START.test(withoutTrailingComment(lines[i]))) continue;
     const parent = indent(lines[i]);
     let j = i + 1;
     while (j < lines.length && (lines[j].trim() === "" || indent(lines[j]) > parent)) j++;
@@ -223,6 +276,18 @@ function yamlBlockScalars(text: string): Array<[number, number]> {
     i = j - 1;
   }
   return out;
+}
+
+/** `line.replace(/\s#.*$/, "")` in one pass: the pattern tried every ` #` of a line and read each to the
+ *  line's end when a line separator sat further on (quadratic). A cut can only start after the last line
+ *  terminator of the line, where `.*` then reaches the end; before it, no cut ever matched. */
+function withoutTrailingComment(line: string): string {
+  let from = 0;
+  for (let k = line.length - 1; k >= 0; k--) {
+    const ch = line[k];
+    if (ch === "\r" || ch === "\u2028" || ch === "\u2029") { from = k; break; }
+  }
+  return line.slice(0, from) + line.slice(from).replace(/\s#.*$/, "");
 }
 
 const blank = (s: string): string => s.replace(/[^\r\n]/g, " ");
@@ -238,6 +303,11 @@ export function withoutComments(text: string, path: string): string {
   const scalars = lx.blockScalars ? yamlBlockScalars(text) : [];
   let nextScalar = 0;
   const frames: number[] = []; // JS: one per open `${`, the `{` depth inside it
+  // A block comment that does not nest and found no close from `i` finds none from any later position:
+  // remembered per opener, so an unterminated `<!--` repeated is not read to the end once per opener
+  // (quadratic: 85 s at 250,000 characters, measured on 2026-11-06).
+  const openFrom = new Map<string, number>();
+  let runsByLength: Map<number, number[]> | null = null;
   let prevSig = "", prevWord = "", gap = false;
   const keep = (s: string): void => { out.push(s); prevSig = s[s.length - 1]; prevWord = ""; gap = false; };
   const drop = (s: string): void => { out.push(blank(s)); gap = true; };
@@ -268,8 +338,9 @@ export function withoutComments(text: string, path: string): string {
     if (lx.codeSpans && ch === "`") {
       let k = i; while (text[k] === "`") k++;
       const run = text.slice(i, k);
-      let close = text.indexOf(run, k);
-      while (close !== -1 && (text[close - 1] === "`" || text[close + run.length] === "`")) close = text.indexOf(run, close + 1);
+      // The first run of exactly this many backticks at or after `k`: a search from every run left open
+      // read to the end of the text once per run (quadratic on runs of many lengths).
+      const close = nextRunOf(runsByLength ??= backtickRuns(text), run.length, k);
       const e = close === -1 ? k : close + run.length;
       keep(text.slice(i, e)); i = e; continue;
     }
@@ -277,11 +348,14 @@ export function withoutComments(text: string, path: string): string {
     if (block) {
       const [open, close] = block;
       let depth = 1, j = i + open.length;
+      const unclosedFrom = lx.nests ? undefined : openFrom.get(open);
+      if (unclosedFrom !== undefined && i >= unclosedFrom) j = text.length;
       while (j < text.length && depth > 0) {
         if (lx.nests && text.startsWith(open, j)) { depth++; j += open.length; }
         else if (text.startsWith(close, j)) { depth--; j += close.length; }
         else j++;
       }
+      if (depth > 0 && !lx.nests && !openFrom.has(open)) openFrom.set(open, i);
       if (depth > 0 && lx.openCommentIsText) { keep(open); i += open.length; continue; }
       drop(text.slice(i, j)); i = j; continue;
     }
@@ -307,7 +381,7 @@ export function withoutComments(text: string, path: string): string {
       keep(ch); i++; continue;
     }
     const str = lx.strings.find((f) => text.startsWith(f.open, i));
-    if (str && (!lx.quoteAtValue || /(?:^|[:\-[{,?])\s*$/.test(text.slice(text.lastIndexOf("\n", i - 1) + 1, i)))) {
+    if (str && (!lx.quoteAtValue || atValue(text, i))) {
       const e = stringEnd(text, i + str.open.length, str);
       keep(text.slice(i, e)); i = e; continue;
     }
