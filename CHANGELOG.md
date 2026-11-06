@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### The regulated sheet says what reaches a network, and what the offline CI job runs
+
+`docs/compliance/regulated-adoption.md` said runward "makes no network call"; it now says the package
+opens no connection of its own and names, in the same sentence, what does reach a network: installing
+it, `npx` without a local install of the pinned version, the commands given to `check --hooks`, and,
+in a partial clone up to 0.46.0, the git that `characterize`, `doctor` and `sample` start
+(RWD-2026-0202), with a link to `docs/isolated-environments.md`. The vendor-control row no longer uses
+the word "sovereign" for hosting. The CI-hardening row said the offline job runs three things and that
+the drift guard does not check what runs inside the cut; it now lists what the job's test step runs
+under `sudo unshare -n`, says `npm ci` and the build run with the network, and that the guard reads the
+block. No ADR file is renamed.
+
 ### The runtime-boundary test names `dns`, `http2` and `undici`, each with a planted control
 
 `test/unit/runtime-boundary.test.js` scanned the `runward` package for `http`, `https`, `http2`, `net`,
