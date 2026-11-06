@@ -1,6 +1,6 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-10-28 · **Describes**: runward 0.46.0 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166, for ADR-0090 (M6, M3), for ADR-0095, for RWD-2026-0168 to RWD-2026-0170, for RWD-2026-0172 to RWD-2026-0174 and for RWD-2026-0175 and RWD-2026-0176
+**Register date**: 2026-10-28 · **Describes**: runward 0.46.0 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166, for ADR-0090 (M6, M3), for ADR-0095, for RWD-2026-0168 to RWD-2026-0170, for RWD-2026-0172 to RWD-2026-0174, for RWD-2026-0175 and RWD-2026-0176, and for ADR-0113
 
 > **Third edition (2026-10-01).** The second edition described 0.34.0 and declared, as dated debt,
 > that the verdict layer (`check --through`, `check --attest`, `runward verify`, `runward bundle`,
@@ -76,6 +76,12 @@
 > the freshness lines `check --strict` prints above the gate (the behavioral proof's source root, the
 > verify findings' content reading), the changelog the package ships, and the repository rules recipe.
 > The rest of TOR-001 to TOR-247 is unchanged.
+
+> **Extended for ADR-0113 (2026-11-05).** TOR-252 to TOR-259 (section 23m) cover what `verify` says it
+> checked: every field re-derived both ways under the build that produced the attestation, the extent
+> of the digest said, the delivered tree bound on request, the attestation's next step free of the
+> invocation, the hook outcomes declared, and the command it prints. TOR-066, TOR-069 and TOR-221 are
+> reworded for it; the rest of TOR-001 to TOR-251 is unchanged.
 
 > **What this document is, and the two things it is not.**
 >
@@ -698,7 +704,7 @@ The requirements below hold what a prefix verdict may and may not leave out.
 
 **Verified by.** `test/unit/verify-attestation.test.js` — "obj 6: NEGATIVE CONTROL — a tampered predicate fails (exit 1)"
 
-**Does not assert.** That every field is re-derived. The fields added since are pinned one by one, and this register cites two of them (TOR-071, TOR-106).
+**Does not assert.** That the attestation was produced by the build it names: the producer is a field of an unsigned document (TOR-069). Since ADR-0113 every field is re-derived and compared both ways under that build (TOR-252, TOR-253).
 
 ### TOR-067 — an honest attestation of a red gate reads RED
 
@@ -716,13 +722,15 @@ The requirements below hold what a prefix verdict may and may not leave out.
 
 **Does not assert.** That the reader of `verify` notices the word; TOR-056 applies.
 
-### TOR-069 — a version skew is named, and alone never fails
+### TOR-069 — another build's attestation is sent back to its producer, never answered as a forgery
 
-**Requirement.** When the attestation was produced by another runward version, `verify` names that version, and the skew alone does not fail verification.
+**Requirement.** When the attestation names a producer other than the running build (another version, another build of one version, or no build recorded), `verify` answers neither verified nor not verified: exit 2, `result` and `error` `version-skew`, the producer named, and the command that re-derives with it; this build's reading is printed as advisory. An attestation that names no producer at all is compared under this build.
 
-**Verified by.** `test/unit/verify-version-skew.test.js` — "skew: an old producing version is NAMED, and alone it never fails the verification"
+**Verified by.** `test/unit/verify-version-skew.test.js` — "skew: another producer is answered neither verified nor not verified — exit 2 and the command that re-derives with it"
 
-**Does not assert.** That the two versions judge identically. On a failure under skew, the gesture is to re-verify with the producing version.
+**Verified by.** `test/unit/verify-version-skew.test.js` — "skew: an attestation that names no producer at all is not an older one — compared under this build, it differs"
+
+**Does not assert.** That the producing version's own `verify` is free of defects: its answer carries that version's limits, which the defect register lists by version.
 
 ### TOR-070 — a DSSE signature is counted, never verified
 
@@ -2069,15 +2077,15 @@ What a pull request may not remove from the test net without the maintainer's ac
 
 **Does not assert.** That any floor control is in force or missing on a given repository; this version reads none of them.
 
-### TOR-221 — verify compares each new field on its own, and only when present
+### TOR-221 — verify names each new field on its own; without them, the attestation is its producer's to answer
 
-**Requirement.** An attestation without `ratification.byRow`, `gaps.causesByKind` and `delegation.assurance` verifies on an unchanged tree; one whose field was edited is not verified and names that field in `differing`.
+**Requirement.** An attestation whose `ratification.byRow`, `gaps.causesByKind` or `delegation.assurance` was edited, or removed, under the build that produced it, is not verified and names that field in `differing`. One without the three fields that names 0.43.x as its producer is answered `version-skew`, exit 2, and the fields it carries read the same under this build.
 
-**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: an attestation without the three fields (0.43.x) still verifies"
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095, ADR-0113: an attestation without the three fields is sent back to 0.43.x, and stripping them under this build is refused"
 
 **Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095, positive control: an edited byRow, causesByKind or assurance is refused, each by its name"
 
-**Does not assert.** That stripping a field is detected; like deleting any additive field, it removes information and adds none.
+**Does not assert.** That 0.43.x answers it correctly; its answer carries its own limits (TOR-069).
 
 ## 23e. The forge boundary and the GitLab packaging
 
@@ -2491,6 +2499,78 @@ of Greenwich, because they are UTC dates printed with no label.
 **Verified by.** `test/unit/recipe-repository-rules.test.js` — "the case name is the documented one, and a row citing it reads one test pointer whose name is the whole string"
 
 **Does not assert.** That the committed report came from the script, or that a change committed without regenerating the report is seen: the gate reads the committed report, and the recipe's CI job is what compares it with a fresh run.
+
+## 23m. What `verify` says it checked (ADR-0113)
+
+### TOR-252 — every field of the attestation is re-derived under the build that produced it
+
+**Requirement.** `verify` rebuilds the Statement the producing build emits for the tree and for the question the attestation records, and compares every key: a field `check` computes offline (`currentGate`, `adrCount`, `mission`, `corpusPin`, `gaps.hooks`, every part of `next`, the subject's name, a top-level key) that differs is named in `differing`, exit 1, and no falsification reads "✓ verified".
+
+**Verified by.** `test/unit/verify-claims-only-what-it-checks.test.js` — "ADR-0113: the fields 0.46.0 left un-re-derived are compared — currentGate, adrCount, next.command, mission"
+
+**Does not assert.** That the producer is who the attestation says (TOR-069), nor anything about the code the evidence points at (GATE_NON_SCOPE).
+
+### TOR-253 — a key removed or added is a difference
+
+**Requirement.** Under the producing build, a key this build emits and the attestation lacks (`prosePointers` emptied, `ratification.byRow` deleted) and a key the attestation carries that this build does not emit (`independentAudit`, the strict fields on a presence attestation) are each a difference, named, exit 1.
+
+**Verified by.** `test/unit/verify-claims-only-what-it-checks.test.js` — "ADR-0113: a removal is a difference — prosePointers emptied, a key deleted, an unknown key added"
+
+**Verified by.** `test/unit/verify-claims-only-what-it-checks.test.js` — "ADR-0113: strict fields added to a presence attestation are a difference, not a blessing"
+
+**Does not assert.** That a choice of question the predicate records (`strict`, `through`, `--hooks`, `--coverage`) is the one the operator meant: an attestation of another question is compared as that question's.
+
+### TOR-254 — verify says what the digest covers, and what it does not
+
+**Requirement.** The digest line names `runward/` and the number of evidence files the manifests cite outside it, `--json` lists them in `digest.covers`, and every other file is said not covered; a cited file changed by one line is drift, exit 1, an uncited one is not.
+
+**Verified by.** `test/unit/verify-claims-only-what-it-checks.test.js` — "ADR-0113: verify names what the digest covers, and an uncited file is said not covered"
+
+**Does not assert.** That the cited files are the ones a reader cares about; that is what `--whole-tree` is for (TOR-255).
+
+### TOR-255 — the whole delivered tree is bound on request, as a second subject the gate never reads
+
+**Requirement.** `check --attest --whole-tree` adds a second subject and `deliveredTree`, the files the project's `.gitignore` files deliver; `check`'s exit code and `--json` are the same with and without it; `verify` reports the tree apart from the verdict, names each file changed, added or removed, and exits 1 on any; the attestation written into its own tree and ignored files are not bound; an incoherent tree record is refused; `--whole-tree` without `--attest` is exit 2.
+
+**Verified by.** `test/unit/verify-claims-only-what-it-checks.test.js` — "ADR-0113: --whole-tree binds every delivered file as a second subject; a README edit is named, the verdict still re-derives"
+
+**Verified by.** `test/unit/verify-claims-only-what-it-checks.test.js` — "ADR-0113: --whole-tree needs --attest, exit 2"
+
+**Does not assert.** That a file ignored only by the global excludes file or `.git/info/exclude`, or force-added in an ignored directory, is treated as git treats it: those sources are not read (ADR-0113, what this does not catch).
+
+### TOR-256 — the delivered tree is the list git would track
+
+**Requirement.** On a layout that exercises each rule of gitignore(5) (globs, negation, anchoring, directory-only patterns, `**`, escapes, brackets, trailing spaces, a deeper `.gitignore`, CRLF line endings, a nested repository), the delivered tree equals the files git offers to track on a fresh repository (`git status --untracked-files=all`, what `git ls-files --others --exclude-standard` lists) with no global excludes, and a nested repository is never entered.
+
+**Verified by.** `test/unit/delivered-tree.test.js` — "the delivered tree is the list git would track, on a layout that exercises each pattern rule"
+
+**Verified by.** `test/unit/delivered-tree.test.js` — "a nested repository is never entered, and no .git entry is ever listed"
+
+**Does not assert.** Agreement on a case-insensitive filesystem where git folds case: runward matches case-sensitively everywhere.
+
+### TOR-257 — the attestation's next step is the bare command's, and re-derives whole
+
+**Requirement.** A red attestation emitted with `-p .` is byte-identical to one emitted without it, its `next` names `runward check --strict`, and an edited `next.rerun` is a difference; `check --json` keeps the invocation's echo.
+
+**Verified by.** `test/unit/verify-claims-only-what-it-checks.test.js` — "ADR-0113: a red attestation is the same bytes however -p was typed, and its next step re-derives whole"
+
+**Does not assert.** That the next step is the best one (TOR-071).
+
+### TOR-258 — the outcome of a hook command is declared, never verified
+
+**Requirement.** When the attesting run executed hook commands, `verify` answers `not-re-derivable`, exit 2, with `notReDerived: ["hooks.failed"]` and the command that re-runs them; when no command could run (no `hooks.json`), everything is compared; a failure naming a command `hooks.json` does not hold is a difference, exit 1.
+
+**Verified by.** `test/unit/verify-claims-only-what-it-checks.test.js` — "ADR-0113: hook outcomes are the attesting run's record — exit 2 when a command ran, compared when none could"
+
+**Does not assert.** That the commands would pass if re-run; `verify` runs nothing.
+
+### TOR-259 — the command `verify` prints carries no text from the attestation that is not a version
+
+**Requirement.** Under another producer, the re-derive command is printed only when the producer version reads as a version; otherwise no command is given, and nothing of the attestation's text reaches a printed command.
+
+**Verified by.** `test/unit/verify-version-skew.test.js` — "skew: a producer version that is not a version prints no command — the field comes from the attestation"
+
+**Does not assert.** That the version printed exists on the registry; `verify` reaches no network.
 
 ---
 

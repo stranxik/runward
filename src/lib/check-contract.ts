@@ -41,6 +41,8 @@ export interface CheckOptions {
   codequality?: string;
   /** ADR-0096: write the verdict as a JUnit XML report to this file. */
   junit?: string;
+  /** ADR-0113 decision 5: with --attest, also bind the files the project delivers as a second subject. */
+  wholeTree?: boolean;
 }
 
 /**
@@ -104,6 +106,14 @@ export function optionFault(opts: CheckOptions): OptionFault | null {
       message: "`--vsa` needs `--resource-uri <uri>`: the VSA names the artifact it is about (a package, image or release URI), and runward reads a working tree — it cannot know where you publish it, and will not guess a name a policy engine would act on.",
     };
   }
+  // ADR-0113 decision 5: the delivered tree is a subject of the attestation, and of nothing else. Beside
+  // --json it would be silently dropped, and a reader who asked for the whole tree would get a document
+  // that binds none of it.
+  if (opts.wholeTree && !opts.attest) {
+    return {
+      message: "`--whole-tree` binds the files the project delivers into the attestation, as its second subject: add `--attest` (`runward check --strict --attest --whole-tree`).",
+    };
+  }
   // ONE DOCUMENT PER STDOUT. `--json --sarif` emitted a SARIF and silently abandoned the ADR-0030
   // contract at exit 0, so a CI that asked for both got one and could not tell which. Measured
   // 2026-08-26. The resolution was a precedence chain (`vsa` → `sarif` → `attest`) that nothing
@@ -122,6 +132,21 @@ export function optionFault(opts: CheckOptions): OptionFault | null {
 /** `--freeze` implies `--strict`: a seal certifies a strict crossing, never a lenient one. */
 export function impliesStrict(opts: CheckOptions): boolean {
   return !!opts.strict || !!opts.freeze;
+}
+
+/**
+ * The question an attestation records, and nothing of the invocation that asked it (ADR-0113 decision 1).
+ *
+ * `check --json` echoes `-p <path>` in its Next line, which is right at the terminal that typed it. The
+ * attestation carried the same echo, so a red tree attested with `-p .` and without it gave two
+ * attestations (measured 2026-11-05: `runward check -p . --strict` against `runward check --strict` in
+ * `next.command`, `next.rerun` and `next.text`), and `verify`, which cannot know the path that was typed,
+ * could not re-derive those three fields. The attestation's Next line is computed from this instead: the
+ * flags that shape the verdict, which the predicate records (`strict`, `through`, the presence of
+ * `hooks`), and never the path. `check` and `verify` both call it, so the two cannot disagree.
+ */
+export function attestedQuestion(opts: Pick<CheckOptions, "strict" | "freeze" | "through" | "hooks">): CheckOptions {
+  return { strict: impliesStrict(opts), ...(opts.through ? { through: opts.through } : {}), ...(opts.hooks ? { hooks: true } : {}) };
 }
 
 /**

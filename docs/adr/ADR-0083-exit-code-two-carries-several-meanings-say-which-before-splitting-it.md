@@ -108,6 +108,18 @@ fifth class of 2.
 **Trigger set on**: 2026-09-28 · **Watched via**: issues and the defect register (`found-by` any)
 mentioning an exit code; each new `process.exit(2)` in review.
 
+## Note, 2026-11-05: two classes of 2 added by ADR-0113, and this record's trigger re-read
+
+Recorded so a reader of this record finds the later decision; the decision above is not rewritten.
+[ADR-0113](ADR-0113-verify-says-verified-only-for-what-it-re-derives-names-what-it-covers-and-sends-an-attestation-back-to-the-runward-that-produced-it.md) gives `verify` two more cases where the question cannot be answered here:
+`version-skew` (another runward build produced the attestation) and `not-re-derivable` (the attesting
+run executed hook commands). This is the trigger "a new command adds a fifth class of 2". Re-read on
+that date: option A holds. Both cases are "the question could not be asked" in the sense of the port
+contract, both are legible by `error`, and the reason distinct codes were discarded (every consumer
+branches on `!= 0` or `== 1`) is the reason 2 is right for them: a consumer branching on `== 1` must
+not read an older attestation as a forgery. The table of `docs/interop.md` and the port contract list
+both.
+
 ## References
 
 - The CLI audit of 2026-09-27, finding 04#18 (exit 2 overloaded).

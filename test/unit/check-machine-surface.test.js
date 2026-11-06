@@ -82,7 +82,7 @@ test("RWD-2026-0149: a row with no manifest line says line null, and every row h
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
-test("RWD-2026-0149: verify accepts an attestation made before the row fields, and refuses one edited row", () => {
+test("RWD-2026-0149, ADR-0113: an attestation made before the row fields is sent back to its producer, and one edited row is refused", () => {
   const dir = mission(deadPointer);
   try {
     const att = json(dir, "check", "--strict", "--attest");
@@ -91,11 +91,22 @@ test("RWD-2026-0149: verify accepts an attestation made before the row fields, a
     for (const r of older.predicate.conformance) { delete r.kind; delete r.file; delete r.line; delete r.phaseId; }
     for (const d of older.predicate.deliverables) delete d.phaseId;
     delete older.predicate.evidence.proseRows;
+    // ADR-0113: claimed by this build, the stripped rows are a removal, never an older producer.
+    const strippedPath = join(dir, "stripped.att.json");
+    writeFileSync(strippedPath, JSON.stringify(older));
+    const vStripped = json(dir, "verify", "--json", strippedPath);
+    assert.equal(vStripped.result, "differs");
+    assert.deepEqual(vStripped.predicate.differing, ["conformance", "deliverables", "evidence.proseRows"]);
+    // Named as the older release that wrote that shape, it is answered by that release: exit 2, and
+    // this build's advisory reading finds nothing the older producer emitted that reads differently.
+    delete older.predicate.producer;
+    older.predicate.runward = "0.42.2";
     const olderPath = join(dir, "older.att.json");
     writeFileSync(olderPath, JSON.stringify(older));
     const vOld = json(dir, "verify", "--json", olderPath);
-    assert.deepEqual(vOld.predicate.differing, [], "an honest attestation from before the fields still re-derives");
-    assert.equal(vOld.verified, true);
+    assert.equal(vOld.result, "version-skew");
+    assert.equal(vOld.exitCode, 2);
+    assert.deepEqual(vOld.predicate.differing, [], "an honest attestation from before the fields reads the same, advisory");
     // The current shape verifies as emitted.
     const curPath = join(dir, "current.att.json");
     writeFileSync(curPath, JSON.stringify(att));
