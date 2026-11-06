@@ -32,6 +32,11 @@ folder; the JUnit rendering's `payload-sha256` is unchanged, since it already ha
 declared name. The other read paths (`status`, `doctor`, `report`, and the rest) keep `mission` as the
 project root. On a red tree, `next` still echoes the `-p` as typed (RWD-2026-0145).
 
+The fleet view names the verdict `level-not-met` by what it says: "level not met" (in French "niveau non
+atteint"), where it said "not crossed" ("non franchi"). A mission at that verdict has crossed every gate; only
+the level of proof its lock asks for is missing, and the row now reads so, as do the fleet's and the history's
+sentences and the legend. The index does not change; the golden page's digest does.
+
 ### A new mission asks for the level of proof `re-derived`, and the usage registry lives in a file of its own (ADR-0119 decision 4)
 
 `runward init` now writes `"requiredLevel": "re-derived"` in a new mission's lock, since ADR-0117's
