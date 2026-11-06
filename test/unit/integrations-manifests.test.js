@@ -48,6 +48,7 @@ test("positive controls: the schema refuses what a careless manifest would say",
     ["a level other than declared for a CI step", (m) => { m.level.ciStep = "attested"; }],
     ["a last passing control without its version", (m) => { m.maintainer.lastPassingControl = { date: "2026-11-06" }; }],
     ["an unknown field", (m) => { m.certifiedBy = "x"; }],
+    ["a runward-run leg that writes no recipe's report", (m) => { m.runwardRun.leg.leg = "mutation"; }],
   ];
   for (const [what, change] of planted) {
     const m = structuredClone(base);
