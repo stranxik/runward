@@ -379,6 +379,25 @@ written, and each stands until he reverses it.
   example's prose row (`topology-usage-registry-present`), with the other work the note on decisions 4
   and 6 lists. Until that release, `init` writes no level.
 
+## Note, 2026-11-06: the condition of decision 4 met at `51675dc`, and what the move waits on
+
+ADR-0117's criterion 2 holds at `51675dc`: [the measurement of the analyzers on three repositories runward
+did not write](../compliance/analyzers-on-real-repositories.md), published with its commands and with the
+classification of every finding by reviewer sessions that did not write the analyzers, reads zero false reds
+on express, fastify and hono, and the head of the third integration train reads the same 227 ids. The
+condition this decision sets on the default of new missions is met.
+
+`NEW_MISSION_REQUIRED_LEVEL` does not move in that train. Measured on its tree with the constant set to
+`re-derived`: a new mission that follows the blank template is refused, exit 5, on
+`topology-usage-registry-present`. The rule keeps the usage registry in `execution-topology.md` and the
+template puts it there, so the row's one pointer is at the manifest itself, which the gate does not open as
+evidence: the row is `declared`, below `re-derived`, and the audit corpus's honest case AC-015, a
+documentary rule citing the section that states the fact, reads exit 5 where it is accepted today. The move
+is made with the coherence of that rule and the template, in the pull request that follows the third
+integration train, so the release that publishes the classification carries both. Decided under the
+maintainer's delegation of 2026-11-05, on the recommendation of the session that measured it; the
+maintainer did not review it before it was written.
+
 ## References
 
 - [ADR-0046](ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md),

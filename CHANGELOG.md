@@ -145,9 +145,12 @@ for none, since its question is gaps and an `attested` level needs a run the ses
 
 Not changed: `runward init` writes no `"requiredLevel"` yet. ADR-0119 moves the default of new missions to
 `re-derived` in the first release that meets ADR-0117's criterion 2, the false reds of the analyzers
-measured on three real repositories and none left, and that classification is not published; the switch
-is one constant, `NEW_MISSION_REQUIRED_LEVEL`. runward's own mission asks for no level either: it pins no
-analysis policy, and re-derived would refuse 1 of its rows, which rests on a declaration.
+measured on three real repositories and none left; the switch is one constant, `NEW_MISSION_REQUIRED_LEVEL`.
+That classification is now published, zero false reds (above), and the switch waits on the usage registry
+rule agreeing with the blank template, since at `re-derived` a new mission that follows the template exits 5
+on `topology-usage-registry-present`, its one pointer being at the manifest itself, which reads `declared`.
+runward's own mission asks for no level either: it pins no analysis policy, and re-derived would refuse 1
+of its rows, which rests on a declaration.
 
 ### runward-run R3: the evals leg, and an eval that needs a remote model reads `declared`, named (ADR-0120 R3)
 
