@@ -17,6 +17,21 @@ name: Build and attest (isolated builder)
 # what this builder attests, and the signer identity in the certificate names THIS file, which is
 # what --signer-workflow pins.
 #
+# Two jobs, so that the build never holds the signing credential (ADR-0116, decision 3). SLSA's Build
+# track: "Such secret material MUST NOT be accessible to the environment running the user-defined build
+# steps." (slsa.dev/spec/v1.2/build-requirements, read 2026-11-05.) Until ADR-0116 one job held
+# `id-token: write` and ran `npm ci` with install scripts, the whole suite and `npm pack`, so any
+# development dependency could have asked for the OIDC token and signed under this file's name. Now:
+#
+#   build   holds `contents: read` and nothing else. It installs without install scripts, tests, packs
+#           both tarballs, builds the kit, and declares the SHA-256 of the three files as job outputs.
+#   attest  holds `id-token: write` and `attestations: write`. It checks out nothing and runs no npm and
+#           no file of the tree: it downloads the three files, refuses any whose digest or name is not
+#           the one the build job declared, signs the three provenances and hands them on.
+#
+# Neither job restores a cache: a cache is the channel through which one run reaches another, and
+# test/unit/release-signing-isolation.test.js refuses one anywhere in the release chain.
+#
 # What stays in the caller, and why: `npm publish` remains in release.yml because npm trusted
 # publishing validates the CALLING workflow when a reusable workflow is involved
 # (docs.npmjs.com/trusted-publishers) and npmjs.com is configured to trust release.yml. The caller
@@ -28,6 +43,9 @@ on:
       tarball:
         description: "Filename of the packed tarball"
         value: ${{ jobs.build.outputs.tarball }}
+      tarball_sha256:
+        description: "SHA-256 of the packed tarball, as the build job hashed it and the signing job checked it"
+        value: ${{ jobs.build.outputs.tarball_sha256 }}
       kit:
         description: "Filename of the qualification kit built from the same tree and tarball"
         value: ${{ jobs.build.outputs.kit }}
@@ -39,16 +57,17 @@ permissions: {}
 
 jobs:
   build:
-    name: Build, pack and attest provenance
+    name: Build, test and pack (no signing credential)
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # Sigstore signing of the provenance happens HERE, not in the caller
-      attestations: write
     outputs:
       tarball: ${{ steps.pack.outputs.tarball }}
       kit: ${{ steps.kit.outputs.kit }}
       forge: ${{ steps.forge_pack.outputs.forge }}
+      tarball_sha256: ${{ steps.digests.outputs.tarball_sha256 }}
+      kit_sha256: ${{ steps.digests.outputs.kit_sha256 }}
+      forge_sha256: ${{ steps.digests.outputs.forge_sha256 }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -60,8 +79,10 @@ jobs:
         with:
           node-version: 24
 
-      - name: Install dependencies
-        run: npm ci
+      # No install script runs: none of the lockfile's packages declares one today, and one that
+      # appears later would run here, in the job that packs what users install, before any test.
+      - name: Install dependencies (no install scripts)
+        run: npm ci --ignore-scripts
 
       # Build + unit + smoke + OSCAL schema — the same net the caller runs. Duplicated on purpose:
       # the builder must not attest a tarball it has not seen pass, and the caller must not publish
@@ -69,22 +90,26 @@ jobs:
       - name: Verify
         run: npm test
 
+      # The tarball carries its runtime dependencies (`bundleDependencies`, ADR-0116 decision 1): npm
+      # packs them from the tree `npm ci` installed from the lockfile, the tree the suite just ran on.
       - name: Pack the tarball
         id: pack
         run: echo "tarball=$(npm pack --silent)" >> "$GITHUB_OUTPUT"
 
-      - name: Attest build provenance for the tarball
-        id: provenance
-        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
-        with:
-          subject-path: ${{ steps.pack.outputs.tarball }}
+      # The bundle must be the lockfile's runtime tree at the lockfile's versions; the package SBOM
+      # refuses any other (exit 1), here before anything is signed, and again in the release workflow.
+      - name: The tarball bundles the tree the suite ran on
+        env:
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+        run: node scripts/package-sbom.mjs --tarball "$TARBALL" --lock package-lock.json --out "$RUNNER_TEMP/bundle-check.cdx.json"
 
       # The second package of this repository (ADR-0094, question 1): runward-forge, released at the
       # SAME version as runward, from the same tag (test/unit/forge-release.test.js refuses a version
-      # that differs, and `npm test` above ran it). Packed and attested here, like runward's tarball,
-      # so the signer identity names this file for it too and `--signer-workflow` pins it. `npm pack`
-      # is run in the package's own directory: what it packs is that directory's `files`, nothing of
-      # the root, and the caller packs it again and refuses a tarball that differs by one byte.
+      # that differs, and `npm test` above ran it). Packed here, like runward's tarball, and attested by
+      # the signing job below, so the signer identity names this file for it too and `--signer-workflow`
+      # pins it. `npm pack` is run in the package's own directory: what it packs is that directory's
+      # `files`, nothing of the root, and the caller packs it again and refuses a tarball that differs
+      # by one byte.
       - name: Pack the runward-forge tarball
         id: forge_pack
         run: |
@@ -96,16 +121,10 @@ jobs:
           test -s "$FORGE"
           echo "forge=$FORGE" >> "$GITHUB_OUTPUT"
 
-      - name: Attest build provenance for the runward-forge tarball
-        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
-        with:
-          subject-path: ${{ steps.forge_pack.outputs.forge }}
-
       # The qualification kit (ADR-0087, decision 1): the cited tests, the runner, the requirements
       # and the open anomalies of this tree, plus the SHA-256 of every file of the tarball packed
       # above. Built from the commit through git, so nothing untracked enters it, and deterministic,
-      # so the caller can rebuild it and refuse a kit that differs. Attested here, like the tarball,
-      # so `--signer-workflow` names this file for the kit too.
+      # so the caller can rebuild it and refuse a kit that differs.
       - name: Build the qualification kit from this tree and the tarball
         id: kit
         env:
@@ -118,11 +137,92 @@ jobs:
           test -s "$KIT"
           echo "kit=$KIT" >> "$GITHUB_OUTPUT"
 
+      # What the signing job will attest, hashed here and declared as job outputs: the signing job
+      # refuses a downloaded file whose digest is not one of these.
+      - name: Hash what the signing job will attest
+        id: digests
+        env:
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+          KIT: ${{ steps.kit.outputs.kit }}
+          FORGE: ${{ steps.forge_pack.outputs.forge }}
+        run: |
+          set -euo pipefail
+          for v in TARBALL KIT FORGE; do test -s "${!v}"; done
+          {
+            echo "tarball_sha256=$(sha256sum "$TARBALL" | cut -d' ' -f1)"
+            echo "kit_sha256=$(sha256sum "$KIT" | cut -d' ' -f1)"
+            echo "forge_sha256=$(sha256sum "$FORGE" | cut -d' ' -f1)"
+          } >> "$GITHUB_OUTPUT"
+          sha256sum "$TARBALL" "$KIT" "$FORGE"
+
+      - name: Hand the unsigned tarballs and the kit to the signing job
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: isolated-build-unsigned
+          path: |
+            ${{ steps.pack.outputs.tarball }}
+            ${{ steps.kit.outputs.kit }}
+            ${{ steps.forge_pack.outputs.forge }}
+          if-no-files-found: error
+          retention-days: 1
+
+  attest:
+    name: Attest provenance (signs, builds nothing)
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # what the attestation actions read of the repository; no step here checks it out
+      id-token: write # Sigstore signing of the provenance happens HERE, in a job that runs no build step
+      attestations: write
+    steps:
+      - name: Download the unsigned tarballs and the kit
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: isolated-build-unsigned
+
+      # The build job ran every development dependency; this job signs only the files it declared,
+      # under the names a release expects, and refuses anything else.
+      - name: The files are the ones the build job hashed, under the expected names
+        env:
+          TARBALL: ${{ needs.build.outputs.tarball }}
+          KIT: ${{ needs.build.outputs.kit }}
+          FORGE: ${{ needs.build.outputs.forge }}
+          TARBALL_SHA256: ${{ needs.build.outputs.tarball_sha256 }}
+          KIT_SHA256: ${{ needs.build.outputs.kit_sha256 }}
+          FORGE_SHA256: ${{ needs.build.outputs.forge_sha256 }}
+        run: |
+          set -euo pipefail
+          [[ "$TARBALL" =~ ^runward-([0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?)\.tgz$ ]] \
+            || { echo "::error::the build job declared the tarball '$TARBALL', not runward-X.Y.Z.tgz — refusing to sign"; exit 1; }
+          VERSION="${BASH_REMATCH[1]}"
+          [ "$KIT" = "runward-qualification-kit-$VERSION.tgz" ] && [ "$FORGE" = "runward-forge-$VERSION.tgz" ] \
+            || { echo "::error::the build job declared '$KIT' and '$FORGE' beside runward-$VERSION.tgz — refusing to sign"; exit 1; }
+          check() {
+            local got
+            got=$(sha256sum "$1" | cut -d' ' -f1)
+            echo "$1: $got"
+            [ "$got" = "$2" ] || { echo "::error::$1 hashes to $got, the build job declared $2 — refusing to sign"; exit 1; }
+          }
+          check "$TARBALL" "$TARBALL_SHA256"
+          check "$KIT" "$KIT_SHA256"
+          check "$FORGE" "$FORGE_SHA256"
+
+      - name: Attest build provenance for the tarball
+        id: provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ needs.build.outputs.tarball }}
+
+      - name: Attest build provenance for the runward-forge tarball
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ needs.build.outputs.forge }}
+
       - name: Attest build provenance for the qualification kit
         id: kit_provenance
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
-          subject-path: ${{ steps.kit.outputs.kit }}
+          subject-path: ${{ needs.build.outputs.kit }}
 
       # Deterministic filenames for the artifact hand-off: the caller attaches these bundles to the
       # release, and a missing or empty one must red the build here rather than surface as a
@@ -143,10 +243,10 @@ jobs:
         with:
           name: isolated-build
           path: |
-            ${{ steps.pack.outputs.tarball }}
+            ${{ needs.build.outputs.tarball }}
             provenance-bundle.jsonl
-            ${{ steps.kit.outputs.kit }}
+            ${{ needs.build.outputs.kit }}
             kit-provenance-bundle.jsonl
-            ${{ steps.forge_pack.outputs.forge }}
+            ${{ needs.build.outputs.forge }}
           if-no-files-found: error
           retention-days: 7

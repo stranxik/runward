@@ -100,7 +100,8 @@
     "test/unit/required-level.test.js",
     "test/unit/analyze-gate.test.js",
     "test/unit/analyze-bench.test.js",
-    "test/unit/example-machine-evidence.test.js"
+    "test/unit/example-machine-evidence.test.js",
+    "test/unit/package-sbom.test.js"
   ],
   "files": [
     {
@@ -1256,6 +1257,16 @@
     {
       "file": "test/unit/beta-form.test.js",
       "seconds": 0.16,
+      "passed": true
+    },
+    {
+      "file": "test/unit/package-sbom.test.js",
+      "seconds": 2.78,
+      "passed": true
+    },
+    {
+      "file": "test/unit/release-signing-isolation.test.js",
+      "seconds": 0.14,
       "passed": true
     }
   ]

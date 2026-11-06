@@ -1,0 +1,3 @@
+# The OSCAL ingestion of ci.yml (job oscal-ingest) installs compliance-trestle from the hash-pinned
+# closure compiled from this file (test/oscal-ingest.requirements.txt, ADR-0116 decision 6).
+compliance-trestle==4.2.0

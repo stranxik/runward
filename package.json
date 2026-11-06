@@ -81,6 +81,11 @@
     "chalk": "^6.0.0",
     "commander": "^15.0.0"
   },
+  "bundleDependencies": [
+    "@inquirer/prompts",
+    "chalk",
+    "commander"
+  ],
   "devDependencies": {
     "@secretlint/secretlint-formatter-sarif": "^13.0.6",
     "@secretlint/secretlint-rule-preset-recommend": "^13.0.6",

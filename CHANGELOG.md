@@ -2,6 +2,57 @@
 
 ## Unreleased
 
+### What you install is what the release tested: the tarball bundles its dependencies, and the SBOM is the package's (ADR-0116)
+
+Measured on 2026-11-05: installed into an empty project, the 0.46.0 tarball resolved 16 of its 27 runtime
+packages to other versions than the lockfile the release's tests ran on, and the release's SBOM was a Syft
+scan of the repository (`metadata.component` named `.`, 24 files and 26 libraries outside the runtime tree
+among its 117 components). The tarball now declares `bundleDependencies` and carries the 27 packages at the
+lockfile's versions: an install from the registry, from the file or fully offline resolves nothing, and a
+fresh install downloads one tarball of about 1.08 MB instead of 28 tarballs of about 1.11 MB. A shrinkwrap was
+measured and set aside: npm reads it only for registry installs that npmjs.org flags, and npm 12 reads none.
+`scripts/package-sbom.mjs` writes the release's SBOM from the tarball and the tag's lockfile: CycloneDX 1.6,
+runward at its version with the tarball's digests, each bundled package with its version, purl, declared
+licence and the SHA-512 of its registry tarball, the graph resolved inside the bundle. It is deterministic,
+refuses a bundle that is not the lockfile's runtime tree, and `docs/verifying-a-release.md` Step 10 derives
+it again from the tag. Validated against the official CycloneDX 1.6.1 schema (vendored under
+`test/fixtures/`) and by cyclonedx-python-lib's strict validator. You can no longer override a bundled
+package from your own project: a fix in one of them reaches you through a runward release.
+
+### No job that signs a release runs its build (ADR-0116)
+
+The job of `build-and-attest.yml` that held `id-token: write` also ran `npm ci` with install scripts, the
+whole suite and `npm pack`, and the job of `release.yml` that signs the SBOM attestation ran the suite and
+the qualification kit. Each is now two jobs: one that builds and tests with `contents: read` only (and
+`npm ci --ignore-scripts`), and one that checks out nothing, runs no npm, refuses a file whose digest is not
+the one the first declared, and signs. The draft job checks the tarball's and the SBOM's digests before it
+uploads anything. The signing identities are unchanged, so no verification command changes;
+`test/unit/release-signing-isolation.test.js` holds the rule for every job of the release chain.
+
+### A release whose runward-forge is not on npm stays green and says so (ADR-0116)
+
+From 0.44.0 to 0.46.0 the publish job ended red on `404 Not Found - PUT https://registry.npmjs.org/runward-forge`
+(the package's one-time bootstrap, runbook §3.1, is not done), so `verify-release.yml`, which follows a green
+publish only, last verified a release on 2026-10-11. The publish step now asks the registry for the package:
+absent, it writes a warning and a section of the job summary and ends green, runward being published; any
+other failure stays a failure. The kit now runs against the tarball installed offline with an empty cache,
+and its runner copies a bundled installation's compared `node_modules/` files into its work directory
+instead of linking them: on a bundled tarball it wrote its links into the installation and stopped
+before any test, and a linked bundle is packed by npm under paths that leave the package.
+
+### CI: Node.js 26, a hash-pinned Python tool, and the reference JUnit report as an artifact
+
+The unit tests run on Node.js 26, the active LTS line since 2026-10-28, beside 22 and 24. The OSCAL
+ingestion installs compliance-trestle from `test/oscal-ingest.requirements.txt`, its closure with every
+file's hash (`pip install --require-hashes --only-binary=:all:`). The `lint-and-reports` job keeps the
+`reports/junit.xml` it regenerated on macOS with the Node.js of `.nvmrc` as the artifact `junit-reference`,
+even on a red run, so it can be committed without running the suite elsewhere (refines ADR-0112).
+
+### Three CodeQL alerts fixed, in two places: a hand-escaped RegExp, a host checked as a substring
+
+`test/unit/check-contract.test.js` built a RegExp from a flag escaping only `-`; it checks a substring now. `floor-ts`' provider profile
+recognised Anthropic by `anthropic.com` anywhere in the URL; it compares the parsed host name now.
+
 ### An open beta, free and self-service: `docs/beta.md` and a beta mission form
 
 Decided by the maintainer on 2026-11-06. `docs/beta.md` says what the beta is: runward run on a

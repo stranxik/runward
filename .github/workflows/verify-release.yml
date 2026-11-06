@@ -61,6 +61,9 @@ jobs:
             TAG="${{ inputs.tag }}"
             EXPECT_PROV="${{ inputs.expect_provenance }}"
             EXPECT_BUILDER="${{ inputs.expect_builder }}"
+            # A release before ADR-0116 attached a scan of the checkout, not the package's SBOM: Step 10
+            # runs on a dispatched tag only when that tag carries the derivation.
+            EXPECT_PACKAGE_SBOM="if-present"
           else
             # For a release-triggered run, head_branch carries the tag. Every release cut after
             # 2026-08-11 attaches the provenance bundle, and every one cut after ADR-0049 signs it
@@ -69,12 +72,14 @@ jobs:
             TAG="${{ github.event.workflow_run.head_branch }}"
             EXPECT_PROV="true"
             EXPECT_BUILDER="true"
+            EXPECT_PACKAGE_SBOM="true"
           fi
           test -n "$TAG" || { echo "::error::no tag to verify — use workflow_dispatch with a tag"; exit 1; }
           echo "TAG=$TAG" >> "$GITHUB_ENV"
           echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
           echo "EXPECT_PROV=$EXPECT_PROV" >> "$GITHUB_ENV"
           echo "EXPECT_BUILDER=$EXPECT_BUILDER" >> "$GITHUB_ENV"
+          echo "EXPECT_PACKAGE_SBOM=$EXPECT_PACKAGE_SBOM" >> "$GITHUB_ENV"
 
       # npm accepts a publish before it serves the tarball ("Your package is being processed and may
       # take a few minutes to become available"). This job starts seconds after the Release workflow
@@ -89,7 +94,7 @@ jobs:
         run: |
           set -euo pipefail
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" \
-            --pattern "runward-*.tgz" --pattern "runward-*.intoto.jsonl"
+            --pattern "runward-*.tgz" --pattern "runward-*.intoto.jsonl" --pattern "runward-sbom.cdx.json"
           url="https://registry.npmjs.org/runward/-/runward-$VERSION.tgz"
           deadline=$(( $(date +%s) + NPM_WAIT_SECONDS ))
           until code="$(curl -s -o /dev/null -w '%{http_code}' -H 'Cache-Control: no-cache' "$url")"; [ "$code" = "200" ]; do
@@ -177,6 +182,38 @@ jobs:
           else
             echo "::notice::release $TAG reports immutable=$IMMUTABLE: no release attestation to verify; skipped, and said so (ADR-0085)"
           fi
+
+      # ADR-0116, decision 2: the release's SBOM is a pure function of the tag and the tarball, and the
+      # derivation refuses a tarball whose bundled tree is not the tag's lockfile. Releases before the
+      # first that carries the package SBOM attached a scan of the checkout instead, which no derivation
+      # reproduces; their tag carries no scripts/package-sbom.mjs, and a dispatch on one skips Step 10
+      # and says so. A release-triggered run requires it.
+      - name: Check out the tag the release names
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ env.TAG }}
+          path: tree
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+
+      - name: "Step 10 — the SBOM is the package's, re-derived from the tag"
+        run: |
+          set -euo pipefail
+          if [ ! -f tree/scripts/package-sbom.mjs ]; then
+            if [ "$EXPECT_PACKAGE_SBOM" = "true" ]; then
+              echo "::error::$TAG carries no scripts/package-sbom.mjs; every release after ADR-0116 does"; exit 1
+            fi
+            echo "$TAG predates the package SBOM (ADR-0116); skipped, and said so"; exit 0
+          fi
+          node tree/scripts/package-sbom.mjs --tarball "runward-$VERSION.tgz" --lock tree/package-lock.json \
+            --timestamp "$(git -C tree show -s --format=%cI HEAD)" --out rederived-sbom.cdx.json
+          cmp rederived-sbom.cdx.json runward-sbom.cdx.json \
+            || { echo "::error::the release's SBOM is not the derivation of $TAG and its tarball"; exit 1; }
+          echo "runward-sbom.cdx.json is the derivation of $TAG and runward-$VERSION.tgz"
 
       - name: "Negative control — a corrupted tarball must FAIL verification"
         run: |
