@@ -106,8 +106,10 @@ forms on generated inputs, and the analyzers end to end on 750 generated mission
 Where nesting multiplies the work (cases in cases, helpers in helpers, assignments in assignments), what
 one file makes the reading read is bounded at sixteen times its size: a case past it is listed under
 `notAnalyzed`, as a file over the size limit is, and a helper or an initializer past it credits nothing,
-which can only leave a case red. On the 68 shapes the slowest reading now takes 1.4 s at 999,000 bytes;
-`test/unit/analyze-ceilings.test.js` runs 31 of them at that size under a ceiling, and holds the heading
+which can only leave a case red. On the 68 shapes the slowest reading now takes 1.4 s at 999,000 bytes. The
+static audit's last pass found one more: the trailing slashes of a territory or allowance pattern, stripped
+from every slash of a run (7.7 s for one pattern of 100,000 characters), now stripped from the end.
+`test/unit/analyze-ceilings.test.js` runs 32 shapes at that size under a ceiling, and holds the heading
 reader and the glob matcher to the patterns they replace. No release carried the analyzers or the comment
 reader. `rules --for` and `propose` read their globs through the same matcher, with the same answers.
 

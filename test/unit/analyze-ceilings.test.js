@@ -79,6 +79,8 @@ const SHAPES = [
     "runward/analysis.md": "# Analysis\n\n#\t" + "\t".repeat(SIZE / 2) + "x" + "\t".repeat(SIZE / 2) + "\u2028#\n" })],
   ["allowances", "a glob of many stars against a long file name (over 60 s for one name)", () => ({ ...core("export const guardFields = 1;\n"), [`src/core/${"a".repeat(200)}.ts`]: "export const z = 1;\n",
     "runward/analysis.md": "# Analysis\n\n## Not analysed\n\n| Path | Why |\n|---|---|\n| `src/core/" + "a*".repeat(14) + "b` | a pattern built to backtrack on long names |\n" })],
+  ["territory", "a pattern of `runward/territory.md` holding a long run of slashes, its trailing ones stripped from every slash (7.7 s at 100,000 characters)", () => ({
+    ...core("export const guardFields = 1;\n"), "runward/territory.md": territory("| `src/core/" + "/".repeat(SIZE) + "x` | `domain-core` | declare | a pattern built to make its trailing slashes slow |") })],
   ["territory", "the same glob in `runward/territory.md`", () => ({ ...core("export const guardFields = 1;\n"), [`src/core/${"a".repeat(200)}.ts`]: "export const z = 1;\n",
     "runward/territory.md": territory("| `src/core/" + "a*".repeat(14) + "b` | `domain-core` | declare | a pattern built to backtrack on long names |") })],
 ];

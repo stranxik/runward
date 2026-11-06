@@ -215,7 +215,13 @@ export function globMatcher(glob: string): { test(path: string): boolean } {
  *  cannot be asked about it (absolute, or escaping the project with `..`). Windows separators are
  *  accepted so a caller on either platform gets the same answer. */
 export function normalizeForPath(input: string): string | null {
-  const p = input.trim().replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/+$/, "");
+  // The trailing slashes come off from the end: `/\/+$/` tried every slash of a run and read each try to the
+  // run's end, so one pattern of `runward/territory.md` or `runward/analysis.md` holding a long run of them
+  // took 7.7 s at 100,000 characters (measured on 2026-11-06, RWD-2026-0203). The same characters come off.
+  let p = input.trim().replace(/\\/g, "/").replace(/^\.\//, "");
+  let end = p.length;
+  while (end > 0 && p[end - 1] === "/") end--;
+  p = p.slice(0, end);
   if (!p) return null;
   if (p.startsWith("/") || /^[A-Za-z]:/.test(p)) return null; // absolute: not project-relative
   if (p.split("/").includes("..")) return null;               // escapes the project
