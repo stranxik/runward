@@ -3,6 +3,9 @@ contact_links:
   - name: Documentation and getting started
     url: https://runward.dev/#/commencer
     about: How to install runward and run your first mission.
+  - name: The open beta, free and self-service
+    url: https://github.com/stranxik/runward/blob/main/docs/beta.md
+    about: The criteria, the weekly support slot, the confidentiality rules and the private route for regulated organisations. Read it before opening a beta mission.
   - name: The measured pilot — what you would be volunteering for
     url: https://github.com/stranxik/runward/blob/main/docs/pilot-protocol.md
     about: The pre-registered protocol, its frozen questionnaire and its written failure criterion. Read it before opening the candidate form.

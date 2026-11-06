@@ -1,0 +1,95 @@
+name: Open a beta mission
+description: Run runward on a repository of yours during the open beta. Free and self-service, with a weekly support slot. This issue is public; a regulated organisation takes the private route instead.
+title: "beta mission: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This issue is public**, and so is the GitHub account that opens it. Write only what you would publish yourself: no code, no secret, no name of an internal system, a customer or a colleague, no personal data. Nothing below asks for any of it. Keep the `beta mission:` prefix of the title: it is how beta missions are found.
+
+        **A regulated organisation, or a mission you cannot describe in public?** Do not use this form. Write to the author's address published at https://thibaultsouris.fr, the route [SUPPORT.md](https://github.com/stranxik/runward/blob/main/SUPPORT.md) gives for a dated need: same criteria, same slot, same feedback, by e-mail. A security vulnerability, including a green verdict you think should be red, goes only to the [private vulnerability reporting form](https://github.com/stranxik/runward/security/advisories/new), never to an issue.
+
+        **What it costs you.** Nothing in money: no fee, no contract, and the beta changes nothing in runward's MIT licence. Your time: running a mission on your repository, and posting two structured feedbacks in this issue, one after your first verdict and one when you stop. Both blocks are on the [beta page](https://github.com/stranxik/runward/blob/main/docs/beta.md#what-is-asked-a-structured-feedback).
+
+        **What you get.** A weekly support slot in which the maintainer works through the questions asked in beta missions, oldest first, and the bridge recipe from what your mission declares to what your code does: its JUnit part works with the current release, the rest is planned for the next one.
+
+        **Names.** The maintainer publishes no name, yours, your organisation's or your repository's, outside this issue without your written agreement for that use.
+
+        **Not the pilot.** The measured pilot of ADR-0052 is a different thing, with [its own form](https://github.com/stranxik/runward/issues/new?template=pilot_candidate.yml). It measures a repository before any mission is written in it: if you might volunteer for it, open that form first.
+
+        The criteria, the slot and the confidentiality rules in full: [docs/beta.md](https://github.com/stranxik/runward/blob/main/docs/beta.md).
+  - type: dropdown
+    id: entry
+    attributes:
+      label: Where you start
+      options:
+        - "From existing code: characterize it, then init (the brownfield entry)"
+        - "From nothing: init, framing first"
+        - "From a written spec: spec-check it, then init"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: runward version
+      description: The version you pinned, as `npx --yes runward@<version> --version` prints it. The beta runs on the published package.
+    validations:
+      required: true
+  - type: textarea
+    id: repository
+    attributes:
+      label: The repository, described without identifying it
+      description: Size, stack, age, how many people work on it. No name, no URL, no code.
+      placeholder: "A TypeScript service, about 20,000 lines, three years old, four contributors."
+    validations:
+      required: true
+  - type: dropdown
+    id: model
+    attributes:
+      label: Does it involve a model or an agent?
+      description: Not required. A repository with no model in it is a valid beta mission.
+      options:
+        - "Yes: a model or an agent is part of the system"
+        - "No: ordinary software"
+        - "Partly, or planned"
+    validations:
+      required: true
+  - type: dropdown
+    id: ci
+    attributes:
+      label: Where its CI runs
+      description: The bridge recipe differs by CI.
+      options:
+        - "GitHub Actions"
+        - "GitLab CI"
+        - "Another CI"
+        - "No CI yet"
+    validations:
+      required: false
+  - type: textarea
+    id: question
+    attributes:
+      label: What you want the gate to answer for you
+      description: One or two sentences, without naming anyone. What would make this mission worth your time?
+      placeholder: "Whether the decisions behind our retrieval layer are written down well enough for the next team to answer for them."
+    validations:
+      required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: The beta's terms
+      description: All three are required. If the second cannot hold for you, take the private route described at the top of this form.
+      options:
+        - label: "The repository meets the [criteria](https://github.com/stranxik/runward/blob/main/docs/beta.md#the-criteria), and the runward maintainer did not write it."
+          required: true
+        - label: "This issue is public, and I have written nothing in it that I would not publish myself."
+          required: true
+        - label: "I will post the two structured feedbacks in this issue: after my first verdict, and when I stop."
+          required: true
+  - type: textarea
+    id: anything
+    attributes:
+      label: Anything else
+      description: A constraint, a question, an objection to one of the terms. Nothing confidential.
+    validations:
+      required: false

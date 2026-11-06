@@ -4,12 +4,17 @@ runward is maintained by one person, and this page says plainly what that buys y
 
 ## Where to ask
 
-- **A bug, a wrong verdict, a false green**: open a [GitHub issue](https://github.com/stranxik/runward/issues).
+- **A bug, or a false red** (the gate refuses honest work): open a [GitHub issue](https://github.com/stranxik/runward/issues).
   A reproduction (the mission tree, the command, the output you got and the one you expected) turns
   a week of back-and-forth into a fix.
+- **A false green** (on a published version, `check` exits 0 where it should exit 1): that may be a
+  vulnerability, S1 in [SECURITY.md](SECURITY.md), so report it the way SECURITY.md says, never in a
+  public issue.
 - **A question about the method or a rule**: open a [GitHub issue](https://github.com/stranxik/runward/issues)
   (the repository has no Discussions), or read the rule in full first — `runward explain <rule>` prints
   its why; the answer is often there.
+- **A mission in the open beta**: your beta mission issue, taken up in the beta's weekly support slot
+  ([docs/beta.md](docs/beta.md)); a regulated organisation takes the beta's private route instead.
 - **A security report**: never a public issue — see [SECURITY.md](SECURITY.md).
 
 ## What to expect

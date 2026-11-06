@@ -38,6 +38,7 @@ The full documentation is at **[runward.dev/docs](https://runward.dev/docs)** �
 - **[Compliance evidence](https://runward.dev/docs/compliance/evidence/)** — framed for ISO 42001, NIST AI RMF and the EU AI Act, exported as OSCAL.
 - **[How it compares](https://runward.dev/docs/compare/)** — Spec Kit, BMAD, Kiro, OpenSpec, Spec Kitty: sourced, from their own docs.
 - **[Case study: dropyour](https://runward.dev/docs/case-study/)** — a real product shipped with runward, the trail gate by gate.
+- **[Open beta](https://github.com/stranxik/runward/blob/main/docs/beta.md)** — run runward on a repository of yours, free and self-service, with a weekly support slot; the criteria and what is asked in return.
 
 ## Why
 

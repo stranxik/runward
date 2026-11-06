@@ -8,7 +8,7 @@
   ],
   "measuredOn": "2026-11-03",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 768.3,
+  "totalSeconds": 768.5,
   "slowSeconds": 716.7,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
@@ -1175,6 +1175,11 @@
     {
       "file": "test/unit/kyverno-reference.test.js",
       "seconds": 0.17,
+      "passed": true
+    },
+    {
+      "file": "test/unit/beta-form.test.js",
+      "seconds": 0.16,
       "passed": true
     },
     {
