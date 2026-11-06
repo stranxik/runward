@@ -48,7 +48,7 @@ delivered: Jenkins, the agent harnesses and the consumers of in-toto attestation
 steps), a release asset for the package (the next release chain), and an adopter who installs a recipe
 from its manifest alone.
 
-### Fixed: the citable form `runward explain` prints for `junit` is a `test:` pointer (RWD-2026-0202)
+### Fixed: the citable form `runward explain` prints for `junit` is a `test:` pointer (RWD-2026-0209)
 
 `explain` printed `e.g. file:reports/junit.xml::the test case that proves it` for every rule that requires
 `junit`. The pointer grammar gives a `::NAME` to `test:` only, so the form, copied as printed, read as a

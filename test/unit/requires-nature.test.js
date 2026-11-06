@@ -188,7 +188,7 @@ test("explain teaches the nature it demands, with a citable form for every requi
     const text = run("explain", rule.slug);
     assert.doesNotMatch(text, /e\.g\. a committed report of that kind/,
       `${nature} falls through to the generic example: give it a worked form in REQUIRES_EXAMPLE`);
-    // RWD-2026-0202: the form is copied as written, so it must read as the pointer it shows. The junit
+    // RWD-2026-0209: the form is copied as written, so it must read as the pointer it shows. The junit
     // form was `file:reports/junit.xml::…`, which the grammar reads as a `file:` pointer at a path
     // ending in `::the`, resolving nowhere; runward-integrations' recipes carry these forms verbatim.
     const form = /e\.g\. (\S+(?: \S+)*?) — /.exec(text)?.[1];

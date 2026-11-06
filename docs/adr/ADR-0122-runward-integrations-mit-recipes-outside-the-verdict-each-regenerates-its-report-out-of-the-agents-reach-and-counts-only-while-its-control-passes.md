@@ -212,7 +212,7 @@ asset for the package (ADR-0121 decision 5, the next release chain); the site's 
 `count --json`; and the criterion "one adopter installs one recipe from its manifest alone", which no
 delivery of this repository can meet: an independent agent session installing a recipe from its manifest
 is a rehearsal, never that adopter. Found on the way, and fixed in the same delivery: `explain` printed
-for `junit` a form that resolves nowhere (RWD-2026-0202).
+for `junit` a form that resolves nowhere (RWD-2026-0209).
 
 ## References
 

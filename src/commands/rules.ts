@@ -269,7 +269,7 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
  *  nature they satisfy by accident or not at all. Shapes taken from the adapters themselves.
  *  The junit form was written `file:reports/junit.xml::…` until 2026-11-06: the pointer grammar gives a
  *  `::NAME` to `test:` only, so the copied form read as a `file:` pointer at a path ending in `::the`,
- *  which resolves nowhere (RWD-2026-0202). Each form is now parsed by a test, and the recipes of
+ *  which resolves nowhere (RWD-2026-0209). Each form is now parsed by a test, and the recipes of
  *  runward-integrations carry them as they are printed here. */
 const REQUIRES_EXAMPLE: Record<string, string> = {
   junit: "test:reports/junit.xml::the test case that proves it — the case must be present AND green",
