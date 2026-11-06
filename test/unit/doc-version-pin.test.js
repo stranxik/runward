@@ -8,8 +8,8 @@
 // step 3, already says to `git grep` the old version).
 //
 // Two checks, per document:
-//   1. every `runward@X.Y.Z` is package.json's version (README, tutorial, distribution map);
-//   2. no runward invocation in the README or the tutorial is left unpinned: `npx [--yes] runward`
+//   1. every `runward@X.Y.Z` is package.json's version (README, tutorial, distribution map, beta page);
+//   2. no runward invocation in the README, the tutorial or the beta page is left unpinned: `npx [--yes] runward`
 //      and `npm install|i -g runward` must carry `@<version>`. distribution.md is out of check 2 on
 //      purpose: it DESCRIBES the unpinned hooks (`npx --yes runward`), which is a statement about
 //      them, not an instruction.
@@ -28,6 +28,8 @@ const DOCS = [
   ["README.md", 6, true],
   ["docs/first-mission.md", 2, true],
   ["docs/distribution.md", 2, false],
+  // The open beta's page: its criteria and its start commands are what a participant pastes first.
+  ["docs/beta.md", 3, true],
 ];
 
 const PIN = /runward@(\d+\.\d+\.\d+)/g;

@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+### An open beta, free and self-service: `docs/beta.md` and a beta mission form
+
+Decided by the maintainer on 2026-11-06. `docs/beta.md` says what the beta is: runward run on a
+repository its maintainer did not write, by the team that owns it, with no application and no
+selection. It costs nothing in money. It asks a structured feedback in the participant's issue, after
+the first verdict and when the mission stops, and labels what participants report as declared. It gives
+a weekly support slot, whose day and time the maintainer writes at the top of the page (the beta opens
+that day), and which is time set aside, not a response-time guarantee; and the bridge recipe from what a
+mission declares to what its code does: the JUnit part works with 0.46.0, and the rest is planned for
+the next release (pull requests #483 and #484, in no release yet). The page states the criteria, the
+confidentiality rules (the issue is public; no name is published without written agreement; a
+regulated organisation writes to the author's address, published where SUPPORT.md says; a
+vulnerability, a green the participant thinks should be red included, goes only to the private
+reporting form), and how the beta relates to the ADR-0052 pilot, whose protocol, instruments and
+candidate form are unchanged: a repository that might serve the pilot opens the pilot form first, and
+the beta does not move the 2026-11-17 deadline. `.github/ISSUE_TEMPLATE/beta_mission.yml` opens a beta
+mission. It asks for nothing that identifies a person, an organisation or a system, and it sets no
+label: a label the repository does not have is not added to the issue, so beta missions are found by
+the title prefix the form pre-fills. The issue chooser links the page, and so do the README and
+SUPPORT.md. Corrected because it contradicted SECURITY.md: `SUPPORT.md` sent a false green to a public
+issue, while SECURITY.md classes a published version's false green as S1 and refuses public issues
+for it; a false green now goes the way SECURITY.md says. `test/unit/beta-form.test.js` keeps the form
+and the page in step, and reddens when `package.json` moves past the release the page says lacks the
+bridge; `docs/beta.md` joins the documents whose pinned version `test/unit/doc-version-pin.test.js`
+holds. Documentation only: no CLI behaviour, output or verdict changes.
+
 ### CodeQL's alert in `evidence.ts` closed with no answer changed, and contributions asked for tests
 
 `onDiskSpelling` stripped the separator off the remainder below the project bound with a RegExp built
