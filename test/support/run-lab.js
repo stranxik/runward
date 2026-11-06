@@ -68,12 +68,12 @@ export function labPolicy(over = {}) {
   };
 }
 
-// The mutation leg runs the example's tests for real, once per mutant: with Node.js's own type transform
-// and a resolve hook standing in for tsx (ts-js-specifiers.mjs), zod linked from runward's node_modules,
+// The mutation leg runs the example's tests for real, once per mutant: with hooks standing in for tsx
+// (ts-js-specifiers.mjs: the TypeScript compiler, one file at a time), zod linked from runward's node_modules,
 // so the unit tests install nothing and reach no network (ADR-0120 R2).
 const SPECIFIERS = join(ROOT, "test", "support", "ts-js-specifiers.mjs");
 const ZOD = join(ROOT, "node_modules", "zod");
-export const labTestCommand = (junit) => ["node", "--experimental-transform-types", "--no-warnings", "--import", SPECIFIERS,
+export const labTestCommand = (junit) => ["node", "--no-warnings", "--import", SPECIFIERS,
   "--test", "--test-reporter=junit", `--test-reporter-destination=\${out}/${junit}`, "test/*.test.ts"];
 
 /** The laboratory's policy with the legs of R2, as the shipped example's run policy has them: the tests,
