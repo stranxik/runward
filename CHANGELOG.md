@@ -2,6 +2,36 @@
 
 ## Unreleased
 
+### What a hosted deployment needs from runward-fleet, and `check --json` names the mission without a path (RWD-2026-0199)
+
+`runward-fleet` exports `runward-fleet/site` (ADR-0121 decision 1): `renderPage(index)` returns the page
+`runward-fleet build` writes to `index.html`, byte for byte, and `siteAssets()` the template, the source of
+the views and the fonts, read from the package. A hosted deployment assembles the index with
+`buildIndex`, checks it with `runward-fleet/rules` and serves the view from the package it pins, with no
+copy of its files. The CLI now builds its page through the same function. A golden test holds what
+ADR-0121 names as the interface's test: the page rendered from the bytes of the `index.json` the build
+wrote is the `index.html` it wrote, imported through the package's exports map as a consumer imports it,
+and the index and the page of one inventory are golden files (`test/fixtures/golden/fleet/`,
+`UPDATE_GOLDEN=1` to regenerate).
+
+`fleet.json` may say where a mission's `commit` was read from: `missions[].commitSource`, a label of 200
+characters at most, refused without `commit`. The index carries it as written, in
+`missions[].commit.commitSource`, only when the inventory names one, so every index built without it keeps
+its bytes (`runward-fleet-index/0`, expand-only). Nothing checks it: a hosted deployment that writes the
+inventory from an upload's workload identity token says so there.
+
+`check --json` names the mission by the name it declares, as `--attest` does: `mission` is the title of
+`runward/mission-contract.md`, or `mission`. Until now it was the checkout's absolute path, which names the
+user's account whenever the checkout sits under a home directory, in every copy of the payload, and a
+fleet that refuses an absolute path at ingestion would have refused every `check` export from a hosted CI
+runner (RWD-2026-0199, `fixed-in=unreleased`). This changes the field's value: a consumer that read it as a
+path reads a name from now on, and the project root is the directory `check` ran in, or its `-p`. The
+choice, over an additive field that would have left the path in the bytes, is recorded as a note of
+2026-11-06 on ADR-0109, under ADR-0121 decision 7. The same tree now gives the same `--json` bytes in any
+folder; the JUnit rendering's `payload-sha256` is unchanged, since it already hashed the payload with the
+declared name. The other read paths (`status`, `doctor`, `report`, and the rest) keep `mission` as the
+project root. On a red tree, `next` still echoes the `-p` as typed (RWD-2026-0145).
+
 ### A new mission asks for the level of proof `re-derived`, and the usage registry lives in a file of its own (ADR-0119 decision 4)
 
 `runward init` now writes `"requiredLevel": "re-derived"` in a new mission's lock, since ADR-0117's
