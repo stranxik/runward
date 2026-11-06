@@ -1068,6 +1068,23 @@ function placeholderCredentials(match: string, policy: AnalysisPolicy): boolean 
   return policy.placeholderHosts.some((h) => host === h || host.endsWith(`.${h}`)) || /\.(?:example|test|invalid|localhost)$/.test(host);
 }
 
+/**
+ * ADR-0120 decision 4: the files the analyzers read under the policy the mission pins (its source files
+ * and its configuration files), project-relative and sorted, and the languages they leave unread. The
+ * expected set of a run Statement is derived from it, never chosen by the run's writer. Null when the
+ * mission pins no policy, or one this version does not ship: then nothing is analysed.
+ */
+export function analysisScope(missionDir: string): { files: string[]; languages: string[] } | null {
+  const pin = analysisPin(missionDir);
+  if (pin === null || typeof pin.raw !== "string") return null;
+  const policy = ANALYSIS_POLICIES[pin.raw];
+  if (policy === undefined) return null;
+  const scope = walkScope(join(missionDir, ".."), policy, readAllowances(missionDir));
+  const files = [...scope.analysed, ...scope.config].map((f) => f.rel).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  const languages = [...scope.other.keys()].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  return { files, languages };
+}
+
 /** The reading as `check --json` publishes it (ADR-0030, additive): one implementation for every
  *  surface that carries it. */
 export function analysisPayload(r: AnalysisReading): Record<string, unknown> {

@@ -273,7 +273,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   const payload = machinePayload(verdict, {
     version: VERSION,
     missionRoot: root!,
-    currentGate: currentGateLabel(verdict.report, verdict.clean, redPhases(verdict), verdict.exitCode === LEVEL_NOT_MET_EXIT),
+    currentGate: currentGateLabel(verdict.report, verdict.clean, redPhases(verdict), verdict.exitCode === LEVEL_NOT_MET_EXIT, verdict.require?.level ?? null),
     adrCount: verdict.report.adrCount,
     adrSetAside: verdict.report.adrSetAside,
     clean: verdict.clean,
@@ -287,7 +287,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     corpusPin: corpusStamp(rulesDir(mission)),
     corpusDrift: corpusDrift(mission, rulesDir(mission)),
     gateNonScope: GATE_NON_SCOPE,
-    next: nextPayload(nextStep({ gaps: verdict.gaps, strictGaps: verdict.strictGaps, hookFailed, breakdown: verdict.strictBreakdown, levelNotMet: verdict.exitCode === LEVEL_NOT_MET_EXIT }, question)),
+    next: nextPayload(nextStep({ gaps: verdict.gaps, strictGaps: verdict.strictGaps, hookFailed, breakdown: verdict.strictBreakdown, levelNotMet: verdict.exitCode === LEVEL_NOT_MET_EXIT, level: verdict.require?.level ?? null }, question)),
     coverage: coverageAsked ? coverageSummary(verdict.report, decisionCoverage(mission)) : undefined,
     junitNotGreen: citedJUnitNotGreen(mission),
   });

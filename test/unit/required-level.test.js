@@ -114,7 +114,10 @@ test("a --through prefix requires `traced` unless told otherwise; misuse exits 2
   const bare = run(vacuous, "check", "--require", "traced");
   assert.equal(bare.status, 2);
   assert.match(bare.stderr, /`--require` sets the level of proof a strict verdict demands/);
-  assert.equal(run(vacuous, "check", "--strict", "--require", "attested").status, 2, "an unknown level is a usage error");
+  assert.equal(run(vacuous, "check", "--strict", "--require", "proven").status, 2, "an unknown level is a usage error");
+  // ADR-0119 decision 3: `re-derived` and `attested` are levels now, above `mechanical`; on a mission
+  // where nothing was verified they exit 5 like it, never 0.
+  assert.equal(run(vacuous, "check", "--strict", "--require", "attested").status, 5, "a known level above mechanical, not met: exit 5");
 });
 
 test("every rendering of the run states the code it exits with", () => {
@@ -187,7 +190,7 @@ test("verify re-derives at the level the attestation records, and refuses a forg
 });
 
 test("the contract, without a process: the outcome, the default level, the label, the Next step, the faults", () => {
-  assert.deepEqual(REQUIRED_LEVELS, ["traced", "mechanical"], "ordered from the least to the most demanding");
+  assert.deepEqual(REQUIRED_LEVELS, ["traced", "mechanical", "re-derived", "attested"], "ordered from the least to the most demanding (ADR-0119 decision 2 extends ADR-0114's ladder by rank)");
   assert.deepEqual(verdictOutcome(false, { level: "mechanical", met: false }), { verdict: "gaps", exitCode: 1 }, "gaps first");
   assert.deepEqual(verdictOutcome(true, { level: "mechanical", met: false }), { verdict: "level-not-met", exitCode: 5 });
   assert.deepEqual(verdictOutcome(true, { level: "traced", met: true }), { verdict: "clean", exitCode: 0 });

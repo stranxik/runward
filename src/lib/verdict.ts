@@ -37,6 +37,7 @@ import { corpusDivergence } from "./scaffold-lock.js";
 import { ruleSetDir, readRuleSet } from "./rules.js";
 import { TEMPLATES } from "./paths.js";
 import { analyzeDelivery, type AnalysisReading } from "./analyze.js";
+import { REQUIRED_LEVELS, levelsReading, type LevelsReading, type RequiredLevel } from "./evidence-levels.js";
 
 export interface DeliverableRow {
   phase: string;
@@ -143,6 +144,10 @@ export interface Verdict {
    *  without --strict, where no row is read. `clean` keeps its meaning (no gap); the level is
    *  answered beside it, and a clean verdict that does not meet it exits `LEVEL_NOT_MET_EXIT`. */
   require: { level: RequiredLevel; met: boolean } | null;
+  /** ADR-0119 and ADR-0120 decision 6: each applied row at its level of proof, the run Statements read
+   *  beside the cited reports and what of their binding holds. Computed only under --strict when the run
+   *  requires `re-derived` or `attested`; null otherwise, so every other verdict keeps its shape. */
+  levels: LevelsReading | null;
   clean: boolean;
   exitCode: 0 | 1 | typeof LEVEL_NOT_MET_EXIT;
 }
@@ -152,10 +157,10 @@ export interface Verdict {
  * of the vacuous green. `mechanical`, the default of a full strict verdict: at least one `applied`
  * row carries a pointer the gate opened and checked (`evidence.typed > 0`). `traced`: every row may
  * rest on judgment, the green every runward gave before ADR-0114, now asked for by name. Ordered from
- * the least to the most demanding, so a later level (ADR-0114, "How it extends") slots in by rank.
+ * the least to the most demanding, so a later level slots in by rank: ADR-0119 adds `re-derived` and
+ * `attested` above them (evidence-levels.ts, where the ladder is defined and read).
  */
-export type RequiredLevel = "traced" | "mechanical";
-export const REQUIRED_LEVELS: readonly RequiredLevel[] = ["traced", "mechanical"];
+export { REQUIRED_LEVELS, type RequiredLevel };
 
 /** ADR-0114: the exit code of a verdict with no gap that does not meet its required level. pytest's
  *  code for "no tests were collected": neither 1, which says gaps, nor 0, which says verified. */
@@ -167,9 +172,13 @@ export function requiredLevel(opts: Pick<VerdictOptions, "require" | "through">)
   return opts.require ?? (opts.through != null ? "traced" : "mechanical");
 }
 
-/** Does a breakdown meet the level? `mechanical` asks for one applied row the gate verified. */
-export function levelMet(level: RequiredLevel, breakdown: Pick<Verdict["breakdown"], "typed">): boolean {
-  return level === "traced" || breakdown.typed > 0;
+/** Does a breakdown meet the level? `mechanical` asks for one applied row the gate verified, and every
+ *  level above it includes it. `re-derived` and `attested` are answered by the levels reading
+ *  (`levelsReading`, ADR-0119), never by this count alone. */
+export function levelMet(level: RequiredLevel, breakdown: Pick<Verdict["breakdown"], "typed">, levels: Pick<LevelsReading, "met"> | null = null): boolean {
+  if (level === "traced") return true;
+  if (level === "mechanical") return breakdown.typed > 0;
+  return breakdown.typed > 0 && levels !== null && levels.met;
 }
 
 /**
@@ -606,9 +615,20 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   // `verify` re-derived "clean" and rejected an honest attestation, and the readiness packs printed
   // "clean (exit 0, 1 conformance gap)". One verdict, read by every consumer.
   const { clean } = verdictFrom(gaps, strictGaps, opts.hookFailed ?? 0);
+  // ADR-0119: `re-derived` and `attested` read each applied row at its level of proof, and the run
+  // Statements beside the reports the rows cite (ADR-0120 decision 6). Only when the run requires one of
+  // them: every other verdict reads the same files it read before.
+  const level = requiredLevel(opts);
+  const levels: LevelsReading | null = opts.strict && (level === "re-derived" || level === "attested")
+    ? levelsReading(mission, {
+        required: level, source: opts.require !== undefined ? "flag" : "default",
+        mechanical: breakdown.typed > 0, proseRows: breakdown.proseRows, analysis,
+        inHorizon: throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex,
+      })
+    : null;
   // ADR-0114: the level is read from the count the run prints (`evidence.typed`), never a second one.
   const require: Verdict["require"] = opts.strict
-    ? { level: requiredLevel(opts), met: levelMet(requiredLevel(opts), breakdown) }
+    ? { level, met: levelMet(level, breakdown, levels) }
     : null;
   const { exitCode } = verdictOutcome(clean, require);
 
@@ -617,7 +637,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     corpus, breakdown, seal, unratified, criticalScope,
     workflowContract, analysis,
     through: opts.through ?? null, horizon, deferredGaps,
-    require,
+    require, levels,
     clean, exitCode,
   };
 }

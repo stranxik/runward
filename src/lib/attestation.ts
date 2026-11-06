@@ -31,6 +31,9 @@ export const IN_TOTO_STATEMENT_TYPE = "https://in-toto.io/Statement/v1";
 export const RUNWARD_PREDICATE_TYPE = "https://runward.dev/verdict/v1";
 /** The bundle predicate type (ADR-0055 layer 4): binds several delivery artifacts under one provenance. */
 export const RUNWARD_BUNDLE_PREDICATE_TYPE = "https://runward.dev/bundle/v1";
+/** The run predicate type (ADR-0120 decision 4): what `runward-run`, a sibling package, writes about the
+ *  execution it made out of the agent's reach. runward never writes one; it reads it (evidence-levels.ts). */
+export const RUNWARD_RUN_PREDICATE_TYPE = "https://runward.dev/run/v1";
 
 export interface BundleSubject { name: string; digest: { sha256: string } }
 
@@ -166,7 +169,10 @@ export const DELIVERED_TREE_SUBJECT_SUFFIX = " (delivered tree)";
 export interface DeliveredTree { files: number; rule: string; entries: Record<string, string> }
 
 /** Whether a file's bytes are a runward in-toto Statement `verify` reads (a verdict or a bundle, bare or
- *  inside a DSSE envelope): it is about the tree, never part of it (ADR-0113 decision 5). */
+ *  inside a DSSE envelope): it is about the tree, never part of it (ADR-0113 decision 5). A run Statement
+ *  of `runward-run` (ADR-0120) is one too, bare, in a DSSE envelope, or in the Sigstore bundle a signing
+ *  job writes around that envelope: the operator's CI commits it beside the reports it binds, and binding
+ *  it to the tree it describes would make every run Statement differ from its own tree. */
 export function isRunwardStatement(buf: Buffer): boolean {
   let i = 0;
   while (i < buf.length && (buf[i] === 0x20 || buf[i] === 0x0a || buf[i] === 0x0d || buf[i] === 0x09 || buf[i] === 0xef || buf[i] === 0xbb || buf[i] === 0xbf)) i++;
@@ -176,12 +182,17 @@ export function isRunwardStatement(buf: Buffer): boolean {
   const isStatement = (d: unknown): boolean => {
     const o = d as { _type?: unknown; predicateType?: unknown } | null;
     return !!o && typeof o === "object" && o._type === IN_TOTO_STATEMENT_TYPE &&
-      (o.predicateType === RUNWARD_PREDICATE_TYPE || o.predicateType === RUNWARD_BUNDLE_PREDICATE_TYPE);
+      (o.predicateType === RUNWARD_PREDICATE_TYPE || o.predicateType === RUNWARD_BUNDLE_PREDICATE_TYPE || o.predicateType === RUNWARD_RUN_PREDICATE_TYPE);
   };
   if (isStatement(doc)) return true;
-  const env = doc as { payloadType?: unknown; payload?: unknown } | null;
-  if (!env || typeof env !== "object" || typeof env.payloadType !== "string" || typeof env.payload !== "string" || !/in-toto/.test(env.payloadType)) return false;
-  try { return isStatement(JSON.parse(Buffer.from(env.payload, "base64").toString("utf8"))); } catch { return false; }
+  const inEnvelope = (e: unknown): boolean => {
+    const env = e as { payloadType?: unknown; payload?: unknown } | null;
+    if (!env || typeof env !== "object" || typeof env.payloadType !== "string" || typeof env.payload !== "string" || !/in-toto/.test(env.payloadType)) return false;
+    try { return isStatement(JSON.parse(Buffer.from(env.payload, "base64").toString("utf8"))); } catch { return false; }
+  };
+  if (inEnvelope(doc)) return true;
+  const bundle = doc as { mediaType?: unknown; dsseEnvelope?: unknown } | null;
+  return !!bundle && typeof bundle.mediaType === "string" && /^application\/vnd\.dev\.sigstore\.bundle/.test(bundle.mediaType) && inEnvelope(bundle.dsseEnvelope);
 }
 
 /**
