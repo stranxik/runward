@@ -45,6 +45,38 @@
 	<testcase name="ADR-0088 decision 5: with a charter, an agent it does not list as a delegate is refused (exit 2, refused), naming the charter, and nothing is written" classname="test"/>
 	<testcase name="ADR-0088 decision 5: without a charter, any agent name takes the agent path as before" classname="test"/>
 	<testcase name="ADR-0088 decision 5: a charter whose delegates cannot be read refuses every agent (fails closed)" classname="test"/>
+	<testcase name="the healthy example reads clean, and its strict verdict stays green with the analyzers on" classname="test"/>
+	<testcase name="sabotage a: pg in the core, a live key, a connection string with its password, SQL joined to values" classname="test"/>
+	<testcase name="sabotage c3b: every cited symbol a constant 0, the test file a stub" classname="test"/>
+	<testcase name="sabotage d: a core file that asks a model for code and executes it" classname="test"/>
+	<testcase name="sabotage d2: a core file that asks a model for code and executes it, imported by the use case" classname="test"/>
+	<testcase name="sabotage d placed outside every declared category: execution is refused everywhere, the network only in the core" classname="test"/>
+	<testcase name="sabotage e1: every assertion removed, the names kept, pushed as is" classname="test"/>
+	<testcase name="sabotage e2: every assertion removed, the names kept, with the JUnit report regenerated from the emptied suite (same names)" classname="test"/>
+	<testcase name="sabotage ae2: a and e2 together, every family adding up" classname="test"/>
+	<testcase name="an honest renaming, the manifests following the code, reads clean" classname="test"/>
+	<testcase name="a renaming that leaves the old name in a comment is refused once, by the evidence layer (ADR-0114), never twice" classname="test"/>
+	<testcase name="a cited name carried only by a string is the symbol family's finding: ADR-0114 reads a string as code" classname="test"/>
+	<testcase name="assertions replaced by assert.ok(true): reported as hypotheses, never counted (the reading cannot tell it from a does-not-throw case)" classname="test"/>
+	<testcase name="a case removed from the sources while the committed JUnit report keeps it is refused by the census" classname="test"/>
+	<testcase name="the opt-in: without the pin nothing is read and the sabotage passes as before; an unknown or malformed pin refuses" classname="test"/>
+	<testcase name="allowances: a row removed brings its finding back; a row that sets nothing aside and a row that cannot be read are said" classname="test"/>
+	<testcase name="secrets: each format of the policy is found, placeholders and documented examples are not" classname="test"/>
+	<testcase name="the capabilities, and the same text in comments and strings, which is never code" classname="test"/>
+	<testcase name="a new mission and the example are born with the analysis policy pinned; an existing mission keeps what its lock says" classname="test"/>
+	<testcase name="the green example: the payload carries the reading, and adds nothing to a payload whose mission has no pin" classname="test"/>
+	<testcase name="a planted capability: refused under --strict, and named with its file and line on every surface" classname="test"/>
+	<testcase name="the opt-in, measured on the same planted tree: without the pin the strict gate is green, as it was before" classname="test"/>
+	<testcase name="masking keeps every offset and newline, and blanks comments and literal contents only" classname="test"/>
+	<testcase name="a template literal: its text is blanked, the code of its substitutions stays readable" classname="test"/>
+	<testcase name="a slash is a regular expression after an operator or a keyword, a division after a value" classname="test"/>
+	<testcase name="a string never runs past its line, and a hashbang line is not code" classname="test"/>
+	<testcase name="imports: every spelling that names a module, and every one that computes it" classname="test"/>
+	<testcase name="a literal's value is read as JavaScript reads its escapes" classname="test"/>
+	<testcase name="test cases: a case that asserts through a helper, a subtest, a throw or an expect is not vacuous" classname="test"/>
+	<testcase name="test files: an empty one, one that imports only its framework, and one that spawns the code under test" classname="test"/>
+	<testcase name="a test co-located in the declared core is a test: its framework imports are not a boundary finding" classname="test"/>
+	<testcase name="scope: build output beside a package.json, dependencies and links are set aside; a src/build directory is read" classname="test"/>
 	<testcase name="the library may not import a command, and the linter says so" classname="test"/>
 	<testcase name="the same import from an adapter is allowed — the rule encodes a direction, not a ban" classname="test"/>
 	<testcase name="the committed lint report is what the manifests cite, and it is a report the gate can read" classname="test"/>
@@ -87,6 +119,17 @@
 	<testcase name="RWD-2026-0175: more languages count as sources, and a non-source never does" classname="test"/>
 	<testcase name="RWD-2026-0175: check --strict names the source root and labels the date UTC" classname="test"/>
 	<testcase name="RWD-2026-0175: check --strict says when freshness could not be computed" classname="test"/>
+	<testcase name="beta form: it needs no forge setting, and the page's list finds it by its title" classname="test"/>
+	<testcase name="beta form: it asks for nothing that identifies a person, an organisation or a system" classname="test"/>
+	<testcase name="beta form: it says the issue is public, then gives the private routes, before the first question" classname="test"/>
+	<testcase name="beta form and page: a green that should be red goes to the private form, never to the public issue" classname="test"/>
+	<testcase name="beta form and page: no name is published without written agreement, in both" classname="test"/>
+	<testcase name="beta form: the cost comes before the benefit, and it is nothing in money" classname="test"/>
+	<testcase name="beta form: its three terms are required checkboxes, not prose a reader skips" classname="test"/>
+	<testcase name="beta form and page: every link into the page lands on a heading the page has" classname="test"/>
+	<testcase name="beta page: the beta is not the pilot, changes nothing in it, and does not move its deadline" classname="test"/>
+	<testcase name="beta page: the bridge is said to be unreleased while the current release lacks it" classname="test"/>
+	<testcase name="beta page: the weekly slot is time set aside, not a response-time promise" classname="test"/>
 	<testcase name="obj 7: bundle emits a valid in-toto Statement whose subjects are the artifacts by RAW sha256" classname="test"/>
 	<testcase name="obj 7: bundle is byte-idempotent on unchanged artifacts" classname="test"/>
 	<testcase name="obj 7: verify a bundle — all artifacts present and unchanged, exit 0" classname="test"/>
@@ -625,6 +668,18 @@
 	<testcase name="the ladder: a directory differing only in Unicode form" classname="test"/>
 	<testcase name="the ladder: a name that matches nothing returns null" classname="test"/>
 	<testcase name="the ladder: a directory that matches nothing returns null" classname="test"/>
+	<testcase name="the ladder, bounded to the project: an exact spelling is VERIFIED, not merely un-refused" classname="test"/>
+	<testcase name="the ladder, bounded to the project: an exact spelling, nested" classname="test"/>
+	<testcase name="the ladder, bounded to the project: a file spelled in the wrong case" classname="test"/>
+	<testcase name="the ladder, bounded to the project: a directory spelled in the wrong case" classname="test"/>
+	<testcase name="the ladder, bounded to the project: a nested directory in the wrong case" classname="test"/>
+	<testcase name="the ladder, bounded to the project: a path wrong in two segments at once" classname="test"/>
+	<testcase name="the ladder, bounded to the project: a corrected directory still finds the file below it" classname="test"/>
+	<testcase name="the ladder, bounded to the project: a file differing only in Unicode form" classname="test"/>
+	<testcase name="the ladder, bounded to the project: a directory differing only in Unicode form" classname="test"/>
+	<testcase name="the ladder, bounded to the project: a name that matches nothing returns null" classname="test"/>
+	<testcase name="the ladder, bounded to the project: a directory that matches nothing returns null" classname="test"/>
+	<testcase name="the ladder, bounded: the project root itself is verified, with nothing left to walk" classname="test"/>
 	<testcase name="the ladder sees a fold the filesystem performs: U+017F, long s onto s" classname="test"/>
 	<testcase name="the ladder sees a fold the filesystem performs: U+03C2, final sigma onto sigma" classname="test"/>
 	<testcase name="the ladder sees a fold the filesystem performs: U+03D1, theta symbol onto theta" classname="test"/>
@@ -701,6 +756,16 @@
 	<testcase name="the seal freezes the ADR the row CITES, not the first one in the journal" classname="test"/>
 	<testcase name="a cell that STARTS with a bracket is not a template left in place" classname="test"/>
 	<testcase name="a `test:` whose target is not a path is prose, with or without a case name" classname="test"/>
+	<testcase name="1. the lint configuration passes the example as it ships" classname="test"/>
+	<testcase name="1. the lint refuses an infrastructure import, a spawn, an adapter, the network and run-time loading in the core" classname="test"/>
+	<testcase name="1. the lint refuses a string run as code and a credential literal anywhere, and an inline disable does not silence it" classname="test"/>
+	<testcase name="2. the committed lint reports are what scripts/lint-committable.mjs writes on this tree" classname="test"/>
+	<testcase name="3. the shipped example requires nothing it does not cite, and the gate reads a hand-written report as what it claims" classname="test"/>
+	<testcase name="4. the same reports, written in another order and with other hit counts, are fresh — bytes are not compared" classname="test"/>
+	<testcase name="4. a hand-written lint report naming one file is not the report this tree produces" classname="test"/>
+	<testcase name="4. each kind of difference is refused and named: a finding, a file nothing executed, a rule gone, a case gone or red" classname="test"/>
+	<testcase name="4. a tool that is not green fails the check, and a report the tree did not produce or nobody committed is named" classname="test"/>
+	<testcase name="5. the adapter samples, the Action and the GitLab template run the gate with --hooks by default" classname="test"/>
 	<testcase name="RWD-2026-0156: the packed example is green out of the box — init --example then check --strict exits 0" classname="test"/>
 	<testcase name="RWD-2026-0157: every shipped sample that prints the exit codes says 2 is never a red gate, and not only 'no mission'" classname="test"/>
 	<testcase name="exit 2 legible: no-mission, additive beside the verdict/reason each document already carried" classname="test"/>
@@ -708,6 +773,65 @@
 	<testcase name="exit 2 legible: refused, for the gestures runward will not perform here" classname="test"/>
 	<testcase name="exit 2 legible: unreadable-input, beside the reason/verdict verify and spec-check already name" classname="test"/>
 	<testcase name="exit 2 legible: no document where only --json owns one, and none without --json" classname="test"/>
+	<testcase name="the index of real exports: the contract, the groupings with their lists, a digest per source" classname="test"/>
+	<testcase name="pure: the same files build the same index and the same page, byte for byte" classname="test"/>
+	<testcase name="silence is a finding: a declared export that is absent is shown, counted, and never stops the build" classname="test"/>
+	<testcase name="an export that is present and unreadable is a finding, not a crash" classname="test"/>
+	<testcase name="no private path reaches the page: a projected field that holds one stops the build, and names it" classname="test"/>
+	<testcase name="fleet.json is validated: a manifest this version cannot read stops the build" classname="test"/>
+	<testcase name="join keys are stable: mission ids are declared, source ids follow them, never the order" classname="test"/>
+	<testcase name="records of two origins are two series: a replayed record is never mixed with another origin" classname="test"/>
+	<testcase name="the page is one self-contained file: nothing is loaded from elsewhere, and the rule sees a planted load" classname="test"/>
+	<testcase name="the CLI writes index.json and index.html, refuses without writing, and reads no clock" classname="test"/>
+	<testcase name="the build reads no clock, and the scan for one sees a planted one" classname="test"/>
+	<testcase name="the specification names every key the index carries: a key added without its line reddens" classname="test"/>
+	<testcase name="runward-fleet ships at runward's version, private to npm, with no dependency and no script" classname="test"/>
+	<testcase name="the runward-fleet tarball holds its modules, its page, its fonts with their licenses, README, package.json and LICENSE, nothing else" classname="test"/>
+	<testcase name="the fleet Action builds from this repository's package, passes its inputs through the environment, pins every action, reads no secret" classname="test"/>
+	<testcase name="release chain: the isolated builder packs runward-fleet in its own directory, and the job that signs, which builds nothing, attests it (ADR-0116)" classname="test"/>
+	<testcase name="release chain: the fleet tarball is byte-matched, attached as the ninth asset, read back, and never published to npm" classname="test"/>
+	<testcase name="the fleet Action is exercised in CI on this tree's own exports, and writes the page the build writes" classname="test"/>
+	<testcase name="a real actions/attest bundle verifies offline: log, inclusion, checkpoint, chain, envelope" classname="test"/>
+	<testcase name="the real bundle, falsified anywhere, is refused by the check that guards that part" classname="test"/>
+	<testcase name="the real bundle against a trusted root without its authority, or without its log, does not verify" classname="test"/>
+	<testcase name="a bundle of any malformed shape is refused, never a crash of the build" classname="test"/>
+	<testcase name="what this version does not verify is said, and marked unsupported, never passed" classname="test"/>
+	<testcase name="keyless, valid: a pinned signer on refs/heads/main at the landing commit raises the verdict to machine-established" classname="test"/>
+	<testcase name="keyless, falsified: a statement changed after signing is refused and raises nothing" classname="test"/>
+	<testcase name="keyless, absent: a declared bundle that is not there is a finding, and the cell stays ci-declared" classname="test"/>
+	<testcase name="keyless, signer outside the policy: another workflow, another digest, another issuer raise nothing" classname="test"/>
+	<testcase name="ADR-0093 D4: an unpinned policy raises nothing, whatever it verifies" classname="test"/>
+	<testcase name="a certificate that names another commit, another ref or another repository is never raised" classname="test"/>
+	<testcase name="a valid signature that covers something else raises nothing; a replay is never raised" classname="test"/>
+	<testcase name="runward's real release provenance, under a policy that pins its real signer, verifies and raises nothing" classname="test"/>
+	<testcase name="no trust policy, no trusted root: nothing is verified and nothing is raised" classname="test"/>
+	<testcase name="Ed25519, valid: a CI's signed evidence folder raises the verdict read from its attestation" classname="test"/>
+	<testcase name="Ed25519, falsified: one byte of the manifest changed after signing is refused" classname="test"/>
+	<testcase name="Ed25519, absent: a manifest without its signature file is a finding" classname="test"/>
+	<testcase name="Ed25519, signer outside the policy: another key, or a key pinned for another repository, raises nothing" classname="test"/>
+	<testcase name="Ed25519: a manifest for another commit, ref or repository, or that lists other files, raises nothing" classname="test"/>
+	<testcase name="a trust policy that pins a key under a digest that is not the key's is refused: the build stops" classname="test"/>
+	<testcase name="rules 1 and 2: every number a view shows is the index's own value at the path it names, in both languages" classname="test"/>
+	<testcase name="rule 2, the golden face: the fleet face is a function of the index's fields, word for word" classname="test"/>
+	<testcase name="rule 1, planted: a view that counts the missions itself instead of reading the index is caught" classname="test"/>
+	<testcase name="rule 3: a face never prints a sum of the states it lists, nor a percentage; planted, both are caught" classname="test"/>
+	<testcase name="every count carries its denominator; a planted bare count is caught" classname="test"/>
+	<testcase name="rules 4 and 5: a silent mission is listed, counted and named, never filtered; a planted filter is caught" classname="test"/>
+	<testcase name="rule 6: two origins are two histories, each under its own origin, never one" classname="test"/>
+	<testcase name="rule 7: records judged by another version carry a marker, and a version skew with the latest export is said" classname="test"/>
+	<testcase name="rule 8: a past green carries no present state: a mission silent today reads silent, whatever its history" classname="test"/>
+	<testcase name="rule 10: machine-established is the satellite's: an export's own claim is never copied, and a cell raised without a signature is caught" classname="test"/>
+	<testcase name="rule 12: no approval of a management body is ever carried; a planted one is caught" classname="test"/>
+	<testcase name="rule 14: under the machine mode, a row without ratification reads machine mode in force, never a gap" classname="test"/>
+	<testcase name="rule 15 and the words: no view says emergency, nor a word runward refuses, in either language; planted, they are caught" classname="test"/>
+	<testcase name="the package's own words: no source of runward-fleet uses a refused word (the list itself excepted)" classname="test"/>
+	<testcase name="gold, once at most per view: the proof moment, or the raised cells; a planted second gold is caught" classname="test"/>
+	<testcase name="no private path in a view or a page, and a planted one is caught" classname="test"/>
+	<testcase name="no clock in the page script; a planted one is caught" classname="test"/>
+	<testcase name="the build refuses to write a page whose views break a rule: the rules are held before anything is written" classname="test"/>
+	<testcase name="the sources view lists the eighteen rules of ADR-0093 and where each is held" classname="test"/>
+	<testcase name="a view that cannot be built from the index stops the build; the page alone says so in a sentence" classname="test"/>
+	<testcase name="rule 4, exit 5: a mission whose gate did not cross with no gap (level-not-met, runward ADR-0114) is counted and shown, never omitted" classname="test"/>
 	<testcase name="forge port: both adapters implement every function of the port, and nothing reads as half an adapter" classname="test"/>
 	<testcase name="GitLab summary note: created once, then updated in place, found by its marker" classname="test"/>
 	<testcase name="GitLab summary note, closed behaviour: no token is said, nothing is sent, and the job is not failed" classname="test"/>
@@ -731,6 +855,7 @@
 	<testcase name="GitLab adapter sample (templates/adapters/gitlab-ci.yml): warns unpinned, deposits and verifies, keeps the port's exit codes" classname="test"/>
 	<testcase name="GitLab template, run: the spec and check inputs behave as the Action's (spec-check alone, higher code wins, refusals)" classname="test"/>
 	<testcase name="ADR-0096: the GitLab template and sample declare the Code Quality and JUnit reports, never SARIF as a security report, and deposit both on a red gate" classname="test"/>
+	<testcase name="ADR-0115: the template and the sample run the mission's hooks before the gate, a failing hook fails the job, and hooks: false runs none" classname="test"/>
 	<testcase name="runward-forge ships at runward's version: public, no private flag, provenance from CI only" classname="test"/>
 	<testcase name="the runward-forge tarball holds src/, README.md, package.json and LICENSE, and nothing else" classname="test"/>
 	<testcase name="the runward tarball still carries nothing of packages/" classname="test"/>
@@ -739,6 +864,7 @@
 	<testcase name="release chain: the publish job publishes runward, then verifies and publishes runward-forge from the release" classname="test"/>
 	<testcase name="the npm bootstrap placeholder carries no code and the runbook never publishes it to latest" classname="test"/>
 	<testcase name="release chain: the publish job runs in the `release` environment, so a branch run cannot reach npm (ADR-0110 decision 1)" classname="test"/>
+	<testcase name="release chain: a runward-forge absent from npm warns and leaves the publish green; every other failure stays red" classname="test"/>
 	<testcase name="every frontmatter delimiter in src/lib accepts CRLF as well as LF" classname="test"/>
 	<testcase name="a CRLF rule reaches the compliance pack's ASI coverage" classname="test"/>
 	<testcase name="circularity is a property of the target, not of the pointer's spelling" classname="test"/>
@@ -827,6 +953,7 @@
 	<testcase name="the environment comment: written after the declaration, outside what the gate and the seal read" classname="test"/>
 	<testcase name="test:reports refuses a committed report written outside the reference environment, and accepts one written in it" classname="test"/>
 	<testcase name="the CI job that proves the committed reports current runs in the reference environment" classname="test"/>
+	<testcase name="the reference job keeps the report it regenerated as an artifact, and stays red while the committed one differs" classname="test"/>
 	<testcase name="junitRootFailures counts failure and error elements, and not skipped ones" classname="test"/>
 	<testcase name="junitRootFailures reads the declared counts, and ignores what comments and CDATA quote" classname="test"/>
 	<testcase name="the ledger names a cited report red outside its cited cases, and nothing on a green one" classname="test"/>
@@ -972,6 +1099,7 @@
 	<testcase name="every survivor is filed as one of the four categories" classname="test"/>
 	<testcase name="an equivalent mutant carries its argument, never a bare word" classname="test"/>
 	<testcase name="the register matches the verdicts it is derived from" classname="test"/>
+	<testcase name="the register's cells read on GitHub exactly as the verdicts are written" classname="test"/>
 	<testcase name="the parser is actually reading the register" classname="test"/>
 	<testcase name="the table numbers mutants in source order, from 0, within the range, and refuses a config whose mutator it would not mirror" classname="test"/>
 	<testcase name="this repository's stryker.config.json sets neither `mutator` nor `ignorers`, so the table mirrors its run" classname="test"/>
@@ -980,7 +1108,9 @@
 	</testcase>
 	<testcase name="the selector names the covering files, cheap line then expensive line, and ALL on every doubt" classname="test"/>
 	<testcase name="the test command runs the selected files cheap-first and stops at the first failure; without a map it runs the whole suite" classname="test"/>
-	<testcase name="positive control: the map selects the one slow CLI-spawning file that executes check-contract L41" classname="test"/>
+	<testcase name="positive control: the map selects the one slow CLI-spawning file that executes check-contract L41" classname="test">
+		<skipped type="skipped" message="check-contract.js L40-41 are no longer the `--witness` beside `--freeze` refusal; re-anchor this control"/>
+	</testcase>
 	<testcase name="the net has one definition, and the pass that runs it does not keep a copy" classname="test"/>
 	<testcase name="every leg of the net is a script that exists, and the composition is written down" classname="test"/>
 	<testcase name="the digest moves when a leg's content moves, and not otherwise" classname="test"/>
@@ -1022,6 +1152,12 @@
 	<testcase name="the script answers on the command line, in text and JSON, and refuses a malformed version with exit 2" classname="test"/>
 	<testcase name="an open entry with a published advisory names it, in text and JSON; one without names none" classname="test"/>
 	<testcase name="golden: fresh init + compliance eu-ai-act reproduces the versioned OSCAL byte for byte" classname="test"/>
+	<testcase name="package SBOM: a synthetic package becomes a valid CycloneDX 1.6 document naming the package and its bundle" classname="test"/>
+	<testcase name="package SBOM: the same inputs give the same bytes, and the serial number follows the tarball" classname="test"/>
+	<testcase name="package SBOM: every way a bundle can differ from the lockfile is refused, and says which" classname="test"/>
+	<testcase name="package SBOM: the helpers say what they mean" classname="test"/>
+	<testcase name="ADR-0116: the tarball this tree packs bundles the lockfile's runtime tree, at the lockfile's versions" classname="test"/>
+	<testcase name="ADR-0116: the command writes the document, refuses a lockfile the bundle does not match, and names a missing input" classname="test"/>
 	<testcase name="every distribution manifest is valid JSON and stamped with the current version" classname="test"/>
 	<testcase name="the set of version-stamped manifests is exactly the declared inventory" classname="test"/>
 	<testcase name="ROADMAP.md is groomed at the current version (stale-roadmap guard)" classname="test"/>
@@ -1083,6 +1219,7 @@
 	<testcase name="kit run: an extra installed file is a mismatch too, node_modules aside" classname="test"/>
 	<testcase name="kit run: a kit whose own files changed after extraction is refused, exit 3" classname="test"/>
 	<testcase name="kit run: kinds, not-run-here, the skipped js-yaml check, the corpus, and an untouched installation" classname="test"/>
+	<testcase name="kit run: a tarball that bundles its dependencies runs against the installation it becomes, and writes nothing into it" classname="test"/>
 	<testcase name="classification: the kind is derived from what the case reaches, fixture included" classname="test"/>
 	<testcase name="classification: a package the installation does not provide makes a case not-run-here, through the import graph" classname="test"/>
 	<testcase name="requirements: citations are read as the traceability guard reads them" classname="test"/>
@@ -1206,6 +1343,11 @@
 	<testcase name="ADR-0080: the digest is the row as the gate reads it back — code spans, pipes, `$` patterns and tight spacing all bind" classname="test"/>
 	<testcase name="ADR-0080: a row `applyDecisions` could not find is not recorded as ratified" classname="test"/>
 	<testcase name="RWD-2026-0123: the signature alarm is raised only on an applied row — an n/a reason or a deviated ADR has no file to match" classname="test"/>
+	<testcase name="ADR-0116: the jobs of the release chain that hold id-token: write are exactly the signing ones" classname="test"/>
+	<testcase name="ADR-0116: no job that signs checks out the tree, runs it, or uses an action outside the list" classname="test"/>
+	<testcase name="ADR-0116: no cache is restored anywhere in the release chain" classname="test"/>
+	<testcase name="ADR-0116: each signing job checks the digests of what it signs before it signs" classname="test"/>
+	<testcase name="ADR-0116, control: the builder's shape before the split is refused, step by step" classname="test"/>
 	<testcase name="report -o refuses to overwrite a file that is not a delivery report, and leaves it intact" classname="test"/>
 	<testcase name="report -o refuses a path that leaves the project, and a directory" classname="test"/>
 	<testcase name="report -o honours an absolute path inside the project and replaces a previous report" classname="test"/>
@@ -1228,14 +1370,30 @@
 	<testcase name="report --format md --out inside runward/: the digest is taken before the write, said, and re-derivable" classname="test"/>
 	<testcase name="gate Action: under strict the job summary receives the summary's bytes; the step's exit code is the gate's" classname="test"/>
 	<testcase name="GitLab template: under strict the reports carry summary.md, the bytes report --format md renders" classname="test"/>
+	<testcase name="c4: every row n/a exits 5, says why, and the JSON carries the level, the verdict and the way out" classname="test"/>
+	<testcase name="--require traced accepts it by name, exit 0, and the run still says what the green rests on" classname="test"/>
+	<testcase name="the field report's shape, applied rows that are all prose, exits 5 too" classname="test"/>
+	<testcase name="the shipped example stays green at `mechanical`; `traced` changes nothing on it" classname="test"/>
+	<testcase name="gaps come first: a red mission exits 1 whatever its level" classname="test"/>
+	<testcase name="a --through prefix requires `traced` unless told otherwise; misuse exits 2" classname="test"/>
+	<testcase name="every rendering of the run states the code it exits with" classname="test"/>
+	<testcase name="verify re-derives at the level the attestation records, and refuses a forged green" classname="test"/>
+	<testcase name="the contract, without a process: the outcome, the default level, the label, the Next step, the faults" classname="test"/>
 	<testcase name="the shipped corpus requires only natures the adapters can read — a closed list" classname="test"/>
-	<testcase name="an applied row citing the wrong nature is disclosed — and the gate stays green" classname="test"/>
+	<testcase name="ADR-0115: an applied row citing the wrong nature is refused under --strict, on its row, with the ways out" classname="test"/>
+	<testcase name="beside ADR-0114: `--require traced` lifts no requires-unmet refusal, and its help says so" classname="test"/>
 	<testcase name="a committed green JUnit report satisfies the junit nature — content-detected, never by name" classname="test"/>
 	<testcase name="an adr requirement is satisfied by a resolving adr: pointer, and only by one" classname="test"/>
 	<testcase name="the loadtest nature is satisfied by a k6 summary, not by a source file (2026-09-09)" classname="test"/>
 	<testcase name="explain teaches the nature it demands, with a citable form for every requirable one" classname="test"/>
 	<testcase name="the shipped example satisfies a junit requirement with its own committed report" classname="test"/>
 	<testcase name="a red case in that report refuses the row — the report is read, not trusted" classname="test"/>
+	<testcase name="ADR-0115: a nature declared uncarriable in an accepted ADR is not refused, and is said; a proposed declaration declares nothing" classname="test"/>
+	<testcase name="ADR-0115: a declaration lifts the refusal only where a deviated row's ADR would stand — a file holding the line alone, the template's number, a number two files claim declare nothing" classname="test"/>
+	<testcase name="ADR-0115: a proposal that lacks the kind its rule requires is told so before anyone ratifies it, in its own refusal, counted once" classname="test"/>
+	<testcase name="ADR-0115: a deviated row with its ADR is not judged for its nature; a declared horizon folds the refusal" classname="test"/>
+	<testcase name="ADR-0115: verify re-derives the refusal, and an attestation that drops it does not verify" classname="test"/>
+	<testcase name="ADR-0115: runward's own mission requires nothing it does not carry, but the load test its journal declares uncarriable" classname="test"/>
 	<testcase name="a mission's own rule set is the one the gate reads, and `source` says mission — never the package's" classname="test"/>
 	<testcase name="a mission with no rule set of its own falls back to the package, and `source` says package" classname="test"/>
 	<testcase name="asking outside any mission answers the package set instead of throwing" classname="test"/>
@@ -1317,6 +1475,9 @@
 	<testcase name="ADR-0094: the runward package imports nothing from runward-forge, and does not ship it" classname="test"/>
 	<testcase name="ADR-0094: runward-forge imports nothing from runward, spawns nothing, and is not an SPAWN_ALLOWED entry" classname="test"/>
 	<testcase name="ADR-0094, positive controls: the guard reddens on a planted fetch, a planted socket import and a planted forge import" classname="test"/>
+	<testcase name="ADR-0093: runward-fleet imports nothing from runward, opens no connection, spawns nothing, and is not an SPAWN_ALLOWED entry" classname="test"/>
+	<testcase name="ADR-0093: the runward package imports nothing from runward-fleet, and does not ship it" classname="test"/>
+	<testcase name="ADR-0093, positive controls: a planted runward import, a planted spawn, a planted escape and a planted fetch in the satellite redden" classname="test"/>
 	<testcase name="sarif: a green mission emits a valid, EMPTY log — not an absent one" classname="test"/>
 	<testcase name="sarif: a violation is annotated on the manifest ROW that carries it, not the top of the file" classname="test"/>
 	<testcase name="sarif: the non-scope travels with the findings — dropping it has to be deliberate" classname="test"/>
@@ -1456,6 +1617,11 @@
 	<testcase name="under the opt-in, a one-byte contract edit is in-progress, never filled" classname="test"/>
 	<testcase name="ADR-0051: an identifier symbol matches at a boundary, never as a fragment of a larger name" classname="test"/>
 	<testcase name="ADR-0051: a non-identifier symbol keeps exact-substring semantics (a boundary is meaningless there)" classname="test"/>
+	<testcase name="the README's rename demo: the old name left in a comment no longer turns the gate green" classname="test"/>
+	<testcase name="every language the table knows: a name only in a comment is absent, in code it is present" classname="test"/>
+	<testcase name="a comment marker inside a string opens nothing, and a string inside a comment counts for nothing" classname="test"/>
+	<testcase name="decided: a name in a string literal still counts, and a file of another language is read whole" classname="test"/>
+	<testcase name="spec-check and the `rules --for` reminder read the symbol the way the gate does" classname="test"/>
 	<testcase name="the inventory reader sees the CLI it must see" classname="test"/>
 	<testcase name="the extractor catches what it exists to catch (positive control)" classname="test"/>
 	<testcase name="every runward citation in templates/ names a subcommand and flags the CLI actually has" classname="test"/>
@@ -1692,7 +1858,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 37234, runward 60593 -->
+	<!-- witness bytes: example 53368, runward 61659 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -1749,6 +1915,7 @@
 	<testcase name="ADR-0113: hook outcomes are the attesting run's record — exit 2 when a command ran, compared when none could" classname="test"/>
 	<testcase name="ADR-0113: a bundle's result names what it covers" classname="test"/>
 	<testcase name="ADR-0113: verify reads hooks.json and runs nothing — no hook runner and no spawner in the command" classname="test"/>
+	<testcase name="ADR-0113 beside ADR-0118: the analyzers read only the tree the project delivers; an ignored output emptied by a redirection changes nothing, a delivered file changed does" classname="test"/>
 	<testcase name="dsse: an enveloped attestation verifies — decoded, re-derived, signature counted and NOT verified" classname="test"/>
 	<testcase name="dsse: a bare Statement still carries dsse: null — the field is additive, never a guess" classname="test"/>
 	<testcase name="dsse: NEGATIVE CONTROL — a lying predicate inside the envelope still fails" classname="test"/>
@@ -1780,7 +1947,7 @@
 	<testcase name="a tampered predicate fails loud: an invented conformance table" classname="test"/>
 	<testcase name="a tampered predicate fails loud: a falsified construction horizon" classname="test"/>
 	<testcase name="a tampered predicate fails loud: a fabricated ratification posture" classname="test"/>
-	<testcase name="a tampered predicate fails loud: an emptied requires ledger" classname="test"/>
+	<testcase name="a tampered predicate fails loud: a fabricated requires ledger" classname="test"/>
 	<testcase name="a tampered predicate fails loud: a forged workflow-contract reading" classname="test"/>
 	<testcase name="a tampered predicate fails loud: a lowered committed-JUnit count" classname="test"/>
 	<testcase name="a deleted non-scope is caught even though the field is absent, not different" classname="test"/>
@@ -1842,11 +2009,11 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1838 -->
+	<!-- tests 2003 -->
 	<!-- suites 0 -->
-	<!-- pass 1837 -->
+	<!-- pass 2001 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
-	<!-- skipped 1 -->
+	<!-- skipped 2 -->
 	<!-- todo 0 -->
 </testsuites>
