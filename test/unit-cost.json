@@ -6,10 +6,10 @@
     "is killed iff some test fails. A stale file therefore costs time and never truth.",
     "Re-measure with: node scripts/test-cost.mjs"
   ],
-  "measuredOn": "2026-11-03",
+  "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 781.7,
-  "slowSeconds": 728.1,
+  "totalSeconds": 783.5,
+  "slowSeconds": 729.9,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
@@ -101,7 +101,8 @@
     "test/unit/analyze-gate.test.js",
     "test/unit/analyze-bench.test.js",
     "test/unit/example-machine-evidence.test.js",
-    "test/unit/package-sbom.test.js"
+    "test/unit/package-sbom.test.js",
+    "test/unit/adr-one-bar.test.js"
   ],
   "files": [
     {
@@ -1287,6 +1288,11 @@
     {
       "file": "test/unit/fleet-build.test.js",
       "seconds": 0.26,
+      "passed": true
+    },
+    {
+      "file": "test/unit/adr-one-bar.test.js",
+      "seconds": 1.84,
       "passed": true
     }
   ]

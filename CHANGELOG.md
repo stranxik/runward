@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+### Changed: four sabotages that passed `check --strict` are refused (ADR-0124)
+
+Measured on 2026-11-06, on the integration train, with the saboteur corpus of 2026-11-05: four cases still
+exited 0 under `check --strict` with no seal. Each part below refuses one of them on `init --example`,
+sealed or not, and none moves runward's own mission or the example as shipped.
+
+- **One bar for a decision record.** An ADR of the example replaced by a 47-character stub (a title,
+  `**Status**: accepted`, "Nothing here.") passed every `adr:` pointer and every table that cites it,
+  because the evidence layer took any file over 40 characters whose status is accepted for a decision,
+  while the structure contract set the same file aside in the same run. Under the structure contract, an
+  `adr:` pointer, a deviated row's ADR, a declared uncarriable nature, and the tables of the architecture
+  note, the topology and the decision matrix that cite an ADR now refuse a record of the mission's own
+  `runward/adr/` that the journal sets aside (no `**Date**` line, a status outside proposed, accepted,
+  superseded and deprecated, no reevaluation trigger), with the reason; a table that cites a refused ADR
+  says why instead of saying that no journal holds it. A journal outside the mission (`docs/adr/`,
+  `doc/adr/`, `adr/`) and a mission without the opt-in read as before. A mission whose cited ADR lacks its
+  date or its trigger turns red, and the reason names the line to add; so does a status written with a
+  capital (`Accepted`), which the structure contract has always read as written, case included. Section 7.6 of
+  `docs/spec/witness.md` gives a checker the new condition.
+
 ### What you install is what the release tested: the tarball bundles its dependencies, and the SBOM is the package's (ADR-0116)
 
 Measured on 2026-11-05: installed into an empty project, the 0.46.0 tarball resolved 16 of its 27 runtime

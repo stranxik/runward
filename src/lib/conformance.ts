@@ -5,7 +5,7 @@ import { join, dirname, relative, sep } from "node:path";
 import { TEMPLATES } from "./paths.js";
 import { EXPECTED_MAPPED, ADR_MIN_CHARS } from "./constants.js";
 import { ruleMigrations } from "./rule-migrations.js";
-import { adrStatusLine, agentRatificationOptIn, regulatedOptIn } from "./mission.js";
+import { adrStatusLine, adrSetAsideReason, agentRatificationOptIn, regulatedOptIn } from "./mission.js";
 import { resolveIdentity, spellingsOf, foldName, singleAccountableOptIn, SINGLE_ACCOUNTABLE_DISCLOSURE, SINGLE_ACCOUNTABLE_REGULATED_NOTE, type Identities } from "./identity.js";
 import { missionIdentities, isDelegate, isoDay, readCharter, CHARTER_FILE, type Charter, type CharterGapKind } from "./delegation.js";
 import { readSampleLedger, sampleState, passingCovers, dayString, SAMPLE_FILE, type SampleState } from "./delegation-sample.js";
@@ -408,6 +408,16 @@ export function adrDecision(missionDir: string, id: string): string | null {
   const word = adrStatusWord(text);
   if (ADR_SET_ASIDE.test(word)) return `${hit} is ${word} — a set-aside decision cannot justify a deviation`;
   if (ADR_UNRATIFIED.test(word)) return `${hit} is not ratified (${word}) — ratify it, or the deviation rests on nothing`;
+  // ADR-0124 decision 1: one bar for a decision record. Under the mission's structure contract, the
+  // journal count sets aside a record with no date, no status from the closed list or no reevaluation
+  // trigger (adrSetAsideReason), and this reader took the same file for a decision: two answers to "is
+  // this a decision?" in one run, and a 47-character stub left `accepted` passed every `adr:` pointer
+  // and every table that cites it (cases g2 and g4 of the 2026-11-05 saboteur corpus). The same
+  // function is asked, on the same journal: the mission's own `adr/`, under the mission's opt-in. The
+  // journals ADR-0074 reads outside the mission keep this reading, because they are often kept in
+  // another tool's format, with no bold `**Date**` label.
+  const setAside = adrSetAsideReason(hit, dirname(abs));
+  if (setAside) return `${hit} is not a decision record under the structure contract (${setAside}): the journal sets it aside, so nothing may rest on it`;
   return null;
 }
 
