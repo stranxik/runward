@@ -31,6 +31,13 @@ sealed or not, and none moves runward's own mission or the example as shipped.
   analysed. Like every family, it reads the delivered tree only. A placeholder that keeps every imported
   name still links: what the code does needs an execution (`--hooks` today, `attested` with
   `runward-run`).
+- **The example cites every case of its suite.** Deleting a case no row cites, and regenerating the
+  report, leaves a tree no reading can tell from an honest deletion: only a declaration or a baseline can.
+  The example's `provider-no-crash-missing-env` row says that every case of the suite runs the keyword
+  adapter, and cited one; it now cites the fourteen, so a deleted case is a cited case absent from the
+  report, which the evidence layer refuses. On your own mission, a case no row cites is still outside
+  the verdict unless a seal covers its test file. A line that says how many recorded cases no row cites
+  is decided and comes in a later release.
 
 ### What you install is what the release tested: the tarball bundles its dependencies, and the SBOM is the package's (ADR-0116)
 
