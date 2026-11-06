@@ -28,7 +28,7 @@
  * Statement whose recorded set is narrower than the one this module derives does not bind.
  */
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
-import { basename, dirname, extname, isAbsolute, join, relative, resolve } from "node:path";
+import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { GATED_DELIVERABLES, adrIdExists, parseManifest } from "./conformance.js";
 import { normalizedFileSha256, parseEvidencePointers, requiresReading, resolutionBases, resolveEvidencePath, type EvidencePointer } from "./evidence.js";
 import { isCoberturaReport, isCycloneDxSbom, isEslintReport, isJUnitReport, isLcovReport, isLoadTestReport, isRunwardJUnit, isSarifReport } from "./tool-adapters.js";
@@ -139,7 +139,11 @@ function treeOf(missionDir: string): Tree {
     digest: (rel) => {
       if (!cache.has(rel)) {
         const abs = join(root, ...rel.split("/"));
-        cache.set(rel, isRegularFile(abs) ? normalizedFileSha256(abs) : "absent");
+        // A recorded path is followed only while it stays in the project: a link out of it is never
+        // opened (ADR-0054 crossing 4), and it reads as a file that differs.
+        const target = realpathOr(abs);
+        const inside = target === root || target.startsWith(root.endsWith(sep) ? root : root + sep);
+        cache.set(rel, !inside ? "outside" : isRegularFile(abs) ? normalizedFileSha256(abs) : "absent");
       }
       return cache.get(rel)!;
     },

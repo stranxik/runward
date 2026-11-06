@@ -2,7 +2,7 @@
 // Docker's grammar (`docker`, or `podman`, which accepts it): every argument a separate argv entry, no
 // shell, so nothing a policy or a tree carries is ever interpreted by one (CWE-78).
 //
-// What the port guarantees to the run, each checked by run.js and never assumed:
+// What each call of the port answers, checked by run.js and never assumed:
 //   version()        the runtime answers (else the run is refused: there is nowhere to execute);
 //   pull(image)      the image is fetched by its digest, before any leg, while the network is open;
 //   digests(image)   the digests the runtime holds for it, so the run refuses an image it cannot name;
