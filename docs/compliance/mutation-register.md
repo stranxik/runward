@@ -540,7 +540,7 @@ Holes: 619 · Equivalent: 26 · Display-only: 9 · Defence-in-depth: 0
 | 511 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 511 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 511 | EqualityOperator | `rows.length !== 0` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 511 | Regex | `/[^\n]*\n?/` | equivalent | Equivalent, measured 2026-11-04: the six missions are byte-identical. Why: the regex has no `g` flag, so `replace` acts on the first match only, and `[^\\n]*\\n?` can match the empty string, so its fir… |
+| 511 | Regex | `/[^\n]*\n?/` | equivalent | Equivalent, measured 2026-11-04: the six missions are byte-identical. Why: the regex has no `g` flag, so `replace` acts on the first match only, and `[^\n]*\n?` can match the empty string, so its fir… |
 | 511 | StringLiteral | `"Stryker was here!"` | equivalent | Equivalent, measured 2026-11-04: the six missions are byte-identical, `costeof` and `costnl` included. Why: the heading is replaced by `Stryker was here!` instead of the empty string; that text carri… |
 | 514 | ArrowFunction | `() => undefined` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 514 | ArrowFunction | `() => undefined` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
@@ -745,10 +745,10 @@ Holes: 619 · Equivalent: 26 · Display-only: 9 · Defence-in-depth: 0
 | 863 | MethodExpression | `readdirSync(adrDir).filter(f => isRealAdr(f…` | hole | With .sort() removed, the watch's order becomes the host's readdir order, whereas the code promises 'sorted by filename (deterministic)' and status only displays the first 8 triggers (CAP): on a file… |
 | 863 | MethodExpression | `readdirSync(adrDir)` | hole | With the isRealAdr filter removed from the loop, every .md named ADR-* is read, including below the ADR_MIN_CHARS=40 floor that ALL the rest of the system refuses ('an empty file is not a decision').… |
 | 868 | BlockStatement | `{}` | equivalent | The emptied catch would make execution fall onto adrStatusLine(text) with text undefined (TypeError, runward status crash) IF it were reached; it is unreachable: every f of the loop has already passe… |
-| 873 | Regex | `/accepted\b/i` | hole | With the ^ anchor removed from /^accepted\\b/i, 'accepted' is looked for anywhere in the status line: a SET-ASIDE ADR whose line mentions the word comes into force. Recipe: ADR-0013-superseded.md, '**… |
-| 882 | Regex | `/[^\n]*\n/` | equivalent | replace with a non-global regex replaces the LEFTMOST occurrence; since [^\\n]* can start, even empty, at index 0, the first occurrence of [^\\n]*\\n starts at 0 as soon as a \\n exists: exactly the posi… |
-| 883 | Regex | `/##\s/m` | hole | With the ^ anchor removed from the end-of-section bound /^##\\s/, a '## ' in the MIDDLE of a prose line becomes the end of the section. Recipe: ADR-0021-midline-hashes.md, prose '- Reopen if the "## C… |
-| 885 | Regex | `/\*\*Trigger set on\*\*:\s(\d{4}-\d{2}-\d{2…` | hole | \\s* becomes \\s in the date read: the spelling '**Trigger set on**:2026-04-04' (zero spaces after the colon) stops yielding its date. Recipe: ADR-0027-seton-nospace.md; runward status goes from '• ADR… |
+| 873 | Regex | `/accepted\b/i` | hole | With the ^ anchor removed from /^accepted\b/i, 'accepted' is looked for anywhere in the status line: a SET-ASIDE ADR whose line mentions the word comes into force. Recipe: ADR-0013-superseded.md, '**… |
+| 882 | Regex | `/[^\n]*\n/` | equivalent | replace with a non-global regex replaces the LEFTMOST occurrence; since [^\n]* can start, even empty, at index 0, the first occurrence of [^\n]*\n starts at 0 as soon as a \n exists: exactly the posi… |
+| 883 | Regex | `/##\s/m` | hole | With the ^ anchor removed from the end-of-section bound /^##\s/, a '## ' in the MIDDLE of a prose line becomes the end of the section. Recipe: ADR-0021-midline-hashes.md, prose '- Reopen if the "## C… |
+| 885 | Regex | `/\*\*Trigger set on\*\*:\s(\d{4}-\d{2}-\d{2…` | hole | \s* becomes \s in the date read: the spelling '**Trigger set on**:2026-04-04' (zero spaces after the colon) stops yielding its date. Recipe: ADR-0027-seton-nospace.md; runward status goes from '• ADR… |
 | 889 | MethodExpression | `l` | hole | With the trim removed from the map, the section's lines keep their whitespace and indentation before the length>0 filter: a line of spaces becomes the 'first prose'. Recipe: ADR-0025-indent-prose.md … |
 | 890 | Regex | `/\*\*Trigger set on\*\*/` | hole | With the ^ anchor removed from the anti-metadata filter, any prose CONTAINING '**Trigger set on**' is eliminated from the preview instead of the metadata lines alone. Recipe: ADR-0026-seton-mention.m… |
 | 891 | StringLiteral | `"Stryker was here!"` | hole | The '' fallback becomes 'Stryker was here!' when a trigger section has no prose line (empty section or reduced to its set-on line). Recipe: ADR-0022-emptysection.md (section carrying only '**Trigger … |
@@ -761,13 +761,13 @@ Holes: 619 · Equivalent: 26 · Display-only: 9 · Defence-in-depth: 0
 | ---: | ------- | ------- | -------- | ---- |
 | 767 | ConditionalExpression | `false` | equivalent | The early 'untouched' return on an empty list becomes unreachable, but the fall-through gives the same result: [].some(...) is false by definition of the language, so hasFilled=false and the same lit… |
 | 782 | ArrayDeclaration | `["Stryker was here"]` | equivalent | Occurrence 1: the placeholders floor of the templateKey branch. The fallback only applies if match is null (zero placeholders); .length goes from 0 to 1, both < 3, the divergence guard takes over ide… |
-| 807 | ConditionalExpression | `false` | equivalent | The early return `if (sections.length === 0) return s` is a SHORTCUT, not a behaviour: when no conformance section is found, `drop` stays empty and `s.split("\\n").filter(() => true).join("\\n")` rebui… |
+| 807 | ConditionalExpression | `false` | equivalent | The early return `if (sections.length === 0) return s` is a SHORTCUT, not a behaviour: when no conformance section is found, `drop` stays empty and `s.split("\n").filter(() => true).join("\n")` rebui… |
 | 816 | ConditionalExpression | `true` | equivalent | filter(() => true) is semantically the removed filter: the same (trimmed) empty lines kept as for the MethodExpression mutant on the same line. Same argument, same measurements: '' is absorbed by tem… |
 | 816 | EqualityOperator | `l.length >= 0` | equivalent | length >= 0 is a tautology on any string: an always-true predicate, hence a third form of the same 'inert filter' mutant as the two previous ones on this line. Same absorption of '' by templateLines … |
 | 816 | MethodExpression | `s.split("\n").map(l => l.trim())` | equivalent | Removing the filter keeps the (post-trim) empty lines in lines(). Template side: '' enters templateLines. Content side: each added empty line is then absorbed by templateLines.has('') — so added is i… |
 | 816 | MethodExpression | `l` | hole | Without trim, the content/template comparison is done on RAW lines: a line that changed only in whitespace counts as 'new'. RECIPE: green example mission; replace runward/decision-matrix.md with the … |
-| 819 | MethodExpression | `l.split(/\s+/)` | equivalent | The elements of added come out of lines(), so they are trimmed and non-empty BY CONSTRUCTION (the mutant is applied alone; the lines() line keeps its trim and its filter). And split(/\\s+/) on a strin… |
-| 819 | Regex | `/\s/` | equivalent | /\\s/ instead of /\\s+/ only differs on CONSECUTIVE whitespace: each extra whitespace produces one more empty token — which the filter(Boolean), kept by this mutant, removes. The multiset of non-empty … |
+| 819 | MethodExpression | `l.split(/\s+/)` | equivalent | The elements of added come out of lines(), so they are trimmed and non-empty BY CONSTRUCTION (the mutant is applied alone; the lines() line keeps its trim and its filter). And split(/\s+/) on a strin… |
+| 819 | Regex | `/\s/` | equivalent | /\s/ instead of /\s+/ only differs on CONSECUTIVE whitespace: each extra whitespace produces one more empty token — which the filter(Boolean), kept by this mutant, removes. The multiset of non-empty … |
 | 831 | ArrayDeclaration | `["Stryker was here"]` | equivalent | Occurrence 2: the placeholders test on the path WITHOUT templateKey — a live path, the one the compliance pack takes (govState passes {label, relPath} without templateKey; adr/ and contracts/ return … |
 
 ### sectionTableRows — 9 survivor(s): 9 hole
@@ -860,7 +860,7 @@ Holes: 619 · Equivalent: 26 · Display-only: 9 · Defence-in-depth: 0
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 574 | MethodExpression | `line` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 574 | Regex | `/⧵\|/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 574 | Regex | `/\\|/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 575 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 
 ### adrSetAside — 2 survivor(s): 2 hole
@@ -882,7 +882,7 @@ Holes: 619 · Equivalent: 26 · Display-only: 9 · Defence-in-depth: 0
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 77 | Regex | `/ADR-\d+/` | hole | Anchor ^ lost: every .md name CONTAINING "ADR-<digit>" becomes an ADR. Divergences measured by direct function call: notes-on-ADR-0001.md, DRAFT-ADR-0009-x.md, supersedes-ADR-2.md, xADR-1.md — all fa… |
-| 77 | Regex | `/^ADR-\d/` | equivalent | Equivalent, formally and by measurement. Under .test(), /^ADR-\\d+/ and /^ADR-\\d/ accept exactly the same language: acceptance only depends on positions 0-4 ("ADR-" then ONE digit); the + only lengthe… |
+| 77 | Regex | `/^ADR-\d/` | equivalent | Equivalent, formally and by measurement. Under .test(), /^ADR-\d+/ and /^ADR-\d/ accept exactly the same language: acceptance only depends on positions 0-4 ("ADR-" then ONE digit); the + only lengthe… |
 
 ### REEVALUATION_HEADING — 2 survivor(s): 2 hole
 
@@ -1442,7 +1442,7 @@ Holes: 236 · Equivalent: 83 · Display-only: 36 · Defence-in-depth: 7
 | 1128 | ObjectLiteral | `{}` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-unreadabl… |
 | 1128 | StringLiteral | `""` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-typed`: exit 1 / 1 g… |
 | 1128 | StringLiteral | `ˋˋ` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-unreadable` entry becomes "". Re-run on … |
-| 1147 | ConditionalExpression | `true` | equivalent | The guard is redundant against its own right-hand operand. `p.line` is either `undefined` or the result of `Number()` on a `\\d+` capture, i.e. a number. When it is a number the guard was already true… |
+| 1147 | ConditionalExpression | `true` | equivalent | The guard is redundant against its own right-hand operand. `p.line` is either `undefined` or the result of `Number()` on a `\d+` capture, i.e. a number. When it is a number the guard was already true… |
 | 1147 | StringLiteral | `""` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — with `split("")` the length compared is the CHARACTER count, not the line count, so a… |
 | 1153 | MethodExpression | `p.symbol` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — dropping `.trim()` makes the symbol `" a "` three characters long, so the "names noth… |
 | 1189 | BlockStatement | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
@@ -1531,7 +1531,7 @@ Holes: 236 · Equivalent: 83 · Display-only: 36 · Defence-in-depth: 7
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 409 | Regex | `/\[(?:\\.\|[^\]\\])\]/g` | equivalent | The class-matching half of the normalisation is unobservable. Measured: removing the `.replace(/\\[…\\]/g, "C")` step ENTIRELY leaves the 60000-signature fuzz digest byte-identical, and 17 class-heavy … |
+| 409 | Regex | `/\[(?:\\.\|[^\]\\])\]/g` | equivalent | The class-matching half of the normalisation is unobservable. Measured: removing the `.replace(/\[…\]/g, "C")` step ENTIRELY leaves the 60000-signature fuzz digest byte-identical, and 17 class-heavy … |
 | 409 | Regex | `/\[(?:\\.\|[\]\\])*\]/g` | equivalent | Same measurement as the sibling above, on the same expression: the class-matching regex is inverted rather than narrowed, and the fuzz digest over 60000 signatures is byte-identical, as are the 17 ta… |
 | 409 | StringLiteral | `""` | hole | Escapes are deleted instead of being neutralised into a token. Measured on a deterministic differential fuzz of 60000 generated signatures: 739 answers move (23988 unsafe verdicts become 24727). Dele… |
 | 409 | StringLiteral | `""` | hole | The normalised class is DELETED instead of replaced by a token. Measured on the 60000-signature fuzz: 187 answers move (23988 unsafe verdicts become 24175). Deleting the class brings its neighbours t… |
@@ -1540,11 +1540,11 @@ Holes: 236 · Equivalent: 83 · Display-only: 36 · Defence-in-depth: 7
 | 415 | Regex | `/\((?:\?[:=!]\|\?<[>]*>)?[^()]*[+*}][^()]*\)…` | hole | Battery mission: three entries move from `unsafe signature regex` to `invalid signature regex in the rule file` — `p08 /(?<a)>a+)+/`, `p09 /(?<)>a+)+/`, `p16 /(?<)>[^()]+)+/`. Teeth mission: identica… |
 | 415 | Regex | `/\((?:\?[^:=!]\|\?<[^>]*>)?[^()]*[+*}][^()]*…` | hole | Battery mission: `p07 :: invalid signature regex in the rule file: /(?)+)+/ — fix runward/rules/p07.md` is replaced by `p07 :: unsafe signature regex (nested or overlapping-alternation quantifiers ri… |
 | 415 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?[^()]*[+*}][()]*\)…` | hole | The mutated NESTED scan matches only when the body quantifier sits immediately before the ), so it still catches (a+)+, (a*b*)* and every reduced (G+)+ — but it stops catching a group whose quantifie… |
-| 417 | Regex | `/\((?:\?[:=!]\|\?<[^>]>)?[^()]*⧵\|[^()]*\)[+*…` | hole | Battery mission: `p11 :: unsafe signature regex … /(?<a)>\|)+/` is replaced by `p11 :: invalid signature regex in the rule file: /(?<a)>\|)+/`. Teeth mission: identical. |
-| 417 | Regex | `/\((?:\?[:=!]\|\?<[>]*>)?[^()]*⧵\|[^()]*\)[+*…` | hole | Battery mission: two entries move from `unsafe signature regex` to `invalid signature regex in the rule file` — `p11 /(?<a)>\|)+/` and `p12 /(?<)>\|)+/`. Teeth mission: identical. |
-| 417 | Regex | `/\((?:\?[^:=!]\|\?<[^>]*>)?[^()]*⧵\|[^()]*\)[…` | hole | Battery mission: `p10 :: invalid signature regex in the rule file: /(?)\|)+/` is replaced by `p10 :: unsafe signature regex (nested or overlapping-alternation quantifiers risk catastrophic backtrackin… |
-| 417 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?[^()]*⧵\|[^()]\)[+*…` | hole | The alternation scan requires EXACTLY ONE character between the pipe and the closing parenthesis. Measured: `(a\|bc)+`, `(a\|bcd)*`, `(?:xy\|zw)+` and `(ab\|cd){2}` all flip from unsafe to SAFE — a false… |
-| 445 | ArrayDeclaration | `["Stryker was here"]` | equivalent | \|\| [] is evaluated only when norm.match(/\\(/g) is null, i.e. when norm holds no ( at all — and opens is used for nothing but the loop bound. With no ( in t, the reduction regex (which requires a lite… |
+| 417 | Regex | `/\((?:\?[:=!]\|\?<[^>]>)?[^()]*\\|[^()]*\)[+*…` | hole | Battery mission: `p11 :: unsafe signature regex … /(?<a)>\|)+/` is replaced by `p11 :: invalid signature regex in the rule file: /(?<a)>\|)+/`. Teeth mission: identical. |
+| 417 | Regex | `/\((?:\?[:=!]\|\?<[>]*>)?[^()]*\\|[^()]*\)[+*…` | hole | Battery mission: two entries move from `unsafe signature regex` to `invalid signature regex in the rule file` — `p11 /(?<a)>\|)+/` and `p12 /(?<)>\|)+/`. Teeth mission: identical. |
+| 417 | Regex | `/\((?:\?[^:=!]\|\?<[^>]*>)?[^()]*\\|[^()]*\)[…` | hole | Battery mission: `p10 :: invalid signature regex in the rule file: /(?)\|)+/` is replaced by `p10 :: unsafe signature regex (nested or overlapping-alternation quantifiers risk catastrophic backtrackin… |
+| 417 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?[^()]*\\|[^()]\)[+*…` | hole | The alternation scan requires EXACTLY ONE character between the pipe and the closing parenthesis. Measured: `(a\|bc)+`, `(a\|bcd)*`, `(?:xy\|zw)+` and `(ab\|cd){2}` all flip from unsafe to SAFE — a false… |
+| 445 | ArrayDeclaration | `["Stryker was here"]` | equivalent | \|\| [] is evaluated only when norm.match(/\(/g) is null, i.e. when norm holds no ( at all — and opens is used for nothing but the loop bound. With no ( in t, the reduction regex (which requires a lite… |
 | 449 | EqualityOperator | `opens >= 64` | hole | An off-by-one on a threshold whose safe side no test pins. The two answers differ only at exactly 64 opening groups. Differential run over 56 054 inputs: 2 valid-regex inputs separate them — (?:a) x6… |
 | 451 | EqualityOperator | `i < opens` | equivalent | The loop never exits by exhausting its counter, so removing one iteration removes nothing. Every pass that changes t deletes at least one ( (the replacement G[+][q] contains no parenthesis), and t st… |
 | 451 | UpdateOperator | `i--` | equivalent | Same fact from the other side: with i-- the condition i <= opens is always true, so the mutant is an unbounded loop — and it terminates anyway, because the loop always leaves through break (fixpoint)… |
@@ -1582,19 +1582,19 @@ Holes: 236 · Equivalent: 83 · Display-only: 36 · Defence-in-depth: 7
 | 293 | MethodExpression | `next` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
 | 293 | Regex | `/(file\|test\|adr):\S/` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
 | 293 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 293 | StringLiteral | `""` | display-only | Measured on `cells`: `test:code/reports/junit.xml::` (empty name) is refused either way, same exit 1, same counters; the problem string `typed pointer test:code/reports/junit.xml:: — the \\`::\\` names… |
+| 293 | StringLiteral | `""` | display-only | Measured on `cells`: `test:code/reports/junit.xml::` (empty name) is refused either way, same exit 1, same counters; the problem string `typed pointer test:code/reports/junit.xml:: — the \`::\` names… |
 | 295 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
 | 296 | MethodExpression | `next.trim()` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
 | 296 | MethodExpression | `next` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
 | 296 | MethodExpression | `next` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
 | 305 | StringLiteral | `""` | display-only | Measured on `cells`: only the suggested spelling inside the malformed message moves: for `:: "x "y" z "` the hint `test:…::"x &quot;y&quot; z "` becomes `test:…::" &quot;x &quot;y&quot; z "` (indexOf… |
 | 306 | MethodExpression | `after.slice(0, after.lastIndexOf('"') + 1)` | display-only | Measured on `cells`: the echo keeps the leading white space: `typed pointer test:…::"x "y" z "` becomes `typed pointer test:…:: "x "y" z "` (problem string and witness `raw`). Exit, counters and ever… |
-| 306 | MethodExpression | `after` | display-only | Measured on `cells`: for `::"a "b" c" — trailing comment` the echo grows the comment: `typed pointer test:…::"a "b" c" — trailing comment — a \\`"\\` cannot appear…` (problem string and witness `raw`).… |
+| 306 | MethodExpression | `after` | display-only | Measured on `cells`: for `::"a "b" c" — trailing comment` the echo grows the comment: `typed pointer test:…::"a "b" c" — trailing comment — a \`"\` cannot appear…` (problem string and witness `raw`).… |
 | 306 | StringLiteral | `""` | display-only | Measured on `cells`: identical observation to the `after` mutant (lastIndexOf("") is the length, so the slice is the whole remainder): the comment `— trailing comment` enters the echoed pointer in th… |
 | 307 | StringLiteral | `"Stryker was here!"` | display-only | Measured on `cells`: two malformed messages (`:: "x "y" z "` and `::""x"`) end with `Stryker was here!` instead of nothing (the unquoted alternative is withheld for those names). Exit, counters and w… |
 | 320 | Regex | `/([^\s#]+)#(")([\s\S]*?)\2/` | hole | FALSE GREEN, verified by exit code. Applied on m5 (single defect: `file:code/deleted-b.ts — compare with code/b.ts#"the exact sentence"`): `check --strict --json` went from **exit 1 to exit 0**, conf… |
 | 337 | Regex | `/:(\d+)/` | hole | Applied on m2. Two rows moved and the coverage counter with them (conformance 10 -> 11, `evidence.typed` 16 -> 15, `evidence.prose` 7 -> 8). A row that was GREEN went red: the cell `file:code/2026:07… |
-| 345 | ConditionalExpression | `true` | equivalent | The mutated operand is the left half of `symbol !== undefined && /\\s/.test(symbol)`. When `symbol` is a string, `symbol !== undefined` is already `true`, so replacing it by `true` changes nothing. Wh… |
+| 345 | ConditionalExpression | `true` | equivalent | The mutated operand is the left half of `symbol !== undefined && /\s/.test(symbol)`. When `symbol` is a string, `symbol !== undefined` is already `true`, so replacing it by `true` changes nothing. Wh… |
 | 345 | StringLiteral | `"Stryker was here!"` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for (a symbol must be at least… |
 
 ### onDiskSpelling — 21 survivor(s): 7 hole · 10 equivalent · 4 defence-in-depth
@@ -1612,7 +1612,7 @@ Holes: 236 · Equivalent: 83 · Display-only: 36 · Defence-in-depth: 7
 | 574 | MethodExpression | `from.startsWith(sep)` | hole | On POSIX from is absolute, so from.startsWith(sep) is invariantly true and the ternary yields from instead of from + sep: the bound degrades to a bare string prefix and swallows any SIBLING whose nam… |
 | 575 | MethodExpression | `abs` | hole | Passes the WHOLE absolute path where the remainder below the bound was intended. With the bound engaged the walk matches no first segment and returns null for every in-project pointer. On a case-inse… |
 | 575 | StringLiteral | `""` | equivalent | Un-anchors the separator strip, which cannot matter because the string it runs on always BEGINS with the separator: base is non-null only when abs.startsWith(from + sep) held, so the slice starts at … |
-| 575 | StringLiteral | `""` | equivalent | Empties the search value, so on POSIX the regex source becomes ^\\\\/ (backslash-slash) instead of ^/ and the leading separator survives the strip. The walk absorbs it: parts[0] is then "", and the loo… |
+| 575 | StringLiteral | `""` | equivalent | Empties the search value, so on POSIX the regex source becomes ^\\/ (backslash-slash) instead of ^/ and the leading separator survives the strip. The walk absorbs it: parts[0] is then "", and the loo… |
 | 575 | StringLiteral | `""` | equivalent | Empties the replacement value. On POSIX the search value does not occur in sep ("/"), so the call is a no-op in both versions and the regex is ^/ either way — unobservable by construction on this pla… |
 | 575 | StringLiteral | `"Stryker was here!"` | hole | Splices a literal into the head of the bounded remainder. With the bound engaged the walk matches no first segment and returns null for every in-project pointer. On a case-insensitive volume spelling… |
 | 580 | ArithmeticOperator | `parts[0] - sep` | equivalent | Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly "", the parts[0] === "" test always takes… |
@@ -1656,7 +1656,7 @@ Holes: 236 · Equivalent: 83 · Display-only: 36 · Defence-in-depth: 7
 | 1524 | ConditionalExpression | `false` | equivalent | Deleting the guard changes the value returned only if some pointer with a falsy `path` can reach a different outcome through `resolveFile(p.path, bases)`. It cannot, for two measured reasons. (a) `ad… |
 | 1525 | BooleanLiteral | `true` | equivalent | Dedicated control built (no changing sibling): `typed++` -> `typed += 2` makes the probe diverge on `breakdown\|*`. The two survivors are on a `return false` of an inner function whose caller already … |
 | 1527 | LogicalOperator | `!abs && !isRegularFile(abs)` | hole | \|\| -> && disables the guard for the one input on which the two operators differ: a pointer that RESOLVES to something that is not a regular file. resolvePointer already requires existsSync, so that m… |
-| 1537 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback is used only when the Evidence cell is empty, and it is passed to parseEvidencePointers, which emits a pointer only for a chunk matching POINTER_PREFIX = /\\b(file\|test\|adr):(\\S.*)$/. "St… |
+| 1537 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback is used only when the Evidence cell is empty, and it is passed to parseEvidencePointers, which emits a pointer only for a chunk matching POINTER_PREFIX = /\b(file\|test\|adr):(\S.*)$/. "St… |
 | 1541 | LogicalOperator | `!abs && !isRegularFile(abs)` | equivalent | Dedicated control built (no changing sibling): `typed++` -> `typed += 2` makes the probe diverge on `breakdown\|*`. The two survivors are on a `return false` of an inner function whose caller already … |
 | 1548 | MethodExpression | `[...byEvidence.entries()].filter(([, rs]) =…` | hole | Two missions. m1-dup (2 duplicate groups, inserted zeta-then-alpha so the sorted order is the reverse of the insertion order): official probe OBSERVABLE: json on two runs, dual probe json+print, prob… |
 | 1551 | ArrowFunction | `() => undefined` | hole | Same measurements as 803\|24\|806\|62 and the same result, taken separately: m1-dup official probe OBSERVABLE: json on two runs and dual probe json+print, with probe-delta showing duplicated flipping fr… |
@@ -1750,8 +1750,8 @@ Holes: 236 · Equivalent: 83 · Display-only: 36 · Defence-in-depth: 7
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 1465 | ConditionalExpression | `false` | equivalent | readManifest (conformance.ts) already drops every row whose trimmed rule matches the same `/^\\[.*\\]$/` before returning it (RWD-2026-0097), and parseManifest returns those rows; the cell text is the … |
-| 1465 | Regex | `/^\[.\]$/` | equivalent | Same as the `false` sibling: readManifest removes every `/^\\[.*\\]$/` row before this loop, so narrowing the filter to one character between brackets removes nothing that reaches it. |
+| 1465 | ConditionalExpression | `false` | equivalent | readManifest (conformance.ts) already drops every row whose trimmed rule matches the same `/^\[.*\]$/` before returning it (RWD-2026-0097), and parseManifest returns those rows; the cell text is the … |
+| 1465 | Regex | `/^\[.\]$/` | equivalent | Same as the `false` sibling: readManifest removes every `/^\[.*\]$/` row before this loop, so narrowing the filter to one character between brackets removes nothing that reaches it. |
 | 1472 | ConditionalExpression | `false` | equivalent | adrId is assigned at exactly one site, the `kind === "adr"` branch of parseEvidencePointers (both the valid and the malformed pushes), so `!p.adrId` already excludes every file:/test: pointer and the… |
 | 1480 | StringLiteral | `"Stryker was here!"` | equivalent | `files` is a Map used as an ordered set: sealableEvidencePaths returns `[...files.keys()].sort()` and never reads a value, so the placeholder written by `files.set` cannot reach a caller. Re-measured… |
 | 1494 | StringLiteral | `"Stryker was here!"` | equivalent | Same Map-as-set argument: only the keys leave the function. |
@@ -1806,7 +1806,7 @@ Holes: 236 · Equivalent: 83 · Display-only: 36 · Defence-in-depth: 7
 | ---: | ------- | ------- | -------- | ---- |
 | 133 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The mutant seeds the chunk accumulator with the constant string `Stryker was here`. `splitPointers` has exactly one consumer in the tree — the `for (const chunk of splitPointers(segment))` loop in `p… |
 | 134 | StringLiteral | `"Stryker was here!"` | equivalent | The mutant makes the FIRST chunk carry the prefix `Stryker was here!`. Every path by which that could move a pointer is closed. (1) It cannot CREATE one: the literal has no `:`, and `POINTER_PREFIX` … |
-| 148 | Regex | `/([\s,])(file\|test\|adr):\S/` | equivalent | The mutant deletes the `^` alternative, and that alternative is unreachable code at this call site. The regex is only ever evaluated as the right-hand operand of `if (/\\s\|,/.test(ch) && /(^\|[\\s,])(fi… |
+| 148 | Regex | `/([\s,])(file\|test\|adr):\S/` | equivalent | The mutant deletes the `^` alternative, and that alternative is unreachable code at this call site. The regex is only ever evaluated as the right-hand operand of `if (/\s\|,/.test(ch) && /(^\|[\s,])(fi… |
 | 150 | StringLiteral | `"Stryker was here!"` | equivalent | Same mechanism as the line-66 mutant, applied to every chunk after a cut rather than to the first: the buffer restarts with `Stryker was here!` instead of empty. The closures are identical and none o… |
 | 161 | MethodExpression | `out` | equivalent | Removing the filter changes exactly which chunks reach the consumer, and the chunks it removes are precisely those on which the consumer is a no-op. `out.filter((x) => x.trim())` drops a chunk if and… |
 | 161 | MethodExpression | `x` | equivalent | The predicate becomes the truthiness of the raw chunk instead of the truthiness of its trimmed form. For strings those two predicates disagree on exactly one class of value: the whitespace-only chunk… |
@@ -1902,7 +1902,7 @@ Holes: 236 · Equivalent: 83 · Display-only: 36 · Defence-in-depth: 7
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 194 | Regex | `/\.[^./]+/` | equivalent | Dedicated control built (no changing sibling): inverting `token.includes("/")` makes the probe diverge on `ptr\|*`. The survivor lifts the `$` anchor of `/\\.[^./]+$/`: on the ten tokens measured (`x.t… |
+| 194 | Regex | `/\.[^./]+/` | equivalent | Dedicated control built (no changing sibling): inverting `token.includes("/")` makes the probe diverge on `ptr\|*`. The survivor lifts the `$` anchor of `/\.[^./]+$/`: on the ten tokens measured (`x.t… |
 
 ### POINTER_PREFIX — 1 survivor(s): 1 hole
 
@@ -1949,21 +1949,21 @@ Holes: 153 · Equivalent: 52 · Display-only: 3 · Defence-in-depth: 0
 | 481 | Regex | `/DRAFT-/i` | hole | A file whose NAME contains 'DRAFT-' anywhere other than at the start becomes a DRAFT. Recipe: mission init --example + adr/ADR-0115-DRAFT-mid.md with the body '**Status**: accepted'. Measured: shippe… |
 | 484 | StringLiteral | `"Stryker was here!"` | equivalent | draftBody's initialiser is only observable if readFileSync throws (success overwrites it). Throwing path probed and measured: DRAFT-h-dir.md as a directory (EISDIR) and a giant 540 MiB DRAFT (utf8 be… |
 | 486 | StringLiteral | `""` | hole | Measured (Node 24.18.0): readFileSync(p, "") does not throw — '' is falsy, the read returns a Buffer, and regex.test coerces through toString() whose default is utf8: below V8's string cap (~512 MiB)… |
-| 489 | Regex | `/\s*(?:\*\*status\*\*\|status)\s*:\s*rejecte…` | hole | Without the anchor, a mention of 'status: rejected' in the MIDDLE of a line counts as a resolution. Recipe: mission init --example + adr/DRAFT-f-rej-mid.md whose body is '# DRAFT\\nThe previous status… |
-| 489 | Regex | `/^\s(?:\*\*status\*\*\|status)\s*:\s*rejecte…` | hole | \\s* → \\s requires exactly ONE whitespace before the status: 'Status: rejected' in column 0 — the canonical form of the ADR-0038 resolved DRAFT — no longer matches. Recipe: mission init --example + DR… |
-| 489 | Regex | `/^\S*(?:\*\*status\*\*\|status)\s*:\s*reject…` | hole | \\s* → \\S*: \\S* cannot cross leading spaces, an INDENTED status line no longer matches (column 0 survives through backtracking on an empty \\S*). Recipe: mission init --example + DRAFT-c-rej-indent.md … |
-| 489 | Regex | `/^\s*(?:\*\*status\*\*\|status)\S*:\s*reject…` | hole | The \\s* between the keyword and the colon becomes \\S*: the French space before the colon — the typographic rule, not a mistake, the exact pattern that RWD-2026-0084 has just merged into the four stat… |
-| 489 | Regex | `/^\s*(?:\*\*status\*\*\|status)\s*:\srejecte…` | hole | After the colon, \\s* → \\s requires exactly one whitespace: 'Status:rejected' (no space) and 'Status: rejected' (double space) no longer match. Recipe: mission init --example + DRAFT-e-rej-nospace.md … |
+| 489 | Regex | `/\s*(?:\*\*status\*\*\|status)\s*:\s*rejecte…` | hole | Without the anchor, a mention of 'status: rejected' in the MIDDLE of a line counts as a resolution. Recipe: mission init --example + adr/DRAFT-f-rej-mid.md whose body is '# DRAFT\nThe previous status… |
+| 489 | Regex | `/^\s(?:\*\*status\*\*\|status)\s*:\s*rejecte…` | hole | \s* → \s requires exactly ONE whitespace before the status: 'Status: rejected' in column 0 — the canonical form of the ADR-0038 resolved DRAFT — no longer matches. Recipe: mission init --example + DR… |
+| 489 | Regex | `/^\S*(?:\*\*status\*\*\|status)\s*:\s*reject…` | hole | \s* → \S*: \S* cannot cross leading spaces, an INDENTED status line no longer matches (column 0 survives through backtracking on an empty \S*). Recipe: mission init --example + DRAFT-c-rej-indent.md … |
+| 489 | Regex | `/^\s*(?:\*\*status\*\*\|status)\S*:\s*reject…` | hole | The \s* between the keyword and the colon becomes \S*: the French space before the colon — the typographic rule, not a mistake, the exact pattern that RWD-2026-0084 has just merged into the four stat… |
+| 489 | Regex | `/^\s*(?:\*\*status\*\*\|status)\s*:\srejecte…` | hole | After the colon, \s* → \s requires exactly one whitespace: 'Status:rejected' (no space) and 'Status: rejected' (double space) no longer match. Recipe: mission init --example + DRAFT-e-rej-nospace.md … |
 | 494 | StringLiteral | `"Stryker was here!"` | equivalent | Dead store: in the non-DRAFT branch, the only path where body's initialiser survives is a readFileSync that throws, and this catch does `continue` — the iteration exits before any read of body. Succe… |
 | 496 | StringLiteral | `""` | hole | The same mechanics as the draftBody twin, but here the verdict flips. Measured: readFileSync(p, "") returns a Buffer (encoding '' falsy, no throw) and both .test calls coerce through toString() utf8 … |
-| 498 | BlockStatement | `{}` | equivalent | After the emptied catch, the rest of the loop body comes down to the two tests on body — still "" (the initialiser, which this mutation does not touch). "" can match neither /^\\s*(?:\\*\\*status\\*\\*\|st… |
-| 501 | Regex | `/\s*(?:\*\*status\*\*\|status)\s*:\s*hypothe…` | hole | Without the anchor, a mid-line mention is enough to condemn a ratified ADR. Recipe: mission init --example + ADR-0104-hyp-mid.md: '# x\\nearlier the status: hypothesis label was wrong\\n\\n**Status**: a… |
-| 501 | Regex | `/^\s(?:\*\*status\*\*\|status)\s*:\s*hypothe…` | hole | The widest of the survivors: \\s* → \\s requires whitespace before the status, so 'Status: hypothesis' in COLUMN 0 — the canonical form, the one characterize --mine writes — is no longer detected. Reci… |
-| 501 | Regex | `/^\S*(?:\*\*status\*\*\|status)\s*:\s*hypoth…` | hole | \\s* → \\S*: the indented status line escapes detection (\\S* does not cross spaces; column 0 survives through backtracking). Recipe: mission init --example + ADR-0101-hyp-indent.md (' Status: hypothesi… |
+| 498 | BlockStatement | `{}` | equivalent | After the emptied catch, the rest of the loop body comes down to the two tests on body — still "" (the initialiser, which this mutation does not touch). "" can match neither /^\s*(?:\*\*status\*\*\|st… |
+| 501 | Regex | `/\s*(?:\*\*status\*\*\|status)\s*:\s*hypothe…` | hole | Without the anchor, a mid-line mention is enough to condemn a ratified ADR. Recipe: mission init --example + ADR-0104-hyp-mid.md: '# x\nearlier the status: hypothesis label was wrong\n\n**Status**: a… |
+| 501 | Regex | `/^\s(?:\*\*status\*\*\|status)\s*:\s*hypothe…` | hole | The widest of the survivors: \s* → \s requires whitespace before the status, so 'Status: hypothesis' in COLUMN 0 — the canonical form, the one characterize --mine writes — is no longer detected. Reci… |
+| 501 | Regex | `/^\S*(?:\*\*status\*\*\|status)\s*:\s*hypoth…` | hole | \s* → \S*: the indented status line escapes detection (\S* does not cross spaces; column 0 survives through backtracking). Recipe: mission init --example + ADR-0101-hyp-indent.md (' Status: hypothesi… |
 | 501 | Regex | `/^\s*(?:\*\*status\*\*\|status)\S*:\s*hypoth…` | hole | The French space before the colon stops matching: '**Status** : hypothesis' — the form a French operator writes by typographic rule, the very pattern of RWD-2026-0084 — is no longer detected. Recipe:… |
 | 501 | Regex | `/^\s*(?:\*\*status\*\*\|status)\s*:\shypothe…` | hole | After the colon, exactly one whitespace required: 'Status:hypothesis' (no space) and 'Status: hypothesis' (double space) are no longer detected. Recipe: mission init --example + ADR-0103-hyp-nospace.… |
 | 502 | StringLiteral | `""` | hole | Not cosmetic: the reason IS what tells the operator which marker to lift, and it travels on three surfaces. Recipe: mission init --example + ADR-0100-hyp-col0.md, check --strict with and without the … |
-| 503 | Regex | `/why\S*:\s*UNKNOWN\b/i` | hole | \\s* → \\S* between 'why' and the colon: 'why : UNKNOWN' with the French space is no longer detected. Recipe: mission init --example + ADR-0111-why-fr.md ('**Status**: accepted' + 'why : UNKNOWN'). Mea… |
+| 503 | Regex | `/why\S*:\s*UNKNOWN\b/i` | hole | \s* → \S* between 'why' and the colon: 'why : UNKNOWN' with the French space is no longer detected. Recipe: mission init --example + ADR-0111-why-fr.md ('**Status**: accepted' + 'why : UNKNOWN'). Mea… |
 | 503 | Regex | `/why\s*:\sUNKNOWN\b/i` | hole | After the colon, exactly one whitespace required: 'why:UNKNOWN' (no space) and 'why: UNKNOWN' (double space) are no longer detected — only the exact mined spelling 'why: UNKNOWN' is still seen. Recip… |
 | 504 | StringLiteral | `""` | hole | Same class as the 'Status: hypothesis' reason survivor: the reason is the remediation, on three surfaces. Recipe: mission init --example + ADR-0110-why.md ('**Status**: accepted' + 'why: UNKNOWN'), c… |
 
@@ -1978,7 +1978,7 @@ Holes: 153 · Equivalent: 52 · Display-only: 3 · Defence-in-depth: 0
 | 229 | StringLiteral | `""` | hole | The separator disappears and the list of lines merges into a nonexistent number: measured "lines 35, 41" → "lines 3541". Two locations become a single ghost line — a false remediation, not an abbrevi… |
 | 237 | Regex | `/\s*(ˋˋˋ\|~~~)/` | hole | Lines-loop version of mutant 2: any line of the SECTION containing an inline ``` toggles `fenced`. Recipe: a prose line "note: wrap format examples in ``` fences when documenting" between two rows of… |
 | 237 | Regex | `/^\S*(ˋˋˋ\|~~~)/` | hole | The most serious direction: REFUSE broken. Measured recipe: green example mission, a required row of architecture.md moved INSIDE an indented fence ("␣␣```" … "␣␣```") — an illustration the gate must… |
-| 243 | Regex | `/^#{1,6}\S/` | hole | Through backtracking, /^#{1,6}\\S/ still matches every heading with ≥2 hashes (the last # serves as \\S — checked: "## 5. What stays open" matches, "# Annexe" does not): only a LEVEL 1 heading stops cl… |
+| 243 | Regex | `/^#{1,6}\S/` | hole | Through backtracking, /^#{1,6}\S/ still matches every heading with ≥2 hashes (the last # serves as \S — checked: "## 5. What stays open" matches, "# Annexe" does not): only a LEVEL 1 heading stops cl… |
 | 250 | MethodExpression | `t.startsWith("\|")` | hole | At this point t always starts with \| (filter two lines above), so the condition becomes always true: EVERY GFM-open row (final pipe omitted — valid, identical rendering, explicitly supported by this … |
 | 250 | StringLiteral | `""` | hole | endsWith("") is always true: the same always-slice(1,-1) behaviour as the previous mutant, and the measurements are byte-identical (same battery diff on the GFM-open row, same exit 0→1 flip on the tr… |
 | 264 | MethodExpression | `cols[0] ?? ""` | equivalent | Each cell is already .trim()med in the map that builds cols two lines above; trim is idempotent (same spec definition of whitespace), so the truthiness of (cols[0] ?? "").trim() and of (cols[0] ?? ""… |
@@ -2023,12 +2023,12 @@ Holes: 153 · Equivalent: 52 · Display-only: 3 · Defence-in-depth: 0
 | 522 | Regex | `/DRAFT-/i` | hole | Anchor ^ lost: an ADR name containing 'draft-' as an infix is routed into the DRAFT branch. Measured recipe: mission init + ADR-0007 accepted + ADR-0011-remove-draft-workflow.md ('**Status**: rejecte… |
 | 523 | BlockStatement | `{}` | hole | Empty try: no exception, no return, fall-through out of the DRAFT block to the final return true — the same degeneration as the previous mutant by another path. Measured recipe: mission init + ADR-00… |
 | 524 | Regex | `/\s*(?:\*\*status\*\*\|status)\s*:\s*rejecte…` | hole | Without ^, 'status: rejected' matches anywhere in a line: a hypothesis DRAFT whose prose mentions an upstream rejection is evicted from the count. Measured recipe: mission init + ADR-0007 accepted + … |
-| 524 | Regex | `/^\s(?:\*\*status\*\*\|status)\s*:\s*rejecte…` | hole | ^\\s requires whitespace before status. The probe first showed that this mutant SURVIVES the obvious fixture (status line preceded by an empty line: in m mode, \\s eats the \\n of the empty line and the… |
-| 524 | Regex | `/^\S*(?:\*\*status\*\*\|status)\s*:\s*reject…` | hole | ^\\S* no longer crosses indentation: an indented ' **Status**: rejected' is no longer recognised. Measured recipe: mission init + ADR-0007 accepted + DRAFT-ADR-0013-rejected.md whose status line is in… |
-| 524 | Regex | `/^\s*(?:\*\*status\*\*\|status)\s:\s*rejecte…` | hole | \\s: requires exactly one whitespace between status and the colon: the corpus's CANONICAL form '**Status**: rejected' (zero whitespace before :) no longer matches, and the bare alternative 'status' ca… |
-| 524 | Regex | `/^\s*(?:\*\*status\*\*\|status)\S*:\s*reject…` | hole | \\S*: no longer crosses whitespace before the colon: '**Status** : rejected' (space before the colon — French typography, real in this FR corpus) is no longer recognised. Measured recipe: mission init… |
-| 524 | Regex | `/^\s*(?:\*\*status\*\*\|status)\s*:\srejecte…` | hole | :\\s requires exactly one whitespace after the colon: '**Status**:rejected' (no space) is no longer recognised. Measured recipe: mission init + ADR-0007 accepted + DRAFT-ADR-0015-rejected.md carrying … |
-| 524 | Regex | `/^\s*(?:\*\*status\*\*\|status)\s*:\S*reject…` | hole | :\\S* cannot cross the space after the colon: the CANONICAL form '**Status**: rejected' (one space) no longer matches — the same breakage of the house convention as the \\s: mutant on the left side. Me… |
+| 524 | Regex | `/^\s(?:\*\*status\*\*\|status)\s*:\s*rejecte…` | hole | ^\s requires whitespace before status. The probe first showed that this mutant SURVIVES the obvious fixture (status line preceded by an empty line: in m mode, \s eats the \n of the empty line and the… |
+| 524 | Regex | `/^\S*(?:\*\*status\*\*\|status)\s*:\s*reject…` | hole | ^\S* no longer crosses indentation: an indented ' **Status**: rejected' is no longer recognised. Measured recipe: mission init + ADR-0007 accepted + DRAFT-ADR-0013-rejected.md whose status line is in… |
+| 524 | Regex | `/^\s*(?:\*\*status\*\*\|status)\s:\s*rejecte…` | hole | \s: requires exactly one whitespace between status and the colon: the corpus's CANONICAL form '**Status**: rejected' (zero whitespace before :) no longer matches, and the bare alternative 'status' ca… |
+| 524 | Regex | `/^\s*(?:\*\*status\*\*\|status)\S*:\s*reject…` | hole | \S*: no longer crosses whitespace before the colon: '**Status** : rejected' (space before the colon — French typography, real in this FR corpus) is no longer recognised. Measured recipe: mission init… |
+| 524 | Regex | `/^\s*(?:\*\*status\*\*\|status)\s*:\srejecte…` | hole | :\s requires exactly one whitespace after the colon: '**Status**:rejected' (no space) is no longer recognised. Measured recipe: mission init + ADR-0007 accepted + DRAFT-ADR-0015-rejected.md carrying … |
+| 524 | Regex | `/^\s*(?:\*\*status\*\*\|status)\s*:\S*reject…` | hole | :\S* cannot cross the space after the colon: the CANONICAL form '**Status**: rejected' (one space) no longer matches — the same breakage of the house convention as the \s: mutant on the left side. Me… |
 | 524 | StringLiteral | `""` | equivalent | readFileSync(p, ''): the empty-string encoding is falsy, Node returns a Buffer (checked: Buffer.isBuffer = true, no throw). RegExp.test coerces its argument through String(buf) = buf.toString(), whos… |
 | 526 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3949481… |
 | 527 | BooleanLiteral | `false` | hole | The DRAFT branch's catch now answers 'excluded': an unreadable DRAFT disappears from the total while staying in the to-ratify list (unratifiedAdrs, not mutated, pushes it through its own catch). Meas… |
@@ -2040,19 +2040,19 @@ Holes: 153 · Equivalent: 52 · Display-only: 3 · Defence-in-depth: 0
 | 61 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback only fires on a rule file WITHOUT frontmatter. fm has only three consumers, the three impact/phases/signature matches; the literal "Stryker was here!" contains none of the substrings imp… |
 | 62 | MethodExpression | `fm.match(/^impact:\s*(.+)$/m)?.[1] ?? ""` | hole | RECIPE: example mission, an architect rule (contracts-governance.md) carries "impact: CRITICAL" followed by ONE trailing space (a mundane editor gesture), lock re-signed. MEASURED: shipped build → "A… |
 | 62 | Regex | `/impact:\s*(.+)$/m` | hole | Without ^, match() takes the FIRST occurrence of "impact:" anywhere in the frontmatter, including mid-line. RECIPE: example mission, contracts-governance.md receives before its impact line an operato… |
-| 62 | Regex | `/^impact:\s*(.+)/m` | equivalent | $ is redundant after a greedy (.+): in JS the dot excludes line terminators (\\n AND \\r), so (.+) extends exactly to the position where multiline $ always succeeds — no backtracking possible, identica… |
-| 62 | Regex | `/^impact:\s(.+)$/m` | hole | \\s requires exactly one whitespace where \\s* accepts zero. RECIPE: example mission, contracts-governance.md carries "impact:CRITICAL" without a space after the colon — a form the shipped parser ACCEP… |
-| 62 | Regex | `/^impact:\S*(.+)$/m` | hole | The same door as the \\s mutant but from the other edge: on "impact: CRITICAL" \\S* matches empty before the space (identical), but on "impact:CRITICAL" the greedy \\S* swallows the value and backtracki… |
+| 62 | Regex | `/^impact:\s*(.+)/m` | equivalent | $ is redundant after a greedy (.+): in JS the dot excludes line terminators (\n AND \r), so (.+) extends exactly to the position where multiline $ always succeeds — no backtracking possible, identica… |
+| 62 | Regex | `/^impact:\s(.+)$/m` | hole | \s requires exactly one whitespace where \s* accepts zero. RECIPE: example mission, contracts-governance.md carries "impact:CRITICAL" without a space after the colon — a form the shipped parser ACCEP… |
+| 62 | Regex | `/^impact:\S*(.+)$/m` | hole | The same door as the \s mutant but from the other edge: on "impact: CRITICAL" \S* matches empty before the space (identical), but on "impact:CRITICAL" the greedy \S* swallows the value and backtracki… |
 | 62 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback only fires on a rule WITHOUT an impact line. parseRuleMeta is private to the module: impact has only ONE consumer, expectedRules's test impact === "CRITICAL" \|\| impact === "HIGH" (ruleSi… |
 | 63 | Regex | `/phases:\s*\[(.*)\]/m` | hole | Without ^, the first occurrence of "phases: [...]" wins, even mid-line. RECIPE: example mission, contracts-governance.md receives before its phases line the line "reviewNote: rollout phases: [pilot] … |
-| 63 | Regex | `/^phases:\s\[(.*)\]/m` | hole | \\s requires whitespace that \\s* does not. RECIPE: example mission, contracts-governance.md carries "phases:[architect]" without a space — accepted by the shipped parser, lock re-signed. MEASURED: shi… |
+| 63 | Regex | `/^phases:\s\[(.*)\]/m` | hole | \s requires whitespace that \s* does not. RECIPE: example mission, contracts-governance.md carries "phases:[architect]" without a space — accepted by the shipped parser, lock re-signed. MEASURED: shi… |
 | 63 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback only fires on a rule WITHOUT a phases line; phases then becomes ["Stryker was here!"] instead of []. The only consumer is phases.includes(phaseId) in expectedRules, and phaseId is always… |
 | 64 | MethodExpression | `phasesRaw.split(",").map(s => s.trim())` | equivalent | Removing filter(Boolean) can only ADD "" entries to phases (phases: [] → [""], trailing comma → ["architect",""]). The only consumer is phases.includes(phaseId) with phaseId among the five fixed, non… |
 | 65 | MethodExpression | `fm.match(/^signature:\s*(.+)$/m)?.[1] ?? ""` | hole | The signature is a regex SOURCE (ADR-0020): an untrimmed trailing whitespace becomes a literal space required in the proof. RECIPE: example mission, frontier-deterministic-boundary.md (signed rule, a… |
 | 65 | Regex | `/signature:\s*(.+)$/m` | hole | Without ^, the first occurrence of "signature:" in the frontmatter wins. RECIPE: example mission, frontier-deterministic-boundary.md receives before its signature line the line "reviewNote: the signa… |
-| 65 | Regex | `/^signature:\s*(.+)/m` | equivalent | The same identity as the twin mutant on impact: $ is redundant after a greedy (.+), the JS dot excluding \\n and \\r, the final position of (.+) is exactly the one where multiline $ always succeeds — i… |
+| 65 | Regex | `/^signature:\s*(.+)/m` | equivalent | The same identity as the twin mutant on impact: $ is redundant after a greedy (.+), the JS dot excluding \n and \r, the final position of (.+) is exactly the one where multiline $ always succeeds — i… |
 | 65 | Regex | `/^signature:\s(.+)$/m` | hole | The worst direction: the gate falls silent. RECIPE: example mission, frontier-deterministic-boundary.md carries "signature:zzqx9" without a space, a pattern absent from the cited proof — the shipped … |
-| 65 | Regex | `/^signature:\S*(.+)$/m` | hole | Same recipe as the \\s twin ("signature:zzqx9" without a space, pattern absent from the proof), different mechanics: the greedy \\S* swallows the value and backtracking leaves the last character to (.+… |
+| 65 | Regex | `/^signature:\S*(.+)$/m` | hole | Same recipe as the \s twin ("signature:zzqx9" without a space, pattern absent from the proof), different mechanics: the greedy \S* swallows the value and backtracking leaves the last character to (.+… |
 
 ### declaredUncarriableNatures — 14 survivor(s): 1 hole · 13 equivalent
 
@@ -2139,10 +2139,10 @@ Holes: 153 · Equivalent: 52 · Display-only: 3 · Defence-in-depth: 0
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 193 | EqualityOperator | `i <= lines.length` | equivalent | The heading scan's extra iteration reads lines[lines.length] === undefined; RegExp.test coerces it to the constant string 'undefined', which matches neither /^\\s*(```\|~~~)/ nor /^#{1,6}\\s+Rule confor… |
+| 193 | EqualityOperator | `i <= lines.length` | equivalent | The heading scan's extra iteration reads lines[lines.length] === undefined; RegExp.test coerces it to the constant string 'undefined', which matches neither /^\s*(```\|~~~)/ nor /^#{1,6}\s+Rule confor… |
 | 194 | Regex | `/\s*(ˋˋˋ\|~~~)/` | hole | Unanchored, the fence regex toggles `fenced` on any line CONTAINING an inline ```. HONEST-REFUSAL recipe: green `init --example` mission + a prose line "Note: wrap format examples in ``` fences." bef… |
 | 198 | Regex | `/#{1,6}\s+Rule conformance/i` | hole | Unanchored, the regex counts a MENTION in prose as a section heading. Recipe: add "The ## Rule conformance table below accounts for every mapped rule." above the real section → measured exit 0→1, ref… |
-| 198 | Regex | `/^#{1,6}\sRule conformance/i` | hole | \\s+ → \\s: a heading written "##␣␣Rule conformance" (double space — identical markdown rendering) is no longer recognised. Measured directly: rows [] AND problems [] — doubly silent, the deliverable "… |
+| 198 | Regex | `/^#{1,6}\sRule conformance/i` | hole | \s+ → \s: a heading written "##␣␣Rule conformance" (double space — identical markdown rendering) is no longer recognised. Measured directly: rows [] AND problems [] — doubly silent, the deliverable "… |
 | 203 | EqualityOperator | `i <= lines.length` | equivalent | Five survivors for four siblings KILLED in the same function (the fence toggle, its regex without `^`, the inner fence block, the inversion of `inFence`): so the probe is measurably sensitive here, o… |
 | 204 | Regex | `/^\S*(ˋˋˋ\|~~~)/` | hole | CommonMark allows a fence indented by up to 3 spaces; the mutant stops following it. Recipe A: an illustration inside an indented fence ("␣␣```") whose fake example heading is in column 0 → measured … |
 | 204 | Regex | `/\s*(ˋˋˋ\|~~~)/` | equivalent | Five survivors for four siblings KILLED in the same function (the fence toggle, its regex without `^`, the inner fence block, the inversion of `inFence`): so the probe is measurably sensitive here, o… |
@@ -2155,7 +2155,7 @@ Holes: 153 · Equivalent: 52 · Display-only: 3 · Defence-in-depth: 0
 | ---: | ------- | ------- | -------- | ---- |
 | 574 | ConditionalExpression | `true` | equivalent | When floor is defined the two forms are identical; when EXPECTED_MAPPED[phaseId] is undefined the mutant evaluates 'expected.length < undefined', which is false for every n under JS relational semant… |
 | 591 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 591 | Regex | `/\[.*\]$/` | hole | The placeholder skip /^\\[.*\\]$/ exists to exempt template rows like '[rule-slug]' from form-lint; dropping the '^' widens it to 'ends with ]', a strict superset, so REAL rows are silently exempted fr… |
+| 591 | Regex | `/\[.*\]$/` | hole | The placeholder skip /^\[.*\]$/ exists to exempt template rows like '[rule-slug]' from form-lint; dropping the '^' widens it to 'ends with ]', a strict superset, so REAL rows are silently exempted fr… |
 | 591 | Regex | `/^\[.*\]/` | hole | The same superset in the other direction: dropping the '$' widens the placeholder skip to 'starts with [', which is exactly a rule cell written as a markdown link — the natural spelling for an operat… |
 | 591 | Regex | `/^\[.\]$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 601 | StringLiteral | `ˋˋ` | hole | A remediation deleted from the verdict, which ADR-0046 files alongside a changed violation line. The '— removed in …' hint is the whole reason a corpus carries migrations.json (ADR-0057: an org's ren… |
@@ -2380,12 +2380,12 @@ Holes: 80 · Equivalent: 20 · Display-only: 0 · Defence-in-depth: 0
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 347 | Regex | `/\.\//` | hole | The "./" strip loses its start anchor. Measured: pointer "src/a./b.ts" against filename="src/a./b.ts", and pointer "../lib/up.ts" against filename="/repo/pkg/../lib/up.ts", both go "covered" -> "abse… |
-| 347 | StringLiteral | `""` | hole | Backslashes in the pointer are deleted instead of normalised. Measured: coberturaFileResult(COBERTURA, "src\\\\guard.ts") goes "covered" -> "absent". |
+| 347 | StringLiteral | `""` | hole | Backslashes in the pointer are deleted instead of normalised. Measured: coberturaFileResult(COBERTURA, "src\\guard.ts") goes "covered" -> "absent". |
 | 347 | StringLiteral | `"Stryker was here!"` | hole | The replacement string is injected into the wanted path. Measured: coberturaFileResult(COBERTURA, "./src/guard.ts") goes "covered" -> "absent". |
 | 359 | ArithmeticOperator | `m.index - m[0].length` | hole | The body of a record with no </class> starts m[0].length before its own tag, pulling in the previous record. Measured on a truncated report whose unterminated dead record follows a live one: "uncover… |
 | 359 | MethodExpression | `content` | hole | On a record with no </class> the body becomes the WHOLE document, so the record inherits every other record's hits. Measured on a truncated report whose unterminated dead record follows a live one: "… |
-| 365 | Regex | `/<line\b[^>]*\bhits\S*=\s*["'](\d+)["']/ig` | hole | `hits\\S*=` cannot cross whitespace. Measured on records whose only evidence is `<line number="1" hits = "4"/>` or `hits ="4"`: "covered" -> "uncovered". |
-| 365 | Regex | `/<line\b[^>]*\bhits\s*=\S*["'](\d+)["']/ig` | hole | `=\\S*` cannot cross whitespace after the equals sign. Measured on records whose only evidence is `hits = "4"` or `hits= "4"`: "covered" -> "uncovered". |
+| 365 | Regex | `/<line\b[^>]*\bhits\S*=\s*["'](\d+)["']/ig` | hole | `hits\S*=` cannot cross whitespace. Measured on records whose only evidence is `<line number="1" hits = "4"/>` or `hits ="4"`: "covered" -> "uncovered". |
+| 365 | Regex | `/<line\b[^>]*\bhits\s*=\S*["'](\d+)["']/ig` | hole | `=\S*` cannot cross whitespace after the equals sign. Measured on records whose only evidence is `hits = "4"` or `hits= "4"`: "covered" -> "uncovered". |
 
 ### junitTestCases — 7 survivor(s): 6 hole · 1 equivalent
 
@@ -2443,7 +2443,7 @@ Holes: 80 · Equivalent: 20 · Display-only: 0 · Defence-in-depth: 0
 | ---: | ------- | ------- | -------- | ---- |
 | 277 | Regex | `/end_of_record\s*$/m` | hole | Dropping the line anchor on the terminator. Measured: isLcovReport goes false -> true for a file whose terminator is indented, and for one whose only occurrence is `TN:end_of_record` at the end of a … |
 | 277 | Regex | `/^end_of_record\s*/m` | hole | Dropping `$` lets any line merely starting with the token count as a terminator. Measured on a file whose line is `end_of_record_v2`: isLcovReport goes false -> true. |
-| 277 | Regex | `/^end_of_record\S*$/m` | hole | `\\S*` inverts the character class. Measured: a genuine report whose terminators carry trailing spaces goes true -> false, and a file whose line is `end_of_record_v2` goes false -> true. |
+| 277 | Regex | `/^end_of_record\S*$/m` | hole | `\S*` inverts the character class. Measured: a genuine report whose terminators carry trailing spaces goes true -> false, and a file whose line is `end_of_record_v2` goes false -> true. |
 
 ### isRunwardJUnit — 3 survivor(s): 3 hole
 
@@ -2481,14 +2481,14 @@ Holes: 80 · Equivalent: 20 · Display-only: 0 · Defence-in-depth: 0
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 425 | Regex | `/"bomFormat"\S*:\s*"CycloneDX"/i` | hole | \\S* cannot cross the space before the colon: measured isCycloneDxSbom('{"bomFormat" :"CycloneDX","components":[]}') flipped true to false. A pretty-printed SBOM stops being recognised as one. |
+| 425 | Regex | `/"bomFormat"\S*:\s*"CycloneDX"/i` | hole | \S* cannot cross the space before the colon: measured isCycloneDxSbom('{"bomFormat" :"CycloneDX","components":[]}') flipped true to false. A pretty-printed SBOM stops being recognised as one. |
 | 425 | Regex | `/"components"\S*:/` | hole | Same failure on the components marker: measured isCycloneDxSbom('{"bomFormat":"CycloneDX","components" : []}') flipped true to false. |
 
 ### isEslintReport — 2 survivor(s): 2 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 378 | Regex | `/"filePath"\S*:/` | hole | \\S* cannot cross the space before the colon: measured isEslintReport('[{"filePath" : "a","messages":[]}]') flipped true to false. A pretty-printed ESLint report stops being recognised. |
+| 378 | Regex | `/"filePath"\S*:/` | hole | \S* cannot cross the space before the colon: measured isEslintReport('[{"filePath" : "a","messages":[]}]') flipped true to false. A pretty-printed ESLint report stops being recognised. |
 | 378 | Regex | `/"messages"\S*:/` | hole | Same failure on the messages marker: measured isEslintReport('[{"filePath":"a","messages" : []}]') flipped true to false, while the filePath-only-spaced fixture is unaffected — the two regex mutants … |
 
 ### isK6Summary — 2 survivor(s): 2 hole
@@ -2542,9 +2542,9 @@ Holes: 32 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
 | 57 | MethodExpression | `fm.match(/^title:\s*(.+)$/m)?.[1] ?? f.repl…` | display-only | Surface: `RuleAsi.title`. Measured with a rule written `title: Rule WS `: the returned title keeps its trailing spaces and every emitted artifact is byte-identical. Shared with this batch: the `rules… |
 | 57 | OptionalChaining | `fm.match(/^title:\s*(.+)$/m)[1]` | hole | Without the optional chaining, a rule file with no `title:` line makes `.match` return null OUTSIDE any try, so `null[1]` throws out of `gatherComplianceInputs` and the pack is never assembled. Three… |
 | 57 | Regex | `/title:\s*(.+)$/m` | display-only | Surface: `RuleAsi.title`. Measured with a rule whose `nonScope:` line reads "does not prove the subtitle: rendering is correct" above the real `title:`: the unanchored pattern captures the earlier li… |
-| 57 | Regex | `/^title:\s*(.+)/m` | equivalent | `.` in ECMAScript never matches a LineTerminator (`\\n`, `\\r`, U+2028, U+2029), so a greedy `(.+)` always ends at a line end - exactly where multiline `$` asserts. The two patterns therefore capture t… |
+| 57 | Regex | `/^title:\s*(.+)/m` | equivalent | `.` in ECMAScript never matches a LineTerminator (`\n`, `\r`, U+2028, U+2029), so a greedy `(.+)` always ends at a line end - exactly where multiline `$` asserts. The two patterns therefore capture t… |
 | 57 | Regex | `/^title:\s(.+)$/m` | display-only | Surface: `RuleAsi.title`. Requiring exactly one whitespace changes the value on `title:Rule Two` (no space, valid YAML): the match fails and the title falls back to the filename - measured. Every emi… |
-| 57 | Regex | `/^title:\S*(.+)$/m` | display-only | Surface: `RuleAsi.title`. On the shipped `title: X` shape `\\S*` matches nothing and the leading space is removed again by the `.trim()` on the same line, so nothing moves; a difference appears only o… |
+| 57 | Regex | `/^title:\S*(.+)$/m` | display-only | Surface: `RuleAsi.title`. On the shipped `title: X` shape `\S*` matches nothing and the leading space is removed again by the `.trim()` on the same line, so nothing moves; a difference appears only o… |
 | 57 | Regex | `/\.md/` | display-only | Surface: `RuleAsi.title`, on its FALLBACK branch only. Measured with a rule file named `rule.md.keep.md` and no `title:` field: the fallback title becomes "rule.keep.md" instead of "rule.md.keep". Ev… |
 | 57 | StringLiteral | `"Stryker was here!"` | display-only | Surface: `RuleAsi.title`, fallback branch. Measured on three missions where a rule has no `title:` line: the fallback becomes e.g. "rule-twoStryker was here!". Every emitted artifact is byte-identica… |
 | 58 | MethodExpression | `fm.match(/^impact:\s*(.+)$/m)?.[1] ?? ""` | display-only | Surface: `RuleAsi.impact`. Measured with `impact: HIGH `: the value keeps its trailing spaces. Every emitted artifact is byte-identical. Note the gate does not read impact from here either - `parseRu… |
@@ -2552,10 +2552,10 @@ Holes: 32 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
 | 58 | Regex | `/impact:\s*(.+)$/m` | display-only | Surface: `RuleAsi.impact`. Measured with a rule whose `nonScope:` line reads "... not that impact: LOW holds in production" above the real `impact:`: the unanchored pattern captures the earlier line … |
 | 58 | Regex | `/^impact:\s*(.+)/m` | equivalent | Identical proof to the `title` sibling: `.` never matches a LineTerminator, so a greedy `(.+)` already ends where multiline `$` asserts, and the two patterns capture the same text for every input (me… |
 | 58 | Regex | `/^impact:\s(.+)$/m` | display-only | Surface: `RuleAsi.impact`. Requiring exactly one whitespace loses the value on `impact:HIGH` (measured: the match fails and the field falls back to ""). Every emitted artifact is byte-identical. Shar… |
-| 58 | Regex | `/^impact:\S*(.+)$/m` | display-only | Surface: `RuleAsi.impact`. Measured on `impact:HIGH`, where `\\S*` eats "HIG" and the field becomes "H". On the shipped `impact: HIGH` shape the `.trim()` on the same line absorbs the difference. Ever… |
+| 58 | Regex | `/^impact:\S*(.+)$/m` | display-only | Surface: `RuleAsi.impact`. Measured on `impact:HIGH`, where `\S*` eats "HIG" and the field becomes "H". On the shipped `impact: HIGH` shape the `.trim()` on the same line absorbs the difference. Ever… |
 | 58 | StringLiteral | `"Stryker was here!"` | display-only | Surface: `RuleAsi.impact`, fallback branch. Measured on the three missions where a rule has no `impact:` line: the field becomes "Stryker was here!". Every emitted artifact is byte-identical. Shared … |
 | 59 | Regex | `/asi:\s*\[(.*)\]/m` | hole | Recipe: indent the field by two spaces - ` asi: [ASI09]` - a routine YAML slip. The anchored pattern does not see it, and neither does `listField` in rules.ts, which is anchored the same way; the mut… |
-| 59 | Regex | `/^asi:\s\[(.*)\]/m` | hole | Recipe: write `asi:[ASI03]` or `asi: [ASI03]` - both valid YAML, both read by `listField` in rules.ts, which uses `\\s*`. Measured on each: the ASI03 row of the three drafts goes from `` `rule-two` ``… |
+| 59 | Regex | `/^asi:\s\[(.*)\]/m` | hole | Recipe: write `asi:[ASI03]` or `asi: [ASI03]` - both valid YAML, both read by `listField` in rules.ts, which uses `\s*`. Measured on each: the ASI03 row of the three drafts goes from `` `rule-two` ``… |
 | 59 | StringLiteral | `"Stryker was here!"` | equivalent | Measured byte-identical on 17 missions, and the branch is heavily exercised: 34 of the 64 shipped rules carry no `asi:` field at all, so the fallback runs on every mission probed. It is inert because… |
 | 60 | MethodExpression | `asiRaw.split(",").map(s => s.trim().toUpper…` | display-only | Surface: `RuleAsi.asi`. Measured on 8 missions: rules with no `asi:` field come out `[""]` instead of `[]`, and junk tokens (`xASI04`, `ASI055`, `ASI3`) are kept. Not one emitted byte moves. The arra… |
 | 60 | Regex | `/ASI\d{2}$/` | display-only | Surface: `RuleAsi.asi`, same terminal guard as the sibling that drops the filter entirely. Dropping `^` admits a token that merely ENDS in an ASI id; measured with `asi: [ASI03, xASI04, ...]`, `"XASI… |
@@ -2579,7 +2579,7 @@ Holes: 32 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
 | 459 | StringLiteral | `""` | defence-in-depth | `presence` is only reachable with verdict.strict false, and the shipped path hardcodes the other branch: complianceCommand computes `computeVerdict(mission, { strict: true })` and sets `strict: true`… |
 | 460 | StringLiteral | `""` | defence-in-depth | The `not run for this pack` arm is reached only when inputs.verdict is absent, and the CLI always assigns it before rendering (src/commands/compliance.ts:60-70) - an unasked gate cannot occur in the … |
 | 465 | ConditionalExpression | `false` | hole | runward-evidence-depth is a prop an ingesting tool reads. Mutated, the `no rule mapped` arm is skipped and an unmapped category falls through to `0 rule(s) mapped, none accounted for in a manifest ye… |
-| 466 | StringLiteral | `""` | hole | Same corner as survivor 13, worse outcome: the prop value becomes the empty string, which violates the OSCAL StringDatatype pattern `^\\S(.*\\S)?$` - probed with the vendored NIST 1.2.2 schema and ajv,… |
+| 466 | StringLiteral | `""` | hole | Same corner as survivor 13, worse outcome: the prop value becomes the empty string, which violates the OSCAL StringDatatype pattern `^\S(.*\S)?$` - probed with the vendored NIST 1.2.2 schema and ajv,… |
 | 470 | StringLiteral | `""` | hole | The separator between rule slugs inside the prose caveat is the only thing making that list machine- and human-splittable. Probed on the rich mission with two prose rows on ASI09: `... (ADR-0004): ha… |
 | 471 | StringLiteral | `ˋˋ` | hole | The strongest case a pack can state - the depth of the evidence behind a green row - becomes the empty string. Probed on the rich mission: all ten requirements lose `N rule(s), M manifest row(s) whos… |
 
@@ -2594,8 +2594,8 @@ Holes: 32 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
 | 107 | MethodExpression | `body.match(/^#\s+(.+)$/m)?.[1] ?? f.replace…` | display-only | SURFACE (A) — the ADR-journal cell: `title` and `status` reach exactly one place, the row `\| <title> (`<file>`) \| <status or —> \|` in the "Design decisions (ADR journal)" table of the three readiness… |
 | 107 | OptionalChaining | `body.match(/^#\s+(.+)$/m)[1]` | hole | RECIPE: an ADR with no `# ` heading — `runward/adr/ADR-0013-no-heading.md` containing a single sentence over the 40-character floor isRealAdr enforces (`ADR_MIN_CHARS = 40`); a heading is never requi… |
 | 107 | Regex | `/#\s+(.+)$/m` | display-only | SURFACE (A) — the ADR-journal cell: `title` and `status` reach exactly one place, the row `\| <title> (`<file>`) \| <status or —> \|` in the "Design decisions (ADR journal)" table of the three readiness… |
-| 107 | Regex | `/^#\s+(.+)/m` | equivalent | SENSITIVITY CONTROL: `(.+)` is GREEDY and `.` matches neither \\n nor \\r, so the match already terminates exactly at the first line terminator; `$` under /m only asserts the position the greedy quanti… |
-| 107 | Regex | `/^#\s(.+)$/m` | equivalent | SENSITIVITY CONTROL: both `\\s+` and `\\s` require at least one whitespace after `#`, so neither the existence nor the leftmost position of the match can change; the extra whitespace the mutant leaves … |
+| 107 | Regex | `/^#\s+(.+)/m` | equivalent | SENSITIVITY CONTROL: `(.+)` is GREEDY and `.` matches neither \n nor \r, so the match already terminates exactly at the first line terminator; `$` under /m only asserts the position the greedy quanti… |
+| 107 | Regex | `/^#\s(.+)$/m` | equivalent | SENSITIVITY CONTROL: both `\s+` and `\s` require at least one whitespace after `#`, so neither the existence nor the leftmost position of the match can change; the extra whitespace the mutant leaves … |
 | 107 | Regex | `/\.md/` | display-only | SURFACE (A) — the ADR-journal cell: `title` and `status` reach exactly one place, the row `\| <title> (`<file>`) \| <status or —> \|` in the "Design decisions (ADR journal)" table of the three readiness… |
 | 107 | StringLiteral | `"Stryker was here!"` | defence-in-depth | SURFACE (A) — the ADR-journal cell: `title` and `status` reach exactly one place, the row `\| <title> (`<file>`) \| <status or —> \|` in the "Design decisions (ADR journal)" table of the three readiness… |
 
@@ -2649,7 +2649,7 @@ Holes: 32 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 132 | ConditionalExpression | `true` | hole | The `has` is a live guard, not a redundant one: readRules accepts any token matching `/^ASI\\d{2}$/` from a rule's `asi:` front matter, while asiCoverage is seeded only with the ten keys of ASI_LABELS… |
+| 132 | ConditionalExpression | `true` | hole | The `has` is a live guard, not a redundant one: readRules accepts any token matching `/^ASI\d{2}$/` from a rule's `asi:` front matter, while asiCoverage is seeded only with the ten keys of ASI_LABELS… |
 | 143 | StringLiteral | `""` | equivalent | SENSITIVITY CONTROL: this object literal is built at the call site, handed to artifactState, and discarded. artifactState and inProgressCause (src/lib/mission.ts) read `relPath` and `templateKey` and… |
 | 144 | StringLiteral | `""` | equivalent | Identical control to the sibling `label` mutant on the threat-model literal: the object never escapes the call, and artifactState/inProgressCause read `relPath` and `templateKey` only. Mutating `relP… |
 
@@ -3148,7 +3148,7 @@ Holes: 11 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 269 | StringLiteral | `""` | hole | Changing `.split("\\\\").join("/")` to `.join("")` changed the derived path on the fixture whose entry module carries a backslash in its name: `src/a/b.ts` became `src/ab.ts`. The category is therefore… |
+| 269 | StringLiteral | `""` | hole | Changing `.split("\\").join("/")` to `.join("")` changed the derived path on the fixture whose entry module carries a backslash in its name: `src/a/b.ts` became `src/ab.ts`. The category is therefore… |
 | 288 | Regex | `/["']\|["']$/g` | hole | Dropping the `^` makes the strip remove every quote in the value, not just the delimiters. Measured on a manifest whose entry is `main = "src/o'brien.ts"`: the delivered code derives two bindings on … |
 | 288 | Regex | `/^["']\|["']/g` | hole | Dropping the `$` on the second alternative has the same effect as dropping the `^` on the first: interior quotes are stripped. On the `main = "src/o'brien.ts"` fixture the two bindings became a singl… |
 | 300 | StringLiteral | `"Stryker was here!"` | equivalent | The default only feeds tomlStringList, which returns null for any string not starting with "[", so "" and "Stryker was here!" both yield null and the loop continues. Measured: byte-identical Derivati… |
@@ -3175,10 +3175,10 @@ Holes: 11 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 136 | StringLiteral | `"Stryker was here!"` | hole | Applied to dist and called directly: readToml(`x = "a\\`) stores `"a\\` at HEAD and `"a\\Stryker was here!` mutated, because the ?? only fires when a backslash is the last character of the line. Through… |
-| 155 | ConditionalExpression | `false` | equivalent | `!line` is true only for the empty string, and the three matchers below it (`\\[\\[`, `\\[`, `[A-Za-z0-9._"'-]+`) each require at least one character, so an empty line falls through to the same continue… |
+| 136 | StringLiteral | `"Stryker was here!"` | hole | Applied to dist and called directly: readToml(`x = "a\`) stores `"a\` at HEAD and `"a\Stryker was here!` mutated, because the ?? only fires when a backslash is the last character of the line. Through… |
+| 155 | ConditionalExpression | `false` | equivalent | `!line` is true only for the empty string, and the three matchers below it (`\[\[`, `\[`, `[A-Za-z0-9._"'-]+`) each require at least one character, so an empty line falls through to the same continue… |
 | 168 | Regex | `/^([A-Za-z0-9._"'-]+)\s*=\s*(.*)/` | hole | `$` is load-bearing when the line carries a lone CR, which `.` cannot cross. Measured on a wrangler.toml with CR-only line endings: HEAD matches nothing and reports `no root main`, the mutant reads `… |
-| 180 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The line is guarded by `value.startsWith("[")`, so `value.match(/\\[/g)` always returns at least one match and the `\|\| []` fallback is unreachable. Measured: exhaustive enumeration of 16 105 TOML inpu… |
+| 180 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The line is guarded by `value.startsWith("[")`, so `value.match(/\[/g)` always returns at least one match and the `\|\| []` fallback is unreachable. Measured: exhaustive enumeration of 16 105 TOML inpu… |
 | 183 | MethodExpression | `next.split("#")[0]` | hole | Dropping the trim keeps each continuation line's indentation inside the value. Measured on the same multi-line `main`: HEAD resolves `[ "a" ]`, the mutant `[ "a" ]`, and the two crafted projects swap… |
 | 183 | StringLiteral | `""` | hole | Continuation lines are joined without the separating space. Measured through deriveCloudflareWorkers on a multi-line array under `main`: HEAD resolves the entry as `[ "a" ]` and the mutant as `["a"]`… |
 | 189 | MethodExpression | `value` | hole | Storing the raw value keeps the trailing space the continuation loop appends when it stops at end of file. Measured: an unterminated `main = [` array stores `[ "a" ` instead of `[ "a"`, which changes… |
@@ -3191,7 +3191,7 @@ Holes: 11 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
 | 58 | EqualityOperator | `i <= text.length` | equivalent | `i <= text.length` only lets the line-comment scan step one index past the end, where text[i] is undefined (never a newline) and the outer `while (i < text.length)` exits identically. Measured: 111 1… |
 | 64 | EqualityOperator | `i <= text.length` | equivalent | At `i === text.length` the added iteration tests `text[i] === "*"` on undefined, which is false, so the scan stops one index later and the following `i += 2` lands past the end in both versions. Meas… |
 | 79 | StringLiteral | `"Stryker was here!"` | equivalent | Second-pass twin of the first-pass escape: it fires only when the last character of the comment-stripped text is a backslash inside a string, which leaves the document unparseable either way. Measure… |
-| 97 | ConditionalExpression | `true` | equivalent | `/\\s/.test(undefined)` is false, so the whitespace skip stops at the end of `out` with or without the bound, and `out[k] === "}"` is false past the end. Measured: 111 111 exhaustively enumerated docu… |
+| 97 | ConditionalExpression | `true` | equivalent | `/\s/.test(undefined)` is false, so the whitespace skip stops at the end of `out` with or without the bound, and `out[k] === "}"` is false past the end. Measured: 111 111 exhaustively enumerated docu… |
 | 97 | EqualityOperator | `k <= out.length` | equivalent | Same boundary with `<=`: the one extra index holds undefined, which is not whitespace, so the loop exits at the same k. Measured: 111 111 exhaustively enumerated documents byte-identical, ten crafted… |
 
 ### deriveCloudflareWorkers — 4 survivor(s): 2 hole · 2 equivalent
@@ -3435,8 +3435,8 @@ Holes: 22 · Equivalent: 7 · Display-only: 3 · Defence-in-depth: 0
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 125 | ArrayDeclaration | `[]` | equivalent | The `?? [...]` fallback is dead code: head always starts with `#` (anchored CRITERIA_HEADING), so head.match(/^#+/) is never null and the right-hand branch of ?? is never evaluated; `[]` (which would… |
-| 125 | Regex | `/#+/` | equivalent | `head` comes out of `heads`, filtered by CRITERIA_HEADING anchored `^#{1,6}\\\\s`: head[0] is always `#`, so the first match of /#+/ is the leading run at index 0, identical to /^#+/. MEASURED: zero di… |
-| 125 | StringLiteral | `""` | equivalent | The same dead fallback as m08: the value `\\"\\"` (level 0) would only be read if head.match(/^#+/) returned null, impossible since every heading comes from CRITERIA_HEADING anchored on `^#`. MEASURED:… |
+| 125 | Regex | `/#+/` | equivalent | `head` comes out of `heads`, filtered by CRITERIA_HEADING anchored `^#{1,6}\\s`: head[0] is always `#`, so the first match of /#+/ is the leading run at index 0, identical to /^#+/. MEASURED: zero di… |
+| 125 | StringLiteral | `""` | equivalent | The same dead fallback as m08: the value `\"\"` (level 0) would only be read if head.match(/^#+/) returned null, impossible since every heading comes from CRITERIA_HEADING anchored on `^#`. MEASURED:… |
 | 131 | Regex | `/(#{1,6})\s/` | hole | Without ^, any `# ` in the MIDDLE of a criterion line is read as a level-1 heading and ENDS the section: everything that follows disappears. RECIPE: section with `- login works file:src/auth.ts#login… |
 | 146 | ConditionalExpression | `true` | hole | Every excerpt goes through slice(0,99)+…: 20 cases out of 28 differ (every text field of the JSON gains a spurious …), and a criterion line of EXACTLY 100 characters ending in AC12 has its id truncat… |
 | 146 | ConditionalExpression | `false` | hole | No truncation at all any more: the ids located beyond character 99 of a long line enter declaredIds whereas the shipped build loses them. RECIPE: `## Criteria` / a 113-char line ending in AC12 with a… |
@@ -3444,9 +3444,9 @@ Holes: 22 · Equivalent: 7 · Display-only: 3 · Defence-in-depth: 0
 | 146 | EqualityOperator | `t.length <= 100` | hole | Truncation inverted: 22 cases out of 28 differ. Both flips are measured on the same recipes as m14/m15: len100_id exit 0 -> 1 (declaredIds [AC12] -> [AC1], dangling manufactured) AND len113_id exit 1… |
 | 146 | MethodExpression | `t` | hole | The long branch keeps the whole text (+…): the ids beyond character 99 rejoin declaredIds. RECIPE: fixture len113_id from m15; spec-check --json. MEASURED shipped: declaredIds [], dangling [{id:AC12}… |
 | 146 | StringLiteral | `""` | display-only | Only the truncation MARKER disappears. MEASURED on the 28 cases: the only diffs = len113_id and long_broken, where text is 99 chars without … instead of 100 with … (same excerpt); exit, verdict, ok, … |
-| 147 | ConditionalExpression | `true` | equivalent | The predicate becomes `true && !!p.path`: it keeps exactly the pointers with a truthy path. But the grammar only emits three kinds (POINTER_PREFIX = /\\\\b(file\|test\|adr):/, evidence.js:28) and adr obj… |
+| 147 | ConditionalExpression | `true` | equivalent | The predicate becomes `true && !!p.path`: it keeps exactly the pointers with a truthy path. But the grammar only emits three kinds (POINTER_PREFIX = /\\b(file\|test\|adr):/, evidence.js:28) and adr obj… |
 | 147 | LogicalOperator | `p.kind === "file" \|\| p.kind === "test" \|\| !…` | hole | With \|\|, a file/test pointer WITHOUT a path passes the filter (adr: pointers stay excluded as they have neither a path nor kind file/test: no crash). RECIPE: section with `- x file:#foo`; spec-check … |
-| 156 | StringLiteral | `""` | display-only | The reason of a GREEN criterion becomes empty. MEASURED on the 28 cases: only the reason fields of the linked:true rows of the JSON change (\\"linked\\" -> \\"\\"); exit, verdict, counts, dangling, text,… |
+| 156 | StringLiteral | `""` | display-only | The reason of a GREEN criterion becomes empty. MEASURED on the 28 cases: only the reason fields of the linked:true rows of the JSON change (\"linked\" -> \"\"); exit, verdict, counts, dangling, text,… |
 | 164 | ArithmeticOperator | `heads[0][0] - 1` | hole | The vacuity finding points 2 lines too high (down to L-1, measured when the heading is on line 1: a negative line number in the JSON contract), and the exclusion of declaration lines from the bundle … |
 | 164 | MethodExpression | `lines[heads[0][0]]` | display-only | The echo of the heading in the vacuity finding keeps its trailing whitespace. MEASURED on the 28 cases: the only diff = vacuity_trailing, text `## Acceptance criteria ` instead of `## Acceptance crit… |
 
@@ -3472,7 +3472,7 @@ Holes: 22 · Equivalent: 7 · Display-only: 3 · Defence-in-depth: 0
 | ---: | ------- | ------- | -------- | ---- |
 | 37 | ConditionalExpression | `false` | hole | RECIPE: spec `- AC1 -> file:./` (a pointer to the root itself), `runward spec-check s.md -p . --json`. Before: exit 1, reason 'file:./ — points outside the project tree'; after: exit 1 but reason 'fi… |
 | 37 | StringLiteral | `"Stryker was here!"` | hole | Effect identical to mutant 5 (rel is never 'Stryker was here!', so the rel === '' arm is neutralised). Measured: `file:./` goes from 'points outside the project tree' to 'not a file' (exit 1 kept); a… |
-| 50 | ConditionalExpression | `true` | equivalent | JS semantics: when p.line is undefined, `content.split('\\n').length < undefined` is a NaN comparison = false — the && decides identically with the guard forced to true. Measured: 0 diff on the 20 sce… |
+| 50 | ConditionalExpression | `true` | equivalent | JS semantics: when p.line is undefined, `content.split('\n').length < undefined` is a NaN comparison = false — the && decides identically with the guard forced to true. Measured: 0 diff on the 20 sce… |
 | 53 | MethodExpression | `p.symbol` | hole | VERDICT INVERSION on a quoted symbol padded with spaces. RECIPE: spec `- AC1 -> file:code/short.ts#" x"` (symbol ' x', 2 characters one of which is whitespace, trim -> 1), artifact 'const x = 1;', sp… |
 
 ### CRITERIA_HEADING — 1 survivor(s): 1 hole
@@ -3508,10 +3508,10 @@ Holes: 15 · Equivalent: 13 · Display-only: 0 · Defence-in-depth: 0
 | 166 | MethodExpression | `readFileSync(join(missionRules, f), "utf8")` | hole | Removing the 800-character window makes the whole file searched for gated frontmatter. Measured on the CLI with a house rule whose `impact: HIGH` / `phases: [floor]` lines sit after 900 characters of… |
 | 171 | OptionalChaining | `head.match(/^impact:\s*([A-Za-z]+)/m)?.[1].…` | equivalent | The regex capture group ([A-Za-z]+) is mandatory, so whenever match() returns non-null, index 1 is a string and the second optional chain is dead. Measured by instrumenting the site: 0 occurrences of… |
 | 171 | Regex | `/impact:\s*([A-Za-z]+)/m` | hole | Dropping the ^ anchor makes any mid-line `impact:` match. Measured on the CLI with a house rule whose frontmatter reads `meta_impact: HIGH` plus `phases: [floor]`: corpus.extra goes from [] to ["zz-h… |
-| 171 | Regex | `/^impact:\s([A-Za-z]+)/m` | hole | `\\s*` to `\\s` stops matching zero-space and two-space spellings, so a gated extension escapes the check the code exists to enforce. Measured on the CLI with a house rule spelled `impact:HIGH` / `phas… |
+| 171 | Regex | `/^impact:\s([A-Za-z]+)/m` | hole | `\s*` to `\s` stops matching zero-space and two-space spellings, so a gated extension escapes the check the code exists to enforce. Measured on the CLI with a house rule spelled `impact:HIGH` / `phas… |
 | 171 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback value only feeds `impact === "CRITICAL" \|\| impact === "HIGH"`, which "Stryker was here!" fails exactly as "" does. Measured by instrumenting the site: the ?? fallback fires 5 times acros… |
 | 172 | Regex | `/phases:\s*\[([^\]]*)\]/m` | hole | Dropping the ^ anchor makes any mid-line `phases:` match. Measured on the CLI with a house rule spelled `impact: HIGH` plus `meta_phases: [floor]`: corpus.extra goes from [] to ["zz-house.md"] and st… |
-| 172 | Regex | `/^phases:\s\[([^\]]*)\]/m` | hole | `\\s*` to `\\s` stops matching `phases:[floor]` and `phases: [floor]`. Measured on the CLI with a house rule spelled `impact:HIGH` / `phases:[floor]`: corpus.extra goes from ["zz-house.md"] to [] and s… |
+| 172 | Regex | `/^phases:\s\[([^\]]*)\]/m` | hole | `\s*` to `\s` stops matching `phases:[floor]` and `phases: [floor]`. Measured on the CLI with a house rule spelled `impact:HIGH` / `phases:[floor]`: corpus.extra goes from ["zz-house.md"] to [] and s… |
 | 172 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback feeds split/trim/dequote then GATED.has, and "Stryker was here!" is not a gated phase any more than "" is. Measured by instrumenting the site: the ?? fallback fires 6 times, both values … |
 | 174 | MethodExpression | `phases.split(",").map(x => x.trim().replace…` | hole | `some` to `every` demands that ALL phases be gated. Measured on the CLI with two house rules: `phases: [run, floor]` and `phases: ["govern", "run"]` both stop being reported — corpus.extra ["zz-house… |
 | 174 | MethodExpression | `x` | hole | Dropping trim() leaves the leading space on every phase after the first. Measured on the CLI with a house rule declaring `phases: [run, floor]`: " floor" no longer matches GATED, corpus.extra goes fr… |
@@ -3636,7 +3636,7 @@ Holes: 5 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 26 | MethodExpression | `s` | equivalent | TRIVIAL's only call site passes `why`, which is `rest.join(" \| ").trim()`, so its argument is already trimmed and String#trim is idempotent. Measured: 1008 padded values over twelve whitespace code p… |
-| 26 | MethodExpression | `s` | equivalent | Second occurrence of the same idempotence: TRIVIAL is called only with `why`, itself the result of `.trim()`, so `/^\\[.*\\]$/.test(s.trim())` and `.test(s)` receive the same string. Measured: 1008 pad… |
+| 26 | MethodExpression | `s` | equivalent | Second occurrence of the same idempotence: TRIVIAL is called only with `why`, itself the result of `.trim()`, so `/^\[.*\]$/.test(s.trim())` and `.test(s)` receive the same string. Measured: 1008 pad… |
 
 ## Module: attestation
 
@@ -3702,7 +3702,7 @@ Holes: 7 · Equivalent: 4 · Display-only: 0 · Defence-in-depth: 0
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 18 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | Dropping the ^ anchor lets any ---...--- block in the file be read as frontmatter. Measured: content 'intro line\\n\\n---\\ntitle: Sneaky\\nimpact: CRITICAL\\n---\\n\\nreal body' parsed to title 'Sneaky' / … |
+| 18 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | Dropping the ^ anchor lets any ---...--- block in the file be read as frontmatter. Measured: content 'intro line\n\n---\ntitle: Sneaky\nimpact: CRITICAL\n---\n\nreal body' parsed to title 'Sneaky' / … |
 
 ### matchRulesForPaths — 1 survivor(s): 1 equivalent
 
@@ -3726,7 +3726,7 @@ Holes: 7 · Equivalent: 4 · Display-only: 0 · Defence-in-depth: 0
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 187 | Regex | `/\n+/` | hole | /^\\n+/ -> /\\n+/ drops the anchor and (with no g flag) deletes the FIRST newline run anywhere instead of the leading ones. Measured on ruleBody: '# Heading\\n\\nbody\\n' -> '# Headingbody\\n', 'text\\ntitl… |
+| 187 | Regex | `/\n+/` | hole | /^\n+/ -> /\n+/ drops the anchor and (with no g flag) deletes the FIRST newline run anywhere instead of the leading ones. Measured on ruleBody: '# Heading\n\nbody\n' -> '# Headingbody\n', 'text\ntitl… |
 
 ## Module: identity
 

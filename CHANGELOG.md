@@ -48,12 +48,8 @@ file's hash (`pip install --require-hashes --only-binary=:all:`). The `lint-and-
 `reports/junit.xml` it regenerated on macOS with the Node.js of `.nvmrc` as the artifact `junit-reference`,
 even on a red run, so it can be committed without running the suite elsewhere (refines ADR-0112).
 
-### Four CodeQL alerts fixed, in three places: a broken Markdown table, a hand-escaped RegExp, a host checked as a substring
+### Three CodeQL alerts fixed, in two places: a hand-escaped RegExp, a host checked as a substring
 
-`scripts/mutation-register.mjs` escaped a cell's pipes and not its backslashes, so a cell whose text held
-`\|` was written `\\|`, which GitHub's table scanner reads as an escaped backslash and a pipe that closes
-the cell: five rows of `docs/compliance/mutation-register.md` rendered broken, and the register is
-regenerated (81 rows, the backslashes of prose cells now doubled in the source, rendered as before).
 `test/unit/check-contract.test.js` built a RegExp from a flag escaping only `-`; it checks a substring now. `floor-ts`' provider profile
 recognised Anthropic by `anthropic.com` anywhere in the URL; it compares the parsed host name now.
 
