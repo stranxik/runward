@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Six findings of 2026-11-05 and 2026-11-06 filed, and two entries marked fixed in the tree (RWD-2026-0192, RWD-2026-0193, RWD-2026-0196 to RWD-2026-0201)
+
+Found by the agent sessions that built ADR-0113, ADR-0115 and the fleet prototype of ADR-0121, each
+reproduced on 2026-11-06 on the published 0.46.0 and on `main` with a positive control, its first affected
+version measured on the versions npm serves. Fixed in the tree by ADR-0113 (#481), in no release yet:
+under a version skew, `verify` printed a command built from the attestation's unchecked `runward` field
+(RWD-2026-0196); a red attestation's bytes followed the `-p` it was typed with (RWD-2026-0197);
+`report --format md` said `verify` re-derives every field while `verify` listed ten it did not
+(RWD-2026-0200, fixed by what `verify` now does, the sentence unchanged). Not fixed: under `--hooks`,
+`--attest`, `--sarif` and `--vsa` carry the hooks' standard output and are not JSON (RWD-2026-0198);
+`check --json` carries the checkout's absolute path in `mission` (RWD-2026-0199, which ADR-0121, #485,
+names a defect, its fix undecided); a `**Nature not carried**` declaration is read with a looser bar than
+a deviated row's ADR, which from 0.41.0 to 0.46.0 moves the disclosure and never the verdict
+(RWD-2026-0201; the corrected reader is in #487). The false green the same reading gave on the first
+commit of #487 is not filed: it was closed before any merge. RWD-2026-0192 and RWD-2026-0193 now read
+`fixed-in=unreleased`, #481 having merged, and the runward-assess entry below names the commit at which it
+measured RWD-2026-0192 missed (`32d8425`, before #481). Documentation only: no CLI behaviour, output or
+verdict changes.
+
 ### Decided: runward-fleet and the hosted product, one interface and two deployments (ADR-0121); proposed: integration recipes counted only when their control passes (ADR-0122)
 
 ADR-0121 was accepted on 2026-11-05 by the maintainer's delegation in chat, on the agent's recommendation;
@@ -72,12 +91,13 @@ from "not met". The same inputs give the same bytes under two time zones, two lo
 releases (`runward-assess selftest`). The package imports nothing from runward, which a test checks
 with planted controls; it reads runward's files as evidence and runs its CLI as a program for PRV-03,
 the sabotage catalogue `saboteur@1`, which gains two cases: `verify` accepting fields written by hand
-(RWD-2026-0192, still missed on `main`) and a verdict that depended on the Node.js release that wrote
+(RWD-2026-0192, missed on `main` at `32d8425` and refused since #481) and a verdict that depended on the Node.js release that wrote
 a JUnit report (RWD-2026-0187, invariant on `main`). First records, of runward at v0.37.1, v0.46.0 and
 `main`, are under `packages/runward-assess/trials/runward/`. The package's tests run with it
 (`node --test packages/runward-assess/test/*.test.js`), outside runward's suite, so `reports/junit.xml`
 is unchanged; no CI job runs them yet. A new package only: no CLI behaviour, output or verdict of
 runward changes.
+
 ### Fixed: `verify` says verified only for what it re-derives, names what it covers, and sends an older attestation back to the runward that produced it (RWD-2026-0192, RWD-2026-0193, ADR-0113)
 
 `verify` now rebuilds, with the functions `check` emits with, the Statement the producing build emits for
