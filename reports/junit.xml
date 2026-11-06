@@ -868,6 +868,8 @@
 	<testcase name="the CLI writes index.json and index.html, refuses without writing, and reads no clock" classname="test"/>
 	<testcase name="the build reads no clock, and the scan for one sees a planted one" classname="test"/>
 	<testcase name="the specification names every key the index carries: a key added without its line reddens" classname="test"/>
+	<testcase name="commitSource: the inventory may say where its commit was read from; the index carries it as declared, only when declared" classname="test"/>
+	<testcase name="one interface, two deployments: runward-fleet/site renders, from the index.json the build wrote, the page it wrote; both are golden" classname="test"/>
 	<testcase name="ownText: the verbatim blocks and the tags come out as the former patterns took them out" classname="test"/>
 	<testcase name="resolvePath: the same value as the former pattern for every generated path, on one index" classname="test"/>
 	<testcase name="the numbers of a view and the paths it names: the former pattern's matches, and its substring test" classname="test"/>
@@ -1173,7 +1175,7 @@
 	<testcase name="a real init puts every declared destination on disk" classname="test"/>
 	<testcase name="RWD-2026-0186: check --strict --attest is byte-identical across two checkout folder names" classname="test"/>
 	<testcase name="RWD-2026-0186: check --strict --vsa under SOURCE_DATE_EPOCH is byte-identical across two checkout folder names" classname="test"/>
-	<testcase name="RWD-2026-0186: check --strict --json differs across folders ONLY in `mission`, the documented project root" classname="test"/>
+	<testcase name="RWD-2026-0186, RWD-2026-0199: check --strict --json is the same across folders, `mission` included: the declared name, never the project root" classname="test"/>
 	<testcase name="RWD-2026-0186: the bundle predicate and the OSCAL pack name the declared mission, not the folder" classname="test"/>
 	<testcase name="positive control: a different declared title changes the attestation where the folder name no longer can" classname="test"/>
 	<testcase name="declaredMissionName: the contract's title, or the undeclared name — never a folder name or a path" classname="test"/>
@@ -2270,9 +2272,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2266 -->
+	<!-- tests 2268 -->
 	<!-- suites 0 -->
-	<!-- pass 2265 -->
+	<!-- pass 2267 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->
