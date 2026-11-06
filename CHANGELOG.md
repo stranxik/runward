@@ -13,7 +13,11 @@ folded by `--through` like every gap of a deferred deliverable. The refusal name
 form to cite and the ways out: cite a report of that kind; mark the row `deviated` with the ADR that
 decides it; or, when the delivery cannot produce that kind at all, declare it in an accepted ADR
 (`**Nature not carried**: <kind> — why`, ADR-0075), which keeps it listed in `requiresUnmet` and printed
-on every strict run, and not refused. No command-line flag accepts an unmet kind. The witness gains the
+on every strict run, and not refused. One declaration lifts the refusal of every row of its kind, so it is
+read with the bar the ADR of a deviated row meets: a proposed or set-aside decision, a near-empty file, the
+scaffolded template, or a number two files claim, declares nothing. A `proposed:applied` row that lacks its
+kind is told so inside its own refusal, before anyone ratifies it, and is counted once. No command-line
+flag accepts an unmet kind. The witness gains the
 `notWitnessed` family `requires` (a cause of kind `requires-unmet` is beyond `runward-witness/1`).
 runward's own mission stays green: its one unmet kind is the load test ADR-0075 declares.
 

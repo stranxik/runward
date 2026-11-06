@@ -12,7 +12,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -240,6 +240,53 @@ test("ADR-0115: a nature declared uncarriable in an accepted ADR is not refused,
     const j = JSON.parse(run(dir, "check", "--strict", "--json").out);
     assert.deepEqual(j.requiresUnmet, [{ ...SUBJECT, declaredIn: "ADR-0004" }], "still unmet, still listed, with the decision");
     assert.equal(j.conformance.filter((c) => c.kind === "requires-unmet").length, 0);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ADR-0115: a declaration lifts the refusal only where a deviated row's ADR would stand — a file holding the line alone, the template's number, a number two files claim declare nothing", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-req-declaration-bar-"));
+  try {
+    execFileSync("git", ["init", "-q", "."], { cwd: dir });
+    run(dir, "--yes", "init", "--example");
+    withUnmetRow(dir);
+    const adrDir = join(dir, "runward", "adr");
+    // One declaration lifts the refusal of every row of its nature; before this test it was read with a
+    // looser bar than the ADR a single deviated row cites, and each of these three exited 0.
+    const stillRefused = (files, why) => {
+      const case_ = mkdtempSync(join(tmpdir(), "rw-req-declaration-case-"));
+      try {
+        cpSync(dir, case_, { recursive: true });
+        for (const [name, text] of Object.entries(files)) writeFileSync(join(case_, "runward", "adr", name), text);
+        const j = JSON.parse(run(case_, "check", "--strict", "--json").out);
+        assert.equal(j.conformance.filter((c) => c.kind === "requires-unmet").length, 1, why);
+        assert.deepEqual(j.requiresUnmet, [SUBJECT], `${why}: still listed, declared nowhere`);
+      } finally { rmSync(case_, { recursive: true, force: true }); }
+    };
+    stillRefused({ "ADR-0004-x.md": "**Nature not carried**: junit\n" }, "a file holding the line alone is not a decision");
+    stillRefused({ "ADR-0000-note.md": DECLARATION("accepted") }, "the template's number is no decision anyone took");
+    stillRefused({ "ADR-0004-a.md": DECLARATION("accepted"), "ADR-0004-b.md": DECLARATION("accepted") }, "two files claim one number");
+    writeFileSync(join(adrDir, "ADR-0004-no-junit-report.md"), DECLARATION("accepted"));
+    assert.equal(run(dir, "check", "--strict").code, 0, "the positive control: the same declaration, one file, a decision");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ADR-0115: a proposal that lacks the kind its rule requires is told so before anyone ratifies it, in its own refusal, counted once", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-req-proposed-"));
+  try {
+    execFileSync("git", ["init", "-q", "."], { cwd: dir });
+    run(dir, "--yes", "init", "--example");
+    const floor = withUnmetRow(dir);
+    writeFileSync(floor, readFileSync(floor, "utf8").replace(`| ${SUBJECT.rule} | applied |`, `| ${SUBJECT.rule} | proposed:applied |`));
+    const own = (j) => j.conformance.filter((c) => c.rule === SUBJECT.rule);
+    const j = JSON.parse(run(dir, "check", "--strict", "--json").out);
+    assert.deepEqual(own(j).map((c) => c.kind), ["proposed"], "one row, one violation: the proposal's (RWD-2026-0133)");
+    assert.match(own(j)[0].problem, /Its evidence does not hold yet, fix it before anyone ratifies: the rule requires junit evidence/,
+      "ratified as it stands, the row would be refused on the next run, so the agent that wrote it is told now");
+    assert.deepEqual(j.requiresUnmet, [], "the ledger lists applied rows, as it did");
+    writeFileSync(join(dir, "runward", "adr", "ADR-0004-no-junit-report.md"), DECLARATION("accepted"));
+    const d = JSON.parse(run(dir, "check", "--strict", "--json").out);
+    assert.deepEqual(own(d).map((c) => c.kind), ["proposed"]);
+    assert.doesNotMatch(own(d)[0].problem, /requires junit/, "a declared nature is no defect of the proposal");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

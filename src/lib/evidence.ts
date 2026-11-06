@@ -1619,22 +1619,32 @@ function natureSatisfied(missionDir: string, deliverable: string, evidence: stri
   return false;
 }
 
-/** The `applied` rows of one gated deliverable whose rule requires an evidence nature the cited
- *  evidence does not carry, each with the accepted ADR that declares the nature uncarriable, if one
- *  does (ADR-0075). One reading, shared by the ledger and the refusal below. */
-function unmetRequires(missionDir: string, deliverable: string): Array<{ deliverable: string; rule: string; requires: string; declaredIn?: string }> {
-  const path = join(missionDir, deliverable);
-  if (!existsSync(path)) return [];
+/** What the required-nature reading takes from the mission as a whole: the nature each rule requires,
+ *  and the natures the journal declares uncarriable (ADR-0075). Read once and handed to every
+ *  deliverable: reading the rule set and the journal again for each of them made a strict verdict on
+ *  runward's own mission about half as long again (measured 2026-11-06, 200 ms to 300 ms). */
+export interface RequiresReading { requirements: Record<string, string>; declared: Map<string, string> }
+export function requiresReading(missionDir: string): RequiresReading {
   const requirements: Record<string, string> = {};
   for (const r of readRuleSet(ruleSetDir(missionDir).dir)) {
     if (r.requires && REQUIRABLE_NATURES.has(r.requires)) requirements[r.slug] = r.requires;
   }
   // ADR-0075: a nature this mission's journal declares uncarriable is still unmet and still listed; the
   // entry carries the decision that says why, so the line stops sitting beside gaps that are closable.
-  const declared = declaredUncarriableNatures(missionDir);
+  return { requirements, declared: declaredUncarriableNatures(missionDir) };
+}
+
+/** The `applied` rows of one gated deliverable whose rule requires an evidence nature the cited
+ *  evidence does not carry, each with the accepted ADR that declares the nature uncarriable, if one
+ *  does (ADR-0075). One reading, shared by the ledger and the refusal below. `proposed: true` reads the
+ *  `proposed:applied` rows instead, as `evidenceReport` does. */
+function unmetRequires(missionDir: string, deliverable: string, reading: RequiresReading, opts: { proposed?: boolean } = {}): Array<{ deliverable: string; rule: string; requires: string; declaredIn?: string }> {
+  const path = join(missionDir, deliverable);
+  if (!existsSync(path)) return [];
+  const { requirements, declared } = reading;
   const unmet: Array<{ deliverable: string; rule: string; requires: string; declaredIn?: string }> = [];
   for (const row of parseManifest(readFileSync(path, "utf8"))) {
-    if (row.status !== "applied") continue;
+    if ((opts.proposed ? proposedStatus(row.status) : row.status) !== "applied") continue;
     const nature = requirements[row.rule];
     if (!nature) continue;
     if (!natureSatisfied(missionDir, deliverable, row.evidence || "", nature)) {
@@ -1649,8 +1659,8 @@ function unmetRequires(missionDir: string, deliverable: string): Array<{ deliver
  *  gated-deliverable order, declared or not: the `requiresUnmet` ledger of `check --strict --json`.
  *  `file:package.json` does not satisfy a row a dependency-analysis report would, and this ledger is
  *  where that difference is read; `requiresReport` is where it refuses (ADR-0115). */
-export function requiresLedger(missionDir: string): Array<{ deliverable: string; rule: string; requires: string; declaredIn?: string }> {
-  return GATED_DELIVERABLES.flatMap((g) => unmetRequires(missionDir, g.deliverable));
+export function requiresLedger(missionDir: string, reading: RequiresReading = requiresReading(missionDir)): Array<{ deliverable: string; rule: string; requires: string; declaredIn?: string }> {
+  return GATED_DELIVERABLES.flatMap((g) => unmetRequires(missionDir, g.deliverable, reading));
 }
 
 /** How a row can carry each nature, said in the refusal. */
@@ -1672,9 +1682,13 @@ const REQUIRES_FORM: Record<string, string> = {
  * `**Nature not carried**: <nature>`, ADR-0075) is not refused: it stays in the ledger and is printed
  * on every strict run with the decision that says why. No flag accepts an unmet nature: the opt-out is
  * a decision the tree carries, per row (`deviated` with its ADR) or per nature (the declaration).
+ *
+ * `proposed: true` judges the `proposed:applied` rows instead, the same reading, so a proposal that
+ * lacks its kind is told before anyone ratifies it rather than refused once ratified (RWD-2026-0133's
+ * shape); the caller says it inside the proposal's own refusal, one row, one violation.
  */
-export function requiresReport(missionDir: string, deliverable: string): Violation[] {
-  return unmetRequires(missionDir, deliverable).filter((u) => !u.declaredIn).map((u) => ({
+export function requiresReport(missionDir: string, deliverable: string, reading: RequiresReading = requiresReading(missionDir), opts: { proposed?: boolean } = {}): Violation[] {
+  return unmetRequires(missionDir, deliverable, reading, opts).filter((u) => !u.declaredIn).map((u) => ({
     rule: u.rule, kind: "requires-unmet" as const,
     problem: `the rule requires ${u.requires} evidence, and no pointer in this row resolves to ${REQUIRES_FORM[u.requires] ?? `a report of that kind`} — cite one (\`runward explain ${u.rule}\` shows a form), mark the row deviated with the ADR that decides it, or, if this delivery cannot produce that kind at all, declare it in an accepted ADR (\`**Nature not carried**: ${u.requires} — why\`) (runward ADR-0115)`,
   }));

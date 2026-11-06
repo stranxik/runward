@@ -431,11 +431,15 @@ export { adrStatusLine };
  *  second way of reading an ADR is how it came to answer "is this ratified?" two different ways, so the
  *  declaration uses the journal that exists rather than a registry beside it.
  *
- *  It changes a DISCLOSURE and nothing else. The nature stays unmet and stays listed; what changes is
- *  that the line carries the decision an auditor can read and challenge, instead of sitting beside gaps
- *  that are closable. It is not an exemption the tool grants — at the armed tier (ADR-0065) a
- *  declaration is a decision someone signed, not a switch that turns a requirement off. Only an
- *  ACCEPTED decision counts, so a `proposed` one declares nothing. */
+ *  The nature stays unmet and stays listed; what changes is that the line carries the decision an
+ *  auditor can read and challenge, instead of sitting beside gaps that are closable. Since ADR-0115 it
+ *  is also what stands between a row and its `requires-unmet` refusal under `--strict`: a declared
+ *  nature is not refused, and is printed on every strict run with the decision that says why. It is
+ *  still not an exemption the tool grants: it is a decision the tree carries, which a reviewer reads
+ *  in a diff. Because one declaration lifts the refusal of every row of its nature, it is read with the
+ *  bar a deviated row's ADR meets, through the same reader (`adrDecision`): a proposed or set-aside
+ *  decision, a near-empty file, the scaffolded template, or an id two files claim declares nothing,
+ *  and the file the id resolves to must be the one that carries the line. */
 export function declaredUncarriableNatures(missionDir: string): Map<string, string> {
   const out = new Map<string, string>();
   for (const dir of adrJournalDirs(missionDir)) {
@@ -447,9 +451,11 @@ export function declaredUncarriableNatures(missionDir: string): Map<string, stri
       try { text = readFileSync(join(dir, name), "utf8"); } catch { continue; }
       const line = text.match(/^\*\*Nature not carried\*\*:\s*([a-z][a-z0-9-]*)/mi);
       if (!line) continue;
-      if (ADR_SET_ASIDE.test(adrStatusWord(text)) || ADR_UNRATIFIED.test(adrStatusWord(text))) continue;
       const id = name.match(/^ADR-\d+/i)?.[0].toUpperCase();
-      if (id && !out.has(line[1].toLowerCase())) out.set(line[1].toLowerCase(), id);
+      if (!id) continue;
+      // ADR-0115: one answer to "is this a decision?", the one a deviated row's ADR is held to.
+      if (locateAdr(missionDir, id).abs !== join(dir, name) || adrDecision(missionDir, id) !== null) continue;
+      if (!out.has(line[1].toLowerCase())) out.set(line[1].toLowerCase(), id);
     }
   }
   return out;
