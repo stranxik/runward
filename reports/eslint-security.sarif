@@ -121,6 +121,26 @@
             {
               "physicalLocation": {
                 "artifactLocation": {
+                  "uri": "src/commands/verify.ts"
+                },
+                "region": {
+                  "startLine": 155,
+                  "startColumn": 16
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
                   "uri": "src/lib/characterize.ts"
                 },
                 "region": {

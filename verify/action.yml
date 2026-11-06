@@ -10,9 +10,12 @@
 # no token, no model key, no network — a DSSE signature, if the attestation carries one, is
 # reported and NEVER verified (runward anchors no trust root; your cosign does that).
 #
-# Exit codes are the port contract (ADR-0012): 0 verified · 1 drift or a lying predicate · 2 the
-# attestation could not be read or no mission is here. `continue-on-error: true` on the step turns
-# it into an advisory annotation instead of a required check — the operator decides which.
+# Exit codes are the port contract (ADR-0012, ADR-0113): 0 verified · 1 a difference (the digest, a
+# field, or the delivered tree the attestation binds) · 2 this run cannot answer: another runward build
+# produced the attestation (re-run with `version:` set to the one the summary names), the attesting run
+# executed hook commands, or the attestation could not be read or no mission is here.
+# `continue-on-error: true` on the step turns it into an advisory annotation instead of a required
+# check — the operator decides which.
 name: runward verify
 description: Re-derive a runward verdict attestation offline in a PR — the tree has not drifted and the verdict re-derives.
 author: Thibault Souris
@@ -26,6 +29,10 @@ inputs:
     default: verdict.intoto.json
   emit:
     description: Emit the attestation from the current tree before verifying (else it must be committed).
+    required: false
+    default: "false"
+  whole-tree:
+    description: When emitting, also bind every file the project delivers (its .gitignore decides) as a second subject (ADR-0113).
     required: false
     default: "false"
   path:
@@ -42,7 +49,7 @@ inputs:
     default: latest
 outputs:
   verified:
-    description: '"true" when the attestation binds to this tree and its verdict re-derives.'
+    description: '"true" when every field re-derives under the build that produced the attestation (and, when bound, the whole delivered tree matches).'
     value: ${{ steps.verify.outputs.verified }}
 runs:
   using: composite
@@ -58,6 +65,7 @@ runs:
         RUNWARD_ATTESTATION: ${{ inputs.attestation }}
         RUNWARD_EMIT: ${{ inputs.emit }}
         RUNWARD_STRICT: ${{ inputs.strict }}
+        RUNWARD_WHOLE_TREE: ${{ inputs.whole-tree }}
       run: |
         set -uo pipefail
         case "$RUNWARD_VERSION" in
@@ -74,6 +82,7 @@ runs:
         if [ "$RUNWARD_EMIT" = "true" ]; then
           flag=""
           [ "$RUNWARD_STRICT" = "true" ] && flag="--strict"
+          [ "$RUNWARD_WHOLE_TREE" = "true" ] && flag="$flag --whole-tree"
           # A red gate still emits its Statement on stdout (and exits 1): capture it either way, so
           # verify reports the honest verdict instead of the job dying with an empty file.
           npx --yes "runward@${RUNWARD_VERSION}" check $flag --attest -p "$RUNWARD_PATH" > "$RUNWARD_ATTESTATION" || true
@@ -93,21 +102,32 @@ runs:
           if (r.kind === "bundle") {
             for (const a of r.artifacts ?? []) rows.push(`| \`${a.name}\` | ${a.matches ? "unchanged" : a.present ? "**changed since bundling**" : "**missing**"} |`);
           } else {
-            rows.push(`| subject digest | ${r.digest?.matches ? "matches this tree" : "**differs — the tree drifted**"} |`);
-            rows.push(`| verdict | ${r.verdict?.matches ? `re-derives (\`${r.verdict.current}\`)` : `**differs — attested \`${r.verdict?.attested}\`, re-derived \`${r.verdict?.current}\`**`} |`);
+            // Values from the attestation are printed only when they read as what they claim to be: a
+            // forged field must not write markdown into the job summary.
+            const ver = (v) => (/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(String(v)) ? `v${v}` : "an unreadable version");
+            const cov = r.digest?.covers;
+            const scope = cov ? `runward/ (${cov.missionFiles} files) and ${cov.citedOutside.length} cited evidence file(s)` : "the mission tree and its cited evidence";
+            if (r.result === "version-skew") rows.push(`| producer | **${ver(r.producedBy)}, another build** — a verdict re-derives only under the runward that produced it: set \`version: ${r.rederive?.version ?? "the producing version"}\` |`);
+            rows.push(`| subject digest | ${r.digest?.matches ? `matches: binds ${scope}` : "**differs — the tree drifted**"} |`);
+            if (r.digest?.notCovered) rows.push(`| not covered | every other file of the project (\`whole-tree: true\` binds them) |`);
+            if (r.tree) rows.push(`| delivered tree | ${r.tree.matches ? `matches (${r.tree.files} files)` : `**differs — ${r.tree.changed.length} changed, ${r.tree.added.length} added, ${r.tree.removed.length} removed**`} |`);
+            rows.push(`| verdict | ${r.verdict?.matches ? `re-derives (\`${r.verdict.current}\`)` : `**differs — re-derived \`${r.verdict?.current}\`**`} |`);
+            if (r.predicate && !r.predicate.matches && r.result !== "version-skew") rows.push(`| fields | **${r.predicate.differing.length} differ** |`);
+            if (r.result === "not-re-derivable") rows.push(`| hooks | the attesting run executed hook commands; re-run them with \`runward check --hooks\` |`);
             if (r.horizon) rows.push(`| horizon | prefix attestation through \`${r.horizon.through}\` — **not a completion verdict**, ${r.horizon.deferred} deliverable(s) deferred |`);
-            if (r.versionSkew) rows.push(`| version | produced by v${r.producedBy}, re-derived by v${r.runward} — a failure may be verdict-logic evolution, not tampering |`);
           }
           if (r.dsse) rows.push(`| DSSE | ${r.dsse.signaturesPresent} signature(s) present, **not verified here** — runward anchors no trust root; check with \`cosign verify-blob-attestation\` |`);
+          const answer = ok ? "verified" : r.result === "version-skew" ? "not answered by this version" : r.result === "not-re-derivable" ? "not verified offline" : "NOT verified";
           const md = [
-            `## runward verify — ${ok ? "verified" : "NOT verified"}`, "",
-            ok ? "The attestation binds to this tree, and its verdict re-derives on the repo alone." : "Do not trust this attestation for this tree.", "",
+            `## runward verify — ${answer}`, "",
+            ok ? `Every field of the attestation re-derives under the build that produced it${r.tree ? ", and the whole delivered tree matches" : "; files outside what the digest binds are not covered"}.`
+              : r.result === "differs" ? "Do not trust this attestation for this tree." : "This run cannot answer for this attestation; the rows below say why and what answers it.", "",
             "| what | result |", "|---|---|", ...rows, "",
             "_Offline re-derivation: no network, no trust root, no key. Presence, pointers, integrity — never code quality._",
           ].join("\n");
           require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY || "/dev/null", md + "\n");
           console.log(md);
           require("fs").appendFileSync(process.env.GITHUB_OUTPUT || "/dev/null", `verified=${ok}\n`);
-          if (!ok) console.log(`::error::runward verify: the attestation does not bind to this tree`);
+          if (!ok) console.log(r.result === "differs" ? "::error::runward verify: the attestation does not describe this tree" : `::error::runward verify: ${answer}`);
         '
         exit $code
