@@ -125,6 +125,36 @@ test("the guard does not fire on legitimate prose", () => {
   }
 });
 
+test("2026-11-06: the four sentences an adversarial review wrote now fire, and the honest neighbours do not", () => {
+  // The review of docs/isolated-environments.md passed each of these through the list as it stood.
+  const fires = (line) => RULES.filter((r) => r.re.test(line) && !NEGATED.test(line)).map((r) => r.name);
+  for (const [line, rule] of [
+    ["runward is certified by ANSSI", "a national qualification claimed for runward"],
+    ["SecNumCloud-ready", "a national qualification claimed for runward"],
+    ["runward is SecNumCloud qualified", "a national qualification claimed for runward"],
+    ["a sovereign delivery gate", "sovereign, said of a product"],
+    ["runward is a sovereign tool for regulated teams", "sovereign, said of a product"],
+    ["a tamper-proof platform", "tamper-proof"],
+    ["a tamper-proof platform", "runward called a platform"],
+    ["runward is a governance platform", "runward called a platform"],
+    ["the verdict is a mathematical proof", "a mathematical proof"],
+    ["runward is EU AI Act compliant", "runward certified or compliant"],
+  ]) {
+    assert.ok(fires(line).includes(rule), `"${line}" must fire "${rule}" (fired: ${fires(line).join(", ") || "nothing"})`);
+  }
+  for (const line of [
+    "Your code has to stay inside a cloud offer that ANSSI, the French national cybersecurity agency, has qualified under SecNumCloud",
+    "Inside such an offer, what this page measured still holds; running runward there extends no part of the offer's qualification to it.",
+    "execution-topology.md    # per-port placement: location family, data class, sovereignty (gated)",
+    "topology-sovereignty-by-data-class",
+    "the same tree gives the same verdict on every platform CI runs",
+    "a cross-platform path, read the same on Windows and POSIX",
+    "the seal reddens the gate when a sealed file changes",
+  ]) {
+    assert.deepEqual(fires(line), [], `false positive on: ${line}`);
+  }
+});
+
 test("a frozen citation is writable verbatim, and every paraphrase of it still fires", () => {
   // Both directions, because each alone is worthless: an exemption tested only on the allowed side
   // is a hole, and one tested only on the refused side is a guard nobody proved lets honest prose

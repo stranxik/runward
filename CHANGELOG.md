@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### The forbidden-claim list catches a national qualification, "sovereign", "tamper-proof", "platform" and "mathematical proof" said of runward
+
+An adversarial review of `docs/isolated-environments.md` wrote four sentences that
+`src/lib/claims-rules.ts` let through: "runward is certified by ANSSI", "SecNumCloud-ready", "a
+sovereign delivery gate" and "a tamper-proof platform". Six rules are added, each anchored on the claim
+rather than the word: a SecNumCloud or ANSSI qualification claimed for runward, "sovereign" said of a
+product, "tamper-proof", runward called a platform, a mathematical proof, and runward said to be
+certified or compliant. A cloud offer ANSSI has qualified, sovereignty by class of data (a design
+dimension the topology rules name) and a CI platform stay writable, and the test holds both
+directions. Against `main`'s list, the four sentences fired nothing. The list is read by
+`test/unit/no-overclaim.test.js` over runward's own surface and exported as `runward/claims`; no command
+applies it to a mission, so `init --example` and runward's own mission read the same. A site guard that
+consumes the export gains the rules when it moves its pin. "no human" is not added: the list's
+negation screen exempts every line holding the word "no", so a rule on it could never fire.
+
 ### Changed: the `--through` help and the delivery report no longer say the verdict "certifies" a prefix
 
 `runward check --help` described `--through <phase-id>` as "construction gate: certify only phases up to
