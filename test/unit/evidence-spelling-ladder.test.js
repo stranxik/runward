@@ -70,11 +70,13 @@ const NFD = "cafe" + String.fromCharCode(0x301) + ".ts";  // e + combining acute
 const NFC = "caf" + String.fromCharCode(0xe9) + ".ts";     // precomposed
 assert.notEqual(NFD, NFC, "this file guards nothing unless the two spellings really differ");
 
-/** Ask the ladder about `query`, relative to a tree built from `files`. */
-function ask(files, query) {
+/** Ask the ladder about `query`, relative to a tree built from `files`. `bound` passes the tree's root
+ *  as `from`, the way the gate does, spelled without ("plain") or with ("trailing") a final separator. */
+function ask(files, query, bound) {
   const root = tree(...files);
   try {
-    const answer = onDiskSpelling(join(root, ...query.split("/")));
+    const from = bound === undefined ? undefined : bound === "trailing" ? root + sep : root;
+    const answer = onDiskSpelling(join(root, ...query.split("/")), from);
     // Answers are reported relative to the root so a failure message is readable, and so the
     // assertion cannot accidentally pass on a temp-directory name.
     if (answer === null || answer === UNCHECKABLE || answer === SPELLING_VERIFIED) return answer;
@@ -87,7 +89,7 @@ function ask(files, query) {
 //
 // EVERY ONE OF THESE RUNS ON EVERY FILESYSTEM. That is the point of the file: the function reads
 // `readdirSync` and compares strings, so ext4 and APFS give it identical inputs here.
-for (const [what, files, query, expected] of [
+const LADDER = [
   // The mirror direction first. A ladder that answers "differs" for anything handed to it refuses
   // honest evidence, and a gate that cries on the safe input is the one that gets switched off.
   ["an exact spelling is VERIFIED, not merely un-refused", ["src/guard.ts"], "src/guard.ts", SPELLING_VERIFIED],
@@ -112,11 +114,33 @@ for (const [what, files, query, expected] of [
   // spelling to offer", and the caller refuses the pointer for not resolving at all.
   ["a name that matches nothing returns null", ["src/guard.ts"], "src/absent.ts", null],
   ["a directory that matches nothing returns null", ["src/guard.ts"], "nowhere/guard.ts", null],
-]) {
+];
+for (const [what, files, query, expected] of LADDER) {
   test(`the ladder: ${what}`, () => {
     assert.equal(ask(files, query), expected);
   });
 }
+
+// THE BOUND, driven directly too. The gate always calls `onDiskSpelling` with `from` (it bounds the
+// walk to the project, see the function), and every row above calls it without, so the branch that
+// slices the project off the path had no direct test: the mutation register filed two holes on it,
+// the whole path walked where the remainder was meant and a literal spliced into the remainder. Each
+// row is asked again with the bound spelled both ways and must answer what the unbounded walk
+// answers. That also pins the separator strip removed on 2026-11-06 (CodeQL alert #44): with or
+// without a final separator on `from`, the remainder's empty first segment changes nothing.
+for (const [what, files, query, expected] of LADDER) {
+  test(`the ladder, bounded to the project: ${what}`, () => {
+    assert.equal(ask(files, query, "plain"), expected, "from = the project root");
+    assert.equal(ask(files, query, "trailing"), expected, "from = the project root and a final separator");
+  });
+}
+
+test("the ladder, bounded: the project root itself is verified, with nothing left to walk", () => {
+  const root = tree("src/guard.ts");
+  try {
+    assert.equal(onDiskSpelling(root, root), SPELLING_VERIFIED);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
 
 // The filesystem's fold is stronger than `toLowerCase()`, and until 2026-08-26 the ladder was not.
 //

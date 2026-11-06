@@ -36,6 +36,58 @@ const code = (text) => {
   return t === "" ? "`` ` ``" : `\`${t.replace(/`/g, "ˋ")}\``;
 };
 
+/** The code spans of `s` as CommonMark pairs them: a run of n backticks and the next run of exactly n
+ *  backticks. A run with no partner is literal text. Returns [start, end) offsets. */
+function codeSpans(s) {
+  const spans = [];
+  for (let i = s.indexOf("`"); i !== -1;) {
+    let n = 0;
+    while (s[i + n] === "`") n++;
+    let close = -1;
+    for (let j = s.indexOf("`", i + n); j !== -1;) {
+      let m = 0;
+      while (s[j + m] === "`") m++;
+      if (m === n) { close = j; break; }
+      j = s.indexOf("`", j + m);
+    }
+    if (close === -1) { i = s.indexOf("`", i + n); continue; }
+    spans.push([i, close + n]);
+    i = s.indexOf("`", close + n);
+  }
+  return spans;
+}
+
+const ASCII_PUNCTUATION = /[!-/:-@[-`{-~]/;
+/** Neither whitespace nor punctuation: an `_` between two of these never delimits emphasis. */
+const WORD_SIDE = /^[^\s\p{P}\p{S}]$/u;
+const codePointBefore = (s, i) => (i >= 2 && /[\uDC00-\uDFFF]/.test(s[i - 1]) ? s.slice(i - 2, i) : (s[i - 1] ?? ""));
+const codePointAfter = (s, i) => (i + 1 < s.length ? String.fromCodePoint(s.codePointAt(i + 1)) : "");
+
+/** A note, written so that GitHub shows it as it is written. Measured 2026-11-06 by rendering the 2,370
+ *  rows of this register with GitHub's own renderer (`POST /markdown`, mode `gfm`): every code cell read
+ *  exactly and 41 notes did not, because GFM reads markup in prose. A backslash before punctuation is an
+ *  escape and vanishes (`^\\/` showed as `^\/`), `'**Status**: accepted'` turns bold and loses its
+ *  asterisks, `<state>` is taken for an HTML tag and removed. So, outside code spans only: a backslash
+ *  before ASCII punctuation is doubled, `*`, `~` and `<` get a backslash, and so does `_` wherever it
+ *  could delimit emphasis. Inside a code span every character is literal and stays as it is; the pipe
+ *  escape a table needs is cell()'s, everywhere. Pinned on rows of that measurement in
+ *  test/unit/mutation-register.test.js. */
+function prose(text) {
+  const s = String(text ?? "");
+  const spans = codeSpans(s);
+  let out = "";
+  for (let i = 0, k = 0; i < s.length; i++) {
+    while (k < spans.length && spans[k][1] <= i) k++;
+    const c = s[i];
+    if (k < spans.length && spans[k][0] <= i) out += c;
+    else if (c === "\\") out += ASCII_PUNCTUATION.test(s[i + 1] ?? "") ? "\\\\" : c;
+    else if (c === "*" || c === "~" || c === "<") out += `\\${c}`;
+    else if (c === "_") out += WORD_SIDE.test(codePointBefore(s, i)) && WORD_SIDE.test(codePointAfter(s, i)) ? c : "\\_";
+    else out += c;
+  }
+  return out;
+}
+
 const files = readdirSync(SRC).filter((f) => f.endsWith(".json")).sort();
 const fns = files.map((f) => JSON.parse(readFileSync(`${SRC}/${f}`, "utf8")));
 
@@ -136,7 +188,7 @@ for (const mod of modules) {
         : v.wrongReason ? `wrong reason: ${v.wrongReason}${v.assertion ? ` — assert: ${v.assertion}` : ""}`
         : v.evidence;
       out.push(`| ${v.line} | ${v.mutator} | ${code(clip(replacementOf(v.key), 44))} | ` +
-        `${v.filing} | ${cell(clip(note, 200))} |`);
+        `${v.filing} | ${cell(prose(clip(note, 200)))} |`);
     }
     out.push("");
   }
