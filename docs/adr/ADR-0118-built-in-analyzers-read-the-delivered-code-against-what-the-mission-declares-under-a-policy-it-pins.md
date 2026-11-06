@@ -223,10 +223,16 @@ against the first version of this correction read red again (`test/unit/analyze-
 test per pattern, each beside a case classified true and those evasions).
 
 - *Test integrity*: the code under test is what a test file imports from a module that is not a test, and
-  every name it assigns from it. A TypeScript case asserts at compile time when its project runs a
-  type-checker (a `package.json` script on its path) and the assertion is about that code: an assertion type
-  constrained `extends true` instantiated on it (`type verify = Expect<Equal<Expected, Actual>>`), or a
-  `@ts-expect-error` over a line that uses it; an asserting helper may spread its parameters over lines. A
+  every name it assigns from it. A TypeScript case asserts at compile time when a type check of its project
+  covers the file, as the tree shows it, and the assertion is about that code: an assertion type constrained
+  `extends true` instantiated on it (`type verify = Expect<Equal<Expected, Actual>>`), or a
+  `@ts-expect-error` over a line that uses it; an asserting helper may spread its parameters over lines. The
+  type check is read, never assumed: a `package.json` script on the file's path runs `tsc` or `vue-tsc` with
+  a configuration (`-p`/`--project`, or the `tsconfig.json` beside it) whose `files`, `include` and `exclude`
+  cover the file through relative `extends`, as TypeScript reads them, or names the file itself. It fails
+  closed: an `extends` from a package, build mode, a command after a `cd`, a configuration the tree does not
+  hold or that does not parse, and the runners of type tests (`tsd`, `tstyche`, `vitest --typecheck`)
+  credit nothing. A
   case that only checks that the code under test completes without error (its `done` handed to that code,
   under a runner that passes one; an object of it set up and awaited as a statement, `await
   fastify.ready()`; a promise of its own that can still reject on a failure path) is no finding: it is the
@@ -234,7 +240,10 @@ test per pattern, each beside a case classified true and those evasions).
   awaited and never read keeps the case a finding. Decided on 2026-11-06 with the classification: a case with
   no assertion at all stays a finding, a bare call awaited or not and a type case with no type assertion
   alike; the case asserting only on literals stays a hypothesis, which no longer says it is by design.
-- *Capability*: a loader whose argument is a `const` initialised with a literal alone in a scope that holds
+- *Capability*: the environment the core is refused is read in every spelling of it: `process.env` and
+  `process?.env` (hono `src/utils/color.ts:23`, missed by the first version), `process['env']`, through
+  `globalThis` or `global`, destructured (`const { env } = process`), and `import.meta`, `Deno` and `Bun`
+  with optional chaining. A loader whose argument is a `const` initialised with a literal alone in a scope that holds
   the call, or the parameter of a local function only ever called with literals, loads that module when the
   name occurs nowhere else; it is judged as a literal import, by the boundary in a declared core. The network
   is judged by what an import binds and reads, its type-only form read from the statement's syntax: a table
@@ -249,9 +258,52 @@ test per pattern, each beside a case classified true and those evasions).
 
 What the corrected reading lets through, said: a case whose assertions were deleted while it still hands
 its `done` to the code under test, or still sets up an object of it and awaits it without binding the
-result (`app.get(…)` then `await app.request('/')`), reads as the completion hypothesis, not as a finding;
-a type-checker declared by the project is taken as running on the tests. These false reds were found before
-any release carried the analyzers, and none is filed in the defect register.
+result (`app.get(…)` then `await app.request('/')`), reads as the completion hypothesis, not as a finding
+(decision (a) below); a configuration the type check reads is taken to run as written, and a type case it
+covers is credited though no job may run that script. A type case whose `Expect` and `Equal` are declared in
+the module under test reads as asserting on operators alone and stays red under a covering type check;
+no case of the three repositories has that shape. The completion hypothesis names the promise whose
+`reject` fails the case, with its line, before an object the case only set up (fastify
+`test/reply-trailers.test.js:269` named `fastify.listen()`, its set-up, where the failure path is the
+`reject` at line 297). These false reds were found before any release carried the analyzers, and none is
+filed in the defect register (decision (b) below).
+
+### Decided on 2026-11-06, under the delegation of 2026-11-05
+
+Three decisions taken without asking, under the maintainer's delegation of 2026-11-05 ("carry it out each
+time instead of asking me"), on the recommendation of the agent session that built the second integration
+train of 2026-11-06; the maintainer did not review them before they were written, and each stands until he
+reverses it.
+
+- **(a) A case that only checks that the code completes stays a visible, uncounted hypothesis,**
+  `case-asserts-completion`, with what it lets through written above. Keeping it a finding would contradict
+  the independent classification: the reviewers of express and fastify classified as false the findings
+  those cases raised, and the 13 hypotheses of the re-measurement on `9004563` hide no empty case (their
+  reviewer checked them against an independent scan of 2,938 cases). The residual is the one said above: deleting a
+  case's assertions while it still hands its `done` on, or still awaits an object it set up, turns a finding
+  into this hypothesis; the hypothesis is printed, never counted, and an execution of the suite (`--hooks`,
+  or `attested` with `runward-run`, ADR-0120) is what tells a check of completion from an empty case.
+- **(b) The false reds measured before any release are ADR-0117 criterion-2 measurements, not
+  `undue-refusal` entries under "Against A" below.** "Against A" counts refusals of code a release judged;
+  the 129 false reds of 2026-11-06 were found by the measurement that criterion 2 requires before the policy
+  can stay a default, on a build no release carried, and were corrected before any adopter met them. They are
+  published as that measurement, with its classification and its commands
+  (`docs/compliance/analyzers-on-real-repositories.md`); a false red found after a release is an
+  `undue-refusal` of the register, and counts.
+- **(c) A case with no assertion at all stays a finding, "does not throw" cases included** (express
+  `test/Router.js:202`, classified true by its reviewer: a case that calls the code and asserts nothing
+  fails on nothing it computes), while a case that asserts only on literals stays the hypothesis
+  `case-asserts-literals`. The asymmetry is on purpose. A case with no assertion is what the sabotages e1 and
+  e2 of the bench leave once every assertion is removed: read as a hypothesis, they would pass again. A case
+  whose assertions hold only literals (`assert.ok(true)`) has an assertion the reading cannot judge, and
+  whether its body can fail is a question for an execution: the mutation leg of ADR-0120 (R2) at `attested`
+  answers it, the reading does not.
+
+The reading's cost is bounded too (RWD-2026-0203): what one file makes the case loop, the asserting
+helpers and the initializers read is counted against sixteen times its size. A case past the budget is
+listed under `notAnalyzed`, as a file over the size limit is; a helper or an initializer past it credits
+nothing, which can only leave a case red. An agent can hide an empty case in cases nested deep enough to
+pass the budget, as in a file over 1 MB; both are said, never silent.
 
 ## What would settle it
 
