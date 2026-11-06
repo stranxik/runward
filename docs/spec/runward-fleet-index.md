@@ -31,6 +31,7 @@ and not received is shown as such.
 | `missions[].name`, `role`, `path` | labels |
 | `missions[].repository` | `host/owner/repo`; a signature must have been made for this repository |
 | `missions[].commit` | the landing commit the exports were produced at, declared; a signed commit is compared with it |
+| `missions[].commitSource` | optional, where the author of `fleet.json` read `commit` (a label of 200 characters at most, e.g. the claim of an upload's workload identity token for a hosted deployment); carried as declared, never checked; refused without `commit` |
 | `missions[].expects[]` | the kinds the operator expects (`check`, `attestation`, `verify`, `witness`, `summary`, `report`, `history`, `signature`); a missing one is a finding |
 | `missions[].exports.<kind>` | `{ file, producedBy, at }`; `file` relative to `fleet.json`, the two others labels |
 | `missions[].signatures[]` | `{ covers, kind, ... }`: `covers` names the export kind the signature is meant to cover; `kind` is `sigstore-bundle` (`file`) or `ed25519-manifest` (`manifest`, `signature`, `format`, optional `claimedKey`) |
@@ -147,7 +148,9 @@ Unknown values read `not-observed`. A grouping is always `{ state, n, N, list }`
 | `absent[]` | what runward does not produce yet: `{ what, state, contract, delivery }` |
 | `sources[]` | every file read: `{ id, path, sha256, bytes, kind, producedBy, at, origin, declaredIn }` |
 
-A mission carries `id`, `name`, `role`, `repository`, `path`, `commit` (`{ value, source }` or `null`),
+A mission carries `id`, `name`, `role`, `repository`, `path`, `commit` (`{ value, source }` or `null`;
+`source` is `fleet.json (declared)`, and `commitSource` is added, as written in the inventory, only when
+the inventory names one),
 `expects`, `findings[]` (`{ what, state, why, ... }`, `why` one of `declared-file-absent`,
 `expected-none-declared`, `unreadable`, `signature-refused`), `signatures[]` and `signaturesByState`,
 and, when observed: `latest`, `attestation`, `verify`, `witness`, `summary`, `report`, `history`.
@@ -158,8 +161,9 @@ and, when observed: `latest`, `attestation`, `verify`, `witness`, `summary`, `re
   `verdict`, `exitCode`, `currentGate`, `adrCount`, `strict`, `gaps`, `causesByKind`, `deliverables`
   (`list`, `byState`), `conformance`, `evidence`, `seal`, `corpus`, `criticalScope`, `ratification`
   (counts, `byState`, `changedRows`, `ratifiers`), `requiresUnmet` (`list`, `byNature`, `size`),
-  `committedJUnit`, `assurance`, `delegationStage`, `gateNonScope`, `next`. The payload's `mission`
-  (a checkout path) is never projected.
+  `committedJUnit`, `assurance`, `delegationStage`, `gateNonScope`, `next`. The payload's `mission` is
+  never projected: the mission is named by the inventory's `name`, and the field was the checkout's
+  absolute path until RWD-2026-0199 (it is now the name the mission declares, as in the attestation).
 - `history` holds `series[]`, one per origin, never mixed: `src`, `origin`, `judgedBy[]`, `size`,
   `records[]` (`ref`, `commit`, `committedAt`, `verdict`, `exitCode`, `conformanceGaps`,
   `deliverableGaps`, `assurance`, `payloadSha256`, `judge` (an index into `judgedBy`),
@@ -206,6 +210,25 @@ fetch), that defines the gold more than once or uses it outside `.or`, that show
 in a view, that carries a colour the identity refuses, that reads or formats a clock in its script, or
 whose own words include one runward never uses about itself; text the view marks as verbatim data (a
 mission name, a rule slug, a quoted export) is the data's, not the view's.
+
+## 5. What a hosted deployment imports
+
+One interface, two deployments (ADR-0121 decision 1): a hosted deployment assembles the index and serves
+the view with this package, pinned, and copies none of its files. Its entry points:
+
+| Export | What it gives |
+|---|---|
+| `runward-fleet` | `buildIndex({ manifest, read, version })`, `readManifest`, `BuildError`, `PRIVATE_PATH`, `INDEX_FORMAT`, `MANIFEST_FORMAT` |
+| `runward-fleet/rules` | `checkIndex`, `checkView`, `checkPage`: the view rules, run on an index before it is served |
+| `runward-fleet/views` | `renderView`, `renderNav`, `renderStamp`, `allViews`, `ROUTES`: the views, for a shell of its own |
+| `runward-fleet/site` | `renderPage(index)`, the page `runward-fleet build` writes to `index.html`, byte for byte; `renderSite(index, assets)`, the same with assets given; `siteAssets()`, the template (the identity's tokens and the shell), the source of the views and the fonts, read from the package |
+| `runward-fleet/trust`, `runward-fleet/sigstore` | the trust policy and the offline verification of §2 |
+
+The template's shell reads the inlined index, else `index.json` from the same origin. The golden test of
+`fleet-build.test.js` holds the property ADR-0121 names: the page `runward-fleet/site` renders from the
+bytes of the `index.json` the build wrote is the `index.html` it wrote, and the index and the page of one
+inventory are golden files (`test/fixtures/golden/fleet/`), regenerated with `UPDATE_GOLDEN=1` and read
+in a diff.
 
 The tests are `test/unit/fleet-build.test.js`, `fleet-view-rules.test.js`, `fleet-signatures.test.js`,
 `fleet-release.test.js` and the ADR-0093 section of `runtime-boundary.test.js`.

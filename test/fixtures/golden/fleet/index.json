@@ -1,0 +1,1970 @@
+{
+  "format": "runward-fleet-index/0",
+  "builtBy": {
+    "name": "runward-fleet",
+    "version": "test"
+  },
+  "title": "test fleet",
+  "lang": "en",
+  "asOf": {
+    "label": "2026-11-06",
+    "source": "declared in fleet.json; neither the build nor the page reads a clock"
+  },
+  "manifest": {
+    "src": "fleet.json"
+  },
+  "policy": null,
+  "fleet": {
+    "declared": 3,
+    "byVerdict": [
+      {
+        "state": "clean",
+        "n": 2,
+        "N": 3,
+        "list": [
+          "runward",
+          "example"
+        ]
+      },
+      {
+        "state": "gaps",
+        "n": 0,
+        "N": 3,
+        "list": []
+      },
+      {
+        "state": "level-not-met",
+        "n": 0,
+        "N": 3,
+        "list": []
+      },
+      {
+        "state": "not-observed",
+        "n": 1,
+        "N": 3,
+        "list": [
+          "silent"
+        ]
+      }
+    ],
+    "byImplemented": [
+      {
+        "state": "machine-established",
+        "n": 0,
+        "N": 3,
+        "list": []
+      },
+      {
+        "state": "ci-declared",
+        "n": 2,
+        "N": 3,
+        "list": [
+          "runward",
+          "example"
+        ]
+      },
+      {
+        "state": "not-observed",
+        "n": 1,
+        "N": 3,
+        "list": [
+          "silent"
+        ]
+      }
+    ],
+    "sealed": [
+      {
+        "state": "sealed",
+        "n": 0,
+        "N": 2,
+        "list": []
+      },
+      {
+        "state": "unsealed",
+        "n": 2,
+        "N": 2,
+        "list": [
+          "runward",
+          "example"
+        ]
+      }
+    ],
+    "signatures": {
+      "declared": 0,
+      "byState": [
+        {
+          "state": "verified",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "outside-policy",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "refused",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "absent",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "not-verifiable",
+          "n": 0,
+          "N": 0,
+          "list": []
+        }
+      ],
+      "raised": [
+        {
+          "state": "raised",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "not-raised",
+          "n": 0,
+          "N": 0,
+          "list": []
+        }
+      ]
+    },
+    "findings": [
+      {
+        "state": "not-observed",
+        "n": 1,
+        "N": 1,
+        "list": [
+          "silent · check"
+        ]
+      },
+      {
+        "state": "refused",
+        "n": 0,
+        "N": 1,
+        "list": []
+      }
+    ]
+  },
+  "missions": [
+    {
+      "id": "runward",
+      "name": "stranxik/runward",
+      "role": null,
+      "repository": "github.com/stranxik/runward",
+      "path": null,
+      "commit": {
+        "value": "32d8425b1cb41568eab3ce29dce24f63bad8a32a",
+        "source": "fleet.json (declared)",
+        "commitSource": "the upload's workload identity token (claim sha)"
+      },
+      "expects": [
+        "check",
+        "attestation",
+        "verify",
+        "witness",
+        "summary",
+        "history"
+      ],
+      "latest": {
+        "from": "check",
+        "src": "runward:check",
+        "origin": "undetermined",
+        "implemented": "ci-declared",
+        "runward": "0.46.0",
+        "verdict": "clean",
+        "exitCode": 0,
+        "currentGate": "all gates passed",
+        "adrCount": 4,
+        "strict": true,
+        "gaps": {
+          "deliverables": 0,
+          "conformance": 0,
+          "hooks": 0,
+          "deferred": 0,
+          "proposed": 0,
+          "charter": 0
+        },
+        "causesByKind": [],
+        "deliverables": {
+          "list": [
+            {
+              "phase": "1 · Frame",
+              "phaseId": "frame",
+              "artifact": "Framing note",
+              "relPath": "framing.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "1 · Frame",
+              "phaseId": "frame",
+              "artifact": "Steering contract",
+              "relPath": "mission-contract.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "2 · Architect",
+              "phaseId": "architect",
+              "artifact": "Architecture note",
+              "relPath": "architecture.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "2 · Architect",
+              "phaseId": "architect",
+              "artifact": "Execution topology",
+              "relPath": "execution-topology.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "2 · Architect",
+              "phaseId": "architect",
+              "artifact": "Decision matrix",
+              "relPath": "decision-matrix.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "2 · Architect",
+              "phaseId": "architect",
+              "artifact": "Decision journal (≥1 ADR)",
+              "relPath": "adr",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "2 · Architect",
+              "phaseId": "architect",
+              "artifact": "Port contracts (≥1 filled)",
+              "relPath": "contracts",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "3 · Floor",
+              "phaseId": "floor",
+              "artifact": "Floor note (measured proof)",
+              "relPath": "floor.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "5 · Govern (day zero)",
+              "phaseId": "govern",
+              "artifact": "Threat model",
+              "relPath": "governance/threat-model.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "5 · Govern (day zero)",
+              "phaseId": "govern",
+              "artifact": "Evaluation rubric",
+              "relPath": "governance/evaluation-rubric.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "5 · Govern (day zero)",
+              "phaseId": "govern",
+              "artifact": "Observability schema",
+              "relPath": "governance/observability-schema.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "6 · Hand over",
+              "phaseId": "handover",
+              "artifact": "Recovery runbook",
+              "relPath": "runbook.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "6 · Hand over",
+              "phaseId": "handover",
+              "artifact": "Hand-over note (the kit, proven)",
+              "relPath": "handover.md",
+              "state": "filled",
+              "cause": null
+            }
+          ],
+          "byState": [
+            {
+              "state": "filled",
+              "n": 13,
+              "N": 13,
+              "list": [
+                "framing.md",
+                "mission-contract.md",
+                "architecture.md",
+                "execution-topology.md",
+                "decision-matrix.md",
+                "adr",
+                "contracts",
+                "floor.md",
+                "governance/threat-model.md",
+                "governance/evaluation-rubric.md",
+                "governance/observability-schema.md",
+                "runbook.md",
+                "handover.md"
+              ]
+            }
+          ]
+        },
+        "conformance": [],
+        "evidence": {
+          "rows": 46,
+          "applied": 21,
+          "deviated": 3,
+          "na": 22,
+          "typed": 20,
+          "prose": 1,
+          "signed": 5,
+          "evidenceFiles": {
+            "total": 35,
+            "external": 29
+          },
+          "proseRows": [
+            {
+              "deliverable": "execution-topology.md",
+              "rule": "topology-usage-registry-present"
+            }
+          ]
+        },
+        "seal": {
+          "present": false,
+          "count": 0,
+          "sealedAt": null,
+          "violations": 0
+        },
+        "corpus": {
+          "status": "verifiable",
+          "missing": 0,
+          "edited": 0,
+          "extra": 0
+        },
+        "criticalScope": {
+          "total": 45,
+          "mapped": 41,
+          "unmapped": [
+            "patterns-memory-router-tiered",
+            "routing-model-cost-ratios",
+            "routing-smart-complexity",
+            "scaling-distributed-rate-limiting"
+          ]
+        },
+        "ratification": {
+          "rows": 46,
+          "lineByLine": 1,
+          "enBloc": 45,
+          "blind": 0,
+          "untraced": 0,
+          "changed": 1,
+          "byState": [
+            {
+              "state": "ratified",
+              "n": 45,
+              "N": 46,
+              "list": [
+                "architecture.md · contracts-governance",
+                "architecture.md · hexa-adapter-pattern",
+                "architecture.md · hexa-architecture",
+                "architecture.md · hexa-typescript-native",
+                "architecture.md · process-adr-and-journal",
+                "architecture.md · security-mcp-server-pinning",
+                "execution-topology.md · topology-port-placement-mapped",
+                "execution-topology.md · topology-sovereignty-by-data-class",
+                "execution-topology.md · topology-trace-export-decision",
+                "execution-topology.md · topology-usage-registry-present",
+                "floor.md · config-secrets-boundary",
+                "floor.md · frontier-deterministic-boundary",
+                "floor.md · hexa-adapter-pattern",
+                "floor.md · hexa-architecture",
+                "floor.md · hexa-move-deterministic-out",
+                "floor.md · provider-llm-auto-detection",
+                "floor.md · provider-no-crash-missing-env",
+                "floor.md · security-prompt-injection",
+                "floor.md · state-event-sourcing",
+                "floor.md · tools-scope-atomicity",
+                "floor.md · async-post-turn-pipeline",
+                "floor.md · checklist-day-zero-project",
+                "floor.md · data-migrations-forward-only",
+                "floor.md · scaling-state-externalization",
+                "floor.md · tools-registry-pattern",
+                "governance/threat-model.md · config-secrets-boundary",
+                "governance/threat-model.md · data-memory-provenance",
+                "governance/threat-model.md · eval-loop",
+                "governance/threat-model.md · resilience-fail-open",
+                "governance/threat-model.md · resilience-multi-provider-fallback",
+                "governance/threat-model.md · resilience-retry-backoff",
+                "governance/threat-model.md · security-code-execution-sandbox",
+                "governance/threat-model.md · security-human-agent-trust",
+                "governance/threat-model.md · security-mcp-server-pinning",
+                "governance/threat-model.md · security-prompt-injection",
+                "governance/threat-model.md · security-tool-change-reapproval",
+                "governance/threat-model.md · checklist-pre-production-observability",
+                "governance/threat-model.md · checklist-pre-production-performance",
+                "governance/threat-model.md · checklist-pre-production-resilience",
+                "governance/threat-model.md · checklist-pre-production-security",
+                "governance/threat-model.md · routing-confidence-upgrade",
+                "handover.md · handover-redone-task-proof",
+                "handover.md · handover-runbook-executable",
+                "handover.md · handover-agents-charter-final",
+                "handover.md · handover-succession-named"
+              ]
+            },
+            {
+              "state": "changed",
+              "n": 1,
+              "N": 46,
+              "list": [
+                "governance/threat-model.md · async-job-guardrails"
+              ]
+            },
+            {
+              "state": "blind",
+              "n": 0,
+              "N": 46,
+              "list": []
+            },
+            {
+              "state": "untraced",
+              "n": 0,
+              "N": 46,
+              "list": []
+            }
+          ],
+          "changedRows": [
+            "governance/threat-model.md · async-job-guardrails"
+          ],
+          "ratifiers": [
+            "Thibault Souris",
+            "thibaultsouris"
+          ]
+        },
+        "requiresUnmet": {
+          "list": [
+            {
+              "deliverable": "governance/threat-model.md",
+              "rule": "checklist-pre-production-performance",
+              "requires": "loadtest"
+            }
+          ],
+          "byNature": [
+            {
+              "state": "loadtest",
+              "n": 1,
+              "N": 1,
+              "list": [
+                "governance/threat-model.md · checklist-pre-production-performance"
+              ]
+            }
+          ],
+          "size": 1
+        },
+        "committedJUnit": {
+          "rows": 11,
+          "reports": [
+            "reports/junit.xml"
+          ],
+          "freshness": "not verified by this command"
+        },
+        "assurance": {
+          "declared": "machine+critical",
+          "inForce": "machine+critical",
+          "degraded": true,
+          "notInForce": [
+            "M1 strict self-gate as a required check",
+            "M2 full suite, attack corpus, manifest fuzz and metamorphic relations as required checks",
+            "M3 net-monotonic guard",
+            "M4 witness checker run on the CI self-gate",
+            "M5 mutation ratchet fresh at each release",
+            "M6 documented-commands guard",
+            "M7 machine seeds",
+            "M8 required checks enforced for administrators, forge posture attested"
+          ]
+        },
+        "delegationStage": 1,
+        "gateNonScope": "A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. A ratification trace records that someone declared answering the displayed evidence; runward cannot tell who, or whether a person answered at all, and it never proves they understood it.",
+        "next": {
+          "action": "assemble-evidence-pack",
+          "command": "runward compliance <regime>",
+          "text": "Assemble the evidence pack with runward compliance <regime> (iso-42001 · nist-ai-rmf · eu-ai-act), or runward status for a handover snapshot."
+        }
+      },
+      "findings": [],
+      "signatures": [],
+      "attestation": {
+        "src": "runward:attestation",
+        "implemented": "ci-declared",
+        "type": "https://in-toto.io/Statement/v1",
+        "predicateType": "https://runward.dev/verdict/v1",
+        "subject": [
+          {
+            "name": "runward",
+            "sha256": "4b0329cce415e19d9ca843a15fe2763482ebec1924af1f5a622d270bc7713cfb"
+          }
+        ],
+        "verdict": "clean",
+        "strict": true
+      },
+      "verify": {
+        "src": "runward:verify",
+        "verified": true,
+        "attestedVerdict": "clean",
+        "producedBy": "0.46.0",
+        "runward": "0.46.0",
+        "versionSkew": false,
+        "digestMatches": true,
+        "verdictMatches": true,
+        "predicateMatches": true,
+        "differing": [],
+        "notReDerived": [
+          "runward",
+          "mission",
+          "currentGate",
+          "adrCount",
+          "corpusPin",
+          "corpusDrift",
+          "gaps.hooks",
+          "next.command",
+          "next.rerun",
+          "next.text"
+        ],
+        "signatureVerified": false,
+        "exitCode": 0
+      },
+      "witness": {
+        "src": "runward:witness",
+        "format": "runward-witness/1",
+        "result": "clean",
+        "exitCode": 0,
+        "files": 41,
+        "notWitnessed": [
+          {
+            "family": "deliverable-state",
+            "why": "whether a deliverable is filled is judged against the package's templates (placeholders, divergence floor); the witness carries each deliverable's digest and the state the verdict read, not the template comparison"
+          },
+          {
+            "family": "corpus-history",
+            "why": "whether a rule's text is one runward published, and which rules the package ships, are read from the installed package (templates/rule-history.json, templates/rules/); the witness pins their digests and does not carry them"
+          },
+          {
+            "family": "signatures",
+            "why": "a signed rule's evidence is matched against its `signature:` regex over the cited text outside the manifest; the witness says which rules are signed, not the match"
+          },
+          {
+            "family": "report-natures",
+            "why": "the result of a symbol read through a SARIF, ESLint, CycloneDX, load-test or coverage report; the witness carries the nature and the result the verdict read, not the facts behind it"
+          },
+          {
+            "family": "on-disk-spelling",
+            "why": "whether a pointer's spelling matches the case the file system holds (a case-insensitive checkout); the verdict's spelling ladder is not witnessed"
+          },
+          {
+            "family": "scaffold-identical",
+            "why": "whether a cited file is still byte for byte a file runward scaffolded; the comparison set comes from the package and the lock"
+          },
+          {
+            "family": "unreadable",
+            "why": "a cited file that exists and cannot be read; the witness records no digest for it"
+          },
+          {
+            "family": "seal",
+            "why": "the evidence seal (evidence-lock.json) and its drift"
+          },
+          {
+            "family": "regulated",
+            "why": "the regulated tier's ratification binding (ADR-0080)"
+          },
+          {
+            "family": "charter",
+            "why": "the delegation charter, the sample ledger (ADR-0088) and the assurance mode read from them (`delegation.assurance`, ADR-0090, ADR-0095)"
+          },
+          {
+            "family": "workflow-contract",
+            "why": "the workflow contracts (ADR-0067)"
+          },
+          {
+            "family": "hooks",
+            "why": "the operator's hooks; their failures are an input to the verdict, never re-checkable from the tree"
+          },
+          {
+            "family": "disclosures",
+            "why": "readings that never count: the ratification ledger and its per-row list (`ratification.byRow`, ADR-0095), unmet evidence natures (`requires:`), the critical-scope disclosure"
+          }
+        ]
+      },
+      "summary": {
+        "src": "runward:summary",
+        "markdown": "<!-- runward:report-md · subject 4b0329cce415 -->\n## runward gate: CLEAN\n\n**Verdict: CLEAN**, exit code 0 (clean: the job passes). Exit code 0 is clean, 1 is gaps, 2 means the question could not be asked (no mission, a usage error or a refused gesture), never a red gate.\n\nrunward `0.46.0` · strict verdict · current gate: all gates passed · 4 architecture decision record(s)\n\n| What | Reading | Standing |\n|---|---|---|\n| Verdict | **CLEAN** | computed by `runward check --strict` on this tree; unsigned, re-derivable below |\n| Deliverable gaps | 0 | computed by the gate |\n| Rule-conformance gaps | 0 | computed by the gate |\n| Evidence rows | 46: 21 applied, 3 deviated, 22 n/a | 20 typed pointer(s) resolved by the gate; 1 prose row(s) declared, never verified; 5 signature-checked |\n| Ratification | 46 traced: 1 line-by-line, 45 en bloc, 0 blind; 0 untraced; 1 changed since ratified | declared: names and dates as the tree writes them; runward cannot tell who answered |\n| Evidence seal | absent (opt-in) | nothing is compared with a previous state |\n| Delegation charter | stage 1 | declared: delegation: declared, not proved — the maintainer's credential is within agent reach; charter: declared, not proved |\n| Assurance mode in force | `machine+critical` | declared, **degraded**: not in force: M1 strict self-gate as a required check; M2 full suite, attack corpus, manifest fuzz and metamorphic relations as required checks; M3 net-monotonic guard; M4 witness checker run on the CI self-gate; M5 mutation ratchet fresh at each release; M6 documented-commands guard; M7 machine seeds; M8 required checks enforced for administrators, forge posture attested |\n| Sample ledger | present | declared: sample: declared human, not proved; randomness: declared — the drand round is recomputed and its randomness checked against its signature; the signature is not verified against drand's public key |\n| Attestation subject | `4b0329cce415e19d9ca843a15fe2763482ebec1924af1f5a622d270bc7713cfb` | unsigned: runward never signs and never verifies a signature |\n\n### Gaps by kind\n\nNo gap: every expected deliverable is filled and every CRITICAL/HIGH rule mapped to a crossed phase is accounted for.\n\n### Ratification (declared)\n\nRows ratified blind, or changed since their ratification:\n\n| Deliverable | Rule | State | Mode | By | Date |\n|---|---|---|---|---|---|\n| `governance/threat-model.md` | `async-job-guardrails` | `changed` | `line-by-line` | `thibaultsouris` | `2026-09-30` |\n\nRatifiers, as the tree declares them: `Thibault Souris`, `thibaultsouris`.\n\n**Next.** Assemble the evidence pack with runward compliance &lt;regime&gt; (iso-42001 · nist-ai-rmf · eu-ai-act), or runward status for a handover snapshot.\n\n### Re-derive this verdict\n\nThe attestation's subject digest is `4b0329cce415e19d9ca843a15fe2763482ebec1924af1f5a622d270bc7713cfb` (SHA-256 over the mission tree and the evidence files it cites).\nOn a checkout of the same commit, with no account and no network beyond the package registry:\n\n```sh\nnpx runward@0.46.0 check --strict --attest > verdict.intoto.json\nnpx runward@0.46.0 verify verdict.intoto.json\n```\n\n`subject[0].digest.sha256` in the attestation must equal the digest above, and `verify` re-derives every field of the verdict from the tree. This summary computes nothing: every number in it is a field of `check --strict --json`.\n\n**What the gate does not cover.** A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. A ratification trace records that someone declared answering the displayed evidence; runward cannot tell who, or whether a person answered at all, and it never proves they understood it.\n\n_Rendered by `runward report --format md` (ADR-0093, ADR-0094): deterministic, no network, no clock._\n"
+      },
+      "history": {
+        "series": [
+          {
+            "src": "runward:history",
+            "origin": "replayed",
+            "judgedBy": [
+              "runward@0.46.0 built from 32d8425b1cb4"
+            ],
+            "size": 40,
+            "records": [
+              {
+                "ref": "v0.36.0",
+                "commit": "bfeaed5aa940",
+                "committedAt": "2026-08-18",
+                "verdict": "gaps",
+                "exitCode": 1,
+                "conformanceGaps": 12,
+                "deliverableGaps": 0,
+                "assurance": "not-observed",
+                "payloadSha256": "8403a1399e6741a43e2da840e70089b74fdd9403f17dd81a311bc9973fefbdfe",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.36.1",
+                "commit": "7939e29d8e84",
+                "committedAt": "2026-08-21",
+                "verdict": "gaps",
+                "exitCode": 1,
+                "conformanceGaps": 12,
+                "deliverableGaps": 0,
+                "assurance": "not-observed",
+                "payloadSha256": "efb2ff9c73ade1748ab0f689b8f9770bb802a83251d100c14b7514cf784a7092",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.36.2",
+                "commit": "0c0cb8db0bfe",
+                "committedAt": "2026-08-25",
+                "verdict": "gaps",
+                "exitCode": 1,
+                "conformanceGaps": 12,
+                "deliverableGaps": 0,
+                "assurance": "not-observed",
+                "payloadSha256": "53171184ce2c4c642e165d127762f396d1093b76084b859df25606ddd652f65c",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.37.0",
+                "commit": "018fc1b5753e",
+                "committedAt": "2026-08-27",
+                "verdict": "gaps",
+                "exitCode": 1,
+                "conformanceGaps": 12,
+                "deliverableGaps": 0,
+                "assurance": "not-observed",
+                "payloadSha256": "1602e2897234c7e10fb04bf4506d9d1add9b555d5efe4743b4ba23626f45e515",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.37.1",
+                "commit": "0e194d6accf9",
+                "committedAt": "2026-09-01",
+                "verdict": "gaps",
+                "exitCode": 1,
+                "conformanceGaps": 12,
+                "deliverableGaps": 0,
+                "assurance": "not-observed",
+                "payloadSha256": "431f6e841d9d9a6ef1c27b3cdcd8e916f7dde4132d716e32a7df2003e81acb64",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.38.0",
+                "commit": "9066c6d976ad",
+                "committedAt": "2026-09-07",
+                "verdict": "gaps",
+                "exitCode": 1,
+                "conformanceGaps": 2,
+                "deliverableGaps": 0,
+                "assurance": "not-observed",
+                "payloadSha256": "6e980507bf4e26fbb64d01b378a1f7255d2e30a4d163c6e9da6e6419b4262365",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.39.0",
+                "commit": "b84eeb175bfc",
+                "committedAt": "2026-09-10",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": "not-observed",
+                "payloadSha256": "cb51f0e20c96383c7242f43f14260718fa9dffef605a94e058e8574518ae0c52",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.40.0",
+                "commit": "9a5affd44233",
+                "committedAt": "2026-09-12",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": "not-observed",
+                "payloadSha256": "7366cdfc6077d4ba40ddb746f0a4e2e929713e5d2e5146dd267cc45e4b8bbceb",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.41.0",
+                "commit": "ff0b6d93a994",
+                "committedAt": "2026-09-19",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": "not-observed",
+                "payloadSha256": "217f0ed9c26e7d577dffc4dd2161692dc549ba7392cff3d59c8695412ddf25a0",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.42.0",
+                "commit": "b96e5ea775fa",
+                "committedAt": "2026-09-24",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": "not-observed",
+                "payloadSha256": "0b5b9f259b677e52d3e41c5e56254cf9c8af3a5b7cde509498d4b26ede280748",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.42.1",
+                "commit": "c4cabe4c85e4",
+                "committedAt": "2026-09-25",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": "not-observed",
+                "payloadSha256": "7837e1c0e77a6ea42936685e9684d103f822f256d5e12443fbff9ae55b273380",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.42.2",
+                "commit": "b1e3c7dd5b50",
+                "committedAt": "2026-09-26",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": "not-observed",
+                "payloadSha256": "5ba8eecb8710bfe662d24b83f84521a5910d1cd547e7e7019c31b61183c7cad3",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.42.3",
+                "commit": "96856b5fad90",
+                "committedAt": "2026-09-30",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": "not-observed",
+                "payloadSha256": "00c4a99354c3c39f25e6c056d2924e7314748be4a9f371b19cf116ecafb6dd49",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.43.0",
+                "commit": "d04ccaf3bc29",
+                "committedAt": "2026-10-02",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "sampled",
+                  "degraded": false
+                },
+                "payloadSha256": "bc15f251d9627215a71caa52e9e41bcc5b5cb2079cb75d110eb884c075261fb7",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.43.1",
+                "commit": "170c46755126",
+                "committedAt": "2026-10-08",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "sampled",
+                  "degraded": false
+                },
+                "payloadSha256": "003914254985bb52be007ebacd4888f29388c162a2d2258298209e160fd9e992",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.44.0",
+                "commit": "7977a052f3f9",
+                "committedAt": "2026-10-15",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "sampled",
+                  "degraded": false
+                },
+                "payloadSha256": "d405ec2abd854318fbd676c11f2c98424cffce89895a355c934bd529ea34ff97",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.44.1",
+                "commit": "de61beb9d8a6",
+                "committedAt": "2026-10-21",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "sampled",
+                  "degraded": false
+                },
+                "payloadSha256": "ead41794bda134f2c671d044c83d48122cfa56c35ef13f5b347b943777cc4abd",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.45.0",
+                "commit": "090e411afe2d",
+                "committedAt": "2026-10-23",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "cdee5871950f9abb3c81c1c3e7c11ffd1f1006fc9472584b77e7d5936bb5f52f",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "v0.46.0",
+                "commit": "192ca3d63c45",
+                "committedAt": "2026-10-28",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "a1969e698292d60e1c150beda1f4c84bac22699afb084896a621cc9453897e2e",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "b7d8c6263754",
+                "commit": "b7d8c6263754",
+                "committedAt": "2026-10-28",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "5fdfa2b29d15e1f3381b819ea49dbc16e9aeff0025005c9f589e4ccf0828cf77",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "63840bfbb24f",
+                "commit": "63840bfbb24f",
+                "committedAt": "2026-11-04",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "b66a9b1050ef7358aa3c4a774cc9c2e094ddde91bdddc3bdbd06591696772f42",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "4541a90c3b03",
+                "commit": "4541a90c3b03",
+                "committedAt": "2026-11-04",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "01a1d78a224cb6ca38d6a6d14c5ab0ba89f9fd5547bc195bf42ed32d1c59e3eb",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "f9777f509c8c",
+                "commit": "f9777f509c8c",
+                "committedAt": "2026-11-04",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "1f68ca602027b0a699d85c6d4712907ed3e8a72feb226bef2a8e01439e0c142a",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "53c4b5be88d4",
+                "commit": "53c4b5be88d4",
+                "committedAt": "2026-11-04",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "8c2fb736b631c992039b7bca9ab8e6d5cb3f751c91f20bf8e1ff416a85399106",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "78074dfe98dc",
+                "commit": "78074dfe98dc",
+                "committedAt": "2026-11-04",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "a5878c24ca74f8207ab3b30ba56afd57f756fd48d389c5213ee4bdb727563f10",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "916b6f471bb4",
+                "commit": "916b6f471bb4",
+                "committedAt": "2026-11-04",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "e0ee6cde972f1eb3217a653f16307fd8fca489e898bbd7d490142e62981f7c60",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "944f785ba280",
+                "commit": "944f785ba280",
+                "committedAt": "2026-11-04",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "1d7d005999243ebfee1a0114c5caa682a868bc6b946e0ce0f8ec3ca00cd0a3e6",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "2d2cd84a2f30",
+                "commit": "2d2cd84a2f30",
+                "committedAt": "2026-11-04",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "28962aa0e87901f13c10b00e5168af475f733bcef2e0a9739c095078c3db1f09",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "8c9db69b1a6c",
+                "commit": "8c9db69b1a6c",
+                "committedAt": "2026-11-04",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "3d9a32160cfb92de64f054c220396ca70e9ca5409960567a74e690fd9fef093c",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "7bb42db35f44",
+                "commit": "7bb42db35f44",
+                "committedAt": "2026-11-04",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "dee0bb6b663a44b6e8861692eca12201e4ebe5f97e3881339e8766ef09b1ffd2",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "a3a614f487c8",
+                "commit": "a3a614f487c8",
+                "committedAt": "2026-11-04",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "2b4d844d8a641046d46a7863f3af52d2fa6b3147cc2bba8d9907c0bde1bb04bb",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "065afaebb4fb",
+                "commit": "065afaebb4fb",
+                "committedAt": "2026-11-04",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "80a58a04da34b2a7ae713c6b38249fb5697aad012b405db7a4a4792660eda7d2",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "98b7dfbc29ed",
+                "commit": "98b7dfbc29ed",
+                "committedAt": "2026-11-04",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "d7ff104b96bb7d8e97cf82f63d43a5a74e7e9b3d8acf3451f713571ca5ca4120",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "df9ae80e1861",
+                "commit": "df9ae80e1861",
+                "committedAt": "2026-11-04",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "51afeb3956678cf1bead72493db191397c71dafaa9b1c79421414d8130a715ca",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "9149aa610539",
+                "commit": "9149aa610539",
+                "committedAt": "2026-11-05",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "acb51ecfe602dac2d4b35c0e01e9047add5e9210c42a4abdeb0919eb64f84c56",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "fcef954fea25",
+                "commit": "fcef954fea25",
+                "committedAt": "2026-11-05",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "175297de9e7fe4cbdac04f984f864f12f27b7eda856fcfe2d64ec472c5c3fb06",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "7dbbdc472882",
+                "commit": "7dbbdc472882",
+                "committedAt": "2026-11-05",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "2ca71c405b133e2b04e2a5ec2dfdb6334dfe14709da9d600c585f1be49791542",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "8ffdf7c5162f",
+                "commit": "8ffdf7c5162f",
+                "committedAt": "2026-11-05",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "014ac8caee7e6466a5d0284f7a44243227fe9aac039fe9966408830c1f29db45",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "61d5041fe000",
+                "commit": "61d5041fe000",
+                "committedAt": "2026-11-05",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "a48c5c566e3fd6e49de6e587a997792284d95f2acf4790eaf7868b4c0b67e37b",
+                "judge": 0,
+                "signatureVerified": false
+              },
+              {
+                "ref": "32d8425b1cb4",
+                "commit": "32d8425b1cb4",
+                "committedAt": "2026-11-05",
+                "verdict": "clean",
+                "exitCode": 0,
+                "conformanceGaps": 0,
+                "deliverableGaps": 0,
+                "assurance": {
+                  "inForce": "machine+critical",
+                  "degraded": true
+                },
+                "payloadSha256": "ba098412366440819503a446fbd5d43b4fe709cdced34a3b6d1fdff98b5a3567",
+                "judge": 0,
+                "signatureVerified": false
+              }
+            ],
+            "byVerdict": [
+              {
+                "state": "clean",
+                "n": 34,
+                "N": 40,
+                "list": [
+                  "v0.39.0",
+                  "v0.40.0",
+                  "v0.41.0",
+                  "v0.42.0",
+                  "v0.42.1",
+                  "v0.42.2",
+                  "v0.42.3",
+                  "v0.43.0",
+                  "v0.43.1",
+                  "v0.44.0",
+                  "v0.44.1",
+                  "v0.45.0",
+                  "v0.46.0",
+                  "b7d8c6263754",
+                  "63840bfbb24f",
+                  "4541a90c3b03",
+                  "f9777f509c8c",
+                  "53c4b5be88d4",
+                  "78074dfe98dc",
+                  "916b6f471bb4",
+                  "944f785ba280",
+                  "2d2cd84a2f30",
+                  "8c9db69b1a6c",
+                  "7bb42db35f44",
+                  "a3a614f487c8",
+                  "065afaebb4fb",
+                  "98b7dfbc29ed",
+                  "df9ae80e1861",
+                  "9149aa610539",
+                  "fcef954fea25",
+                  "7dbbdc472882",
+                  "8ffdf7c5162f",
+                  "61d5041fe000",
+                  "32d8425b1cb4"
+                ]
+              },
+              {
+                "state": "gaps",
+                "n": 6,
+                "N": 40,
+                "list": [
+                  "v0.36.0",
+                  "v0.36.1",
+                  "v0.36.2",
+                  "v0.37.0",
+                  "v0.37.1",
+                  "v0.38.0"
+                ]
+              },
+              {
+                "state": "level-not-met",
+                "n": 0,
+                "N": 40,
+                "list": []
+              },
+              {
+                "state": "not-observed",
+                "n": 0,
+                "N": 40,
+                "list": []
+              }
+            ],
+            "maxConformanceGaps": 12
+          }
+        ]
+      },
+      "signaturesByState": [
+        {
+          "state": "verified",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "outside-policy",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "refused",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "absent",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "not-verifiable",
+          "n": 0,
+          "N": 0,
+          "list": []
+        }
+      ]
+    },
+    {
+      "id": "example",
+      "name": "stranxik/runward · examples/request-triage",
+      "role": null,
+      "repository": "github.com/stranxik/runward",
+      "path": null,
+      "commit": null,
+      "expects": [],
+      "latest": {
+        "from": "check",
+        "src": "example:check",
+        "origin": "undetermined",
+        "implemented": "ci-declared",
+        "runward": "0.46.0",
+        "verdict": "clean",
+        "exitCode": 0,
+        "currentGate": "all gates passed",
+        "adrCount": 3,
+        "strict": true,
+        "gaps": {
+          "deliverables": 0,
+          "conformance": 0,
+          "hooks": 0,
+          "deferred": 0,
+          "proposed": 0
+        },
+        "causesByKind": [],
+        "deliverables": {
+          "list": [
+            {
+              "phase": "1 · Frame",
+              "phaseId": "frame",
+              "artifact": "Framing note",
+              "relPath": "framing.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "1 · Frame",
+              "phaseId": "frame",
+              "artifact": "Steering contract",
+              "relPath": "mission-contract.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "2 · Architect",
+              "phaseId": "architect",
+              "artifact": "Architecture note",
+              "relPath": "architecture.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "2 · Architect",
+              "phaseId": "architect",
+              "artifact": "Execution topology",
+              "relPath": "execution-topology.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "2 · Architect",
+              "phaseId": "architect",
+              "artifact": "Decision matrix",
+              "relPath": "decision-matrix.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "2 · Architect",
+              "phaseId": "architect",
+              "artifact": "Decision journal (≥1 ADR)",
+              "relPath": "adr",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "2 · Architect",
+              "phaseId": "architect",
+              "artifact": "Port contracts (≥1 filled)",
+              "relPath": "contracts",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "3 · Floor",
+              "phaseId": "floor",
+              "artifact": "Floor note (measured proof)",
+              "relPath": "floor.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "5 · Govern (day zero)",
+              "phaseId": "govern",
+              "artifact": "Threat model",
+              "relPath": "governance/threat-model.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "5 · Govern (day zero)",
+              "phaseId": "govern",
+              "artifact": "Evaluation rubric",
+              "relPath": "governance/evaluation-rubric.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "5 · Govern (day zero)",
+              "phaseId": "govern",
+              "artifact": "Observability schema",
+              "relPath": "governance/observability-schema.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "6 · Hand over",
+              "phaseId": "handover",
+              "artifact": "Recovery runbook",
+              "relPath": "runbook.md",
+              "state": "filled",
+              "cause": null
+            },
+            {
+              "phase": "6 · Hand over",
+              "phaseId": "handover",
+              "artifact": "Hand-over note (the kit, proven)",
+              "relPath": "handover.md",
+              "state": "filled",
+              "cause": null
+            }
+          ],
+          "byState": [
+            {
+              "state": "filled",
+              "n": 13,
+              "N": 13,
+              "list": [
+                "framing.md",
+                "mission-contract.md",
+                "architecture.md",
+                "execution-topology.md",
+                "decision-matrix.md",
+                "adr",
+                "contracts",
+                "floor.md",
+                "governance/threat-model.md",
+                "governance/evaluation-rubric.md",
+                "governance/observability-schema.md",
+                "runbook.md",
+                "handover.md"
+              ]
+            }
+          ]
+        },
+        "conformance": [],
+        "evidence": {
+          "rows": 46,
+          "applied": 24,
+          "deviated": 0,
+          "na": 22,
+          "typed": 22,
+          "prose": 2,
+          "signed": 5,
+          "evidenceFiles": {
+            "total": 15,
+            "external": 13
+          },
+          "proseRows": [
+            {
+              "deliverable": "execution-topology.md",
+              "rule": "topology-usage-registry-present"
+            },
+            {
+              "deliverable": "governance/threat-model.md",
+              "rule": "resilience-fail-open"
+            }
+          ]
+        },
+        "seal": {
+          "present": false,
+          "count": 0,
+          "sealedAt": null,
+          "violations": 0
+        },
+        "corpus": {
+          "status": "package",
+          "missing": 0,
+          "edited": 0,
+          "extra": 0
+        },
+        "criticalScope": {
+          "total": 45,
+          "mapped": 41,
+          "unmapped": [
+            "patterns-memory-router-tiered",
+            "routing-model-cost-ratios",
+            "routing-smart-complexity",
+            "scaling-distributed-rate-limiting"
+          ]
+        },
+        "ratification": {
+          "rows": 0,
+          "lineByLine": 0,
+          "enBloc": 0,
+          "blind": 0,
+          "untraced": 46,
+          "changed": 0,
+          "byState": [
+            {
+              "state": "ratified",
+              "n": 0,
+              "N": 46,
+              "list": []
+            },
+            {
+              "state": "changed",
+              "n": 0,
+              "N": 46,
+              "list": []
+            },
+            {
+              "state": "blind",
+              "n": 0,
+              "N": 46,
+              "list": []
+            },
+            {
+              "state": "untraced",
+              "n": 46,
+              "N": 46,
+              "list": [
+                "architecture.md · contracts-governance",
+                "architecture.md · hexa-architecture",
+                "architecture.md · hexa-adapter-pattern",
+                "architecture.md · hexa-typescript-native",
+                "architecture.md · process-adr-and-journal",
+                "architecture.md · security-mcp-server-pinning",
+                "execution-topology.md · topology-port-placement-mapped",
+                "execution-topology.md · topology-sovereignty-by-data-class",
+                "execution-topology.md · topology-trace-export-decision",
+                "execution-topology.md · topology-usage-registry-present",
+                "floor.md · frontier-deterministic-boundary",
+                "floor.md · hexa-move-deterministic-out",
+                "floor.md · config-secrets-boundary",
+                "floor.md · provider-llm-auto-detection",
+                "floor.md · security-prompt-injection",
+                "floor.md · hexa-architecture",
+                "floor.md · hexa-adapter-pattern",
+                "floor.md · provider-no-crash-missing-env",
+                "floor.md · state-event-sourcing",
+                "floor.md · tools-scope-atomicity",
+                "floor.md · async-post-turn-pipeline",
+                "floor.md · checklist-day-zero-project",
+                "floor.md · data-migrations-forward-only",
+                "floor.md · scaling-state-externalization",
+                "floor.md · tools-registry-pattern",
+                "governance/threat-model.md · eval-loop",
+                "governance/threat-model.md · security-prompt-injection",
+                "governance/threat-model.md · config-secrets-boundary",
+                "governance/threat-model.md · resilience-fail-open",
+                "governance/threat-model.md · resilience-multi-provider-fallback",
+                "governance/threat-model.md · resilience-retry-backoff",
+                "governance/threat-model.md · async-job-guardrails",
+                "governance/threat-model.md · security-mcp-server-pinning",
+                "governance/threat-model.md · security-tool-change-reapproval",
+                "governance/threat-model.md · data-memory-provenance",
+                "governance/threat-model.md · security-code-execution-sandbox",
+                "governance/threat-model.md · security-human-agent-trust",
+                "governance/threat-model.md · checklist-pre-production-observability",
+                "governance/threat-model.md · checklist-pre-production-performance",
+                "governance/threat-model.md · checklist-pre-production-resilience",
+                "governance/threat-model.md · checklist-pre-production-security",
+                "governance/threat-model.md · routing-confidence-upgrade",
+                "handover.md · handover-redone-task-proof",
+                "handover.md · handover-runbook-executable",
+                "handover.md · handover-agents-charter-final",
+                "handover.md · handover-succession-named"
+              ]
+            }
+          ],
+          "changedRows": [],
+          "ratifiers": []
+        },
+        "requiresUnmet": {
+          "list": [
+            {
+              "deliverable": "architecture.md",
+              "rule": "contracts-governance",
+              "requires": "junit"
+            },
+            {
+              "deliverable": "architecture.md",
+              "rule": "hexa-architecture",
+              "requires": "eslint"
+            },
+            {
+              "deliverable": "architecture.md",
+              "rule": "hexa-adapter-pattern",
+              "requires": "eslint"
+            },
+            {
+              "deliverable": "execution-topology.md",
+              "rule": "topology-port-placement-mapped",
+              "requires": "adr"
+            },
+            {
+              "deliverable": "execution-topology.md",
+              "rule": "topology-sovereignty-by-data-class",
+              "requires": "adr"
+            },
+            {
+              "deliverable": "floor.md",
+              "rule": "hexa-move-deterministic-out",
+              "requires": "junit"
+            },
+            {
+              "deliverable": "floor.md",
+              "rule": "security-prompt-injection",
+              "requires": "junit"
+            },
+            {
+              "deliverable": "floor.md",
+              "rule": "hexa-architecture",
+              "requires": "eslint"
+            },
+            {
+              "deliverable": "floor.md",
+              "rule": "hexa-adapter-pattern",
+              "requires": "eslint"
+            },
+            {
+              "deliverable": "floor.md",
+              "rule": "provider-no-crash-missing-env",
+              "requires": "junit"
+            },
+            {
+              "deliverable": "floor.md",
+              "rule": "state-event-sourcing",
+              "requires": "junit"
+            },
+            {
+              "deliverable": "floor.md",
+              "rule": "tools-scope-atomicity",
+              "requires": "junit"
+            },
+            {
+              "deliverable": "floor.md",
+              "rule": "checklist-day-zero-project",
+              "requires": "junit"
+            },
+            {
+              "deliverable": "governance/threat-model.md",
+              "rule": "eval-loop",
+              "requires": "junit"
+            },
+            {
+              "deliverable": "governance/threat-model.md",
+              "rule": "security-prompt-injection",
+              "requires": "junit"
+            },
+            {
+              "deliverable": "governance/threat-model.md",
+              "rule": "resilience-fail-open",
+              "requires": "junit"
+            },
+            {
+              "deliverable": "governance/threat-model.md",
+              "rule": "security-human-agent-trust",
+              "requires": "junit"
+            }
+          ],
+          "byNature": [
+            {
+              "state": "junit",
+              "n": 11,
+              "N": 17,
+              "list": [
+                "architecture.md · contracts-governance",
+                "floor.md · hexa-move-deterministic-out",
+                "floor.md · security-prompt-injection",
+                "floor.md · provider-no-crash-missing-env",
+                "floor.md · state-event-sourcing",
+                "floor.md · tools-scope-atomicity",
+                "floor.md · checklist-day-zero-project",
+                "governance/threat-model.md · eval-loop",
+                "governance/threat-model.md · security-prompt-injection",
+                "governance/threat-model.md · resilience-fail-open",
+                "governance/threat-model.md · security-human-agent-trust"
+              ]
+            },
+            {
+              "state": "eslint",
+              "n": 4,
+              "N": 17,
+              "list": [
+                "architecture.md · hexa-architecture",
+                "architecture.md · hexa-adapter-pattern",
+                "floor.md · hexa-architecture",
+                "floor.md · hexa-adapter-pattern"
+              ]
+            },
+            {
+              "state": "adr",
+              "n": 2,
+              "N": 17,
+              "list": [
+                "execution-topology.md · topology-port-placement-mapped",
+                "execution-topology.md · topology-sovereignty-by-data-class"
+              ]
+            }
+          ],
+          "size": 17
+        },
+        "committedJUnit": {
+          "rows": 1,
+          "reports": [
+            "code/reports/junit.xml"
+          ],
+          "freshness": "not verified by this command"
+        },
+        "assurance": "not-observed",
+        "delegationStage": "not-observed",
+        "gateNonScope": "A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. A ratification trace records that someone declared answering the displayed evidence; runward cannot tell who, or whether a person answered at all, and it never proves they understood it.",
+        "next": {
+          "action": "assemble-evidence-pack",
+          "command": "runward compliance <regime>",
+          "text": "Assemble the evidence pack with runward compliance <regime> (iso-42001 · nist-ai-rmf · eu-ai-act), or runward status for a handover snapshot."
+        }
+      },
+      "findings": [],
+      "signatures": [],
+      "signaturesByState": [
+        {
+          "state": "verified",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "outside-policy",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "refused",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "absent",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "not-verifiable",
+          "n": 0,
+          "N": 0,
+          "list": []
+        }
+      ]
+    },
+    {
+      "id": "silent",
+      "name": "example/silent",
+      "role": null,
+      "repository": "github.com/example/silent",
+      "path": null,
+      "commit": null,
+      "expects": [
+        "check"
+      ],
+      "latest": "not-observed",
+      "findings": [
+        {
+          "what": "check",
+          "state": "not-observed",
+          "why": "declared-file-absent",
+          "file": "exports/silent/check.json"
+        }
+      ],
+      "signatures": [],
+      "signaturesByState": [
+        {
+          "state": "verified",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "outside-policy",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "refused",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "absent",
+          "n": 0,
+          "N": 0,
+          "list": []
+        },
+        {
+          "state": "not-verifiable",
+          "n": 0,
+          "N": 0,
+          "list": []
+        }
+      ]
+    }
+  ],
+  "absent": [
+    {
+      "what": "period-report",
+      "state": "not-available",
+      "contract": "runward-period/1",
+      "delivery": "D3"
+    },
+    {
+      "what": "landing-population",
+      "state": "not-available",
+      "contract": "runward-landing-population/1",
+      "delivery": "D2"
+    },
+    {
+      "what": "event-stream",
+      "state": "not-available",
+      "contract": "runward-event/1",
+      "delivery": "D3"
+    },
+    {
+      "what": "rfc3161-timestamps",
+      "state": "not-available",
+      "contract": "Sigstore bundle",
+      "delivery": "runward-fleet"
+    }
+  ],
+  "sources": [
+    {
+      "id": "fleet.json",
+      "path": "fleet.json",
+      "sha256": "9a91bfafa298dd80decae8554d7e9221250c83c442d2fe22b07d34a6f0be4de2",
+      "bytes": 1058,
+      "kind": "fleet manifest",
+      "producedBy": "written by the operator",
+      "at": null,
+      "origin": "declared",
+      "declaredIn": "operator"
+    },
+    {
+      "id": "runward:check",
+      "path": "exports/runward/check.json",
+      "sha256": "66b7cce9623d6d870aa4237a2851cd017c3c6f6295eb164d46917c2a291f2287",
+      "bytes": 26869,
+      "kind": "check --strict --json",
+      "producedBy": "runward check --strict --json",
+      "at": null,
+      "origin": "undetermined",
+      "declaredIn": "fleet.json"
+    },
+    {
+      "id": "runward:attestation",
+      "path": "exports/runward/verdict.intoto.json",
+      "sha256": "86fb490383a8e47a3b8f4362b124dd7dfdb7f54c075a37e57c4c213850f60ca7",
+      "bytes": 28934,
+      "kind": "in-toto statement (check --strict --attest)",
+      "producedBy": null,
+      "at": null,
+      "origin": "undetermined",
+      "declaredIn": "fleet.json"
+    },
+    {
+      "id": "runward:verify",
+      "path": "exports/runward/verify.json",
+      "sha256": "6c4282e180431dc38e5eaa264d422669b96c6abd0ff73f538fef1b35f2714d4d",
+      "bytes": 810,
+      "kind": "verify --json",
+      "producedBy": null,
+      "at": null,
+      "origin": "undetermined",
+      "declaredIn": "fleet.json"
+    },
+    {
+      "id": "runward:witness",
+      "path": "exports/runward/witness.json",
+      "sha256": "a429e5c13a33f95589d87f5a25a78626e81601543be3370e0a4fbeecc0a0f9e9",
+      "bytes": 60593,
+      "kind": "witness (check --strict --witness)",
+      "producedBy": null,
+      "at": null,
+      "origin": "undetermined",
+      "declaredIn": "fleet.json"
+    },
+    {
+      "id": "runward:summary",
+      "path": "exports/runward/summary.md",
+      "sha256": "77ccef98f97309493662dbfd87e495c3a56f0514c0976fbab3a5cf0be41d5c1b",
+      "bytes": 4470,
+      "kind": "report --format md",
+      "producedBy": null,
+      "at": null,
+      "origin": "undetermined",
+      "declaredIn": "fleet.json"
+    },
+    {
+      "id": "runward:history",
+      "path": "exports/runward/records.jsonl",
+      "sha256": "a87375b9a04094d175781f6d5b053545cbdcff2a8c5ec36846f5dca98d91d305",
+      "bytes": 40329,
+      "kind": "records (JSON lines)",
+      "producedBy": null,
+      "at": null,
+      "origin": "replayed",
+      "declaredIn": "fleet.json"
+    },
+    {
+      "id": "example:check",
+      "path": "exports/example/check.json",
+      "sha256": "877f970ab3d6fc7c07a9de3fc2219cb5e1c18c6435c52edb57f258f448cfb081",
+      "bytes": 23408,
+      "kind": "check --strict --json",
+      "producedBy": null,
+      "at": null,
+      "origin": "undetermined",
+      "declaredIn": "fleet.json"
+    }
+  ]
+}
