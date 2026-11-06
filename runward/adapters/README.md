@@ -14,6 +14,8 @@ A human reads that verdict by typing `runward check`. These adapters let a **har
 
 The command inside every adapter is runward's own deterministic, zero-LLM gate — not arbitrary shell. Choose `runward check` for the deliverable audit, or `runward check --strict` to also enforce the floor rule-conformance manifest.
 
+**Every adapter runs the runward version that wrote it.** `runward init` and `runward update` stamp their own version into each file here (`npx --yes runward@X.Y.Z …`, or `RUNWARD_VERSION` in the forge samples), so a hook does not run whatever binary the machine happens to have: two runward versions can give the same tree two verdicts. A pinned `npx` uses a project install of exactly that version when there is one, and fetches it once otherwise; the pre-commit hook checks `node_modules/.bin/runward --version` itself first. To move to a newer runward, run `runward update` with it: an adapter you never edited is refreshed to the new version (`updated … (changed upstream)`), one you edited is kept and named. A copy you already installed elsewhere (`.git/hooks/pre-commit`, a workflow) is yours and is not touched: copy it again.
+
 ## Two tiers, said plainly
 
 Every `*.json` sample here is the **consultative** tier: the agent loop sees the verdict, nothing
@@ -46,23 +48,44 @@ git config core.hooksPath .githooks
 
 A non-zero exit aborts the commit. Bypass a single commit with `git commit --no-verify` when you have a reason.
 
+**Once the mission is sealed** (`check --freeze`), a commit that changes a sealed piece of evidence is
+refused by this hook: the seal has drifted, and re-sealing later never happens because the commit never
+did. Seal before you commit: read what changed, run `runward check --strict --freeze`, and commit the
+updated `runward/evidence-lock.json` in the same commit as the change. After `ratify`, which rewrites the
+ADR it ratifies, seal once more. Reported by an adopter on its first pull request after sealing
+(2026-10-22).
+
+**A sealed JUnit report** is sealed by its suites, cases and verdicts, not by its bytes (ADR-0102 B):
+another run of the same suite, with other timings, host names, console output or suite order, keeps the
+seal, and a case renamed, removed, added or changing verdict breaks it. No normaliser is needed for
+sealing; keep one only for a byte-stable committed file. A lock written by an earlier runward is verified
+by bytes until one `check --freeze` re-seals it. `check --freeze` also refuses to seal a cited report that records a failure or an error on any
+case, cited or not (skipped cases do not block): fix or quarantine the failing test, re-run the suite, then
+seal (ADR-0102).
+
+The hook is POSIX `sh`. On Windows, Git for Windows runs hooks with its bundled `sh`, so the same file works there; `npx` must be on the `PATH` that Git's shell sees (the Node.js installer puts it there). The local-install branch reads `node_modules/.bin/runward`, the `sh` shim npm writes beside the `.cmd` one. This Windows path is reasoned from how Git for Windows and npm behave, not measured on a Windows runner; if the local branch does not apply, the hook falls back to the pinned `npx`, never to a global.
+
 ## `github-actions.yml` — the gate as a required check
 
 Copy the job into a workflow under `.github/workflows/` (or merge it into an existing one). Make it a required status check on your protected branch so no gap merges. This is the audit-evidence seam for a regulated pipeline: a dated, versioned record that the gate passed on every merge.
 
 ## `gitlab-ci.yml` — the same required check, GitLab flavor
 
-Merge the job into your `.gitlab-ci.yml` and require the pipeline on your protected branch (Settings → Merge requests). Same port, same one line — the gate does not care which forge reads its exit code.
+At parity with the GitHub Action: a pinned version (and the Action's warning when it is not), `check --strict`, the reports deposited as artifacts on a red gate too, and `verify` on the attestation the job just emitted. The same run writes a Code Quality report and a JUnit XML, declared as `reports: codequality` and `reports: junit`, so the merge request shows the gate's causes on every tier without a token. SARIF is not declared as `reports: sarif`: GitLab files it in the vulnerability report, and a runward gap is never a vulnerability (ADR-0096). Merge the job into your `.gitlab-ci.yml`, or, on GitLab 17.9 or later, `include:` the release asset `runward-gitlab-gate-X.Y.Z.yml` pinned by `integrity:`. Then require the pipeline on your protected branch (Settings → Merge requests → Pipelines must succeed). What each GitLab tier enforces, and what Free cannot (a merge request can edit the `.gitlab-ci.yml` that holds the job; approvals do not block a merge), is `docs/gitlab.md` in the runward repository.
+
+## `azure-pipelines.yml` and `bitbucket-pipelines.yml` — minimal samples
+
+The pinned `check --strict`, its `--json` and the HTML report as artifacts. Make the Azure job a Build validation policy, the Bitbucket step a required build in the branch restrictions. Their summary posters come later, under the same port (ADR-0094).
 
 ## `claude-code-settings.json` — run the gate at the agent's turn-end (one example)
 
-Merge the `hooks` block into your `.claude/settings.json` (or `.claude/settings.local.json`). The `Stop` hook runs the gate when the agent finishes a turn and surfaces the verdict in the loop — so an agent can no longer close out with the gate never run.
+Merge the `hooks` block into your `.claude/settings.json` (or `.claude/settings.local.json`). The `Stop` hook runs the gate when the agent finishes a turn, so the gate is never left unrun. It does **not** put the verdict in front of the model: Claude Code writes a `Stop` hook's plain stdout to its debug log (hooks reference, checked 2026-09-28), so the agent still has to run `runward check --strict` itself. The armed variant beside it (`claude-code-settings.armed.json`, wired by `runward wire --install`) is the one that returns a red gate to the model as a refusal.
 
 This is **one example** of a per-harness turn-end hook, not a privileged one — Claude Code just happens to expose a clean, documented seam. Any agent harness that can run a command at turn-end (Codex, and others as they add the capability) wires the *same* one line: `runward check --strict`. And where a harness offers no such seam, the `pre-commit` and CI adapters above already gate the code **whatever agent produced it** — the port is the exit code, not the agent.
 
 ## `kiro-hooks.json` — the same turn-end gate, Kiro flavor
 
-Copy the file into `.kiro/hooks/` in your workspace. The `Stop` trigger runs `runward check --strict` when the agent finishes, and surfaces the verdict in the session — the same one line as the Claude Code hook, another non-privileged example of a per-harness turn-end seam. Kiro also reads `AGENTS.md` natively, and `runward init --tools kiro` mirrors the phase skills as steering files (`.kiro/steering/`, relevance-loaded) — the traced decisions inform the session; the gate stays the only authority.
+Copy the file into `.kiro/hooks/` in your workspace. The `Stop` trigger runs `runward check --strict` when the agent finishes. It is **not** a gate: Kiro's docs (checked 2026-09-28) say a `Stop` / Agent Stop hook cannot block, in the IDE or the CLI. What the agent receives depends on the exit code: at exit 0 Kiro adds the hook's stdout to its context; on a red gate (exit 1) Kiro sends the hook's stderr, which is empty because runward writes its verdict on stdout, so the agent learns that the hook failed and not why. The packaged Kiro Power (`packaging/kiro/`) uses a per-tool `PreToolUse` hook ending in `2>&1 || true` instead. The armed variant (`kiro-hooks.armed.json`) relies on a `Stop` decision-block measured on the Kiro CLI on 2026-09-02 that Kiro's current docs do not document: not verified. Kiro also reads `AGENTS.md` natively, and `runward init --tools kiro` mirrors the phase skills as steering files (`.kiro/steering/`, relevance-loaded) — the traced decisions inform the session; the gate stays the only authority.
 
 ## `bmad-review-layer.toml` — the gate as a review layer BMAD calls
 
