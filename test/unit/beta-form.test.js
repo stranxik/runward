@@ -162,6 +162,10 @@ test("beta page: the weekly slot is time set aside, not a response-time promise"
   assert.match(PAGE, loose("It is time set aside, not a response-time guarantee."));
   assert.match(PAGE, loose("oldest first, as far as the slot goes"), "the slot promises to work through the questions, not to answer them all");
   assert.match(INTRO, loose("works through the questions asked in beta missions"), "and so does the form");
-  assert.match(PAGE, /\*\*Weekly support slot\*\*:/, "the slot's day and time have their place at the top of the page");
-  assert.match(PAGE, loose("**Open**: from the day the slot is set"), "and the beta opens only once they are written");
+  const slot = PAGE.match(/\*\*Weekly support slot\*\*: ([A-Z][a-z]+day)s, (\d{2}:\d{2}) to (\d{2}:\d{2}) ([^·\n]+?) ·/);
+  assert.ok(slot, "the slot's day, time and time zone are written at the top of the page");
+  const open = PAGE.match(/\*\*Open\*\*: from ([A-Z][a-z]+day) (\d{4}-\d{2}-\d{2})/);
+  assert.ok(open, "and the day the beta opens");
+  assert.equal(open[1], slot[1], "it opens on the slot's day");
+  assert.equal(new Date(`${open[2]}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "long", timeZone: "UTC" }), open[1], "on a date that is that day");
 });

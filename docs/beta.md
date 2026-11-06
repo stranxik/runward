@@ -1,8 +1,8 @@
 # The open beta: runward on a repository it was not written on
 
 **Decided**: by the maintainer, 2026-11-06; the merge of this page, which waits for the maintainer,
-is its record · **Weekly support slot**: _not set yet: the maintainer writes its day, time and time
-zone here_ · **Open**: from the day the slot is set, which this page's git history records ·
+is its record · **Weekly support slot**: Thursdays, 17:00 to 18:00 Paris time (CET/CEST) ·
+**Open**: from Thursday 2026-11-12, the first slot ·
 **Cost**: nothing in money; your time ([below](#what-it-costs)) · **Start**:
 [open a beta mission](https://github.com/stranxik/runward/issues/new?template=beta_mission.yml)
 
