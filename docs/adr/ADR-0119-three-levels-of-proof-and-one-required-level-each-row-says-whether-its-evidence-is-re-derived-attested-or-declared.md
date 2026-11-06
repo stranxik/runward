@@ -362,6 +362,23 @@ cites the lines that implement what it claims. Two rows of the shipped example c
 way; the laboratory of ADR-0120's tests also cites the adapter that implements each, the example does
 not yet.
 
+## Note, 2026-11-06: two readings of the notes above, decided under the delegation of 2026-11-05
+
+Taken under the maintainer's delegation of 2026-11-05 ("carry it out each time instead of asking me"),
+on the recommendation of the agent session that built the lock, R2 and R3, and recorded by the session
+that merged them into the third integration train; the maintainer did not review them before they were
+written, and each stands until he reverses it.
+
+- **A row whose cited lines hold no mutant, a port's interface or a type, stays below `attested`.** The
+  reading of the R2 note holds as decided: neither exception of decision 2 applies to such a row, and it
+  is kept because it closes the sabotage on those lines. Were it lifted, a row could reach `attested` by
+  citing lines no mutant can reach, whatever its cited tests assert. The row reaches `attested` by also
+  citing the lines that implement the interface, as the laboratory of ADR-0120's tests does.
+- **`NEW_MISSION_REQUIRED_LEVEL` moves to `re-derived` only in the release that publishes the
+  classification of ADR-0117's criterion 2 at zero false reds**, and that release also types the shipped
+  example's prose row (`topology-usage-registry-present`), with the other work the note on decisions 4
+  and 6 lists. Until that release, `init` writes no level.
+
 ## References
 
 - [ADR-0046](ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md),
