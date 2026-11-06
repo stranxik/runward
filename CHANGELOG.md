@@ -5,16 +5,16 @@
 ### runward-run: the tests and the declared reports run out of the agent's reach, and the gate reads them at `attested` (ADR-0120 R1, ADR-0119)
 
 Measured on 2026-11-05 (ADR-0117): a hand-committed report satisfied `requires:`, and nothing in the
-product said who produced the reports a verdict reads. A fourth package of this repository,
-`packages/runward-run` (MIT, no dependency, imports nothing from runward), runs a mission's tests and
-the commands of its declared reports in a container pinned by digest with the network cut, on a copy of
-the checkout, and writes the reports, normalised (no absolute path, no timing, no verdict touched), with
-one unsigned in-toto Statement, `https://runward.dev/run/v1`, whose subjects are their digests and whose
-predicate records the image, the commands and their exit codes, the lockfile's digest, the mission's
-manifests and the digests of the expected source set, hashed before any leg ran. It fails closed, exit 3
-and nothing written, on an image pinned by tag, a runtime that cannot cut the network or ignores the flag
-(a probe container must see the loopback only), a run policy inside the judged tree, install scripts left
-on, no lockfile, and the legs of R2 and R3, refused by name.
+product said who produced the reports a verdict reads. A new package of this repository,
+`packages/runward-run` (MIT, no dependency, imports nothing from runward, versioned with runward),
+runs a mission's tests and the commands of its declared reports in a container pinned by digest with the
+network cut, on a copy of the checkout, and writes the reports, normalised (no absolute path, no timing,
+no verdict touched), with one unsigned in-toto Statement, `https://runward.dev/run/v1`, whose subjects are
+their digests and whose predicate records the image, the commands and their exit codes, the lockfile's
+digest, the mission's manifests and the digests of the expected source set, hashed before any leg ran. It
+fails closed, exit 3 and nothing written, on an image pinned by tag, a runtime that cannot cut the network
+or ignores the flag (a probe container must see the loopback only), a run policy inside the judged tree,
+install scripts left on, no lockfile, and the legs of R2 and R3, refused by name.
 
 `check --strict --require` takes two more levels, by rank above `mechanical` (ADR-0119): `re-derived`
 (no applied row rests on a declaration, and the declared territory is analysed under the pinned policy)
