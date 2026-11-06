@@ -267,3 +267,21 @@ test("CI: the integrations job runs the controls, the live count check, and each
   assert.match(runs, /already refuses the sabotage on its committed reports/, "the sabotage must pass without its recipe");
   assert.deepEqual(job.steps.filter((s) => s.uses && !s.uses.startsWith("./")).map((s) => s.uses.split("@")[1]).filter((ref) => !/^[0-9a-f]{40}$/.test(ref)), [], "every action from outside is pinned by commit");
 });
+
+test("control --record writes the date and runward version of a passing control into its manifest, and no other byte", async () => {
+  const { recordPassing } = await mod("control.js");
+  const d = realpathSync(mkdtempSync(join(tmpdir(), "rwi-record-")));
+  try {
+    const at = (id) => join(d, `${id}.json`);
+    for (const m of manifests) writeFileSync(at(m.id), readFileSync(join(PKG, "recipes", m.id, "manifest.json"), "utf8").replace(/"lastPassingControl":\s*(?:null|\{[^{}]*\})/, '"lastPassingControl": null'));
+    const before = Object.fromEntries(manifests.map((m) => [m.id, readFileSync(at(m.id), "utf8")]));
+    const results = { date: "2027-01-02", runward: "9.9.9", recipes: [{ id: "sarif", passed: true }, { id: "junit", passed: false, reason: "x" }, { id: "coverage", passed: true }] };
+    assert.deepEqual(recordPassing(results, { manifestPath: at }), ["sarif", "coverage"], "only the recipes whose control passed");
+    for (const id of ["sarif", "coverage"]) {
+      const after = readFileSync(at(id), "utf8");
+      assert.equal(after, before[id].replace('"lastPassingControl": null', '"lastPassingControl": { "date": "2027-01-02", "runward": "9.9.9" }'), `${id}: one value changed, every other byte kept`);
+      assert.ok(validate(JSON.parse(after)), `${id}: still a valid manifest`);
+    }
+    assert.equal(readFileSync(at("junit"), "utf8"), before.junit, "a recipe whose control failed keeps its last passing record");
+  } finally { rmSync(d, { recursive: true, force: true }); }
+});

@@ -64,7 +64,7 @@
       { "sabotage": "sarif", "why": "the file holding the credential is loaded by no test and cited by no row: coverage has nothing to say about it" }
     ]
   },
-  "maintainer": { "name": "stranxik", "lastPassingControl": null },
+  "maintainer": { "name": "stranxik", "lastPassingControl": { "date": "2026-11-06", "runward": "0.46.0" } },
   "limits": [
     "Coverage says a file ran, never that it was tested well: a module the tests merely import counts as executed.",
     "No threshold: a floor is a policy (runward ADR-0056), and a row is refused only when nothing executed the file it cites, or when the report does not measure it.",

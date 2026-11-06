@@ -187,15 +187,25 @@ export function runControls({ runward = defaultRunward(), lockfile, recipes, wor
   return results;
 }
 
-/** Writes the date and the runward version of this passing control into each passing recipe's manifest. */
+/** Writes the date and the runward version of this passing control into each passing recipe's manifest,
+ *  changing that one value and no other byte of the file. */
 export function recordPassing(results, { manifestPath }) {
   const written = [];
   for (const r of results.recipes) {
     if (!r.passed) continue;
     const p = manifestPath(r.id);
-    const doc = JSON.parse(readFileSync(p, "utf8"));
-    doc.maintainer.lastPassingControl = { date: results.date, runward: results.runward };
-    writeFileSync(p, `${JSON.stringify(doc, null, 2)}\n`);
+    const text = readFileSync(p, "utf8");
+    const doc = JSON.parse(text);
+    const last = { date: results.date, runward: results.runward };
+    const at = /"lastPassingControl":\s*(?:null|\{[^{}]*\})/g;
+    const matches = text.match(at) ?? [];
+    let out = matches.length === 1
+      ? text.replace(at, `"lastPassingControl": { "date": ${JSON.stringify(last.date)}, "runward": ${JSON.stringify(last.runward)} }`)
+      : null;
+    doc.maintainer.lastPassingControl = last;
+    // The one-value edit must read back as the manifest with that value set; otherwise the file is rewritten whole.
+    if (out === null || JSON.stringify(JSON.parse(out)) !== JSON.stringify(doc)) out = `${JSON.stringify(doc, null, 2)}\n`;
+    writeFileSync(p, out);
     written.push(r.id);
   }
   return written;
