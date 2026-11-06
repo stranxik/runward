@@ -92,7 +92,9 @@ test("beside ADR-0114: `--require traced` lifts no requires-unmet refusal, and i
     const j = JSON.parse(run(dir, "check", "--strict", "--require", "traced", "--json").out);
     assert.equal(j.exitCode, 1, "gaps come first: a level accepted by name lifts no gap");
     assert.equal(j.conformance.filter((c) => c.kind === "requires-unmet").length, 1);
-    assert.match(run(dir, "check", "--help").out, /It lifts no gap:\s+a\s+row\s+refused\s+as\s+requires-unmet/);
+    // Read across commander's line wrapping, which moves with every word the help gains (ADR-0119 added the
+    // two upper levels to it): the sentence, not where its lines break.
+    assert.match(run(dir, "check", "--help").out, /It\s+lifts\s+no\s+gap:\s+a\s+row\s+refused\s+as\s+requires-unmet/);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
