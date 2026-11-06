@@ -239,3 +239,24 @@ test("ADR-0113: verify reads hooks.json and runs nothing — no hook runner and 
 });
 
 process.on("exit", () => rmSync(REFERENCE, { recursive: true, force: true }));
+
+test("ADR-0113 beside ADR-0118: the analyzers read only the tree the project delivers; an ignored output emptied by a redirection changes nothing, a delivered file changed does", () => {
+  const m = mission();
+  try {
+    // `runward verify att.json --json > out.json`: the shell empties out.json before verify reads the tree.
+    appendFileSync(join(m.dir, ".gitignore"), "out.json\n");
+    writeFileSync(join(m.dir, "out.json"), "{\"a\":1}\n");
+    const name = save(m.dir, "att.json", attest(m.dir, "--strict"));
+    writeFileSync(join(m.dir, "out.json"), "");
+    const v = verify(m.dir, name);
+    assert.equal(v.code, 0, `a file the project does not deliver is never read: ${JSON.stringify(v.predicate?.differing)}`);
+    // The control: a file the project delivers, uncited and read by the analyzers, changed between the
+    // two runs, still makes the verdict differ.
+    appendFileSync(join(m.dir, "code", "src", "demo.ts"), "\nexport const run = (s: string) => eval(s);\n");
+    const w = verify(m.dir, name);
+    assert.equal(w.code, 1);
+    assert.ok(w.predicate.differing.includes("analysis"), JSON.stringify(w.predicate.differing));
+    assert.equal(w.verdict.matches, false, "the new capability finding is a gap: the re-derived verdict is red");
+    assert.equal(w.digest.matches, true, "uncited: not bound by the digest, re-derived");
+  } finally { m.drop(); }
+});

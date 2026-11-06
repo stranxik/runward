@@ -33,6 +33,7 @@ import { committedJUnitLedger, parseEvidencePointers, resolutionBases, resolveEv
 import { junitProjection } from "./tool-adapters.js";
 import { toPosix } from "./paths.js";
 import { isRunwardStatement } from "./attestation.js";
+import { deliveredEntries } from "./delivered-tree.js";
 
 /** The mission file that holds the allowances, beside territory.md. Never written by runward. */
 export const ANALYSIS_FILE = "analysis.md";
@@ -458,6 +459,21 @@ function walkScope(root: string, policy: AnalysisPolicy, allow: Allowances): Sco
     for (const row of allow.excluded) if (row.re.test(rel) || (asDir && row.re.test(`${rel}/`))) return row;
     return null;
   };
+  // ADR-0113 decision 5: the analyzers read the files the project delivers, the set the delivered tree
+  // binds (what the project's own .gitignore files do not ignore, nested repositories never entered),
+  // and never a file outside it. An ignored output written between `check --attest` and `verify` (a
+  // CI step, `runward verify att.json --json > out.json`, which the shell empties first) is not an
+  // input of the verdict, and a delivered file changed in between still makes it differ.
+  const deliveredList = deliveredEntries(root);
+  const delivered = new Set(deliveredList.map((d) => d.rel));
+  const deliveredDirs = new Set<string>();
+  for (const d of deliveredList) {
+    for (let i = d.rel.lastIndexOf("/"); i > 0; i = d.rel.lastIndexOf("/", i - 1)) {
+      const dir = d.rel.slice(0, i);
+      if (deliveredDirs.has(dir)) break;
+      deliveredDirs.add(dir);
+    }
+  }
   const visit = (dirAbs: string, dirRel: string): void => {
     let entries;
     try { entries = readdirSync(dirAbs, { withFileTypes: true }); } catch { return; }
@@ -466,17 +482,20 @@ function walkScope(root: string, policy: AnalysisPolicy, allow: Allowances): Sco
     for (const e of entries) {
       const rel = dirRel === "" ? e.name : `${dirRel}/${e.name}`;
       const abs = join(dirAbs, e.name);
-      if (e.isSymbolicLink()) { scope.links.push(rel); continue; }
+      const key = rel.normalize("NFC"); // the delivered tree names its paths in NFC
+      if (e.isSymbolicLink()) { if (delivered.has(key)) scope.links.push(rel); continue; }
       if (e.isDirectory()) {
         if (dirRel === "" && e.name === "runward") continue; // the mission itself: judged by the gate, never analysed
         if (policy.excludedDirectories.includes(e.name)) { scope.excluded.push({ path: rel, by: `${policy.id} (installed dependencies or version control)` }); continue; }
         if (isPackageRoot && policy.buildOutputDirectories.includes(e.name)) { scope.excluded.push({ path: rel, by: `${policy.id} (build output beside ${dirRel === "" ? "the project root" : `${dirRel}/package.json`})` }); continue; }
         const row = excludedBy(rel, true);
         if (row) { row.uses++; scope.excluded.push({ path: rel, by: `runward/${ANALYSIS_FILE}:${row.line}` }); continue; }
+        if (!deliveredDirs.has(key)) continue; // nothing below it is delivered
         visit(abs, rel);
         continue;
       }
       if (!e.isFile()) continue;
+      if (!delivered.has(key)) continue; // not delivered (the project's .gitignore): never read
       if (policy.skippedFileNames.includes(e.name)) continue;
       const ext = extOf(e.name);
       const analysed = policy.analysedExtensions.includes(ext);
