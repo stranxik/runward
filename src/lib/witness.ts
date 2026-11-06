@@ -70,6 +70,9 @@ export const NOT_WITNESSED: Record<string, string> = {
   "required-level": "whether the verdict meets the level of proof the run required (`verdict.require`, ADR-0114); the witness carries the level and the answer, not their re-derivation",
 };
 
+/** ADR-0119 decision 6: what a witness of a run that read the levels of proof says of them. */
+export const LEVELS_NOT_WITNESSED = "each applied row's level of proof and the binding of the run Statements it read (ADR-0119, ADR-0120 decision 6): the witness carries the levels and the pieces the verdict read, not their re-derivation; a signature is counted by runward, never verified";
+
 /** Where a pointer resolved from: the three bases, in the order the verdict tries them. */
 const BASE_NAMES = ["project", "mission", "deliverable"] as const;
 
@@ -410,7 +413,25 @@ export function buildWitness(mission: string, v: Verdict, ctx: WitnessContext): 
     unratified: v.unratified.map((u) => ({ file: `runward/adr/${u.file}`, reason: u.reason }))
       .sort((x, y) => (x.file < y.file ? -1 : x.file > y.file ? 1 : 0)),
     causes,
-    notWitnessed: Object.entries(NOT_WITNESSED).map(([family, why]) => ({ family, why, causes: families.get(family) ?? 0 })),
+    // ADR-0119 decision 6, an added member present only when the run required `re-derived` or `attested`:
+    // each applied row's level and its pieces as the verdict read them. A checker does not re-derive them
+    // yet (ADR-0089, increment 2), and `notWitnessed` says so for this witness alone.
+    ...(v.levels ? { levels: {
+      required: v.levels.required, source: v.levels.source, met: v.levels.met,
+      ...(v.levels.fallback ? { fallback: v.levels.fallback } : {}),
+      rows: (["re-derived", "attested", "declared"] as const).flatMap((k) => v.levels!.rows[k].map((r) => ({
+        deliverable: r.deliverable, rule: r.rule, level: k,
+        pieces: r.pieces.map((x) => ({ pointer: x.pointer, kind: x.kind, level: x.level, ...(x.statement ? { statement: x.statement } : {}) })),
+        // ADR-0119 decision 2 (R2): the mutation of the row's cited lines, as the verdict read it.
+        ...(r.mutation ? { mutation: { state: r.mutation.state, met: r.mutation.met, ...(r.mutation.statement ? { statement: r.mutation.statement } : {}) } } : {}),
+      }))),
+      statements: v.levels.execution.statements.map((s) => ({ path: s.path, form: s.form, signatures: s.signatures, bound: s.bound })),
+      signatureVerified: false,
+    } } : {}),
+    notWitnessed: [
+      ...Object.entries(NOT_WITNESSED).map(([family, why]) => ({ family, why, causes: families.get(family) ?? 0 })),
+      ...(v.levels ? [{ family: "levels", why: LEVELS_NOT_WITNESSED, causes: 0 }] : []),
+    ],
   };
 }
 

@@ -11,7 +11,9 @@
   "totalSeconds": 843.4,
   "slowSeconds": 788.9,
   "slow": [
+    "test/unit/run-mutation.test.js",
     "test/unit/run-binding.test.js",
+    "test/unit/levels-lock.test.js",
     "test/unit/run-executor.test.js",
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
@@ -64,6 +66,7 @@
     "test/unit/update-newly-gated.test.js",
     "test/unit/sarif-emit.test.js",
     "test/unit/characterize-governed.test.js",
+    "test/unit/run-evals.test.js",
     "test/unit/readiness-golden.test.js",
     "test/unit/rules-for-cited.test.js",
     "test/unit/verify-findings-out-of-verdict.test.js",
@@ -115,8 +118,18 @@
   ],
   "files": [
     {
+      "file": "test/unit/run-mutation.test.js",
+      "seconds": 40.42,
+      "passed": true
+    },
+    {
       "file": "test/unit/run-binding.test.js",
-      "seconds": 12.21,
+      "seconds": 35.72,
+      "passed": true
+    },
+    {
+      "file": "test/unit/levels-lock.test.js",
+      "seconds": 30.65,
       "passed": true
     },
     {
@@ -127,6 +140,11 @@
     {
       "file": "test/unit/junit-quote-escaping.test.js",
       "seconds": 6.41,
+      "passed": true
+    },
+    {
+      "file": "test/unit/run-evals.test.js",
+      "seconds": 3.68,
       "passed": true
     },
     {
@@ -1292,6 +1310,11 @@
     {
       "file": "test/unit/package-sbom.test.js",
       "seconds": 2.78,
+      "passed": true
+    },
+    {
+      "file": "test/unit/run-release.test.js",
+      "seconds": 0.15,
       "passed": true
     },
     {

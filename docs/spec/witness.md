@@ -207,6 +207,7 @@ compares two witnesses of different versions as if they were one.
 | `files` | object | every file a pointer or a path token resolved to (7.4) |
 | `unratified` | list | the reconstructed decisions not yet ratified (7.7) |
 | `causes` | list | every term that counted against the verdict (8.1) |
+| `levels` | object | added after 0.46.0 (ADR-0119), present only when the run required `re-derived` or `attested`: each applied row at its level of proof, as the verdict read it (7.8) |
 | `notWitnessed` | list | the families this witness does not carry the facts of (8.2) |
 
 ### 6.1 `mode`
@@ -226,7 +227,7 @@ compares two witnesses of different versions as if they were one.
 | `deferredGaps` | integer | deliverables not filled beyond the horizon; never counted |
 | `checked` | integer | gated manifests judged and not skipped (7.3) |
 | `strictBreakdown` | object | `strictGaps` by family: `conformance`, `proposed`, `corpus`, `seal`, `unratified`, `unboundRows`, `charter` (integers), and `analysis` when the mission pins an analysis policy (ADR-0118) |
-| `require` | object | added after 0.46.0 (ADR-0114): `{ "level", "met" }`, the level of proof the run required (`mechanical` or `traced`) and whether the verdict meets it. Carried, not re-checked: family `required-level` (8.2). A witness without it was written by a runward that required no level |
+| `require` | object | added after 0.46.0 (ADR-0114): `{ "level", "met" }`, the level of proof the run required (`traced`, `mechanical`, and after 0.46.0 `re-derived` or `attested`, ADR-0119; `mechanical` when a `re-derived` the mission's lock asks for falls back, 7.8) and whether the verdict meets it. Carried, not re-checked: family `required-level` (8.2). A witness without it was written by a runward that required no level |
 
 Arithmetic a checker re-checks (all of it, always):
 
@@ -606,6 +607,24 @@ unratified when its text has such a line with `hypothesis` instead of `rejected`
 matches `why\s*:\s*UNKNOWN\b` (case-insensitive). A file that cannot be read is skipped, except a
 `DRAFT-` file, which is then unratified.
 
+### 7.8 `levels`
+
+Added after 0.46.0 (ADR-0119 decision 6), present only when the run required `re-derived` or `attested`
+(with `--require`, or by `"requiredLevel"` in the mission's lock): every other witness keeps its bytes.
+
+| Member | Type | Meaning |
+|---|---|---|
+| `required` | string | the level asked: `re-derived` or `attested` |
+| `source` | string | where it was asked: `flag`, `lock` or `default` |
+| `met` | boolean | whether the verdict meets it; when false and no gap stands, `check` exited 5 |
+| `fallback` | string | present only when the lock's level fell back for a language the analyzers do not read: ADR-0119 decision 4's sentence, at the character |
+| `rows` | list | each applied row `{ "deliverable", "rule", "level", "pieces", "mutation"? }`, those at `re-derived` first, then `attested`, then `declared`, each group in the order the verdict reads the rows; a piece is `{ "pointer", "kind", "level", "statement"? }`, `kind` being `static` or `execution` and `statement` the run Statement that attests an execution piece; `mutation`, on a row that cites a code location and a test, is `{ "state", "met", "statement"? }`, the mutation of its cited lines as the verdict read it (ADR-0120 R2, `docs/spec/runward-run.md` §7) |
+| `statements` | list | the run Statements read beside the cited reports, sorted by path: `{ "path", "form", "signatures", "bound" }`, `signatures` a count |
+| `signatureVerified` | boolean | always `false`: runward counts a signature and never verifies it |
+
+A checker of this version re-derives none of it: the family `levels` is listed under `notWitnessed` (8.2)
+in every witness that carries the member, and only in those.
+
 ## 8. Causes, and what is not witnessed
 
 ### 8.1 `causes`
@@ -656,7 +675,8 @@ a family that is not a cause family). In `runward-witness/1`: `deliverable-state
 `regulated`, `charter`, `workflow-contract`, `analysis`, `hooks`, `requires`, `disclosures` (`requires` added with
 runward's ADR-0115: a `conformance` cause of kind `requires-unmet` is beyond the witness, since the
 witness carries neither a rule's `requires:` nor the natures a journal declares uncarriable), and, after
-0.46.0, `comments` and `required-level` (ADR-0114). A checker that accepts a witness
+0.46.0, `comments` and `required-level` (ADR-0114), and `levels` (ADR-0119), listed last and only in a
+witness that carries the `levels` member (7.8). A checker that accepts a witness
 says, beside its answer, that these were not re-checked; a cause of one of these families is reported
 as **beyond the witness**, never as a fact that holds.
 

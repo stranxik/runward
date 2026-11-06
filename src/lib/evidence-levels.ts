@@ -35,6 +35,8 @@ import { isCoberturaReport, isCycloneDxSbom, isEslintReport, isJUnitReport, isLc
 import { analysisScope, type AnalysisReading } from "./analyze.js";
 import { IN_TOTO_STATEMENT_TYPE, RUNWARD_RUN_PREDICATE_TYPE, digestOfFiles, rawFileSha256 } from "./attestation.js";
 import { toPosix } from "./paths.js";
+import { ANALYSIS_POLICIES, DEFAULT_ANALYSIS_POLICY } from "./analysis-policy.js";
+import { MUTATOR_LANGUAGES, canonicalTarget, citedLines, extensionOf, isTestPath, mutationOutcome, type MutationTarget, type RowMutation } from "./mutation-targets.js";
 
 /**
  * ADR-0114 and ADR-0119 decision 2: the levels a strict verdict may require, from the least to the most
@@ -47,6 +49,57 @@ export type RequiredLevel = "traced" | "mechanical" | "re-derived" | "attested";
 export const REQUIRED_LEVELS: readonly RequiredLevel[] = ["traced", "mechanical", "re-derived", "attested"];
 export type ProofLevel = "re-derived" | "attested" | "declared";
 export type ExecutionNature = "junit" | "sarif" | "eslint" | "coverage" | "sbom" | "loadtest";
+
+/**
+ * ADR-0119 decision 4: the level the mission's lock asks for (`"requiredLevel"` in
+ * runward/scaffold-lock.json), a lock opt-in like `structureContract`. `null` when the lock holds none;
+ * `{ invalid }` when it holds a value that is not a level, which `check` refuses as a misuse (exit 2)
+ * rather than guess a weaker one.
+ */
+export function lockRequiredLevel(missionDir: string): { level: RequiredLevel } | { invalid: unknown } | null {
+  let j: unknown;
+  try { j = JSON.parse(readFileSync(join(missionDir, "scaffold-lock.json"), "utf8")); } catch { return null; }
+  if (!j || typeof j !== "object" || !("requiredLevel" in (j as Record<string, unknown>))) return null;
+  const v = (j as Record<string, unknown>).requiredLevel;
+  return typeof v === "string" && (REQUIRED_LEVELS as readonly string[]).includes(v) ? { level: v as RequiredLevel } : { invalid: v };
+}
+
+/**
+ * ADR-0119 decision 4: the level `runward init` writes into a new mission's lock. It becomes
+ * `re-derived` in the first release that both ships ADR-0118's analyzers and meets ADR-0117's
+ * criterion 2: the false reds of the analyzers measured on three real repositories runward did not
+ * write, classified by a reviewer who did not write them, and zero left after the fixes. Until that
+ * classification is published, a new mission is born asking for no level, as every mission before it,
+ * and asks for one by adding the line to its lock. Existing missions never move: `update` preserves
+ * what the lock says and never writes the line on its own.
+ */
+export const NEW_MISSION_REQUIRED_LEVEL: RequiredLevel | null = null;
+
+/** ADR-0119 decision 4, at the character: a `re-derived` the lock asks for, on a territory holding a
+ *  language the analyzers do not read. For an `attested` the lock asks for, only the static half falls,
+ *  and the line says which half. */
+export function languageFallbackLine(languages: readonly string[], required: RequiredLevel = "re-derived"): string {
+  const line = `re-derived: not reachable, ${languages.join(", ")} ${languages.length === 1 ? "is" : "are"} not analysed; this run requires mechanical`;
+  return required === "attested" ? `${line} for its static half, and attested for its execution` : line;
+}
+
+/**
+ * ADR-0119 decisions 4 and 6: the level a run that read the levels meets, never overstated. The level it
+ * requires when it meets it, except under the language fallback, where the static half is `mechanical`
+ * and the ladder (each level includes the one below it) puts the run at `mechanical`. `null` when the
+ * run did not read the levels or does not meet them.
+ */
+export function levelMetOf(l: Pick<LevelsReading, "met" | "required" | "fallback"> | null): RequiredLevel | null {
+  if (!l || !l.met) return null;
+  return l.fallback ? "mechanical" : l.required;
+}
+
+/** ADR-0119 decision 4: the level a run that read the levels requires, as `require.level` spells it:
+ *  `mechanical` when a `re-derived` the lock asks for falls back; an `attested` keeps its name, since
+ *  only its static half falls. */
+export function levelRequiredOf(l: Pick<LevelsReading, "required" | "fallback">): RequiredLevel {
+  return l.fallback && l.required === "re-derived" ? "mechanical" : l.required;
+}
 
 /** ADR-0119 decision 5, at the character: printed wherever `attested` is read. */
 export const ATTESTED_SENTENCE = "attested: the binding is re-derived by this command; the signature is verified outside it";
@@ -213,6 +266,47 @@ function appliedRows(tree: Tree, inHorizon: (phase: string) => boolean): Applied
   return out;
 }
 
+const OTHER_LANGUAGES = ANALYSIS_POLICIES[DEFAULT_ANALYSIS_POLICY].otherLanguages;
+
+/**
+ * ADR-0119 decision 2 (R2): a row's mutation target, when it cites a code location and a test. A code
+ * location is a `file:` pointer at a source file that is not a test; a test is a `test:` pointer that
+ * names a case of a JUnit report. Its cited lines are the symbol's (`#SYMBOL`), the line (`:LINE`), else the
+ * whole file. Cited code in a language runward-run has no mutator for is named in `languages`.
+ */
+function mutationTargetOf(row: AppliedRow): { target: MutationTarget | null; languages: string[] } {
+  const tests = row.pieces.filter((p) => p.pointer.kind === "test" && p.nature === "junit" && p.pointer.testName && p.rel).map((p) => ({ report: p.rel!, name: p.pointer.testName! }));
+  if (tests.length === 0) return { target: null, languages: [] };
+  const locations: MutationTarget["locations"] = [];
+  const languages = new Set<string>();
+  for (const p of row.pieces) {
+    if (p.pointer.kind !== "file" || p.nature !== null || !p.abs || !p.rel || isTestPath(p.rel)) continue;
+    const ext = extensionOf(p.rel);
+    if (!Object.hasOwn(MUTATOR_LANGUAGES, ext)) { if (Object.hasOwn(OTHER_LANGUAGES, ext)) languages.add(OTHER_LANGUAGES[ext]); continue; }
+    const text = readText(p.abs);
+    const lines = text === null ? null : citedLines(text, { line: p.pointer.line, symbol: p.pointer.symbol });
+    if (lines) locations.push({ file: p.rel, from: lines.from, to: lines.to });
+  }
+  const target = locations.length ? canonicalTarget({ deliverable: row.deliverable, rule: row.rule, locations, tests }) : null;
+  return { target, languages: target ? [] : [...languages].sort(byCodeUnit) };
+}
+
+/** The sentence every surface prints about the mutation of the cited lines (ADR-0119 decision 2). */
+function mutationSentence(facts: RowMutation[]): string {
+  const asked = facts.filter((m) => m.state !== "no-mutator");
+  const none = facts.filter((m) => m.state === "no-mutator");
+  const tail = none.length ? `; ${none.length} row(s) cite code in a language runward-run has no mutator for (${[...new Set(none.flatMap((m) => m.languages ?? []))].join(", ")}), and reach attested without it` : "";
+  if (asked.length === 0) return `no applied row cites a code location and a test: the mutation of cited lines is asked of none (ADR-0119 decision 2)${tail}`;
+  const read = asked.filter((m) => m.statement && !["absent", "unbound", "unsigned"].includes(m.state));
+  if (read.length === 0) return `${asked.length} applied row(s) cite a code location and a test, and no signed run Statement bound here carries the mutation of their cited lines (runward-run's mutation leg, ADR-0120 decision 2): none of them reaches attested${tail}`;
+  const by = (s: string): number => asked.filter((m) => m.state === s).length;
+  const parts = [`${by("killed")} with a mutant killed through a failed assertion`];
+  if (by("killed-indistinct")) parts.push(`${by("killed-indistinct")} held to « at least one mutant killed », the runner not telling a failed assertion from an error`);
+  if (by("no-mutant")) parts.push(`${by("no-mutant")} whose cited lines hold no operator the mutator changes (below attested: they cite no line that implements what they claim)`);
+  const short = asked.filter((m) => !m.met).length;
+  return `the mutation of the cited lines, read from ${[...new Set(read.map((m) => m.statement))].join(", ")}: of ${asked.length} row(s) that cite a code location and a test, ${parts.join(", ")}${short ? `, ${short} below attested for it` : ""}${tail}`;
+}
+
 /** ADR-0120 decision 4: the expected set this tree implies, derived as EXPECTED_SET_RULE says. */
 export function expectedSet(missionDir: string, inHorizon: (phase: string) => boolean = () => true): ExpectedSet {
   const tree = treeOf(missionDir);
@@ -332,12 +426,22 @@ export interface RowProof {
   pieces: ProofPiece[];
   /** The `requires:` nature of the row's rule, and whether an attested report carries it. */
   requires?: { nature: string; attested: boolean };
+  /** ADR-0119 decision 2 (R2): present on a row that cites a code location and a test, the mutation of
+   *  its cited lines as the bound run Statement records it, or why it does not let the row reach
+   *  `attested`; on a row whose cited code no mutator reads, that absence, named. */
+  mutation?: RowMutation;
+  /** ADR-0120 decision 2 (R2): the coverage of its cited lines, by the suite, as a signed bound run
+   *  Statement records it. Informational: it sets no level (the mutation fact does). */
+  coverage?: { statement: string; locations: Array<{ file: string; from: number; to: number; instrumented: number; executed: number }> };
 }
 
 export interface LevelsReading {
   /** The level the run requires, where it was asked, and whether the verdict meets it. */
   required: RequiredLevel;
-  source: "flag" | "default";
+  source: "flag" | "lock" | "default";
+  /** ADR-0119 decision 4: set when the lock asked for an upper level on a territory holding a language the
+   *  analyzers do not read, so the static half falls to `mechanical`, said at the character. */
+  fallback?: string;
   met: boolean;
   sentence: string;
   signatureVerified: false;
@@ -352,12 +456,15 @@ export interface LevelsReading {
     expected: ExpectedSet;
     /** The mutation fact of ADR-0120 (R2): said whether or not a run carries it. */
     mutation: string;
+    /** ADR-0120 decision 2 (R2): the rows whose cited lines `runward-run` mutates, and those lines, derived
+     *  from this tree; a run Statement that records other ones binds nothing for the row. */
+    mutationTargets: MutationTarget[];
   };
 }
 
 export interface LevelsContext {
   required: RequiredLevel;
-  source: "flag" | "default";
+  source: "flag" | "lock" | "default";
   /** `mechanical` met: at least one applied row carries a pointer the gate verified (ADR-0114). */
   mechanical: boolean;
   /** Rows the evidence breakdown reads as prose: no pointer the gate could open. */
@@ -408,6 +515,12 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
     statementsByDir.set(dirAbs, found);
     return found;
   };
+  const declaredBy = (doc: RunDocument, rel: string): string | null => {
+    const list = (doc.statement.predicate as { declared?: unknown } | undefined)?.declared;
+    if (!Array.isArray(list)) return null;
+    const hit = list.find((d) => (d as { path?: unknown })?.path === rel) as { why?: unknown } | undefined;
+    return hit ? (typeof hit.why === "string" && hit.why ? hit.why : "the run Statement names it as produced outside runward-run: declared") : null;
+  };
   const subjectsOf = (doc: RunDocument): Set<string> => {
     const out = new Set<string>();
     const subject = doc.statement.subject;
@@ -429,7 +542,14 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
     const attesting = candidates.find((s) => s.bound && s.signatures > 0);
     let r: { level: ProofLevel; statement?: string; why?: string };
     if (attesting) r = { level: "attested", statement: attesting.path };
-    else if (candidates.length === 0) r = { level: "declared", why: `no run Statement in ${toPosix(relative(tree.root, dirname(abs))) || "."}/ has its digest among its subjects` };
+    else if (candidates.length === 0) {
+      // ADR-0120 decision 2 (R3): an eval that needs a remote model is outside runward-run, which says so
+      // in the Statement of the run beside it; the reading names it rather than « no Statement binds it ».
+      const naming = statementsIn(dirname(abs)).find((s) => s.bound && declaredBy(s.doc, rel));
+      r = naming
+        ? { level: "declared", statement: naming.path, why: declaredBy(naming.doc, rel)! }
+        : { level: "declared", why: `no run Statement in ${toPosix(relative(tree.root, dirname(abs))) || "."}/ has its digest among its subjects` };
+    }
     else {
       const unbound = candidates.find((s) => !s.bound);
       r = unbound
@@ -439,6 +559,43 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
     reportReading.set(abs, r);
     return r;
   };
+
+  // ADR-0119 decision 2 (R2): the rows that cite a code location and a test, their cited lines, and the
+  // mutation fact a bound, signed run Statement records for them.
+  const mutationTargets: MutationTarget[] = [];
+  const mutationOf = new Map<AppliedRow, RowMutation>();
+  const coverageOf = new Map<AppliedRow, NonNullable<RowProof["coverage"]>>();
+  for (const row of rows) {
+    const t = mutationTargetOf(row);
+    if (t.target) mutationTargets.push(t.target);
+    if (t.languages.length) mutationOf.set(row, { state: "no-mutator", met: true, languages: t.languages, why: `runward-run has no mutator for ${t.languages.join(", ")}: the row reaches attested without the mutation fact (ADR-0119 decision 2)` });
+    if (t.target) mutationOf.set(row, readMutation(t.target, row));
+    if (t.target) { const c = readCoverage(t.target, row); if (c) coverageOf.set(row, c); }
+  }
+  function readCoverage(target: MutationTarget, row: AppliedRow): RowProof["coverage"] | null {
+    const dirs = [...new Set(row.pieces.filter((p) => p.nature === "junit" && p.abs).map((p) => dirname(p.abs!)))];
+    for (const s of dirs.flatMap((d) => statementsIn(d))) {
+      if (!s.bound || s.signatures === 0) continue;
+      const cov = (s.doc.statement.predicate as { coverage?: { targets?: unknown[] } }).coverage;
+      const t = Array.isArray(cov?.targets) ? cov!.targets!.find((x) => (x as MutationTarget)?.deliverable === target.deliverable && (x as MutationTarget)?.rule === target.rule) as { locations?: unknown[] } | undefined : undefined;
+      if (!t || !Array.isArray(t.locations)) continue;
+      const locations = t.locations.map((l) => l as { file: string; from: number; to: number; instrumented: number; executed: number })
+        .filter((l) => target.locations.some((x) => x.file === l.file && x.from === l.from && x.to === l.to) && Number.isInteger(l.instrumented) && Number.isInteger(l.executed))
+        .map((l) => ({ file: l.file, from: l.from, to: l.to, instrumented: l.instrumented, executed: l.executed }));
+      if (locations.length) return { statement: s.path, locations };
+    }
+    return null;
+  }
+  function readMutation(target: MutationTarget, row: AppliedRow): RowMutation {
+    const dirs = [...new Set(row.pieces.filter((p) => p.nature === "junit" && p.abs).map((p) => dirname(p.abs!)))];
+    const carriers = dirs.flatMap((d) => statementsIn(d)).filter((s) => s.mutation);
+    if (carriers.length === 0) return { state: "absent", met: false, why: "no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)" };
+    const signed = carriers.find((s) => s.bound && s.signatures > 0);
+    if (signed) return mutationOutcome(target, (signed.doc.statement.predicate as { mutation?: unknown }).mutation, signed.path);
+    const bound = carriers.find((s) => s.bound);
+    if (bound) return { state: "unsigned", met: false, statement: bound.path, why: `the run Statement ${bound.path} carries no signature: the mutation of its cited lines it records is declared` };
+    return { state: "unbound", met: false, statement: carriers[0].path, why: `the run Statement ${carriers[0].path} carries the mutation of its cited lines and does not bind to this tree: ${carriers[0].problems.join("; ")}` };
+  }
 
   const byLevel: Record<ProofLevel, RowProof[]> = { "re-derived": [], attested: [], declared: [] };
   const below: LevelsReading["below"] = [];
@@ -458,7 +615,8 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
     // itself, which is circular): every piece of it rests on what the cell declares.
     if (isProse) for (const x of pieces) if (x.level !== "declared") { x.level = "declared"; x.why = "the gate does not open it as evidence (a pointer at the manifest itself, or at nothing it can read)"; }
     const execution = pieces.filter((x) => x.kind === "execution");
-    const level: ProofLevel = isProse ? "declared" : execution.length > 0 && execution.every((x) => x.level === "attested") ? "attested" : "re-derived";
+    const mutation = isProse ? undefined : mutationOf.get(row);
+    const level: ProofLevel = isProse ? "declared" : execution.length > 0 && execution.every((x) => x.level === "attested") && (mutation?.met ?? true) ? "attested" : "re-derived";
     for (const x of pieces) {
       x.setsLevel = level === "declared" ? x.level === "declared"
         : level === "attested" ? x.kind === "execution"
@@ -468,7 +626,7 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
     const req = nature && nature !== "adr"
       ? { nature, attested: pieces.some((x) => x.kind === "execution" && x.nature === nature && x.level === "attested") }
       : undefined;
-    const proof: RowProof = { deliverable: row.deliverable, rule: row.rule, level, pieces, ...(req ? { requires: req } : {}) };
+    const proof: RowProof = { deliverable: row.deliverable, rule: row.rule, level, pieces, ...(req ? { requires: req } : {}), ...(mutation ? { mutation } : {}), ...(coverageOf.has(row) && !isProse ? { coverage: coverageOf.get(row)! } : {}) };
     byLevel[level].push(proof);
 
     // What holds the row below the level the run requires.
@@ -485,6 +643,7 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
         const declaredIn = requires.declared.get(nature);
         holds.push(`requires ${nature}: no attested report of that kind is cited${declaredIn ? ` (the journal declares it uncarriable in ${declaredIn})` : ""}`);
       }
+      if (mutation && !mutation.met) holds.push(`mutation: ${mutation.why}`);
     }
     if (holds.length) below.push({ deliverable: row.deliverable, rule: row.rule, level, holds });
   }
@@ -501,20 +660,26 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
   const territory = { analysed: territoryWhy === null, files: a?.files.analysed ?? 0, languagesNotAnalysed: languages, why: territoryWhy };
 
   const statements = [...statementsByDir.values()].flat().sort((x, y) => byCodeUnit(x.path, y.path)).map(({ doc: _doc, ...s }) => ({ ...s, binds: [...s.binds].sort(byCodeUnit) }));
-  const reDerived = ctx.mechanical && territory.analysed && byLevel.declared.length === 0;
-  const met = ctx.required === "re-derived" ? reDerived
-    : ctx.required === "attested" ? reDerived && below.length === 0
+  // ADR-0119 decision 4: a level the LOCK asks for applies to the languages the analyzers read. On a
+  // territory holding another one, the static half falls to `mechanical`, and every surface says so; a
+  // level asked by name (`--require`) refuses such a territory instead.
+  const fallback = ctx.source === "lock" && a !== null && a.known && a.files.analysed > 0 && languages.length > 0;
+  const staticHalf = fallback ? ctx.mechanical : ctx.mechanical && territory.analysed && byLevel.declared.length === 0;
+  // Under the fallback a declared row holds nothing (the static half asks for `mechanical`), and is still
+  // listed at its level in `rows.declared`; `below` names only what holds the run below its level.
+  const holding = !fallback ? below : ctx.required === "attested" ? below.filter((b) => b.level !== "declared") : [];
+  const met = ctx.required === "re-derived" ? staticHalf
+    : ctx.required === "attested" ? staticHalf && holding.length === 0
       : true;
-  const anyMutation = statements.some((s) => s.bound && s.mutation);
   return {
     required: ctx.required, source: ctx.source, met,
+    ...(fallback ? { fallback: languageFallbackLine(languages, ctx.required) } : {}),
     sentence: ATTESTED_SENTENCE, signatureVerified: false,
-    rows: byLevel, territory, below,
+    rows: byLevel, territory, below: holding,
     execution: {
       statements, expected,
-      mutation: anyMutation
-        ? "a run Statement bound here carries a mutation leg, which this version does not read: its facts are not part of the level (ADR-0120 R2)"
-        : "no mutation fact: no run Statement bound here carries a mutation leg, so a row reaches attested without one (ADR-0119 decision 2)",
+      mutation: mutationSentence([...mutationOf.values()]),
+      mutationTargets,
     },
   };
 }
@@ -523,6 +688,7 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
 export function levelsPayload(l: LevelsReading): Record<string, unknown> {
   return {
     required: l.required, source: l.source, met: l.met,
+    ...(l.fallback ? { fallback: l.fallback } : {}),
     sentence: l.sentence, signatureVerified: l.signatureVerified,
     counts: { "re-derived": l.rows["re-derived"].length, attested: l.rows.attested.length, declared: l.rows.declared.length },
     rows: l.rows,

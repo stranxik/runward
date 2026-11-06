@@ -64,7 +64,11 @@ export async function statusCommand(opts: { path?: string; json?: boolean }): Pr
       ? "all deliverables filled, but check --strict refuses the crossing"
       : report.currentPhase;
   log(`  ${c.primaryBold("Current gate")}  ${c.white(gateLabel)}`);
-  log(`  ${c.primaryBold("Strict gate")}   ${levelNotMet ? c.warning("no gap, nothing verified mechanically (exit 5, ADR-0114)") : strictClean ? c.success("clean") : c.error(strictParts)}`);
+  // ADR-0119: under a level the lock asks for, the level is named, never « nothing verified ».
+  const notMetLine = strictVerdict.levels
+    ? `no gap, the level of proof required is not met: ${strictVerdict.require?.level ?? strictVerdict.levels.required} (exit 5, ADR-0119)`
+    : "no gap, nothing verified mechanically (exit 5, ADR-0114)";
+  log(`  ${c.primaryBold("Strict gate")}   ${levelNotMet ? c.warning(notMetLine) : strictClean ? c.success("clean") : c.error(strictParts)}`);
 
   // Phase progress across the gated arc — where the mission stands, gate by gate
   log(section("Phase progress"));

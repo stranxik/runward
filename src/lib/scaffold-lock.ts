@@ -128,6 +128,10 @@ export function renderScaffoldLock(
   /** ADR-0118: the analysis policy the mission pins, carried through as written (never repaired, never
    *  dropped by a refresh, never written by `update` on its own). Undefined: the mission has none. */
   analysis?: unknown,
+  /** ADR-0119 decision 4: the level of proof the mission's lock asks for, carried through as written
+   *  (never repaired: a value that is not a level is `check`'s to refuse, exit 2), never dropped by a
+   *  refresh and never written by `update` on its own. Undefined: the lock asks for none. */
+  requiredLevel?: unknown,
 ): string {
   const sorted: Record<string, string> = {};
   for (const k of Object.keys(files).sort()) sorted[k] = files[k];
@@ -140,6 +144,9 @@ export function renderScaffoldLock(
   // ADR-0118: the analysis pin rides the lock the same way (ADR-0069's precedent), and is preserved
   // the same way: a refresh that dropped it would silently stop reading the mission's code.
   if (analysis !== undefined) obj.analysis = analysis;
+  // ADR-0119 decision 4: the required level rides the lock the same way, and is preserved the same way:
+  // a refresh that dropped it would silently lower every verdict of the mission to `mechanical`.
+  if (requiredLevel !== undefined) obj.requiredLevel = requiredLevel;
   // ADR-0080: the regulated tier rides the lock the same way, and is preserved the same way.
   if (regulated) obj.regulated = true;
   // ADR-0082: whether the regulated tier counts an agent's ratification. Preserved the same way, or

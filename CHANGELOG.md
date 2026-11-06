@@ -30,9 +30,89 @@ when the run requires one of the two levels: every other payload keeps its bytes
 GitHub (a reusable workflow: the executing job holds no id-token and no secret, the signing job runs no
 project code) and GitLab (the pipeline of a project the agent cannot write), at parity, with the shipped
 example's run policy. Not delivered yet: the coverage and mutation legs of the cited lines (R2) and the
-evals leg (R3); the required level read from the mission's lock (ADR-0119 decision 4); the shipped
-example still answers one row in prose, which `re-derived` refuses until it is typed; runward-run is not
-in the release chain yet. The specification is `docs/spec/runward-run.md`.
+evals leg (R3); the shipped example still answers one row in prose, which `re-derived` refuses until it
+is typed. The specification is `docs/spec/runward-run.md`.
+
+### runward-run is released with runward, as a verified release asset (ADR-0120 decision 1, ADR-0116)
+
+The isolated builder packs `packages/runward-run` in its own directory after the suite has passed, in the
+job that holds `contents: read` only, and declares its digest; the job that signs, which checks out
+nothing and runs no npm, refuses a file under another name or digest and attests it; the release
+workflow packs it again, refuses a byte of difference, and attaches `runward-run-X.Y.Z.tgz` as the tenth
+asset, read back by digest with the others. It stays private on npm until the bootstrap `runward-forge`
+waits on (RWD-2026-0195), so no job publishes it. `docs/verifying-a-release.md` Step 9 verifies it with
+`gh attestation verify`, pinned to the tag, and the release runbook checks ten assets.
+
+### The level of proof a mission asks for, read from its lock and carried by every surface (ADR-0119 decisions 4 and 6)
+
+Under `--strict`, a full verdict now reads `"requiredLevel"` in `runward/scaffold-lock.json` when
+`--require` names no level: a lock opt-in like `structureContract`, so setting it is the maintainer's act
+(class R, ADR-0088). The flag beats it, a `--through` prefix never reads it, and a value that is not a
+level is a misuse, exit 2, refused before the gate runs. `runward update` carries the line through as
+written and never writes one on its own (a refresh that dropped a lock opt-in is RWD-2026-0106). A
+`re-derived` the lock asks for, on a territory holding a language the analyzers do not read, requires
+`mechanical` instead and says so at the character, « re-derived: not reachable, Python is not analysed;
+this run requires mechanical », in `levels.fallback` and on every surface; asked by name, `--require
+re-derived` refuses that territory. Every strict run prints the level the tree meets and what the next
+level would refuse (« level of proof this tree meets: mechanical; the next level, re-derived, would
+refuse 1 row(s) that rest on a declaration »), for the terminal only. When the run reads the levels, the
+SARIF log carries them in its run's property bag, the witness in a `levels` member with the family
+`levels` under `notWitnessed` (`docs/spec/witness.md` 7.8), the delivery report and the job summary in a
+table naming each applied row's level, and the VSA in one more `verifiedLevels` value naming the level
+met, never overstated: `RUNWARD_PROOF_RE_DERIVED`, `RUNWARD_PROOF_ATTESTED`, or `RUNWARD_PROOF_MECHANICAL`
+when the lock's level fell back. A run that reads no level keeps every byte of its payload, log, witness,
+report and VSA. `runward status` names the level the lock asks for; the session gate (`gate-hook`) asks
+for none, since its question is gaps and an `attested` level needs a run the session cannot make.
+
+Not changed: `runward init` writes no `"requiredLevel"` yet. ADR-0119 moves the default of new missions to
+`re-derived` in the first release that meets ADR-0117's criterion 2, the false reds of the analyzers
+measured on three real repositories and none left, and that classification is not published; the switch
+is one constant, `NEW_MISSION_REQUIRED_LEVEL`. runward's own mission asks for no level either: it pins no
+analysis policy, and re-derived would refuse 1 of its rows, which rests on a declaration.
+
+### runward-run R3: the evals leg, and an eval that needs a remote model reads `declared`, named (ADR-0120 R3)
+
+runward-run runs the evals the run policy declares like any other leg, the network cut, so only evals that
+replay recorded outputs or run a pinned local model; their report is bound by the run Statement and reads
+`attested` once it is signed. An eval that needs a remote model is outside runward-run: the policy names
+its reports in an evals leg with `"remote": true` and no command, runward-run runs nothing for it and
+records the reports in the Statement as declared (`predicate.declared`, never a subject), and runward
+reads a row citing one as `declared`, « an eval that needs a remote model: runward-run runs every leg
+with the network cut, so this report is produced outside it and its result stays declared », with the
+policy's reason, rather than « no run Statement binds it ». Measured on the laboratory: a row citing a
+local eval and a remote one reads the first `attested` and the second `declared`, named, and stays below
+`attested`. A run with no remote evals leg writes the Statement it wrote before. With R1 and R2, every leg
+of ADR-0120 decision 2 is delivered.
+
+### runward-run R2: the coverage and the mutation of the cited lines, and `attested` reads them (ADR-0120 R2, ADR-0119 decision 2)
+
+Measured on 2026-11-05 (ADR-0117, row 8): with every assertion of the example's tests replaced by
+`assert.ok(true)`, the real tools regenerate green reports, the cited file stays covered, and the gate
+passed. runward-run gains a coverage leg and a mutation leg. For each applied row that cites a code
+location and a test, `check --strict --require attested --json` publishes the row's cited lines
+(`levels.execution.mutationTargets`: a symbol's declaration to the end of its block, a line, or the file)
+and its cited cases with their report; runward-run mutates those lines only, one operator at a time (the
+mutator `runward-run/js-ts/1`, JavaScript and TypeScript, by a lexer: equality, relational, logical,
+arithmetic, boolean, negation, `if` condition, block, string literal), runs the leg's tests against each
+mutant with the network cut, and records in the run Statement every cited case's outcome: failed on an
+assertion, on another error, with no class the runner tells, skipped or absent. Under `--require
+attested`, a row whose cited tests kill no mutant of its cited lines through a failed assertion is below
+the level, named, its survivors listed and never summed; where the runner does not tell an assertion from
+an error, the row is held to « at least one mutant killed », and says so; a row whose cited lines hold no
+operator to change (a port's interface) is below until it cites the lines that implement it; a row whose
+cited code is in a language with no mutator reaches `attested` without the fact, said; a Statement that
+records other cited lines than the tree implies binds nothing for the row. The coverage leg records, per
+cited location, the lines the LCOV instruments and executes, shown on the row, setting no level. The
+shipped example's run policy and the GitHub and GitLab samples carry both legs. Containers are now named,
+and one that outlives its timeout is removed. A run with neither leg writes the Statement it wrote before.
+Measured on the laboratory (the shipped example, its prose row typed, its two rows citing a port's
+interface citing the adapter too): the original tests exit 0 at `attested`, the 8 rows that cite a code
+location and a test each with a mutant killed through a failed assertion; the weakened tests exit 5, the
+same 8 rows refused and nothing else. On a real container runtime (the maintainer's NAS, Docker 29.0.4, 4 CPUs), with the
+example's run policy and image: the mutation leg runs 79 mutants of 8 cited locations in 91 s of wall clock
+on the laboratory and 59 of 7 in 69 s on the shipped example, inside ADR-0120's 30-minute bound; the
+original tests exit 0 at `attested`, the weakened ones 5. The shipped example as `init --example` writes it
+stays below `attested` on the 2 rows that cite a port's interface, and on its prose row. The specification is `docs/spec/runward-run.md` §7.
 
 ### runward-fleet verify-run: the signature on a run Statement, verified offline against the trust policy (ADR-0120 D4a)
 

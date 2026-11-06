@@ -111,12 +111,13 @@ test("release chain: the forge tarball is byte-matched, attached as the eighth a
   const names = (t) => [...t.matchAll(/"(runward-[^"]+)"/g)].map((m) => m[1]);
   const uploaded = names(draft[indexOf(draft, /gh release upload/, "uploads the assets")]);
   const readBack = names(draft[indexOf(draft, /held\.txt/, "reads the draft back")]);
-  assert.equal(new Set(uploaded).size, 9, `the draft uploads nine assets, runward-fleet's the ninth (${uploaded.join(", ")})`);
+  assert.equal(new Set(uploaded).size, 10, `the draft uploads ten assets, runward-run's the tenth (${uploaded.join(", ")})`);
   assert.deepEqual(readBack, uploaded, "the read-back checks exactly what was uploaded");
   assert.ok(uploaded.includes("runward-forge-$VERSION.tgz"));
   const releaseText = readFileSync(join(ROOT, ".github/workflows/release.yml"), "utf8");
   assert.ok(!/\bseven\b/.test(releaseText.replace(/seventh asset/g, "")), "no step or message of release.yml still counts seven assets");
   assert.ok(!/\beight\b/.test(releaseText), "nor eight, since runward-fleet's tarball is the ninth (ADR-0093 D4)");
+  assert.ok(!/\bnine (assets|staged)\b|assembles the nine\b/.test(releaseText), "nor nine, since runward-run's tarball is the tenth (ADR-0120)");
 });
 
 test("release chain: the publish job publishes runward, then verifies and publishes runward-forge from the release", () => {
