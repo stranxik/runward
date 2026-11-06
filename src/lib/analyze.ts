@@ -486,6 +486,10 @@ function walkScope(root: string, policy: AnalysisPolicy, allow: Allowances): Sco
       if (e.isSymbolicLink()) { if (delivered.has(key)) scope.links.push(rel); continue; }
       if (e.isDirectory()) {
         if (dirRel === "" && e.name === "runward") continue; // the mission itself: judged by the gate, never analysed
+        // runward's own reports, where its CI samples deposit them (check.json, the renderings, the
+        // attestation, verify.json): written by the job between `check --attest` and `verify`, never
+        // delivered code, and reading them would make the attestation differ from its own job.
+        if (dirRel === "" && e.name === "runward-reports") { scope.excluded.push({ path: rel, by: "runward (its own reports, deposited by its CI samples)" }); continue; }
         if (policy.excludedDirectories.includes(e.name)) { scope.excluded.push({ path: rel, by: `${policy.id} (installed dependencies or version control)` }); continue; }
         if (isPackageRoot && policy.buildOutputDirectories.includes(e.name)) { scope.excluded.push({ path: rel, by: `${policy.id} (build output beside ${dirRel === "" ? "the project root" : `${dirRel}/package.json`})` }); continue; }
         const row = excludedBy(rel, true);
