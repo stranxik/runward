@@ -28,7 +28,13 @@ const listOf = (name) => [...CLOSED.lists[name].published, ...CLOSED.lists[name]
 const own = (html) => rules.ownText(html).replace(/\s+/g, " ").trim();
 const sha = (s) => createHash("sha256").update(s).digest("hex");
 /** The text of a view as a reader sees it, data included: one line per list item or paragraph. */
-const decoded = (html) => String(html).replace(/<\/(li|p|h[1-3])>/g, "\n").replace(/<[^>]+>/g, "").replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").replace(/[ \t]+/g, " ").split("\n").map((l) => l.trim()).filter(Boolean).join("\n");
+const ENTITY = { "#39": "'", quot: '"', lt: "<", gt: ">", amp: "&" };
+/** Tags are removed until none is left, then each entity is decoded once, in one pass: the result is text for an assertion, never HTML. */
+const decoded = (html) => {
+  let s = String(html).replace(/<\/(li|p|h[1-3])>/g, "\n");
+  for (let prev = null; prev !== s;) { prev = s; s = s.replace(/<[^>]+>/g, ""); }
+  return s.replace(/&(#39|quot|lt|gt|amp);/g, (_, e) => ENTITY[e]).replace(/[ \t]+/g, " ").split("\n").map((l) => l.trim()).filter(Boolean).join("\n");
+};
 
 /** The decision portfolio of the golden inventory: four real exports, a silent mission, one received as a digest only. */
 function goldenFleet(lang = "fr", extra = {}) {
@@ -209,7 +215,7 @@ test("the specification shows the lexicon as it ships, in both languages; a sent
   const spec = readFileSync(join(ROOT, "docs", "spec", "runward-fleet-decision.md"), "utf8");
   const shown = (lexicon) => [["state"], ["reason"], ["kind"], ["scope"], ["origin"], ["unknown"], ["pieces", "piece"], ["pieces", "nature"], ["pieces", "state"], ["pieces", "cause"], ["endorsement", "mode"]]
     .flatMap((path) => ["en", "fr"].flatMap((lang) => Object.values(path.reduce((o, k) => o[k], lexicon[lang]))))
-    .filter((t) => !spec.includes(t.replace(/\u00a0/g, " ").replace(/\|/g, "\\|")));
+    .filter((t) => !spec.includes(t.replace(/\u00a0/g, " ").replace(/\\/g, "\\\\").replace(/\|/g, "\\|")));
   assert.deepEqual(shown(views.LEXICON), [], "docs/spec/runward-fleet-decision.md section 3 holds every sentence");
   const changed = structuredClone(views.LEXICON);
   changed.fr.kind["evidence-refused"] = "une preuve citée ne tient plus.";
