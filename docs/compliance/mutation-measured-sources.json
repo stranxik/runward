@@ -89,9 +89,9 @@
     },
     {
       "module": "rules",
-      "sha256": "699d8df5c39e9c4addcc8f299ff242db291518696d704900688eab0ace4da17d",
-      "run": "39947132062",
-      "measuredAt": "2026-10-23"
+      "sha256": "b1c3238fee30c913b38dda83aece18a4976d8d3036cdac186b0f99e5d2d5d1ab",
+      "run": "42807518226",
+      "measuredAt": "2026-11-10"
     },
     {
       "module": "sarif",

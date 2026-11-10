@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "238|9|238|36|ConditionalExpression|true",
-   "line": 238,
+   "key": "330|9|330|36|ConditionalExpression|true",
+   "line": 330,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "Forcing the name comparison to true makes corpusDrift blind to a corpus NAME change: with the lock pinned to acme@1.0.0 and runward/rules/corpus.json holding other@1.0.0, corpusDrift returned null instead of {pinned:{acme,1.0.0}, onDisk:{other,1.0.0}} — a mission vendored from a different corpus reports no drift. The version-only case still reports. No layer went red.",

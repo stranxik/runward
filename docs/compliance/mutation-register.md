@@ -3741,57 +3741,48 @@ Holes: 0 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
 
 ## Module: rules
 
-Survivors: 11
+Survivors: 12
 
-Holes: 7 · Equivalent: 4 · Display-only: 0 · Defence-in-depth: 0
+Holes: 10 · Equivalent: 2 · Display-only: 0 · Defence-in-depth: 0
 
 **Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `afe6d4026179…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
-### corpusStamp — 5 survivor(s): 3 hole · 2 equivalent
+### globMatcher — 5 survivor(s): 5 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 214 | ConditionalExpression | `false` | equivalent | The existsSync guard is redundant: the surrounding try already absorbs the read failure and returns null. Measured corpusStamp over 13 fixtures — absent corpus.json, absent directory entirely, corpus… |
-| 217 | StringLiteral | `""` | equivalent | "" is not a valid Node encoding, so readFileSync returns a Buffer instead of throwing, and JSON.parse stringifies that Buffer as UTF-8 — the same bytes 'utf8' would have produced. Verified directly (… |
-| 218 | ConditionalExpression | `true` | hole | Forcing the left conjunct to true drops the name guard: a corpus.json of {"version":"1.0.0"} returned {version:'1.0.0'} with no name (base null), and {"name":7,"version":"1.0.0"} returned {name:7,...… |
-| 218 | ConditionalExpression | `true` | hole | Replacing the typeof raw.name check with true accepts a stamp with no name or a numeric one: corpusStamp returned {version:'1.0.0'} and {name:7,version:'1.0.0'} where the baseline returned null in bo… |
-| 218 | LogicalOperator | `raw \|\| typeof raw.name === "string"` | hole | Turning && into \|\| short-circuits on a truthy raw, so the name check is never reached: measured the same accepted malformed stamps — {"version":"1.0.0"} -> {version:'1.0.0'} and {"name":7,...} -> {na… |
+| 120 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807518… |
+| 120 | ArrowFunction | `() => undefined` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807518… |
+| 120 | BooleanLiteral | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807518… |
+| 120 | BooleanLiteral | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807518… |
+| 139 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807518… |
+
+### corpusStamp — 4 survivor(s): 3 hole · 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 309 | StringLiteral | `""` | equivalent | "" is not a valid Node encoding, so readFileSync returns a Buffer instead of throwing, and JSON.parse stringifies that Buffer as UTF-8 — the same bytes 'utf8' would have produced. Verified directly (… |
+| 310 | ConditionalExpression | `true` | hole | Forcing the left conjunct to true drops the name guard: a corpus.json of {"version":"1.0.0"} returned {version:'1.0.0'} with no name (base null), and {"name":7,"version":"1.0.0"} returned {name:7,...… |
+| 310 | ConditionalExpression | `true` | hole | Replacing the typeof raw.name check with true accepts a stamp with no name or a numeric one: corpusStamp returned {version:'1.0.0'} and {name:7,version:'1.0.0'} where the baseline returned null in bo… |
+| 310 | LogicalOperator | `raw \|\| typeof raw.name === "string"` | hole | Turning && into \|\| short-circuits on a truthy raw, so the name check is never reached: measured the same accepted malformed stamps — {"version":"1.0.0"} -> {version:'1.0.0'} and {"name":7,...} -> {na… |
 
 ### corpusDrift — 1 survivor(s): 1 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 238 | ConditionalExpression | `true` | hole | Forcing the name comparison to true makes corpusDrift blind to a corpus NAME change: with the lock pinned to acme@1.0.0 and runward/rules/corpus.json holding other@1.0.0, corpusDrift returned null in… |
-
-### FRONTMATTER — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 18 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | Dropping the ^ anchor lets any ---...--- block in the file be read as frontmatter. Measured: content 'intro line\n\n---\ntitle: Sneaky\nimpact: CRITICAL\n---\n\nreal body' parsed to title 'Sneaky' / … |
+| 330 | ConditionalExpression | `true` | hole | Forcing the name comparison to true makes corpusDrift blind to a corpus NAME change: with the lock pinned to acme@1.0.0 and runward/rules/corpus.json holding other@1.0.0, corpusDrift returned null in… |
 
 ### matchRulesForPaths — 1 survivor(s): 1 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 110 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The injected element is a string, so b.path and b.category are undefined: b.path === path is never true, governs.includes(undefined) is never true, and boundCategories gains only undefined, which no … |
-
-### parseRule — 1 survivor(s): 1 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 24 | StringLiteral | `"Stryker was here!"` | equivalent | The sentinel only replaces fm on the no-frontmatter branch, and no field key (title:, impact:, phases:, asi:, tags:, impactDescription:, signature:, nonScope:, appliesTo:, governs:, noTerritory:, noA… |
-
-### readRuleSet — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 201 | MethodExpression | `readdirSync(dir).filter(f => f.endsWith(".m…` | hole | Removing .sort() makes the 'deterministic inventory' depend on readdir order, which Node leaves unspecified. Measured on a fixture rules directory where APFS's UTF-8 byte order differs from JS code-u… |
+| 202 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The injected element is a string, so b.path and b.category are undefined: b.path === path is never true, governs.includes(undefined) is never true, and boundCategories gains only undefined, which no … |
 
 ### ruleBody — 1 survivor(s): 1 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 187 | Regex | `/\n+/` | hole | /^\n+/ -> /\n+/ drops the anchor and (with no g flag) deletes the FIRST newline run anywhere instead of the leading ones. Measured on ruleBody: '# Heading\n\nbody\n' -> '# Headingbody\n', 'text\ntitl… |
+| 279 | Regex | `/\n+/` | hole | /^\n+/ -> /\n+/ drops the anchor and (with no g flag) deletes the FIRST newline run anywhere instead of the leading ones. Measured on ruleBody: '# Heading\n\nbody\n' -> '# Headingbody\n', 'text\ntitl… |
 
 ## Module: identity
 
