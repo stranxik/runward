@@ -3065,6 +3065,99 @@ Holes: 67 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 | ---: | ------- | ------- | -------- | ---- |
 | 142 | ArrowFunction | `() => undefined` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
 
+## Module: check-contract
+
+Survivors: 60
+
+Holes: 48 · Equivalent: 0 · Display-only: 11 · Defence-in-depth: 1
+
+**Whole net: last run 2026-09-29, against a net that has since changed** (recorded `2102deca2908…`, current `afe6d4026179…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+
+### nextStep — 44 survivor(s): 33 hole · 10 display-only · 1 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 155 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 155 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 155 | EqualityOperator | `v.level !== "attested"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 155 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 155 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 155 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 155 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 159 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 159 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 160 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 160 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 160 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 160 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 164 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 165 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 165 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 165 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 165 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 175 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 175 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 175 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 175 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 175 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 175 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 176 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 176 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 201 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
+| 201 | EqualityOperator | `b.seal >= 0` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
+| 205 | StringLiteral | `""` | defence-in-depth | Survives the unit suite; caught by the `smoke` leg of the whole-net pass of 2026-09-29 (scripts/mutation-wholenet.mjs, detection confirmed by a second run). The lead of the fill-deliverables gesture … |
+| 208 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
+| 209 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
+| 212 | StringLiteral | `""` | display-only | The lead of the corpus gesture becomes empty; both command segments stay. Measured on the edited-corpus and unrecorded-corpus missions: `next.text` and terminal text only; action `reconcile-corpus` a… |
+| 212 | StringLiteral | `""` | display-only | The commentary after `runward update`. Measured on both corpus missions: `next.text` and terminal text only; both commands still named. Survived the CI unit pass on this branch and the whole-net pass… |
+| 212 | StringLiteral | `""` | display-only | The commentary after `runward update --corpus <path>`. Measured on both corpus missions: `next.text` and terminal text only. Survived the CI unit pass on this branch and the whole-net pass of 2026-09… |
+| 214 | StringLiteral | `""` | display-only | The lead of the ratify-decisions gesture. Measured on the DRAFT ADR mission: `next.text` and terminal text only; action `ratify-decisions`, command and rerun unchanged. Survived the CI unit pass on t… |
+| 216 | StringLiteral | `""` | display-only | The lead of the close-conformance gesture. Measured on the dead-pointer mission: `next.text` and terminal text only; action `close-conformance-gaps` and command unchanged. Survived the CI unit pass o… |
+| 221 | StringLiteral | `""` | display-only | The lead of the ratify-decided-rows gesture; the two command segments stay. Measured on the regulated mission: `next.text` and terminal text only; action `ratify-decided-rows`, command `runward ratif… |
+| 221 | StringLiteral | `""` | display-only | The `, then re-run ` between the two commands. Measured on the regulated mission: `next.text` and terminal text only; both commands still named, in order. Survived the CI unit pass on this branch and… |
+| 221 | StringLiteral | `""` | display-only | The final full stop. Measured on the regulated mission: `next.text` and terminal text only. Survived the CI unit pass on this branch and the whole-net pass of 2026-09-29 (scripts/mutation-wholenet.mj… |
+| 225 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
+| 232 | StringLiteral | `""` | display-only | The fallback branch of nextStep (a red run no counted term explains) loses the word `Re-run ` before the command. Direct calls over 1,536 verdict shapes: 4 differ, all in that branch, and only in the… |
+| 232 | StringLiteral | `""` | display-only | Same fallback branch: the full stop after the command disappears. 4 of 1,536 direct calls differ, only in segment text and `next.text`; action, command and rerun identical. Survived the CI unit pass … |
+| 238 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
+| 239 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
+
+### attestedQuestion — 8 survivor(s): 8 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 120 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 120 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 120 | LogicalOperator | `strict \|\| opts.require` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 120 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 121 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 121 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 121 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+| 121 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+
+### conformanceEntries — 6 survivor(s): 6 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 389 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
+| 389 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
+| 389 | LogicalOperator | `c.deliverable !== undefined \|\| c.rule !== u…` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
+| 391 | StringLiteral | `ˋˋ` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
+| 392 | OptionalChaining | `meta.phase` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
+| 407 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42807507… |
+
+### optionFault — 1 survivor(s): 1 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 94 | StringLiteral | `""` | display-only | The only true cosmetic of the batch. Measured: exit 2 kept, message '--json--sarif each write a different document... Run runward check once per document you need.' — BOTH flag names stay present and… |
+
+### ratificationPayload — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 433 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3949482… |
+
 ## Module: sarif
 
 Survivors: 57
@@ -3451,66 +3544,6 @@ Holes: 33 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 128 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-## Module: check-contract
-
-Survivors: 32
-
-Holes: 17 · Equivalent: 2 · Display-only: 12 · Defence-in-depth: 1
-
-**Whole net: last run 2026-09-29, against a net that has since changed** (recorded `2102deca2908…`, current `afe6d4026179…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
-
-### nextStep — 24 survivor(s): 10 hole · 2 equivalent · 11 display-only · 1 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 110 | StringLiteral | `""` | display-only | The muted tone becomes the plain one. Tone is dropped from the payload by nextPayload, so no machine surface sees it: the 121 NO_COLOR runs are byte-identical and 384 of 1,536 direct calls differ onl… |
-| 134 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
-| 134 | EqualityOperator | `b.seal >= 0` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
-| 138 | StringLiteral | `""` | defence-in-depth | Survives the unit suite; caught by the `smoke` leg of the whole-net pass of 2026-09-29 (scripts/mutation-wholenet.mjs, detection confirmed by a second run). The lead of the fill-deliverables gesture … |
-| 141 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
-| 142 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
-| 145 | StringLiteral | `""` | display-only | The lead of the corpus gesture becomes empty; both command segments stay. Measured on the edited-corpus and unrecorded-corpus missions: `next.text` and terminal text only; action `reconcile-corpus` a… |
-| 145 | StringLiteral | `""` | display-only | The commentary after `runward update`. Measured on both corpus missions: `next.text` and terminal text only; both commands still named. Survived the CI unit pass on this branch and the whole-net pass… |
-| 145 | StringLiteral | `""` | display-only | The commentary after `runward update --corpus <path>`. Measured on both corpus missions: `next.text` and terminal text only. Survived the CI unit pass on this branch and the whole-net pass of 2026-09… |
-| 147 | StringLiteral | `""` | display-only | The lead of the ratify-decisions gesture. Measured on the DRAFT ADR mission: `next.text` and terminal text only; action `ratify-decisions`, command and rerun unchanged. Survived the CI unit pass on t… |
-| 149 | StringLiteral | `""` | display-only | The lead of the close-conformance gesture. Measured on the dead-pointer mission: `next.text` and terminal text only; action `close-conformance-gaps` and command unchanged. Survived the CI unit pass o… |
-| 154 | StringLiteral | `""` | display-only | The lead of the ratify-decided-rows gesture; the two command segments stay. Measured on the regulated mission: `next.text` and terminal text only; action `ratify-decided-rows`, command `runward ratif… |
-| 154 | StringLiteral | `""` | display-only | The `, then re-run ` between the two commands. Measured on the regulated mission: `next.text` and terminal text only; both commands still named, in order. Survived the CI unit pass on this branch and… |
-| 154 | StringLiteral | `""` | display-only | The final full stop. Measured on the regulated mission: `next.text` and terminal text only. Survived the CI unit pass on this branch and the whole-net pass of 2026-09-29 (scripts/mutation-wholenet.mj… |
-| 158 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-| 161 | StringLiteral | `""` | display-only | The fallback branch of nextStep (a red run no counted term explains) loses the word `Re-run ` before the command. Direct calls over 1,536 verdict shapes: 4 differ, all in that branch, and only in the… |
-| 161 | StringLiteral | `""` | display-only | Same fallback branch: the full stop after the command disappears. 4 of 1,536 direct calls differ, only in segment text and `next.text`; action, command and rerun identical. Survived the CI unit pass … |
-| 165 | ConditionalExpression | `true` | equivalent | `v.gaps > 0` forced true inside statusSeesIt. The expression is only evaluated on a red run (the green return above it takes every case where gaps, strictGaps and hookFailed are all 0), and on a red … |
-| 165 | EqualityOperator | `v.gaps >= 0` | equivalent | `v.gaps > 0` -> `v.gaps >= 0`: differs from the original only at gaps === 0, which on a red run implies strictGaps > 0 or hookFailed > 0 and falsifies the conjunction anyway. Measured: 0 of 1,536 dir… |
-| 167 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
-| 168 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
-| 171 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
-| 171 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
-| 171 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061743… |
-
-### conformanceEntries — 5 survivor(s): 5 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 311 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-| 311 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-| 311 | LogicalOperator | `c.deliverable !== undefined \|\| c.rule !== u…` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-| 313 | StringLiteral | `ˋˋ` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-| 314 | OptionalChaining | `meta.phase` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-
-### optionFault — 2 survivor(s): 1 hole · 1 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 54 | EqualityOperator | `i <= files.length` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3949482… |
-| 77 | StringLiteral | `""` | display-only | The only true cosmetic of the batch. Measured: exit 2 kept, message '--json--sarif each write a different document... Run runward check once per document you need.' — BOTH flag names stay present and… |
-
-### ratificationPayload — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 349 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3949482… |
 
 ## Module: scaffold-lock
 

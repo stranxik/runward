@@ -17,9 +17,9 @@
     },
     {
       "module": "check-contract",
-      "sha256": "2675d7242fea8d34a4a48b6ed77b7526e4d1557c9219d5960cc3faa49c079973",
-      "run": "40617435500",
-      "measuredAt": "2026-10-28"
+      "sha256": "d9a73b3c7d518061f828656528691992dafd14ca24d9958efa7523948216fa9e",
+      "run": "42807507563",
+      "measuredAt": "2026-11-10"
     },
     {
       "module": "citations",
