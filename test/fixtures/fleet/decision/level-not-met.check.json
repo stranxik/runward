@@ -1,0 +1,2008 @@
+{
+  "runward": "0.46.0",
+  "mission": "(fixture: init --example, check --strict --require attested, by the CLI of this tree at 5a9cdf0, unreleased)",
+  "currentGate": "deliverables filled, below the level of proof the run required (attested)",
+  "adrCount": 3,
+  "strict": true,
+  "verdict": "level-not-met",
+  "exitCode": 5,
+  "gaps": {
+    "deliverables": 0,
+    "conformance": 0,
+    "hooks": 0,
+    "deferred": 0,
+    "proposed": 0,
+    "analysis": 0,
+    "causesByKind": {}
+  },
+  "deliverables": [
+    {
+      "phase": "1 · Frame",
+      "artifact": "Framing note",
+      "relPath": "framing.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "frame"
+    },
+    {
+      "phase": "1 · Frame",
+      "artifact": "Steering contract",
+      "relPath": "mission-contract.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "frame"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Architecture note",
+      "relPath": "architecture.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Execution topology",
+      "relPath": "execution-topology.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Decision matrix",
+      "relPath": "decision-matrix.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Decision journal (≥1 ADR)",
+      "relPath": "adr",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Port contracts (≥1 filled)",
+      "relPath": "contracts",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "3 · Floor",
+      "artifact": "Floor note (measured proof)",
+      "relPath": "floor.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "floor"
+    },
+    {
+      "phase": "5 · Govern (day zero)",
+      "artifact": "Threat model",
+      "relPath": "governance/threat-model.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "govern"
+    },
+    {
+      "phase": "5 · Govern (day zero)",
+      "artifact": "Evaluation rubric",
+      "relPath": "governance/evaluation-rubric.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "govern"
+    },
+    {
+      "phase": "5 · Govern (day zero)",
+      "artifact": "Observability schema",
+      "relPath": "governance/observability-schema.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "govern"
+    },
+    {
+      "phase": "6 · Hand over",
+      "artifact": "Recovery runbook",
+      "relPath": "runbook.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "handover"
+    },
+    {
+      "phase": "6 · Hand over",
+      "artifact": "Hand-over note (the kit, proven)",
+      "relPath": "handover.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "handover"
+    }
+  ],
+  "through": null,
+  "horizon": null,
+  "corpusPin": null,
+  "corpusDrift": null,
+  "conformance": [],
+  "evidence": {
+    "rows": 46,
+    "applied": 24,
+    "deviated": 0,
+    "na": 22,
+    "typed": 24,
+    "prose": 0,
+    "proseRows": [],
+    "signed": 5,
+    "evidenceFiles": {
+      "total": 21,
+      "external": 18
+    },
+    "duplicated": []
+  },
+  "corpus": {
+    "status": "verifiable",
+    "missing": [],
+    "edited": [],
+    "extra": []
+  },
+  "seal": {
+    "present": false,
+    "count": 0,
+    "sealedAt": null,
+    "violations": 0
+  },
+  "criticalScope": {
+    "total": 45,
+    "mapped": 41,
+    "unmapped": [
+      "patterns-memory-router-tiered",
+      "routing-model-cost-ratios",
+      "routing-smart-complexity",
+      "scaling-distributed-rate-limiting"
+    ]
+  },
+  "ratification": {
+    "rows": 0,
+    "lineByLine": 0,
+    "enBloc": 0,
+    "blind": 0,
+    "untraced": 46,
+    "byRow": [
+      {
+        "deliverable": "architecture.md",
+        "rule": "contracts-governance",
+        "phaseId": "architect",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "23c8a6a551012152",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "architecture.md",
+        "rule": "hexa-architecture",
+        "phaseId": "architect",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "ade366ccb97822b0",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "architecture.md",
+        "rule": "hexa-adapter-pattern",
+        "phaseId": "architect",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "d38a552748a4497c",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "architecture.md",
+        "rule": "hexa-typescript-native",
+        "phaseId": "architect",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "f9ee519225869534",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "architecture.md",
+        "rule": "process-adr-and-journal",
+        "phaseId": "architect",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "935fff06ac837645",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "architecture.md",
+        "rule": "security-mcp-server-pinning",
+        "phaseId": "architect",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "a672c2967a402eba",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "execution-topology.md",
+        "rule": "topology-port-placement-mapped",
+        "phaseId": "topology",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "cc97154fc5a1113a",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "execution-topology.md",
+        "rule": "topology-sovereignty-by-data-class",
+        "phaseId": "topology",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "33c3065f1e16a26b",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "execution-topology.md",
+        "rule": "topology-trace-export-decision",
+        "phaseId": "topology",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "e397c7ca5a41d43c",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "execution-topology.md",
+        "rule": "topology-usage-registry-present",
+        "phaseId": "topology",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "29961da2b3b2cacb",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "frontier-deterministic-boundary",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "6c07069ecbd765b9",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "hexa-move-deterministic-out",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "d2a357986ce09787",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "config-secrets-boundary",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "2724d5360369153c",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "provider-llm-auto-detection",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "1da06559daeffed9",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "security-prompt-injection",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "f66978e99446371f",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "hexa-architecture",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "1a43c398708ccea2",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "hexa-adapter-pattern",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "bbc0b9899d92134b",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "provider-no-crash-missing-env",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "2d0d5987034cbf94",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "state-event-sourcing",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "85696f3f7432b83e",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "tools-scope-atomicity",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "f3f08985680cad62",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "async-post-turn-pipeline",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "20a303677f11d964",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "checklist-day-zero-project",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "2884243c4697fe36",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "data-migrations-forward-only",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "b35b8940127eb879",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "scaling-state-externalization",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "e8e05fb2b7f2c621",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "tools-registry-pattern",
+        "phaseId": "floor",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "0d75ce5fe28c99c2",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "eval-loop",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "d40547c99f10027d",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "security-prompt-injection",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "acb96d24a55336ff",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "config-secrets-boundary",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "c1811f8815649cc2",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "resilience-fail-open",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "c835a0909b2f6402",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "resilience-multi-provider-fallback",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "aefd5be9d6c9c68e",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "resilience-retry-backoff",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "2958d68ca8d9036f",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "async-job-guardrails",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "991f2ded1249d713",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "security-mcp-server-pinning",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "5d5c8fd9a84a9b6b",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "security-tool-change-reapproval",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "b849683653a72121",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "data-memory-provenance",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "b04ba9c765f9bc21",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "security-code-execution-sandbox",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "99f77c92b4de0322",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "security-human-agent-trust",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "6dff1643988c3f00",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "checklist-pre-production-observability",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "14fc787e3f1971aa",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "checklist-pre-production-performance",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "7123d951a01968d5",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "checklist-pre-production-resilience",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "cb75cdb32ec09ca2",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "checklist-pre-production-security",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "63dfd18379b010c3",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "routing-confidence-upgrade",
+        "phaseId": "govern",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "664b1a1af02c0bc0",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "handover.md",
+        "rule": "handover-redone-task-proof",
+        "phaseId": "handover",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "4a04165a791176d5",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "handover.md",
+        "rule": "handover-runbook-executable",
+        "phaseId": "handover",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "515b6a8c76d370f2",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "handover.md",
+        "rule": "handover-agents-charter-final",
+        "phaseId": "handover",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "1f009f43921f59c9",
+        "unboundCause": null
+      },
+      {
+        "deliverable": "handover.md",
+        "rule": "handover-succession-named",
+        "phaseId": "handover",
+        "state": "untraced",
+        "mode": null,
+        "by": null,
+        "for": null,
+        "date": null,
+        "bound": null,
+        "current": "014f7888e69af3dc",
+        "unboundCause": null
+      }
+    ]
+  },
+  "requiresUnmet": [],
+  "prosePointers": [],
+  "workflowContract": {
+    "gating": true,
+    "malformed": [],
+    "joinBreaks": [],
+    "unmetRequires": []
+  },
+  "gateNonScope": "A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Under an analysis policy the mission pins (ADR-0118), the gate also reads the delivered source text, without running it, for the invariants the mission declares: that reading can say a declared invariant is broken, never that the code is good. Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. A ratification trace records that someone declared answering the displayed evidence; runward cannot tell who, or whether a person answered at all, and it never proves they understood it.",
+  "require": {
+    "level": "attested",
+    "met": false
+  },
+  "committedJUnit": {
+    "rows": 12,
+    "reports": [
+      "code/reports/junit.xml"
+    ],
+    "freshness": "not verified by this command"
+  },
+  "analysis": {
+    "policy": "runward-analysis/1",
+    "known": true,
+    "files": {
+      "analysed": 18,
+      "tests": 1,
+      "core": 7,
+      "config": 4
+    },
+    "findings": [],
+    "hypotheses": [],
+    "notAnalyzed": [],
+    "excluded": [
+      {
+        "path": ".git",
+        "by": "runward-analysis/1 (installed dependencies or version control)"
+      }
+    ],
+    "allowances": {
+      "file": "runward/analysis.md",
+      "present": true,
+      "used": [
+        {
+          "line": 12,
+          "text": "| `zod` | validates the shape of the model's proposal inside the domain (`code/src/core/domain/triage.ts`): a pure library, no I/O, no clock, no environment |",
+          "uses": 1
+        },
+        {
+          "line": 18,
+          "text": "| `code/scripts/junit-committable.mjs` | `process-execution` | runs the example's own test suite to write the committed JUnit report; build tooling that no delivered module imports |",
+          "uses": 1
+        },
+        {
+          "line": 19,
+          "text": "| `code/scripts/coverage-committable.mjs` | `process-execution` | runs the example's own test suite under Node.js's coverage to write the committed LCOV report; build tooling that no delivered module imports |",
+          "uses": 1
+        },
+        {
+          "line": 20,
+          "text": "| `code/scripts/reports.mjs` | `process-execution` | runs the three report scripts, and with `--check` regenerates the reports into a scratch directory to compare them with the committed ones (the CI hook, `runward/hooks.json`); build tooling that no delivered module imports |",
+          "uses": 1
+        }
+      ],
+      "inert": [],
+      "problems": []
+    },
+    "nonScope": "The built-in analyzers read the delivered source text at rest, under the policy the mission pins; they run nothing and call no model. A finding is an invariant the mission declared (its territory, its allowances, its cited files and symbols, its committed reports) that the code breaks. No finding is not a judgment that the code is good, correct or secure: it says these checks found nothing, in the languages the policy reads."
+  },
+  "levels": {
+    "required": "attested",
+    "source": "flag",
+    "met": false,
+    "sentence": "attested: the binding is re-derived by this command; the signature is verified outside it",
+    "signatureVerified": false,
+    "counts": {
+      "re-derived": 24,
+      "attested": 0,
+      "declared": 0
+    },
+    "rows": {
+      "re-derived": [
+        {
+          "deliverable": "architecture.md",
+          "rule": "contracts-governance",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/src/core/ports/model-provider.port.ts#TriageModelPort",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"routing port refuses, fail-closed, a record with model-proposed action-bearing fields\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "junit",
+            "attested": false
+          },
+          "mutation": {
+            "state": "absent",
+            "met": false,
+            "why": "no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+          }
+        },
+        {
+          "deliverable": "architecture.md",
+          "rule": "hexa-architecture",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/src/core/application/triage-request.usecase.ts#TriageRequestUseCase",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "file:code/eslint.config.mjs#no-restricted-imports",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "file:code/reports/eslint.json#src/core/application/triage-request.usecase.ts",
+              "kind": "execution",
+              "nature": "eslint",
+              "report": "code/reports/eslint.json",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "file:code/reports/eslint.sarif#no-restricted-imports",
+              "kind": "execution",
+              "nature": "sarif",
+              "report": "code/reports/eslint.sarif",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "eslint",
+            "attested": false
+          }
+        },
+        {
+          "deliverable": "architecture.md",
+          "rule": "hexa-adapter-pattern",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/src/adapters/keyword-model.adapter.ts#KeywordModelAdapter",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "file:code/reports/eslint.json#src/core/application/triage-request.usecase.ts",
+              "kind": "execution",
+              "nature": "eslint",
+              "report": "code/reports/eslint.json",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "file:code/reports/eslint.sarif#no-restricted-imports",
+              "kind": "execution",
+              "nature": "sarif",
+              "report": "code/reports/eslint.sarif",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "eslint",
+            "attested": false
+          }
+        },
+        {
+          "deliverable": "architecture.md",
+          "rule": "process-adr-and-journal",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "adr:0001",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            }
+          ]
+        },
+        {
+          "deliverable": "execution-topology.md",
+          "rule": "topology-port-placement-mapped",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/src/core/ports/routing.port.ts#RoutingPort",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "adr:0003",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            }
+          ]
+        },
+        {
+          "deliverable": "execution-topology.md",
+          "rule": "topology-sovereignty-by-data-class",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/src/adapters/hardcoded-account-registry.adapter.ts",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "adr:0003",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            }
+          ]
+        },
+        {
+          "deliverable": "execution-topology.md",
+          "rule": "topology-usage-registry-present",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:runward/governance/usage-registry.md#triage-bot",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            }
+          ]
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "frontier-deterministic-boundary",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "test:code/reports/junit.xml::\"guard: a fabricated account reference never routes — escalated to review\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "file:code/src/core/domain/guard.ts#guardFields",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "file:code/reports/lcov.info#src/core/domain/guard.ts",
+              "kind": "execution",
+              "nature": "coverage",
+              "report": "code/reports/lcov.info",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "junit",
+            "attested": false
+          },
+          "mutation": {
+            "state": "absent",
+            "met": false,
+            "why": "no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+          }
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "hexa-move-deterministic-out",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/src/core/domain/guard.ts#parseDeadline",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"guard: the deadline is re-parsed from the source text; the model's proposal is discarded\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "junit",
+            "attested": false
+          },
+          "mutation": {
+            "state": "absent",
+            "met": false,
+            "why": "no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+          }
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "security-prompt-injection",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "test:code/test/triage.test.ts",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"guard: the deadline is re-parsed from the source text; the model's proposal is discarded\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "file:code/reports/eslint.sarif#no-eval",
+              "kind": "execution",
+              "nature": "sarif",
+              "report": "code/reports/eslint.sarif",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "file:code/reports/eslint.sarif#no-new-func",
+              "kind": "execution",
+              "nature": "sarif",
+              "report": "code/reports/eslint.sarif",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "junit",
+            "attested": false
+          }
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "hexa-architecture",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/src/core/domain/triage.ts",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "file:code/eslint.config.mjs#no-restricted-imports",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "file:code/reports/eslint.json#src/core/domain/triage.ts",
+              "kind": "execution",
+              "nature": "eslint",
+              "report": "code/reports/eslint.json",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "file:code/reports/eslint.json#src/core/domain/guard.ts",
+              "kind": "execution",
+              "nature": "eslint",
+              "report": "code/reports/eslint.json",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "file:code/reports/eslint.sarif#no-restricted-imports",
+              "kind": "execution",
+              "nature": "sarif",
+              "report": "code/reports/eslint.sarif",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "eslint",
+            "attested": false
+          }
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "hexa-adapter-pattern",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/src/adapters/in-memory-routing.adapter.ts",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "file:code/reports/eslint.json#src/core/application/triage-request.usecase.ts",
+              "kind": "execution",
+              "nature": "eslint",
+              "report": "code/reports/eslint.json",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "file:code/reports/eslint.sarif#no-restricted-imports",
+              "kind": "execution",
+              "nature": "sarif",
+              "report": "code/reports/eslint.sarif",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "eslint",
+            "attested": false
+          }
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "provider-no-crash-missing-env",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/src/adapters/keyword-model.adapter.ts",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"support request: classified and routed to the support queue\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"sales request: classified and routed to the sales queue\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"compliance beats overlapping signals: a privacy request that also says 'help' is compliance\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"guard: an account reference that resolves in the registry is verified\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"guard: the deadline parser rejects well-shaped non-dates\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"compliance resume reject: the routing never happens\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"routing port is idempotent on requestId: no duplicate tickets\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"input boundary: a malformed payload is rejected, unknown keys included\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "junit",
+            "attested": false
+          },
+          "mutation": {
+            "state": "absent",
+            "met": false,
+            "why": "no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+          }
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "state-event-sourcing",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/src/adapters/in-memory-triage-log.adapter.ts",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"compliance resume approve: routed to the compliance queue with the approval recorded\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "file:code/reports/lcov.info#src/adapters/in-memory-triage-log.adapter.ts",
+              "kind": "execution",
+              "nature": "coverage",
+              "report": "code/reports/lcov.info",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "junit",
+            "attested": false
+          },
+          "mutation": {
+            "state": "absent",
+            "met": false,
+            "why": "no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+          }
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "tools-scope-atomicity",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/src/core/ports/routing.port.ts#RoutingApproval",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"routing port refuses, fail-closed, a record with model-proposed action-bearing fields\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "junit",
+            "attested": false
+          },
+          "mutation": {
+            "state": "absent",
+            "met": false,
+            "why": "no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+          }
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "checklist-day-zero-project",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/package.json",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "test:code/test/triage.test.ts",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"compliance: suspended awaiting approval, never routed silently\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "file:code/reports/eslint.sarif#no-restricted-syntax",
+              "kind": "execution",
+              "nature": "sarif",
+              "report": "code/reports/eslint.sarif",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "file:code/scripts/reports.mjs#--check",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "file:runward/hooks.json#reports:fresh",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            }
+          ],
+          "requires": {
+            "nature": "junit",
+            "attested": false
+          }
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "eval-loop",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "test:code/test/triage.test.ts",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"unknown category: the system abstains, nothing is routed\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "junit",
+            "attested": false
+          }
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "security-prompt-injection",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/src/core/domain/guard.ts#guardFields",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"guard: a fabricated account reference never routes — escalated to review\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "file:code/reports/eslint.sarif#no-eval",
+              "kind": "execution",
+              "nature": "sarif",
+              "report": "code/reports/eslint.sarif",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "file:code/reports/eslint.sarif#no-new-func",
+              "kind": "execution",
+              "nature": "sarif",
+              "report": "code/reports/eslint.sarif",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "junit",
+            "attested": false
+          },
+          "mutation": {
+            "state": "absent",
+            "met": false,
+            "why": "no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+          }
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "resilience-fail-open",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "test:code/reports/junit.xml::\"routing port refuses, fail-closed, a record with model-proposed action-bearing fields\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            },
+            {
+              "pointer": "file:code/reports/lcov.info#src/adapters/in-memory-routing.adapter.ts",
+              "kind": "execution",
+              "nature": "coverage",
+              "report": "code/reports/lcov.info",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "junit",
+            "attested": false
+          }
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "security-human-agent-trust",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/src/core/domain/guard.ts#buildApprovalSummary",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "test:code/reports/junit.xml::\"compliance: suspended awaiting approval, never routed silently\"",
+              "kind": "execution",
+              "nature": "junit",
+              "report": "code/reports/junit.xml",
+              "level": "declared",
+              "setsLevel": false,
+              "why": "no run Statement in code/reports/ has its digest among its subjects"
+            }
+          ],
+          "requires": {
+            "nature": "junit",
+            "attested": false
+          },
+          "mutation": {
+            "state": "absent",
+            "met": false,
+            "why": "no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+          }
+        },
+        {
+          "deliverable": "handover.md",
+          "rule": "handover-redone-task-proof",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:code/test/triage.test.ts",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            },
+            {
+              "pointer": "file:runward/runbook.md#Recovery",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            }
+          ]
+        },
+        {
+          "deliverable": "handover.md",
+          "rule": "handover-runbook-executable",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:runward/runbook.md#Recovery",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            }
+          ]
+        },
+        {
+          "deliverable": "handover.md",
+          "rule": "handover-agents-charter-final",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:AGENTS.md#Never",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            }
+          ]
+        },
+        {
+          "deliverable": "handover.md",
+          "rule": "handover-succession-named",
+          "level": "re-derived",
+          "pieces": [
+            {
+              "pointer": "file:runward/runbook.md#Contacts",
+              "kind": "static",
+              "level": "re-derived",
+              "setsLevel": true
+            }
+          ]
+        }
+      ],
+      "attested": [],
+      "declared": []
+    },
+    "territory": {
+      "analysed": true,
+      "files": 18,
+      "languagesNotAnalysed": [],
+      "why": null
+    },
+    "below": [
+      {
+        "deliverable": "architecture.md",
+        "rule": "contracts-governance",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/junit.xml (no run Statement in code/reports/ has its digest among its subjects)",
+          "mutation: no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+        ]
+      },
+      {
+        "deliverable": "architecture.md",
+        "rule": "hexa-architecture",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/eslint.json (no run Statement in code/reports/ has its digest among its subjects)",
+          "execution: declared — code/reports/eslint.sarif (no run Statement in code/reports/ has its digest among its subjects)"
+        ]
+      },
+      {
+        "deliverable": "architecture.md",
+        "rule": "hexa-adapter-pattern",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/eslint.json (no run Statement in code/reports/ has its digest among its subjects)",
+          "execution: declared — code/reports/eslint.sarif (no run Statement in code/reports/ has its digest among its subjects)"
+        ]
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "frontier-deterministic-boundary",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/junit.xml (no run Statement in code/reports/ has its digest among its subjects)",
+          "execution: declared — code/reports/lcov.info (no run Statement in code/reports/ has its digest among its subjects)",
+          "mutation: no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+        ]
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "hexa-move-deterministic-out",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/junit.xml (no run Statement in code/reports/ has its digest among its subjects)",
+          "mutation: no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+        ]
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "security-prompt-injection",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/junit.xml (no run Statement in code/reports/ has its digest among its subjects)",
+          "execution: declared — code/reports/eslint.sarif (no run Statement in code/reports/ has its digest among its subjects)"
+        ]
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "hexa-architecture",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/eslint.json (no run Statement in code/reports/ has its digest among its subjects)",
+          "execution: declared — code/reports/eslint.sarif (no run Statement in code/reports/ has its digest among its subjects)"
+        ]
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "hexa-adapter-pattern",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/eslint.json (no run Statement in code/reports/ has its digest among its subjects)",
+          "execution: declared — code/reports/eslint.sarif (no run Statement in code/reports/ has its digest among its subjects)"
+        ]
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "provider-no-crash-missing-env",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/junit.xml (no run Statement in code/reports/ has its digest among its subjects)",
+          "mutation: no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+        ]
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "state-event-sourcing",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/junit.xml (no run Statement in code/reports/ has its digest among its subjects)",
+          "execution: declared — code/reports/lcov.info (no run Statement in code/reports/ has its digest among its subjects)",
+          "mutation: no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+        ]
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "tools-scope-atomicity",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/junit.xml (no run Statement in code/reports/ has its digest among its subjects)",
+          "mutation: no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+        ]
+      },
+      {
+        "deliverable": "floor.md",
+        "rule": "checklist-day-zero-project",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/junit.xml (no run Statement in code/reports/ has its digest among its subjects)",
+          "execution: declared — code/reports/eslint.sarif (no run Statement in code/reports/ has its digest among its subjects)"
+        ]
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "eval-loop",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/junit.xml (no run Statement in code/reports/ has its digest among its subjects)"
+        ]
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "security-prompt-injection",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/junit.xml (no run Statement in code/reports/ has its digest among its subjects)",
+          "execution: declared — code/reports/eslint.sarif (no run Statement in code/reports/ has its digest among its subjects)",
+          "mutation: no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+        ]
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "resilience-fail-open",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/junit.xml (no run Statement in code/reports/ has its digest among its subjects)",
+          "execution: declared — code/reports/lcov.info (no run Statement in code/reports/ has its digest among its subjects)"
+        ]
+      },
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "security-human-agent-trust",
+        "level": "re-derived",
+        "holds": [
+          "execution: declared — code/reports/junit.xml (no run Statement in code/reports/ has its digest among its subjects)",
+          "mutation: no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)"
+        ]
+      }
+    ],
+    "execution": {
+      "statements": [],
+      "expected": {
+        "rule": "the files the built-in analyzers read under the pinned policy (source and configuration files), the files the applied rows cite and the tests they cite, less the execution reports (the run's subjects) and the in-toto Statements, envelopes and bundles; each hashed by SHA-256 of its content, with CRLF read as LF in a text file",
+        "files": [
+          "AGENTS.md",
+          "code/eslint.config.mjs",
+          "code/package.json",
+          "code/scripts/coverage-committable.mjs",
+          "code/scripts/junit-committable.mjs",
+          "code/scripts/lint-committable.mjs",
+          "code/scripts/reports.mjs",
+          "code/src/adapters/hardcoded-account-registry.adapter.ts",
+          "code/src/adapters/in-memory-routing.adapter.ts",
+          "code/src/adapters/in-memory-triage-log.adapter.ts",
+          "code/src/adapters/keyword-model.adapter.ts",
+          "code/src/core/application/triage-request.usecase.ts",
+          "code/src/core/domain/guard.ts",
+          "code/src/core/domain/triage.ts",
+          "code/src/core/ports/account-registry.port.ts",
+          "code/src/core/ports/model-provider.port.ts",
+          "code/src/core/ports/routing.port.ts",
+          "code/src/core/ports/triage-log.port.ts",
+          "code/src/demo.ts",
+          "code/test/triage.test.ts",
+          "code/tsconfig.json",
+          "runward/governance/usage-registry.md",
+          "runward/hooks.json",
+          "runward/runbook.md"
+        ],
+        "manifests": [
+          "runward/architecture.md",
+          "runward/execution-topology.md",
+          "runward/floor.md",
+          "runward/governance/threat-model.md",
+          "runward/handover.md"
+        ],
+        "manifestsDigest": "e72c7c5c6caa5b5d9436e3952f761aa2acad290f3479f14f587aeccd00c2e6be"
+      },
+      "mutation": "8 applied row(s) cite a code location and a test, and no signed run Statement bound here carries the mutation of their cited lines (runward-run's mutation leg, ADR-0120 decision 2): none of them reaches attested",
+      "mutationTargets": [
+        {
+          "deliverable": "architecture.md",
+          "rule": "contracts-governance",
+          "locations": [
+            {
+              "file": "code/src/core/ports/model-provider.port.ts",
+              "from": 24,
+              "to": 26
+            }
+          ],
+          "tests": [
+            {
+              "report": "code/reports/junit.xml",
+              "name": "routing port refuses, fail-closed, a record with model-proposed action-bearing fields"
+            }
+          ]
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "frontier-deterministic-boundary",
+          "locations": [
+            {
+              "file": "code/src/core/domain/guard.ts",
+              "from": 68,
+              "to": 100
+            }
+          ],
+          "tests": [
+            {
+              "report": "code/reports/junit.xml",
+              "name": "guard: a fabricated account reference never routes — escalated to review"
+            }
+          ]
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "hexa-move-deterministic-out",
+          "locations": [
+            {
+              "file": "code/src/core/domain/guard.ts",
+              "from": 30,
+              "to": 47
+            }
+          ],
+          "tests": [
+            {
+              "report": "code/reports/junit.xml",
+              "name": "guard: the deadline is re-parsed from the source text; the model's proposal is discarded"
+            }
+          ]
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "provider-no-crash-missing-env",
+          "locations": [
+            {
+              "file": "code/src/adapters/keyword-model.adapter.ts",
+              "from": 1,
+              "to": 57
+            }
+          ],
+          "tests": [
+            {
+              "report": "code/reports/junit.xml",
+              "name": "compliance beats overlapping signals: a privacy request that also says 'help' is compliance"
+            },
+            {
+              "report": "code/reports/junit.xml",
+              "name": "compliance resume reject: the routing never happens"
+            },
+            {
+              "report": "code/reports/junit.xml",
+              "name": "guard: an account reference that resolves in the registry is verified"
+            },
+            {
+              "report": "code/reports/junit.xml",
+              "name": "guard: the deadline parser rejects well-shaped non-dates"
+            },
+            {
+              "report": "code/reports/junit.xml",
+              "name": "input boundary: a malformed payload is rejected, unknown keys included"
+            },
+            {
+              "report": "code/reports/junit.xml",
+              "name": "routing port is idempotent on requestId: no duplicate tickets"
+            },
+            {
+              "report": "code/reports/junit.xml",
+              "name": "sales request: classified and routed to the sales queue"
+            },
+            {
+              "report": "code/reports/junit.xml",
+              "name": "support request: classified and routed to the support queue"
+            }
+          ]
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "state-event-sourcing",
+          "locations": [
+            {
+              "file": "code/src/adapters/in-memory-triage-log.adapter.ts",
+              "from": 1,
+              "to": 42
+            }
+          ],
+          "tests": [
+            {
+              "report": "code/reports/junit.xml",
+              "name": "compliance resume approve: routed to the compliance queue with the approval recorded"
+            }
+          ]
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "tools-scope-atomicity",
+          "locations": [
+            {
+              "file": "code/src/core/ports/routing.port.ts",
+              "from": 14,
+              "to": 17
+            }
+          ],
+          "tests": [
+            {
+              "report": "code/reports/junit.xml",
+              "name": "routing port refuses, fail-closed, a record with model-proposed action-bearing fields"
+            }
+          ]
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "security-prompt-injection",
+          "locations": [
+            {
+              "file": "code/src/core/domain/guard.ts",
+              "from": 68,
+              "to": 100
+            }
+          ],
+          "tests": [
+            {
+              "report": "code/reports/junit.xml",
+              "name": "guard: a fabricated account reference never routes — escalated to review"
+            }
+          ]
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "security-human-agent-trust",
+          "locations": [
+            {
+              "file": "code/src/core/domain/guard.ts",
+              "from": 106,
+              "to": 121
+            }
+          ],
+          "tests": [
+            {
+              "report": "code/reports/junit.xml",
+              "name": "compliance: suspended awaiting approval, never routed silently"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "next": {
+    "action": "attest-the-execution",
+    "command": "runward check --strict --require attested",
+    "rerun": "runward check --strict --require attested",
+    "text": "Bind the execution evidence each listed row cites: run its tests and tools with runward-run in a CI job the agent cannot change, commit the reports, the run Statement and the signature bundle the signing job writes beside them (runward ADR-0120), then re-run runward check --strict --require attested (the rows below the level are under `levels.below` in --json); or require the level below, by name: runward check --strict --require re-derived."
+  }
+}

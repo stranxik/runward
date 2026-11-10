@@ -870,6 +870,23 @@
 	<testcase name="the specification names every key the index carries: a key added without its line reddens" classname="test"/>
 	<testcase name="commitSource: the inventory may say where its commit was read from; the index carries it as declared, only when declared" classname="test"/>
 	<testcase name="one interface, two deployments: runward-fleet/site renders, from the index.json the build wrote, the page it wrote; both are golden" classname="test"/>
+	<testcase name="the closed lists are the values the CLI of this tree writes, read from its code; a planted value reddens" classname="test"/>
+	<testcase name="every closed value has its sentence, in both languages; a sentence taken out reddens, and an unknown value is shown as written" classname="test"/>
+	<testcase name="the specification shows the lexicon as it ships, in both languages; a sentence changed in the code and not in the specification reddens" classname="test"/>
+	<testcase name="the lexicon holds no word runward never says, in any form, in either language; each form planted reddens, the masculine singular after an accent included" classname="test"/>
+	<testcase name="the reading holds none of the method's words, in either language; each form planted in a sentence or a view reddens" classname="test"/>
+	<testcase name="no state reads as a decision taken: a planted Go reddens, in the lexicon and on the page; the title before your go / no-go passes" classname="test"/>
+	<testcase name="nothing is blocking is never shown without the team's requirements and the date of the last check; taken out, it reddens" classname="test"/>
+	<testcase name="the refused state of the renaming demonstration: every sentence from closed fields, the check's text shown as written and never read" classname="test"/>
+	<testcase name="the line of each refusal is the export's, projected into the index and tied to it on the page; a planted line reddens" classname="test"/>
+	<testcase name="how rows were endorsed: groups n / N from the index, partitioning the decided rows; no view computes a denominator" classname="test"/>
+	<testcase name="a row endorsed by an agent is worded as an agent's, under the person declared, never as a person's mode; a planted one is caught" classname="test"/>
+	<testcase name="names can be left out of an index: no declared person reaches it, the agent's line says the name is not published; a name left in a text is refused" classname="test"/>
+	<testcase name="a mission received as digests only has its own state, in both languages, and none of the others" classname="test"/>
+	<testcase name="a check received whose export writes no verdict says so, never that nothing was received" classname="test"/>
+	<testcase name="the reading shows no history of states: the index holds the last check only, and nothing of a replay reaches it" classname="test"/>
+	<testcase name="the decision readings of the real exports are golden, in both languages, and the same through the package's exports" classname="test"/>
+	<testcase name="the page opens on the decision reading, holds its rules and lexicon before it is written, and lists them on the sources view" classname="test"/>
 	<testcase name="ownText: the verbatim blocks and the tags come out as the former patterns took them out" classname="test"/>
 	<testcase name="resolvePath: the same value as the former pattern for every generated path, on one index" classname="test"/>
 	<testcase name="the numbers of a view and the paths it names: the former pattern's matches, and its substring test" classname="test"/>
@@ -2279,9 +2296,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2275 -->
+	<!-- tests 2292 -->
 	<!-- suites 0 -->
-	<!-- pass 2274 -->
+	<!-- pass 2291 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->
