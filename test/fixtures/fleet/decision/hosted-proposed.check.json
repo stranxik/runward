@@ -1,0 +1,660 @@
+{
+  "runward": "0.46.0",
+  "mission": "(fixture: stranxik/runward-hosted at a4ede14, runward 0.46.0 from npm)",
+  "currentGate": "6 · Hand over",
+  "adrCount": 17,
+  "strict": true,
+  "verdict": "gaps",
+  "exitCode": 1,
+  "gaps": {
+    "deliverables": 1,
+    "conformance": 46,
+    "hooks": 0,
+    "deferred": 0,
+    "proposed": 42,
+    "causesByKind": {
+      "missing-row": {
+        "count": 4,
+        "indices": [
+          42,
+          43,
+          44,
+          45
+        ]
+      },
+      "proposed": {
+        "count": 42,
+        "indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41
+        ]
+      }
+    }
+  },
+  "deliverables": [
+    {
+      "phase": "1 · Frame",
+      "artifact": "Framing note",
+      "relPath": "framing.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "frame"
+    },
+    {
+      "phase": "1 · Frame",
+      "artifact": "Steering contract",
+      "relPath": "mission-contract.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "frame"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Architecture note",
+      "relPath": "architecture.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Execution topology",
+      "relPath": "execution-topology.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Decision matrix",
+      "relPath": "decision-matrix.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Decision journal (≥1 ADR)",
+      "relPath": "adr",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "2 · Architect",
+      "artifact": "Port contracts (≥1 filled)",
+      "relPath": "contracts",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "architect"
+    },
+    {
+      "phase": "3 · Floor",
+      "artifact": "Floor note (measured proof)",
+      "relPath": "floor.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "floor"
+    },
+    {
+      "phase": "5 · Govern (day zero)",
+      "artifact": "Threat model",
+      "relPath": "governance/threat-model.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "govern"
+    },
+    {
+      "phase": "5 · Govern (day zero)",
+      "artifact": "Evaluation rubric",
+      "relPath": "governance/evaluation-rubric.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "govern"
+    },
+    {
+      "phase": "5 · Govern (day zero)",
+      "artifact": "Observability schema",
+      "relPath": "governance/observability-schema.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "govern"
+    },
+    {
+      "phase": "6 · Hand over",
+      "artifact": "Recovery runbook",
+      "relPath": "runbook.md",
+      "state": "filled",
+      "cause": null,
+      "phaseId": "handover"
+    },
+    {
+      "phase": "6 · Hand over",
+      "artifact": "Hand-over note (the kit, proven)",
+      "relPath": "handover.md",
+      "state": "untouched",
+      "cause": null,
+      "phaseId": "handover"
+    }
+  ],
+  "through": null,
+  "horizon": null,
+  "corpusPin": null,
+  "corpusDrift": null,
+  "conformance": [
+    {
+      "scope": "Architect",
+      "rule": "contracts-governance",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/architecture.md",
+      "line": 46,
+      "phaseId": "architect"
+    },
+    {
+      "scope": "Architect",
+      "rule": "hexa-adapter-pattern",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/architecture.md",
+      "line": 47,
+      "phaseId": "architect"
+    },
+    {
+      "scope": "Architect",
+      "rule": "hexa-architecture",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/architecture.md",
+      "line": 48,
+      "phaseId": "architect"
+    },
+    {
+      "scope": "Architect",
+      "rule": "hexa-typescript-native",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/architecture.md",
+      "line": 49,
+      "phaseId": "architect"
+    },
+    {
+      "scope": "Architect",
+      "rule": "process-adr-and-journal",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/architecture.md",
+      "line": 50,
+      "phaseId": "architect"
+    },
+    {
+      "scope": "Architect",
+      "rule": "security-mcp-server-pinning",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/architecture.md",
+      "line": 51,
+      "phaseId": "architect"
+    },
+    {
+      "scope": "Topology",
+      "rule": "topology-port-placement-mapped",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/execution-topology.md",
+      "line": 48,
+      "phaseId": "topology"
+    },
+    {
+      "scope": "Topology",
+      "rule": "topology-sovereignty-by-data-class",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/execution-topology.md",
+      "line": 49,
+      "phaseId": "topology"
+    },
+    {
+      "scope": "Topology",
+      "rule": "topology-trace-export-decision",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/execution-topology.md",
+      "line": 50,
+      "phaseId": "topology"
+    },
+    {
+      "scope": "Topology",
+      "rule": "topology-usage-registry-present",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/execution-topology.md",
+      "line": 51,
+      "phaseId": "topology"
+    },
+    {
+      "scope": "Floor",
+      "rule": "async-post-turn-pipeline",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 18,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Floor",
+      "rule": "checklist-day-zero-project",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 19,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Floor",
+      "rule": "config-secrets-boundary",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 20,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Floor",
+      "rule": "data-migrations-forward-only",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 21,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Floor",
+      "rule": "frontier-deterministic-boundary",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 22,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Floor",
+      "rule": "hexa-adapter-pattern",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 23,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Floor",
+      "rule": "hexa-architecture",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 24,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Floor",
+      "rule": "hexa-move-deterministic-out",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 25,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Floor",
+      "rule": "provider-llm-auto-detection",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 26,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Floor",
+      "rule": "provider-no-crash-missing-env",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 27,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Floor",
+      "rule": "scaling-state-externalization",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 28,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Floor",
+      "rule": "security-prompt-injection",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 29,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Floor",
+      "rule": "state-event-sourcing",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 30,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Floor",
+      "rule": "tools-registry-pattern",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 31,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Floor",
+      "rule": "tools-scope-atomicity",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/floor.md",
+      "line": 32,
+      "phaseId": "floor"
+    },
+    {
+      "scope": "Govern",
+      "rule": "async-job-guardrails",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 80,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "checklist-pre-production-observability",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 81,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "checklist-pre-production-performance",
+      "problem": "proposed:deviated awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 82,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "checklist-pre-production-resilience",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 83,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "checklist-pre-production-security",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 84,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "config-secrets-boundary",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 85,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "data-memory-provenance",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 86,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "eval-loop",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 87,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "resilience-fail-open",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 88,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "resilience-multi-provider-fallback",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 89,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "resilience-retry-backoff",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 90,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "routing-confidence-upgrade",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 91,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "security-code-execution-sandbox",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 92,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "security-human-agent-trust",
+      "problem": "proposed:applied awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 93,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "security-mcp-server-pinning",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 94,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "security-prompt-injection",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 95,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Govern",
+      "rule": "security-tool-change-reapproval",
+      "problem": "proposed:n/a awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs `runward ratify`, which shows its evidence, or an agent that did not propose it reads it with `runward ratify --agent <name> --for <person> --list`, then names it with `--accept` (under the regulated tier, only where the mission accepts agent ratification)",
+      "kind": "proposed",
+      "file": "runward/governance/threat-model.md",
+      "line": 96,
+      "phaseId": "govern"
+    },
+    {
+      "scope": "Handover",
+      "rule": "handover-agents-charter-final",
+      "problem": "not accounted for in the Rule conformance manifest — `runward manifest --sync` scaffolds the missing row(s), with an empty status the gate still refuses; the decision stays yours: applied with a file:line/test, deviated with an ADR, or n/a with a reason",
+      "kind": "missing-row",
+      "file": "runward/handover.md",
+      "line": null,
+      "phaseId": "handover"
+    },
+    {
+      "scope": "Handover",
+      "rule": "handover-redone-task-proof",
+      "problem": "not accounted for in the Rule conformance manifest — `runward manifest --sync` scaffolds the missing row(s), with an empty status the gate still refuses; the decision stays yours: applied with a file:line/test, deviated with an ADR, or n/a with a reason",
+      "kind": "missing-row",
+      "file": "runward/handover.md",
+      "line": null,
+      "phaseId": "handover"
+    },
+    {
+      "scope": "Handover",
+      "rule": "handover-runbook-executable",
+      "problem": "not accounted for in the Rule conformance manifest — `runward manifest --sync` scaffolds the missing row(s), with an empty status the gate still refuses; the decision stays yours: applied with a file:line/test, deviated with an ADR, or n/a with a reason",
+      "kind": "missing-row",
+      "file": "runward/handover.md",
+      "line": null,
+      "phaseId": "handover"
+    },
+    {
+      "scope": "Handover",
+      "rule": "handover-succession-named",
+      "problem": "not accounted for in the Rule conformance manifest — `runward manifest --sync` scaffolds the missing row(s), with an empty status the gate still refuses; the decision stays yours: applied with a file:line/test, deviated with an ADR, or n/a with a reason",
+      "kind": "missing-row",
+      "file": "runward/handover.md",
+      "line": null,
+      "phaseId": "handover"
+    }
+  ],
+  "evidence": {
+    "rows": 42,
+    "applied": 0,
+    "deviated": 0,
+    "na": 0,
+    "typed": 0,
+    "prose": 0,
+    "proseRows": [],
+    "signed": 0,
+    "evidenceFiles": {
+      "total": 0,
+      "external": 0
+    },
+    "duplicated": []
+  },
+  "corpus": {
+    "status": "verifiable",
+    "missing": [],
+    "edited": [],
+    "extra": []
+  },
+  "seal": {
+    "present": false,
+    "count": 0,
+    "sealedAt": null,
+    "violations": 0
+  },
+  "criticalScope": {
+    "total": 45,
+    "mapped": 41,
+    "unmapped": [
+      "patterns-memory-router-tiered",
+      "routing-model-cost-ratios",
+      "routing-smart-complexity",
+      "scaling-distributed-rate-limiting"
+    ]
+  },
+  "ratification": {
+    "rows": 0,
+    "lineByLine": 0,
+    "enBloc": 0,
+    "blind": 0,
+    "untraced": 0,
+    "byRow": []
+  },
+  "requiresUnmet": [],
+  "prosePointers": [],
+  "workflowContract": {
+    "gating": true,
+    "malformed": [],
+    "joinBreaks": [],
+    "unmetRequires": []
+  },
+  "gateNonScope": "A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. A ratification trace records that someone declared answering the displayed evidence; runward cannot tell who, or whether a person answered at all, and it never proves they understood it.",
+  "next": {
+    "action": "fill-deliverables-and-close-conformance-gaps",
+    "command": "runward check --strict",
+    "rerun": "runward check --strict",
+    "text": "Fill the deliverable(s) named above and close the rule-conformance gap(s), then re-run runward check --strict."
+  }
+}

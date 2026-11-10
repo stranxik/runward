@@ -7,13 +7,71 @@
 // state computed by a view, no sum of states) are behavioural tests, in test/unit/fleet-view-rules.test.js.
 import { PRIVATE_PATH } from "./build.js";
 
-// Words runward never uses about itself in public, in both languages of the interface. A rule slug,
-// a mission name or a quoted export is data, marked verbatim by the view, and is not the view's word.
-export const BANNED = [
-  /\bcompliant\b/i, /\bcertified\b/i, /tamper-?proof/i, /\bno[\s-]human\b/i, /\bplatforms?\b/i, /\bsovereign/i, /\bguarantee[ds]?\b/i,
-  /\bcertifi[ée]e?s?\b/i, /\binviolable\b/i, /\binfalsifiable\b/i, /\bplateformes?\b/i, /\bsouverain/i, /\bgaranti(e|es|s)?\b/i,
-  /\bconformes?\b/i, /\bsans humain\b/i, /\baucun humain\b/i,
+const LETTER = "[\\p{L}\\p{N}_]";
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * A word, in any of the forms listed, never inside another word. The boundary is a letter, a digit or
+ * an underscore of any script: `\b` is ASCII, so it saw no boundary after an accented letter, and the
+ * list it guarded missed every form that ends in one (ADR-0125). The words of a form of several words
+ * match across any run of blanks, the no-break space included.
+ */
+export function words(...forms) {
+  const alt = forms.map((f) => f.trim().split(/\s+/).map(escapeRe).join("[\\s\\u00a0]+")).join("|");
+  return new RegExp(`(?<!${LETTER})(?:${alt})(?!${LETTER})`, "iu");
+}
+
+// Words runward never uses about itself in public, in both languages of the interface, each in every
+// form a sentence may give it. A rule slug, a mission name or a quoted export is data, marked verbatim by
+// the view, and is not the view's word. `untraced` is not a form of these: it names a closed value of
+// the CLI (a decided row with no ratification), shown as such by the technical views.
+export const BANNED_FORMS = [
+  ["compliant", "noncompliant", "non-compliant"],
+  ["certify", "certifies", "certified", "certifying", "certification", "certifications"],
+  ["guarantee", "guarantees", "guaranteed", "guaranteeing"],
+  ["tamper-proof", "tamperproof", "tamper proof"],
+  ["mathematical proof", "mathematical proofs", "mathematically proven", "mathematically proved"],
+  ["no human", "no-human", "no humans"],
+  ["platform", "platforms"],
+  ["sovereign", "sovereigns", "sovereignty"],
+  ["trace", "traces", "traced", "tracing", "traceable", "traceability"],
+  ["conforme", "conformes"],
+  ["certifie", "certifies", "certifié", "certifiée", "certifiés", "certifiées", "certifier", "certifions", "certifiez", "certifient", "certifiera", "certifierait", "certification", "certifications"],
+  ["garanti", "garantie", "garantis", "garanties", "garantir", "garantit", "garantissons", "garantissez", "garantissent", "garantira", "garantirait", "garantissant"],
+  ["infalsifiable", "infalsifiables"],
+  ["inviolable", "inviolables"],
+  ["preuve mathématique", "preuves mathématiques", "mathématiquement prouvé", "mathématiquement prouvée"],
+  ["sans humain", "sans humains", "aucun humain", "sans intervention humaine"],
+  ["plateforme", "plateformes"],
+  ["souverain", "souveraine", "souverains", "souveraines", "souveraineté"],
+  ["tracé", "tracée", "tracés", "tracées", "tracer", "traçable", "traçables", "traçabilité"],
 ];
+export const BANNED = BANNED_FORMS.map((forms) => words(...forms));
+
+// ADR-0125: the method's own words, which the decision reading never uses about what it shows (in both
+// languages). Its reader answers for what agents deliver and does not read code: a word of the method
+// there is a word to learn first. The technical views keep them; this list is held on the decision
+// reading only, and on the lexicon it is written from.
+export const INTERNAL_FORMS = [
+  ["gate", "gates", "floor", "mission", "missions", "deliverable", "deliverables", "manifest", "manifests", "pointer", "pointers"],
+  ["ratify", "ratifies", "ratified", "ratifying", "ratification", "ratifications", "ci-declared", "machine-established", "not-observed"],
+  ["ADR", "ADRs", "fleet", "fleets", "index", "verdict", "verdicts", "phase", "phases", "tenant", "tenants", "harness", "corpus"],
+  ["conformance", "repository", "repositories", "commit", "commits", "merge", "merged", "merges", "pull request", "pull requests", "strict"],
+  ["porte", "portes", "plancher", "livrable", "livrables", "manifeste", "manifestes", "pointeur", "pointeurs"],
+  ["ratifier", "ratifie", "ratifié", "ratifiée", "ratifiés", "ratifiées", "flotte", "flottes", "étape", "étapes", "verdicts"],
+  ["conformité", "dépôt", "dépôts", "fusionner", "fusionné", "fusionnée", "fusion", "fonction", "fonctions", "onglet", "onglets", "sceau", "scellé", "scellée"],
+];
+export const INTERNAL = INTERNAL_FORMS.map((forms) => words(...forms));
+
+// ADR-0125: what a state never reads as. "go" and "no-go" are the reader's own decision, written in a
+// title ("Before your go / no-go") and never as the state of an application; "ready" reads as a decision
+// the tool took; "blocked" is true only where a release depends on the check, which the index does not
+// carry. Held on the state words, the group labels and the reason sentences of the lexicon.
+export const NOT_A_STATE_FORMS = [
+  ["go", "no-go", "no go", "nogo", "ready", "blocked", "approved"],
+  ["prêt", "prête", "prêts", "prêtes", "bloqué", "bloquée", "bloqués", "bloquées", "approuvé", "approuvée", "feu vert"],
+];
+export const NOT_A_STATE = NOT_A_STATE_FORMS.map((forms) => words(...forms));
 const REFUSED_COLOURS = [/#241CC4/i, /#7B74FF/i, /#0A0A0A\b/i, /#FAFAFA\b/i, /\bindigo\b/i, /\bviolet\b/i];
 const EMERGENCY = [/\bemergenc(y|ies)\b/i, /\burgences?\b/i];
 const FORBIDDEN_KEYS = /^(score|percent|percentage|ratio|rate|grade|health|managementApproval|management_approval|approval|approved)$/i;
@@ -265,6 +323,72 @@ export function checkView(html, index, where = "view") {
     }
   }
   return problems;
+}
+
+const STATE_WORD_OPEN = 'data-role="state-word">';
+/**
+ * ADR-0125, on one rendered view of the decision reading: its own words hold none of the method's
+ * (`INTERNAL`), and no state it shows reads as a decision taken (`NOT_A_STATE`). What the view marks as
+ * verbatim data (a name, a refusal text, a rule slug) is the data's. The words runward never says
+ * (`BANNED`) are held by `checkView`, on every view.
+ */
+export function checkReading(html, where = "reading") {
+  const problems = [];
+  const s = String(html);
+  const own = ownText(s);
+  for (const re of INTERNAL) { const m = own.match(re); if (m) problems.push(`${where}: a word of the method in the decision reading: "${m[0]}"`); }
+  for (let k = s.indexOf(STATE_WORD_OPEN); k !== -1; k = s.indexOf(STATE_WORD_OPEN, k + 1)) {
+    const from = k + STATE_WORD_OPEN.length, to = s.indexOf("<", from);
+    const word = decode(s.slice(from, to === -1 ? s.length : to));
+    for (const re of NOT_A_STATE) { const m = word.match(re); if (m) problems.push(`${where}: a state reads as a decision taken: "${word}"`); }
+  }
+  // "Nothing is blocking" never stands alone: the team's requirements and the date of the last check
+  // follow it, before the next state the view shows.
+  for (let k = s.indexOf(CLEAN_STATE); k !== -1; k = s.indexOf(CLEAN_STATE, k + 1)) {
+    const next = s.indexOf(STATE_OPEN, k + CLEAN_STATE.length);
+    const after = s.slice(k, next === -1 ? s.length : next);
+    if (!after.includes('data-role="qualifier"') || !after.includes('data-role="date"')) problems.push(`${where}: a state with nothing blocking is shown without the team's requirements and the date of the last check`);
+  }
+  return problems;
+}
+const STATE_OPEN = '<p data-role="state" ';
+const CLEAN_STATE = '<p data-role="state" data-state="clean">';
+
+/** Every string of a value, with the path that leads to it. */
+function* strings(value, path) {
+  if (typeof value === "string") { yield [path, value]; return; }
+  if (Array.isArray(value)) { for (let i = 0; i < value.length; i++) yield* strings(value[i], `${path}[${i}]`); return; }
+  if (value && typeof value === "object") for (const [k, v] of Object.entries(value)) yield* strings(v, `${path}.${k}`);
+}
+/** The sections of the lexicon whose sentences say a state, where a state never reads as a decision. */
+const STATE_SECTIONS = new Set(["state", "group", "reason", "qualifier"]);
+
+/**
+ * ADR-0125, on the lexicon the decision reading is written from: in each language, every sentence is
+ * free of the words runward never says and of the method's words, a state is never named as a decision
+ * taken, and the two languages hold the same keys, so no value has a sentence in one and not the other.
+ * A placeholder (`{n}`) is the data's and is set aside.
+ */
+export function checkLexicon(lexicon) {
+  const problems = [];
+  const langs = Object.keys(lexicon ?? {});
+  if (langs.length === 0) return ["the lexicon is empty"];
+  const keysOf = (lang) => new Set([...strings(lexicon[lang], "")].map(([p]) => p));
+  for (const lang of langs) {
+    for (const [path, text] of strings(lexicon[lang], "")) {
+      const own = text.replace(/\{[A-Za-z]+\}/g, " ");
+      for (const re of BANNED) { const m = own.match(re); if (m) problems.push(`lexicon.${lang}${path}: a word runward does not use about itself: "${m[0]}"`); }
+      for (const re of INTERNAL) { const m = own.match(re); if (m) problems.push(`lexicon.${lang}${path}: a word of the method: "${m[0]}"`); }
+      const section = path.split(".")[1];
+      if (STATE_SECTIONS.has(section)) for (const re of NOT_A_STATE) { const m = own.match(re); if (m) problems.push(`lexicon.${lang}${path}: a state reads as a decision taken: "${m[0]}"`); }
+    }
+    for (const other of langs) {
+      if (other === lang) continue;
+      const theirs = keysOf(other);
+      for (const k of keysOf(lang)) if (!theirs.has(k)) problems.push(`lexicon.${lang}${k} has no sentence in ${other}`);
+    }
+  }
+  return [...new Set(problems)];
 }
 
 const INDEX_OPEN = '<script type="application/json" id="runward-fleet-index">';

@@ -1,7 +1,9 @@
 # runward-fleet: the index, its inputs and the one decision that raises a cell
 
 **Status**: specification of `runward-fleet-index/0`, dated 2026-11-06, with the code that implements it
-(`packages/runward-fleet`) · **Implements**: [ADR-0093](../adr/ADR-0093-what-runward-shows-is-assembled-from-files-the-cli-writes-a-customer-run-satellite-verifies-a-hosted-product-is-separate.md)
+(`packages/runward-fleet`); additive fields of 2026-11-10 for the decision reading
+([ADR-0125](../adr/ADR-0125-the-decision-reading-a-plain-language-projection-of-the-fleet-index-from-a-closed-lexicon-in-two-languages-without-a-model.md),
+[runward-fleet-decision.md](runward-fleet-decision.md)) · **Implements**: [ADR-0093](../adr/ADR-0093-what-runward-shows-is-assembled-from-files-the-cli-writes-a-customer-run-satellite-verifies-a-hosted-product-is-separate.md)
 decisions 8, 10 and 11, delivery D4 (static `runward-fleet`, trust policy, signature verification) ·
 **Interface**: the one ADR-0121 names for its two deployments (the static page inlines the index, a
 hosted deployment serves the same `index.json` next to the same views) · **Contracts**: three, each
@@ -25,6 +27,7 @@ and not received is shown as such.
 | `title` | the page's title |
 | `asOf` | a date label; the build and the page read no clock |
 | `lang` | `en` or `fr`, the language of the interface |
+| `names` | optional, `shown` (the default) or `omitted`: with `omitted`, the index carries none of the names of the people an export declares, for a page published in public (ADR-0125) |
 | `trustPolicy` | optional, the path of `trust-policy.json`; without it nothing is verified and nothing raised |
 | `missions[]` | one entry per runward mission |
 | `missions[].id` | a plain identifier, the stable join key; source ids derive from it |
@@ -33,7 +36,7 @@ and not received is shown as such.
 | `missions[].commit` | the landing commit the exports were produced at, declared; a signed commit is compared with it |
 | `missions[].commitSource` | optional, where the author of `fleet.json` read `commit` (a label of 200 characters at most, e.g. the claim of an upload's workload identity token for a hosted deployment); carried as declared, never checked; refused without `commit` |
 | `missions[].expects[]` | the kinds the operator expects (`check`, `attestation`, `verify`, `witness`, `summary`, `report`, `history`, `signature`); a missing one is a finding |
-| `missions[].exports.<kind>` | `{ file, producedBy, at }`; `file` relative to `fleet.json`, the two others labels |
+| `missions[].exports.<kind>` | `{ file, producedBy, at }`; `file` relative to `fleet.json`, the two others labels. Or, when the content of the export is not shared, `{ sha256, producedBy, at }` without `file`: the 64 hexadecimal digits of its SHA-256, a digest only, never read (ADR-0125); a file and a digest together are refused |
 | `missions[].signatures[]` | `{ covers, kind, ... }`: `covers` names the export kind the signature is meant to cover; `kind` is `sigstore-bundle` (`file`) or `ed25519-manifest` (`manifest`, `signature`, `format`, optional `claimedKey`) |
 
 Paths are relative and never absolute. The export kinds are what runward writes: `check` (`check
@@ -140,28 +143,42 @@ Unknown values read `not-observed`. A grouping is always `{ state, n, N, list }`
 | `format` | `runward-fleet-index/0` |
 | `builtBy` | `{ name, version }` of runward-fleet |
 | `title`, `lang` | from the manifest |
+| `names` | present only when the manifest omits names: `{ state: "omitted", source: "fleet.json" }`. Then `ratification.ratifiers` is empty, the person of every `agents[]` and `agentRows[]` entry is `null`, and the build refuses (exit 1, nothing written) an index where a name an export declares (who ratified in a person's mode, the person an agent answers to) would still appear in another field projected from an export (a refusal's text, a summary, a note), naming where; the operator's own labels (a title, a mission name, a repository) are not read. A name written only in free text, a proposer quoted inside an evidence cell for instance, is not one the build knows, and it is not seen |
 | `asOf` | `{ label, source }`: the declared date and the sentence that says no clock was read |
 | `manifest` | `{ src }`, the manifest's source id |
 | `policy` | `null`, or `{ src, trustedRoots[], signers[] }`: each signer with `pinned` and `unpinned[]` (`ref`, `workflow-digest`) |
-| `fleet` | `declared`; groupings `byVerdict` (`clean`, `gaps`, `level-not-met`, `not-observed`, each always present; `level-not-met` is a strict gate with no gap below its required level of proof, exit 5, runward ADR-0114), `byImplemented`, `sealed`, `findings`; `signatures` with `declared`, `byState`, `raised` |
+| `fleet` | `declared`; groupings `byVerdict` (`clean`, `gaps`, `level-not-met`, `not-observed`, `not-available`, each always present; `level-not-met` is a strict gate with no gap below its required level of proof, exit 5, runward ADR-0114; `not-available` a mission whose check reached the inventory as a digest only, ADR-0125), `byImplemented` (`not-available` appended when a mission is), `sealed`, `findings`; `signatures` with `declared`, `byState`, `raised` |
 | `missions[]` | one per declared mission, in declaration order |
 | `absent[]` | what runward does not produce yet: `{ what, state, contract, delivery }` |
-| `sources[]` | every file read: `{ id, path, sha256, bytes, kind, producedBy, at, origin, declaredIn }` |
+| `sources[]` | every file read: `{ id, path, sha256, bytes, kind, producedBy, at, origin, declaredIn }`; an export declared by its digest only is a source too, `{ …, path: null, bytes: null, origin: "declared", content: "digest-only" }`, its `sha256` the one `fleet.json` declares, never computed |
 
 A mission carries `id`, `name`, `role`, `repository`, `path`, `commit` (`{ value, source }` or `null`;
 `source` is `fleet.json (declared)`, and `commitSource` is added, as written in the inventory, only when
 the inventory names one),
 `expects`, `findings[]` (`{ what, state, why, ... }`, `why` one of `declared-file-absent`,
-`expected-none-declared`, `unreadable`, `signature-refused`), `signatures[]` and `signaturesByState`,
-and, when observed: `latest`, `attestation`, `verify`, `witness`, `summary`, `report`, `history`.
+`expected-none-declared`, `unreadable`, `signature-refused`, and `digest-only` with the state
+`not-available`), `signatures[]` and `signaturesByState`, and, when observed: `latest`, `attestation`,
+`verify`, `witness`, `summary`, `report`, `history`.
 
-- `latest` is `not-observed`, or the verdict: `from` (`check` or `attestation`), `src`, `origin`
+- `latest` is `not-observed`, `not-available` (no check or attestation was read, and one of them was
+  declared by its digest only), or the verdict: `from` (`check` or `attestation`), `src`, `origin`
   (`undetermined`, as for every record the CLI writes), `implemented` (`ci-declared` or
   `machine-established`), `raisedBy` when raised, and the fields projected from the payload: `runward`,
   `verdict`, `exitCode`, `currentGate`, `adrCount`, `strict`, `gaps`, `causesByKind`, `deliverables`
   (`list`, `byState`), `conformance`, `evidence`, `seal`, `corpus`, `criticalScope`, `ratification`
   (counts, `byState`, `changedRows`, `ratifiers`), `requiresUnmet` (`list`, `byNature`, `size`),
-  `committedJUnit`, `assurance`, `delegationStage`, `gateNonScope`, `next`. The payload's `mission` is
+  `committedJUnit`, `assurance`, `delegationStage`, `gateNonScope`, `next`. Since ADR-0125, additively: each
+  `conformance` row carries the export's `line` and `phaseId` beside `scope`, `rule`, `kind`, `problem` and
+  `file` (`null` when the export does not carry them); `conformanceByKind` groups the rows by `kind`, in the
+  order the export lists them (`not-observed` for a row without one), each `{ state, n, N, list }` listing
+  `scope · rule`; `ratification` adds `agent` (the rows an agent ratified, 0 when the export does not write
+  the field, which the CLI omits at zero), `agents` (`{ agent, for, rows }` as the CLI writes them),
+  `singleAccountable` (`{ rows, disclosure[] }` or `null`), `byMode` (the decided rows by how they were
+  endorsed: the mode of a ratified row, `line-by-line`, `en bloc`, `agent` or `agent (single accountable)`,
+  or the state of any other, `blind`, `changed` or `untraced`; each always present with n of N and its
+  list, so the groups partition the decided rows; `not-observed` when the export lists no row) and
+  `agentRows` (`{ state, agent, for, n, N, list }`, the ratified rows of each agent, person and mode,
+  sorted). The payload's `mission` is
   never projected: the mission is named by the inventory's `name`, and the field was the checkout's
   absolute path until RWD-2026-0199 (it is now the name the mission declares, as in the attestation).
 - `history` holds `series[]`, one per origin, never mixed: `src`, `origin`, `judgedBy[]`, `size`,
@@ -179,8 +196,9 @@ Source ids are stable join keys: `fleet.json`, `trust-policy.json`, `policy:root
 
 ## 4. The views and their rules
 
-Seven views read the index: the fleet, a mission, its history, the proof (re-derive without us), the
-signatures, the PR summary, the sources. Each is a pure function of the index (`ui/views.js`), the same
+Eight views read the index: the decision reading (the page opens on it, ADR-0125,
+[runward-fleet-decision.md](runward-fleet-decision.md)), the fleet, a mission, its history, the proof
+(re-derive without us), the signatures, the PR summary, the sources. Each is a pure function of the index (`ui/views.js`), the same
 in the static page and in a hosted deployment. Every number carries its source, its path in that
 source and its path in the index. The eighteen rules of ADR-0093 decision 11:
 
@@ -219,8 +237,8 @@ the view with this package, pinned, and copies none of its files. Its entry poin
 | Export | What it gives |
 |---|---|
 | `runward-fleet` | `buildIndex({ manifest, read, version })`, `readManifest`, `BuildError`, `PRIVATE_PATH`, `INDEX_FORMAT`, `MANIFEST_FORMAT` |
-| `runward-fleet/rules` | `checkIndex`, `checkView`, `checkPage`: the view rules, run on an index before it is served |
-| `runward-fleet/views` | `renderView`, `renderNav`, `renderStamp`, `allViews`, `ROUTES`: the views, for a shell of its own |
+| `runward-fleet/rules` | `checkIndex`, `checkView`, `checkPage`: the view rules, run on an index before it is served; `checkReading` and `checkLexicon`, the rules of the decision reading, with the word lists they hold (`BANNED`, `INTERNAL`, `NOT_A_STATE`, each with its forms) |
+| `runward-fleet/views` | `renderView`, `renderNav`, `renderStamp`, `allViews`, `ROUTES`: the views, for a shell of its own; `decide(index)`, the decision reading as a document (`runward-fleet-decision/0`), `renderDecision(index, id?)`, its HTML, `LEXICON` and `lexiconAt`, the closed lexicon in both languages |
 | `runward-fleet/site` | `renderPage(index)`, the page `runward-fleet build` writes to `index.html`, byte for byte; `renderSite(index, assets)`, the same with assets given; `siteAssets()`, the template (the identity's tokens and the shell), the source of the views and the fonts, read from the package |
 | `runward-fleet/trust`, `runward-fleet/sigstore` | the trust policy and the offline verification of §2 |
 

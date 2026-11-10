@@ -115,13 +115,43 @@ ul.checks{ list-style:none; padding-left:0; }
 .md p, .md td{ overflow-wrap:anywhere; }
 .md table{ border-collapse:collapse; font-size:13px; margin:0 0 14px; }
 .md td, .md th{ border-bottom:1px solid var(--hair); padding:6px 10px 6px 0; text-align:left; vertical-align:top; }
+/* the decision reading (ADR-0125): its roles, styled here with the page's tokens; a hosted deployment styles
+   the same roles with its own layer. A refusal inverts the two grounds; each state has its own shape. */
+[data-reading]{ max-width:880px; }
+[data-reading] [data-role="title"]{ font-weight:300; font-size:clamp(2.1rem,5.6vw,4.4rem); line-height:1.02; letter-spacing:-.025em; margin:0 0 18px; }
+[data-reading] h1[data-role="name"]{ font-weight:300; font-size:clamp(1.9rem,5vw,3.4rem); line-height:1.05; letter-spacing:-.02em; margin:0 0 18px; overflow-wrap:anywhere; }
+[data-reading] h2[data-role="name"]{ font-weight:500; font-size:20px; letter-spacing:-.01em; margin:0 0 10px; overflow-wrap:anywhere; }
+[data-reading] h2{ font-size:17px; margin:30px 0 12px; }
+[data-reading] h3{ font-weight:500; font-size:17px; margin:18px 0 8px; }
+[data-role="lede"], [data-role="note"], [data-role="legend"], [data-role="back"], [data-role="links"], [data-role="version"]{ color:var(--soft); font-size:17px; max-width:62ch; }
+[data-role="groups"], [data-role="applications"], [data-role="kinds"]{ list-style:none; padding:0; margin:0 0 22px; }
+[data-role="group"]{ display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; font-size:19px; padding:4px 0; }
+[data-role="application"]{ border-top:1px solid var(--hair); padding:22px 0; }
+[data-role="application"]:last-child{ border-bottom:1px solid var(--hair); }
+[data-role="state"]{ display:flex; align-items:center; gap:12px; margin:0; width:fit-content; max-width:100%; font-size:clamp(1.55rem,4vw,2.3rem); line-height:1.15; letter-spacing:-.015em; }
+[data-role="state"][data-state="gaps"], [data-role="state"][data-state="level-not-met"]{ background:var(--fg); color:var(--bg); padding:4px 14px 6px 12px; border-radius:2px; }
+[data-role="qualifier"], [data-role="date"], [data-role="reason"], [data-role="origin"]{ font-size:20px; line-height:1.4; margin:8px 0 0; max-width:62ch; }
+[data-role="mark"]{ width:.6em; height:.6em; flex:none; display:inline-block; border:2px solid currentColor; border-radius:50%; }
+[data-state="clean"] > [data-role="mark"]{ background:currentColor; }
+[data-state="gaps"] > [data-role="mark"]{ border-radius:1px; transform:rotate(45deg); background:currentColor; }
+[data-state="level-not-met"] > [data-role="mark"]{ border-radius:1px; transform:rotate(45deg); background:linear-gradient(135deg,currentColor 50%,transparent 50%); }
+[data-state="not-observed"] > [data-role="mark"]{ border-style:dashed; }
+[data-state="not-available"] > [data-role="mark"]{ border-radius:1px; background:linear-gradient(90deg,currentColor 50%,transparent 50%); }
+[data-role="kind"], [data-role="piece-count"], [data-role="sentence"], [data-role="piece"], [data-role="endorsement"] li{ font-size:18px; line-height:1.4; margin:0 0 8px; }
+[data-role="date"] [data-verbatim]{ white-space:nowrap; }
+[data-role="problem"]{ margin:0 0 20px; }
+[data-role="problems"] ol, [data-role="pieces"] ul, [data-role="endorsement"] ul{ padding-left:1.2em; margin:0 0 12px; }
+[data-role="detail"]{ background:var(--panel); padding:12px 14px; border-radius:2px; margin-top:10px; }
+[data-role="detail-label"]{ font-size:14px; color:var(--soft); margin:0 0 6px; }
+[data-role="location"]{ font-size:14px; color:var(--soft); margin:0 0 6px; overflow-wrap:break-word; }
+[data-role="verbatim"]{ font-family:var(--code); font-size:15px; line-height:1.5; white-space:pre-wrap; overflow-wrap:break-word; margin:0; }
 @media print{ nav.views, .theme, body::after{ display:none; } }
 </style>
 </head>
 <body>
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#/">runward<span>-fleet</span></a>
+    <a class="brand" href="#/decision">runward<span>-fleet</span></a>
     <span class="rv" id="stamp"></span>
     <button class="theme" id="theme" type="button" aria-label="theme">/*THEME*/</button>
   </div>
@@ -147,8 +177,10 @@ async function loadIndex() {
 const main = document.getElementById("main");
 let INDEX = null;
 function show() {
+  // No hash opens the decision reading (ADR-0125); "#/" is the fleet view, as before.
+  const bare = location.hash === "" || location.hash === "#";
   const h = location.hash.replace(/^#\/?/, "");
-  const [route, arg] = h.split("/");
+  const [route, arg] = bare ? ["decision"] : h.split("/");
   const r = ROUTES.includes(route) ? route : "";
   document.getElementById("nav").innerHTML = renderNav(INDEX, r);
   main.innerHTML = renderView(INDEX, r, arg ? decodeURIComponent(arg) : undefined);

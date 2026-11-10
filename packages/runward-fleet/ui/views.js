@@ -21,7 +21,7 @@ const WORDS = {
   },
   fr: {
     clean: "sans écart", gaps: "refusé", "level-not-met": "niveau non atteint", "not-observed": "non observé", "not-available": "non disponible", observed: "présent",
-    filled: "rempli", missing: "manquant", ratified: "ratifié", changed: "modifié depuis", untraced: "sans trace", blind: "à l'aveugle",
+    filled: "rempli", missing: "manquant", ratified: "ratifié", changed: "modifié depuis", untraced: "sans ratification enregistrée", blind: "à l'aveugle",
     sealed: "scellé", unsealed: "non scellé", declared: "déclaré", undetermined: "origine indéterminée", replayed: "rejoué",
     "machine-established": "machine-established", "ci-declared": "ci-declared", verified: "vérifiée", "outside-policy": "hors politique",
     refused: "refusée", absent: "absente", "not-verifiable": "non vérifiable ici", raised: "élevée", "not-raised": "non élevée",
@@ -45,8 +45,9 @@ const TEXT = {
     fleetHead: (asOf, fmt) => `as of <b>${asOf}</b> · ${fmt}`,
     inventory: (name) => `inventory: <b>${name}</b>`,
     fleetTitle: "What the fleet proves.",
-    fleetFace: (N, one, clean, gaps, silent, me, ci, notCrossed) => `${N} ${one ? "mission" : "missions"} declared: ${clean} clean, ${gaps} refused, ${notCrossed ? `${notCrossed} at a level not met (nothing verified mechanically), ` : ""}${silent} silent. ${me} machine-established, ${ci} ci-declared.`,
+    fleetFace: (N, one, clean, gaps, silent, me, ci, notCrossed, digests) => `${N} ${one ? "mission" : "missions"} declared: ${clean} clean, ${gaps} refused, ${notCrossed ? `${notCrossed} at a level not met (nothing verified mechanically), ` : ""}${digests ? `${digests} received as digests only, ` : ""}${silent} silent. ${me} machine-established, ${ci} ci-declared.`,
     silentRow: "No export received for this declared mission: a finding, not a filter.",
+    digestRow: "Received as a digest only: its content is not shared, so nothing of it is shown.",
     exit: "exit",
     historyOf: (o) => `history ${o}`,
     notThere: "What is not there",
@@ -63,6 +64,7 @@ const TEXT = {
       "expected-none-declared": () => "expected in fleet.json, no export declared",
       unreadable: () => "present, unreadable",
       "signature-refused": () => "a declared signature does not verify: nothing is raised",
+      "digest-only": () => "declared by its digest only: the content is not shared",
     },
     absent: {
       "period-report": "runward-period/1 (D3) is not built: no population of changes is written yet.",
@@ -81,6 +83,7 @@ const TEXT = {
     neverAsked: "Never asked by this gate:",
     ratTitle: "Ratification, as the tree declares it",
     ratNames: "Names declared:",
+    ratNamesOmitted: "Names declared: not published on this page (fleet.json omits them).",
     ratUnknown: "runward cannot tell who answered, nor whether a person answered.",
     machineMode: "machine mode in force: a row without ratification is not a gap under this mode.",
     assurTitle: "Assurance mode",
@@ -176,6 +179,8 @@ const TEXT = {
     builtBy: (v) => `Built by runward-fleet ${v}.`,
     dateNote: (d, s) => `Date: ${d}, ${s}.`,
     rulesTitle: "The rules this view holds",
+    readingRulesTitle: "The rules the decision reading holds",
+    readingRulesNote: "Five rules (ADR-0125), held on the reading and on the lexicon it is written from, in both languages; a test reddens on a planted breach of each.",
     rulesNote: "Eighteen rules (ADR-0093, decision 11). A rule held by the build is checked on every view before the page is written; a test reddens on a planted mutation of each.",
     held: { build: "build and test", test: "test", elsewhere: "held by runward, not by this view" },
     renderError: "This view could not be built from the index.",
@@ -188,8 +193,9 @@ const TEXT = {
     fleetHead: (asOf, fmt) => `relevé du <b>${asOf}</b> · ${fmt}`,
     inventory: (name) => `inventaire : <b>${name}</b>`,
     fleetTitle: "Ce que la flotte prouve.",
-    fleetFace: (N, one, clean, gaps, silent, me, ci, notCrossed) => `${N} ${one ? "mission déclarée" : "missions déclarées"} : ${clean} sans écart, ${gaps} refusées, ${notCrossed ? `${notCrossed} au niveau non atteint (rien de vérifié mécaniquement), ` : ""}${silent} silencieuses. ${me} machine-established, ${ci} ci-declared.`,
+    fleetFace: (N, one, clean, gaps, silent, me, ci, notCrossed, digests) => `${N} ${one ? "mission déclarée" : "missions déclarées"} : ${clean} sans écart, ${gaps} refusées, ${notCrossed ? `${notCrossed} au niveau non atteint (rien de vérifié mécaniquement), ` : ""}${digests ? `${digests} reçues en empreintes seules, ` : ""}${silent} silencieuses. ${me} machine-established, ${ci} ci-declared.`,
     silentRow: "Aucun export reçu pour cette mission déclarée : c'est un constat, pas un filtre.",
+    digestRow: "Reçue en empreinte seule : son contenu n'est pas partagé, donc rien n'en est montré.",
     exit: "sortie",
     historyOf: (o) => `historique ${o}`,
     notThere: "Ce qui n'est pas là",
@@ -197,7 +203,7 @@ const TEXT = {
     notThereNote: "Une absence s'affiche, elle ne se filtre pas. Les états ne s'additionnent jamais en une note.",
     facts: {
       filled: "livrables remplis", rows: "lignes de conformité", applied: "appliquées", deviated: "en écart", na: "n/a",
-      ratification: "ratification", ratifiedW: "ratifiées", changedW: "modifiées", untracedW: "sans trace",
+      ratification: "ratification", ratifiedW: "ratifiées", changedW: "modifiées", untracedW: "sans ratification enregistrée",
       seal: "sceau", files: "fichiers", requires: "preuves d'une autre nature", flagged: "signalées, non bloquantes",
       assurance: "mode d'assurance en vigueur", degraded: "dégradé", verdictCell: "cellule du verdict",
     },
@@ -206,6 +212,7 @@ const TEXT = {
       "expected-none-declared": () => "attendu dans fleet.json, aucun export déclaré",
       unreadable: () => "présent, illisible",
       "signature-refused": () => "une signature déclarée ne se vérifie pas : rien n'est élevé",
+      "digest-only": () => "déclaré par son empreinte seule : le contenu n'est pas partagé",
     },
     absent: {
       "period-report": "runward-period/1 (D3) n'est pas construit : aucune population de changements n'est encore écrite.",
@@ -224,6 +231,7 @@ const TEXT = {
     neverAsked: "Jamais demandées par ce gate :",
     ratTitle: "Ratification, telle que l'arbre la déclare",
     ratNames: "Noms déclarés :",
+    ratNamesOmitted: "Noms déclarés : non publiés sur cette page (fleet.json les omet).",
     ratUnknown: "runward ne sait pas qui a répondu, ni si une personne a répondu.",
     machineMode: "mode machine en vigueur : une ligne sans ratification n'est pas un écart sous ce mode.",
     assurTitle: "Mode d'assurance",
@@ -323,6 +331,8 @@ const TEXT = {
     builtBy: (v) => `Construit par runward-fleet ${v}.`,
     dateNote: (d, s) => `Date : ${d}, ${s}.`,
     rulesTitle: "Les règles que cette vue tient",
+    readingRulesTitle: "Les règles que tient la lecture décideur",
+    readingRulesNote: "Cinq règles (ADR-0125), tenues sur la lecture et sur le lexique dont elle est écrite, dans les deux langues ; un test rougit sur une infraction plantée de chacune.",
     rulesNote: "Dix-huit règles (ADR-0093, décision 11). Une règle tenue par le build est vérifiée sur chaque vue avant que la page ne s'écrive ; un test rougit sur une mutation plantée de chacune.",
     held: { build: "build et test", test: "test", elsewhere: "tenue par runward, pas par cette vue" },
     renderError: "Cette vue n'a pas pu se construire depuis l'index.",
@@ -351,7 +361,8 @@ export const RULES = [
   { id: 18, held: "test", en: "No connector posts a pass on runward's word: the rule is the customer's.", fr: "Aucun connecteur ne publie un succès sur la parole de runward : la règle est celle du client." },
 ];
 
-export const ROUTES = ["", "mission", "history", "proof", "signatures", "pr", "sources"];
+// `decision` first: the static page opens on the decision reading (ADR-0125); `""` stays the fleet view.
+export const ROUTES = ["decision", "", "mission", "history", "proof", "signatures", "pr", "sources"];
 
 let t = TEXT.en;
 let W = WORDS.en;
@@ -382,6 +393,8 @@ const find = (arr, state) => (arr ?? []).find((x) => x.state === state);
  *  nothing, so a face without one keeps its words. Read from the index, never counted here. */
 const notCrossed = (arr, src, ip) => { const g = find(arr, "level-not-met"); return g && g.n > 0 ? frac(g, src, gp(ip, "level-not-met")) : ""; };
 const gp = (base, state) => `${base}[state=${state}]`;
+/** The count of missions received as digests only (ADR-0125), for a face: n / N whenever one is, else nothing. */
+const digestsOnly = (arr, src, ip) => { const g = find(arr, "not-available"); return g && g.n > 0 ? frac(g, src, gp(ip, "not-available")) : ""; };
 const verb = (s) => `<span data-verbatim>${esc(s)}</span>`;
 const code = (s) => `<code>${esc(s)}</code>`;
 const rv = (html) => `<span class="rv">${html}</span>`;
@@ -427,8 +440,9 @@ function viewFleet() {
   const BV = "fleet.byVerdict", BI = "fleet.byImplemented";
   const me = find(F.byImplemented, "machine-established");
   const rows = IDX.missions.map((m) => {
-    if (m.latest === "not-observed") {
-      return `<div class="mrow" data-mission="${esc(m.id)}"><div><div class="nm">${verb(m.name)}</div><div class="role">${verb(m.role ?? "")}</div></div><div>${st("not-observed", t.silent)}</div><div class="soft small">${esc(t.silentRow)}</div></div>`;
+    if (typeof m.latest === "string") {
+      const silent = m.latest === "not-observed";
+      return `<div class="mrow" data-mission="${esc(m.id)}"><div><div class="nm">${verb(m.name)}</div><div class="role">${verb(m.role ?? "")}</div></div><div>${silent ? st("not-observed", t.silent) : st(m.latest)}</div><div class="soft small">${esc(silent ? t.silentRow : t.digestRow)}</div></div>`;
     }
     const L = m.latest;
     const hist = m.history?.series?.length ? `<div style="margin-top:10px">${spark(m, 140, 26)}</div><div class="rv">${esc(t.historyOf(word(m.history.series[0].origin)))}</div>` : "";
@@ -444,7 +458,7 @@ function viewFleet() {
   return `${head(t.fleetHead(esc(IDX.asOf.label ?? t.asOfMissing), esc(IDX.format)), `${t.inventory(esc(IDX.sources[0]?.path ?? "fleet.json"))} · ${srcRef(s0)}`)}
     <h1 class="v">${esc(t.fleetTitle)}</h1>
     <p class="face" data-face="fleet">${t.fleetFace(n(F.declared, s0, "missions.length", "fleet.declared"), F.declared === 1, frac(find(F.byVerdict, "clean"), s0, gp(BV, "clean")), frac(find(F.byVerdict, "gaps"), s0, gp(BV, "gaps")), frac(find(F.byVerdict, "not-observed"), s0, gp(BV, "not-observed")),
-      frac(me, s0, gp(BI, "machine-established"), me && me.n > 0), frac(find(F.byImplemented, "ci-declared"), s0, gp(BI, "ci-declared")), notCrossed(F.byVerdict, s0, BV))}</p>
+      frac(me, s0, gp(BI, "machine-established"), me && me.n > 0), frac(find(F.byImplemented, "ci-declared"), s0, gp(BI, "ci-declared")), notCrossed(F.byVerdict, s0, BV), digestsOnly(F.byVerdict, s0, BV))}</p>
     <section class="blk" aria-label="missions">${rows}</section>
     <section class="blk"><h2>${esc(t.notThere)}</h2>
       <div class="tw"><table class="t"><thead><tr><th>${esc(t.object)}</th><th>${esc(t.state)}</th><th>${esc(t.whyCol)}</th></tr></thead><tbody>${[...findings, ...absent].join("")}</tbody></table></div>
@@ -457,6 +471,7 @@ function viewMission(id) {
   if (!m) return `<p class="face">${esc(t.histNone)}</p>`;
   const tabs = IDX.missions.map((x) => `<a href="#/mission/${esc(x.id)}" ${x.id === m.id ? 'aria-current="page"' : ""}>${verb(x.name)}</a>`).join(" · ");
   if (m.latest === "not-observed") return `${head(esc(t.mission), verb(m.name))}<p class="small">${tabs}</p><h1 class="v">${verb(m.name)}</h1><p class="face" data-face="mission">${st("not-observed", t.silent)} ${esc(t.silentRow)}</p>`;
+  if (typeof m.latest === "string") return `${head(esc(t.mission), verb(m.name))}<p class="small">${tabs}</p><h1 class="v">${verb(m.name)}</h1><p class="face" data-face="mission">${st(m.latest)} ${esc(t.digestRow)}</p>`;
   const L = m.latest, s = L.src, b = `${mp(m)}.latest`;
   const phases = [...new Set(L.deliverables.list.map((d) => d.phase))].map((ph) => {
     const items = L.deliverables.list.filter((d) => d.phase === ph).map((d) => `<tr><td>${verb(d.artifact)}</td><td>${code(d.relPath)}</td><td>${st(d.state)}</td></tr>`).join("");
@@ -497,7 +512,7 @@ function viewMission(id) {
       <section class="blk panel"><h2>${esc(t.ratTitle)}</h2>
         ${machine ? `<p class="small" data-rule="machine-mode">${esc(t.machineMode)}</p>` : ""}
         <table class="t"><tbody>${rat}</tbody></table>
-        ${L.ratification.ratifiers.length ? `<p class="small" style="margin-top:10px">${esc(t.ratNames)} ${L.ratification.ratifiers.map(verb).join(", ")}.</p>` : ""}
+        ${IDX.names?.state === "omitted" ? `<p class="small" style="margin-top:10px">${esc(t.ratNamesOmitted)}</p>` : L.ratification.ratifiers.length ? `<p class="small" style="margin-top:10px">${esc(t.ratNames)} ${L.ratification.ratifiers.map(verb).join(", ")}.</p>` : ""}
         <p class="small soft">${esc(t.ratUnknown)}</p>
         <h2 style="margin-top:18px">${esc(t.assurTitle)}</h2>${assur}
       </section>
@@ -549,7 +564,7 @@ function seriesView(m, S, k) {
   const BV = `${base}.byVerdict`;
   const table = recs.map((r, i) => ({ r, i })).reverse().map(({ r, i }) => `<tr><td><code>${esc(r.ref)}</code>${r.judge > 0 ? ` <span class="rv" data-marker="other-judge" title="${esc(judges[r.judge])}">⧉</span>` : ""}</td><td class="hash">${esc(r.commit)}</td><td>${esc(r.committedAt)}</td><td>${st(r.verdict)}</td><td class="c">${n(r.conformanceGaps, s, `records[${i}].verdict.gaps.conformance`, `${base}.records[${i}].conformanceGaps`)}</td><td class="small">${r.assurance === "not-observed" ? esc(word("not-observed")) : `${verb(r.assurance.inForce)}${r.assurance.degraded ? `, ${esc(t.facts.degraded)}` : ""}`}</td><td class="hash">${esc(String(r.payloadSha256 ?? "").slice(0, 12))}</td></tr>`).join("");
   const judgeVersion = (j) => (/runward@([^\s]+)/.exec(j) ?? [])[1] ?? null;
-  const latestV = m.latest !== "not-observed" ? m.latest.runward : null;
+  const latestV = typeof m.latest === "object" ? m.latest.runward : null;
   const hv = judges.map(judgeVersion).filter(Boolean);
   const skew = latestV && hv.length && hv.some((v) => v !== latestV) ? `<p class="small" data-marker="version-skew">${esc(t.skew(latestV, hv.join(", ")))}</p>` : "";
   return `${head(`${esc(t.nav.history)} · <b>${verb(m.name)}</b>`, `${st(S.origin)} · ${srcRef(s)}`)}
@@ -566,7 +581,7 @@ function seriesView(m, S, k) {
 function viewProof() {
   const m = IDX.missions.find((x) => x.verify || x.attestation);
   if (!m) return `${head(t.proofHead, "")}<h1 class="v">${esc(t.proofTitle)}</h1><p class="face" data-face="proof">${st("not-observed")} ${esc(t.proofNone)}</p>`;
-  const V = m.verify, A = m.attestation, Wt = m.witness, L = m.latest !== "not-observed" ? m.latest : null;
+  const V = m.verify, A = m.attestation, Wt = m.witness, L = typeof m.latest === "object" ? m.latest : null;
   const v = L?.runward ?? V?.runward ?? "X.Y.Z";
   const line = (ok, text, gold) => `<tr><td style="width:28px">${gold ? '<span class="mk mk-full or" aria-hidden="true"></span>' : ok ? '<span class="mk mk-full" aria-hidden="true"></span>' : '<span class="mk mk-void" aria-hidden="true"></span>'}</td><td class="small">${text}</td></tr>`;
   const lines = V ? [
@@ -698,6 +713,7 @@ function viewSources() {
   const L = IDX.lang === "fr" ? "fr" : "en";
   const rows = IDX.sources.map((s, i) => `<tr id="${esc(s.id)}"><td><b>${esc(s.id)}</b></td><td>${code(s.path)}<div class="small soft">${esc(t.srcKinds[s.kind] ?? s.kind)}</div></td><td class="small">${verb(s.producedBy ?? "")}<div class="soft">${verb(s.at ?? "")}</div></td><td>${st(s.origin)}</td><td class="hash">${esc(s.sha256)}<div class="soft">${n(s.bytes, s.id, "bytes", `sources[${i}].bytes`)} ${esc(t.bytes)}</div></td></tr>`).join("");
   const rules = RULES.map((r) => `<tr><td>${esc(r.id)}</td><td>${esc(r[L])}</td><td class="small soft">${esc(t.held[r.held])}</td></tr>`).join("");
+  const reading = DECISION_RULES.map((r) => `<tr><td>${esc(r.id)}</td><td>${esc(r[L])}</td><td class="small soft">${esc(t.held[r.held])}</td></tr>`).join("");
   return `${head(t.srcHead(esc(IDX.sources.length)), `${esc(IDX.format)}`)}
     <h1 class="v">${esc(t.srcTitle)}</h1>
     <p class="face" data-face="sources">${esc(t.srcFace)}</p>
@@ -705,7 +721,565 @@ function viewSources() {
     <section class="blk grid2"><div class="panel"><h2>${esc(t.rebuild)}</h2><div class="term"><span class="ln">runward-fleet build ${esc(IDX.sources[0]?.path ?? "fleet.json")} --out site</span></div>
       <p class="small soft" style="margin-top:10px">${esc(t.builtBy(IDX.builtBy.version ?? ""))} ${esc(t.dateNote(IDX.asOf.label ?? t.asOfMissing, IDX.asOf.source))}</p></div>
     <div class="panel"><h2>${esc(t.fonts)}</h2><ul class="small"><li>Inter © The Inter Project Authors, SIL Open Font License 1.1.</li><li>Departure Mono © Helena Zhang, SIL Open Font License 1.1.</li></ul></div></section>
-    <section class="blk"><h2>${esc(t.rulesTitle)}</h2><p class="small soft">${esc(t.rulesNote)}</p><div class="tw"><table class="t" data-rules><tbody>${rules}</tbody></table></div></section>`;
+    <section class="blk"><h2>${esc(t.rulesTitle)}</h2><p class="small soft">${esc(t.rulesNote)}</p><div class="tw"><table class="t" data-rules><tbody>${rules}</tbody></table></div></section>
+    <section class="blk"><h2>${esc(t.readingRulesTitle)}</h2><p class="small soft">${esc(t.readingRulesNote)}</p><div class="tw"><table class="t" data-reading-rules><tbody>${reading}</tbody></table></div></section>`;
+}
+
+// ------------------------------------------------------------------ the decision reading (ADR-0125)
+//
+// A plain-language reading of the index for the people who answer for what agents deliver and do not read
+// code. It is a projection: every sentence comes from the closed lexicon below, keyed on a closed value
+// the index holds (a verdict, a deliverable's state and cause, a refusal's kind, a deliverable, a phase,
+// how a row was endorsed), and names the index path it was read from. The free text of a refusal is shown
+// as it is, marked as data, and never read: no sentence is derived from it. A value the lexicon does not
+// know is shown as written, never dropped and never guessed. No model, no clock, nothing computed: every
+// count is a grouping the index holds, with its denominator and its list.
+export const DECISION_FORMAT = "runward-fleet-decision/0";
+
+const NB = " "; // French puts a no-break space before a colon
+export const LEXICON = {
+  en: {
+    title: "Before your go / no-go",
+    nav: "In plain words",
+    lede: "What the team's own check says about each application. The decision stays yours.",
+    order: "Applications are listed in the order of the inventory.",
+    read: "Read the detail",
+    technical: "Technical detail",
+    back: "All applications",
+    state: { clean: "Nothing is blocking", gaps: "Refused by the check", "level-not-met": "Required level not met", "not-observed": "No check received", "not-available": "Content not shared" },
+    group: { clean: "Nothing is blocking", gaps: "Refused by the check", "level-not-met": "Required level not met", "not-observed": "No check received", "not-available": "Content not shared" },
+    qualifier: { clean: "according to the team's requirements" },
+    reason: {
+      clean: "The check found no missing document and refuses nothing. The decision stays yours.",
+      gaps: "The check refuses this version, for the reasons that follow.",
+      "level-not-met": "No gap was found, but the evidence does not reach the level the team requires.",
+      "not-observed": "No check has been received for this application.",
+      "not-available": "Only fingerprints are sent for this application: its content is not shared.",
+    },
+    date: { received: "Last check received: {date}", fingerprints: "Last fingerprints received: {date}", none: "date not declared" },
+    pieces: {
+      title: "Missing or unfinished documents",
+      legend: "A document here is one the team requires before production.",
+      item: "{piece}: {state}",
+      itemCause: "{piece}: {state}, {cause}",
+      nature: { frame: "Framing", architect: "Design", topology: "Design", floor: "First version in service", govern: "Controls", handover: "Handover" },
+      piece: {
+        "framing.md": "Framing note", "mission-contract.md": "Steering agreement", "architecture.md": "Architecture note",
+        "execution-topology.md": "Execution map", "decision-matrix.md": "Decision matrix", adr: "Written decisions", contracts: "Interface contracts",
+        "floor.md": "First-version measurements", "governance/threat-model.md": "Security assessment", "governance/evaluation-rubric.md": "Evaluation criteria",
+        "governance/observability-schema.md": "Monitoring plan", "runbook.md": "Recovery procedure", "handover.md": "Handover note",
+      },
+      state: { missing: "missing document", untouched: "missing document", "in-progress": "document started, not finished", filled: "document filled in" },
+      count: { missing: "{count} documents missing", untouched: "{count} documents missing", "in-progress": "{count} documents started, not finished", filled: "{count} documents filled in" },
+      cause: {
+        placeholders: "parts are still to be filled in", "below-floor": "the text is still too short to count", "missing-section": "an expected section is missing",
+        "invalid-field": "an expected field does not have the required form", "row-out-of-domain": "a line holds a value outside the allowed list",
+        "incoherent-rows": "lines contradict each other", "broken-echo": "a passage that must be repeated in another document is not",
+      },
+    },
+    problems: {
+      title: "What the check refuses", byKind: "{count} refusals of this kind: {reason}", items: "The detail, refusal by refusal", line: "{subject}: {reason}",
+      detail: "The check's detail, as written", where: "{file}, line {line}, requirement {rule}", whereFile: "{file}, requirement {rule}", whereRule: "requirement {rule}",
+    },
+    kind: {
+      proposed: "a proposed answer is not yet endorsed.",
+      "missing-row": "a requirement of the team has no answer in the record.",
+      "empty-status": "a requirement of the team has no answer chosen yet.",
+      "invalid-status": "a requirement has an answer the check does not recognise.",
+      "applied-without-evidence": "a requirement is said to be met, with no evidence attached.",
+      "evidence-placeholder": "a requirement is said to be met, with no evidence attached.",
+      "deviated-without-adr": "a deliberate deviation has no written decision.",
+      "na-without-reason": "a requirement is set aside with no written reason.",
+      "unknown-rule": "the record answers a requirement that is not among the team's rules.",
+      "duplicate-row": "a requirement has several answers in the record.",
+      "deliverable-missing": "a required document is missing.",
+      "manifest-unreadable": "the check cannot read this document's list of answers in full.",
+      "mapping-floor": "this document's list of requirements was cut below its minimum.",
+      "unresolved-pointer": "the record cites a file or an item the check cannot find.",
+      "evidence-refused": "a cited piece of evidence is refused by the check.",
+      "requires-unmet": "a requirement asks for evidence of another kind than the one cited.",
+      "rule-violation": "the check refuses an answer in the record.",
+      "corpus-missing": "one of the team's rules was deleted.",
+      "corpus-edited": "one of the team's rules was changed since it was set up.",
+      "corpus-extra": "a rule was added without going through the tool.",
+      "corpus-unrecorded": "the team's rules are not recorded: the check cannot tell whether they changed.",
+      "seal-violation": "a piece of evidence changed since it was recorded.",
+      "unratified-decision": "a written decision is not yet endorsed.",
+      "unbound-row": "an endorsement no longer matches the current content of its item.",
+      "charter-malformed": "the charter that delegates acts to agents is malformed.",
+      "charter-stage-unread": "the delegation charter declares a level this version of the check cannot read.",
+      "charter-class-refused": "the charter delegates to agents an act that cannot be delegated to them.",
+      "charter-expired": "an agent acted after its delegation ended.",
+      "agent-not-delegate": "an agent endorsed an item without being a delegate of the charter.",
+      "sample-malformed": "the record of sample reviews is malformed.",
+      "sample-missed": "an agent acted while the sample reviews did not take place.",
+      "class-suspended": "an agent acted in a class of acts that a sample review suspended.",
+      "analysis-boundary": "the delivered code crosses a boundary the team declared.",
+      "analysis-capability": "the delivered code uses a capability the team did not allow there.",
+      "analysis-secret": "the delivered code holds what looks like a secret.",
+      "analysis-test-integrity": "a test of the delivered code does not check what it claims to.",
+      "analysis-symbol": "a name the record cites has no real content in the delivered code.",
+      "analysis-linkage": "a file the record cites refers to an item that does not exist.",
+      "analysis-policy": "the analysis policy the team chose is unknown to this version of the check.",
+      "not-observed": "a refusal whose kind the check does not write.",
+    },
+    scope: {
+      Architect: "Design", Topology: "Design", Floor: "First version in service", Govern: "Controls", Handover: "Handover",
+      corpus: "The team's rules", "evidence-seal": "Evidence record", reconstruction: "Written decisions", delegation: "Delegation to agents",
+      ratification: "Endorsements", analysis: "Delivered code",
+    },
+    endorsement: {
+      title: "How the items were endorsed",
+      mode: {
+        "line-by-line": "{count} items endorsed item by item",
+        "en bloc": "{count} items endorsed all at once",
+        agent: "{count} items endorsed by a reviewing agent",
+        "agent (single accountable)": "{count} items endorsed by a reviewing agent; the same person answers for the agent that proposed them and for the one that endorsed them",
+        blind: "{count} items endorsed without reviewing the detail",
+        changed: "{count} items changed since they were endorsed",
+        untraced: "{count} items with no endorsement recorded",
+      },
+      agent: "{count} items endorsed by a reviewing agent ({agent}, declared name), under the responsibility of {person} (declared person)",
+      agentSingle: "{count} items endorsed by a reviewing agent ({agent}, declared name), under the responsibility of {person} (declared person); the same person answers for the agent that proposed them and for the one that endorsed them",
+      agentNotPublished: "{count} items endorsed by a reviewing agent ({agent}, declared name), under the responsibility of a declared person whose name is not published here",
+      agentSingleNotPublished: "{count} items endorsed by a reviewing agent ({agent}, declared name), under the responsibility of a declared person whose name is not published here; the same person answers for the agent that proposed them and for the one that endorsed them",
+      agentNoPerson: "{count} items endorsed by a reviewing agent ({agent}, declared name), with no person declared as responsible",
+      noneRecorded: "No endorsement recorded.",
+      proposed: "{n} items proposed, not yet endorsed",
+      notDetailed: "Endorsement mode not detailed for {n} items",
+      declared: "These names and modes are declared by the team: the check does not verify who answered.",
+      disclosure: "What the check writes about it:",
+    },
+    origin: {
+      "ci-declared": "Where this comes from: computed in the team's delivery chain.",
+      "machine-established": "Where this comes from: computed in the team's delivery chain; its signature was verified by this page, under the operator's trust policy.",
+      version: "Check run with runward {version}.",
+    },
+    unknown: {
+      state: "State as the check writes it: {value}",
+      kind: "detail of the check, as written: {value}.",
+      piece: "Document as the check names it: {value}",
+      scope: "Part of the record as the check names it: {value}",
+      nature: "Kind of document as the check names it: {value}",
+      pieceState: "state as the check writes it: {value}",
+      cause: "cause as the check writes it: {value}",
+      mode: "{count} items, endorsed in a mode as the check writes it: {value}",
+      origin: "Where this comes from, as the record writes it: {value}",
+    },
+  },
+  fr: {
+    title: "Avant votre go / no-go",
+    nav: "En clair",
+    lede: "Ce que le contrôle de l'équipe dit de chaque application. La décision reste la vôtre.",
+    order: "Les applications sont listées dans l'ordre de l'inventaire.",
+    read: "Lire le détail",
+    technical: "Détail technique",
+    back: "Toutes les applications",
+    state: { clean: "Rien ne bloque", gaps: "Refusée par le contrôle", "level-not-met": "Niveau exigé non atteint", "not-observed": "Aucun contrôle reçu", "not-available": "Contenu non partagé" },
+    group: { clean: "Rien ne bloque", gaps: "Refusées par le contrôle", "level-not-met": "Niveau exigé non atteint", "not-observed": "Aucun contrôle reçu", "not-available": "Contenu non partagé" },
+    qualifier: { clean: "selon les exigences de l'équipe" },
+    reason: {
+      clean: "Le contrôle n'a relevé aucune pièce manquante et ne refuse rien. La décision reste la vôtre.",
+      gaps: "Le contrôle refuse cette version, pour les raisons qui suivent.",
+      "level-not-met": "Aucun écart, mais le niveau de preuve que l'équipe exige n'est pas atteint.",
+      "not-observed": "Aucun contrôle n'a été reçu pour cette application.",
+      "not-available": `Seules des empreintes remontent pour cette application${NB}: son contenu n'est pas partagé.`,
+    },
+    date: { received: `Dernier contrôle reçu${NB}: {date}`, fingerprints: `Dernières empreintes reçues${NB}: {date}`, none: "date non déclarée" },
+    pieces: {
+      title: "Pièces manquantes ou inachevées",
+      legend: "Une pièce est un document que l'équipe exige avant la production.",
+      item: `{piece}${NB}: {state}`,
+      itemCause: `{piece}${NB}: {state}, {cause}`,
+      nature: { frame: "Cadrage", architect: "Conception", topology: "Conception", floor: "Première version en service", govern: "Contrôles", handover: "Passation" },
+      piece: {
+        "framing.md": "Note de cadrage", "mission-contract.md": "Contrat de pilotage", "architecture.md": "Note d'architecture",
+        "execution-topology.md": "Carte d'exécution", "decision-matrix.md": "Matrice de décision", adr: "Décisions écrites", contracts: "Contrats d'interface",
+        "floor.md": "Mesures de la première version", "governance/threat-model.md": "Dossier de sécurité", "governance/evaluation-rubric.md": "Grille d'évaluation",
+        "governance/observability-schema.md": "Plan de surveillance", "runbook.md": "Procédure de reprise", "handover.md": "Note de passation",
+      },
+      state: { missing: "pièce manquante", untouched: "pièce manquante", "in-progress": "pièce commencée, pas finie", filled: "pièce remplie" },
+      count: { missing: "{count} pièces manquantes", untouched: "{count} pièces manquantes", "in-progress": "{count} pièces commencées, pas finies", filled: "{count} pièces remplies" },
+      cause: {
+        placeholders: "des passages restent à remplir", "below-floor": "le texte est encore trop court pour compter", "missing-section": "une section attendue manque",
+        "invalid-field": "un champ attendu n'a pas la forme demandée", "row-out-of-domain": "une ligne contient une valeur hors de la liste permise",
+        "incoherent-rows": "des lignes se contredisent", "broken-echo": "un passage à reprendre dans une autre pièce ne l'est pas",
+      },
+    },
+    problems: {
+      title: "Ce que le contrôle refuse", byKind: `{count} refus de ce genre${NB}: {reason}`, items: "Le détail, refus par refus", line: `{subject}${NB}: {reason}`,
+      detail: "Détail du contrôle, tel quel (en anglais)", where: "{file}, ligne {line}, exigence {rule}", whereFile: "{file}, exigence {rule}", whereRule: "exigence {rule}",
+    },
+    kind: {
+      proposed: "un point proposé n'est pas encore validé.",
+      "missing-row": "une exigence de l'équipe n'a pas de réponse dans le dossier.",
+      "empty-status": "une exigence de l'équipe n'a pas encore de réponse choisie.",
+      "invalid-status": "une exigence a une réponse que le contrôle ne reconnaît pas.",
+      "applied-without-evidence": "une exigence est dite tenue sans preuve jointe.",
+      "evidence-placeholder": "une exigence est dite tenue sans preuve jointe.",
+      "deviated-without-adr": "un écart assumé n'a pas sa décision écrite.",
+      "na-without-reason": "une exigence est écartée sans raison écrite.",
+      "unknown-rule": "le dossier répond à une exigence qui n'existe pas dans les règles de l'équipe.",
+      "duplicate-row": "une exigence a plusieurs réponses dans le dossier.",
+      "deliverable-missing": "une pièce exigée est absente.",
+      "manifest-unreadable": "le contrôle ne peut pas lire en entier la liste des réponses de cette pièce.",
+      "mapping-floor": "la liste des exigences de cette pièce a été réduite sous son minimum.",
+      "unresolved-pointer": "le dossier cite un fichier ou un élément que le contrôle ne trouve pas.",
+      "evidence-refused": "une preuve citée est refusée par le contrôle.",
+      "requires-unmet": "une exigence demande une preuve d'une autre nature que celle qui est citée.",
+      "rule-violation": "le contrôle refuse une réponse du dossier.",
+      "corpus-missing": "une des règles de l'équipe a été supprimée.",
+      "corpus-edited": "une des règles de l'équipe a été modifiée depuis sa mise en place.",
+      "corpus-extra": "une règle a été ajoutée sans passer par l'outil.",
+      "corpus-unrecorded": `l'état des règles de l'équipe n'est pas enregistré${NB}: le contrôle ne peut pas dire si elles ont changé.`,
+      "seal-violation": "une preuve a changé depuis son enregistrement.",
+      "unratified-decision": "une décision écrite n'est pas encore validée.",
+      "unbound-row": "une validation ne correspond plus au contenu actuel du point.",
+      "charter-malformed": "la charte de délégation aux agents est mal formée.",
+      "charter-stage-unread": "la charte de délégation déclare un niveau que cette version du contrôle ne sait pas lire.",
+      "charter-class-refused": "la charte délègue aux agents un acte qui ne peut pas leur être délégué.",
+      "charter-expired": "un agent a agi après la fin de sa délégation.",
+      "agent-not-delegate": "un agent a validé un point sans figurer parmi les délégués de la charte.",
+      "sample-malformed": "le relevé des revues par échantillon est mal formé.",
+      "sample-missed": "un agent a agi alors que les revues par échantillon n'ont pas eu lieu.",
+      "class-suspended": "un agent a agi dans une catégorie d'actes qu'une revue par échantillon a suspendue.",
+      "analysis-boundary": "le code livré franchit une frontière que l'équipe a déclarée.",
+      "analysis-capability": "le code livré utilise une capacité que l'équipe n'a pas autorisée à cet endroit.",
+      "analysis-secret": "le code livré contient ce qui ressemble à un secret.",
+      "analysis-test-integrity": "un test du code livré ne vérifie pas ce qu'il annonce.",
+      "analysis-symbol": "un nom que cite le dossier n'a pas de contenu réel dans le code livré.",
+      "analysis-linkage": "un fichier que cite le dossier fait appel à un élément qui n'existe pas.",
+      "analysis-policy": "la politique d'analyse choisie par l'équipe est inconnue de cette version du contrôle.",
+      "not-observed": "un refus dont le contrôle n'écrit pas le genre.",
+    },
+    scope: {
+      Architect: "Conception", Topology: "Conception", Floor: "Première version en service", Govern: "Contrôles", Handover: "Passation",
+      corpus: "Règles de l'équipe", "evidence-seal": "Enregistrement des preuves", reconstruction: "Décisions écrites", delegation: "Délégation aux agents",
+      ratification: "Validations", analysis: "Code livré",
+    },
+    endorsement: {
+      title: "Comment les points ont été validés",
+      mode: {
+        "line-by-line": "{count} points validés point par point",
+        "en bloc": "{count} points validés en une fois",
+        agent: "{count} points validés par un agent relecteur",
+        "agent (single accountable)": "{count} points validés par un agent relecteur ; la même personne répond de l'agent qui les a proposés et de celui qui les a validés",
+        blind: "{count} points validés sans relecture du détail",
+        changed: "{count} points modifiés depuis leur validation",
+        untraced: "{count} points sans validation enregistrée",
+      },
+      agent: "{count} points validés par un agent relecteur ({agent}, nom déclaré), sous la responsabilité de la personne déclarée {person}",
+      agentSingle: "{count} points validés par un agent relecteur ({agent}, nom déclaré), sous la responsabilité de la personne déclarée {person} ; la même personne répond de l'agent qui les a proposés et de celui qui les a validés",
+      agentNotPublished: "{count} points validés par un agent relecteur ({agent}, nom déclaré), sous la responsabilité d'une personne déclarée dont le nom n'est pas publié ici",
+      agentSingleNotPublished: "{count} points validés par un agent relecteur ({agent}, nom déclaré), sous la responsabilité d'une personne déclarée dont le nom n'est pas publié ici ; la même personne répond de l'agent qui les a proposés et de celui qui les a validés",
+      agentNoPerson: "{count} points validés par un agent relecteur ({agent}, nom déclaré), sans personne responsable déclarée",
+      noneRecorded: "Aucune validation enregistrée.",
+      proposed: "{n} points proposés, pas encore validés",
+      notDetailed: "Mode de validation non détaillé pour {n} points",
+      declared: `Ces noms et ces modes sont déclarés par l'équipe${NB}: le contrôle ne vérifie pas qui a répondu.`,
+      disclosure: `Ce que le contrôle écrit à ce sujet (en anglais)${NB}:`,
+    },
+    origin: {
+      "ci-declared": `D'où vient cette lecture${NB}: calculée par la chaîne de livraison de l'équipe.`,
+      "machine-established": `D'où vient cette lecture${NB}: calculée par la chaîne de livraison de l'équipe ; sa signature a été vérifiée par cette page, sous la politique de confiance de l'opérateur.`,
+      version: "Contrôle fait avec runward {version}.",
+    },
+    unknown: {
+      state: `État tel que le contrôle l'écrit${NB}: {value}`,
+      kind: `détail du contrôle, tel quel${NB}: {value}.`,
+      piece: `Pièce telle que le contrôle la nomme${NB}: {value}`,
+      scope: `Partie du dossier telle que le contrôle la nomme${NB}: {value}`,
+      nature: `Nature telle que le contrôle la nomme${NB}: {value}`,
+      pieceState: `état tel que le contrôle l'écrit${NB}: {value}`,
+      cause: `cause telle que le contrôle l'écrit${NB}: {value}`,
+      mode: `{count} points, validés selon un mode tel que le contrôle l'écrit${NB}: {value}`,
+      origin: `D'où vient cette lecture, telle que le relevé l'écrit${NB}: {value}`,
+    },
+  },
+};
+
+// The rules of the decision reading (ADR-0125), listed on the sources view beside the eighteen of ADR-0093.
+export const DECISION_RULES = [
+  { id: "R1", held: "build", en: "The reading's own words hold none of the method's internal words.", fr: "Les mots propres de la lecture ne contiennent aucun mot interne de la méthode." },
+  { id: "R2", held: "test", en: "Every closed value the CLI writes has a sentence in both languages; an unknown value is shown as written, never dropped or guessed.", fr: "Chaque valeur fermée que le CLI écrit a sa phrase dans les deux langues ; une valeur inconnue s'affiche telle qu'écrite, jamais omise ni devinée." },
+  { id: "R3", held: "build", en: "No state reads as a decision taken (go, no-go, ready, blocked); the reader's decision is named in a title only.", fr: "Aucun état ne se lit comme une décision prise (go, no-go, prêt, bloqué) ; la décision du lecteur n'est nommée que dans un titre." },
+  { id: "R4", held: "build", en: "Nothing is blocking is always followed by the team's requirements and the date of the last check received.", fr: "Rien ne bloque est toujours suivi des exigences de l'équipe et de la date du dernier contrôle reçu." },
+  { id: "R5", held: "test", en: "A row endorsed by an agent is never worded as a person's endorsement; a refusal's text is shown as written and never read.", fr: "Une ligne validée par un agent ne se dit jamais validée par une personne ; le texte d'un refus s'affiche tel quel et n'est jamais lu." },
+];
+
+const AGENT_ENDORSEMENTS = new Set(["agent", "agent (single accountable)"]);
+const ptr = (...keys) => `/${keys.map((k) => String(k).replace(/~/g, "~0").replace(/\//g, "~1")).join("/")}`;
+
+/** The lexicon's sentence a JSON Pointer (RFC 6901) names, in one language, or undefined. */
+export function lexiconAt(lang, pointer) {
+  let cur = LEXICON[lang === "fr" ? "fr" : "en"];
+  for (const raw of String(pointer).split("/").slice(1)) cur = cur?.[raw.replace(/~1/g, "/").replace(/~0/g, "~")];
+  return typeof cur === "string" ? cur : undefined;
+}
+
+/** A sentence of the lexicon: its pointer, the index path of the closed value it was read from, its
+ *  arguments (each a datum with its index path, or a grouping with its n, N and list), and its text. */
+function sentence(lang, keys, args = {}, from = null) {
+  const key = ptr(...keys);
+  const template = lexiconAt(lang, key);
+  if (template === undefined) return null;
+  const text = template.replace(/\{([A-Za-z]+)\}/g, (_, k) => String(args[k]?.text ?? ""));
+  return { key, text, ...(from ? { from } : {}), ...(Object.keys(args).length ? { args } : {}) };
+}
+const datum = (text, path) => ({ text: String(text ?? ""), path, verbatim: true });
+const count = (g, path, src) => ({ text: `${g.n} / ${g.N}`, n: g.n, N: g.N, list: g.list ?? [], path, src });
+const number = (value, path, src) => ({ text: String(value), value, path, src });
+
+/** The deliverable a refusal's file belongs to, read on the closed list of the lexicon, or null. */
+function pieceOf(file) {
+  if (typeof file !== "string" || !file.startsWith("runward/")) return null;
+  const rest = file.slice("runward/".length);
+  return Object.keys(LEXICON.en.pieces.piece).filter((k) => rest === k || rest.startsWith(`${k}/`)).sort((a, b) => b.length - a.length)[0] ?? null;
+}
+
+function lastCheck(lang, idx, m, state) {
+  const L = typeof m.latest === "object" ? m.latest : null;
+  const id = L ? L.src : state === "not-available" ? [`${m.id}:check`, `${m.id}:attestation`].find((x) => idx.sources.some((s) => s.id === x)) : null;
+  if (!id) return null;
+  const at = idx.sources.find((s) => s.id === id)?.at;
+  const date = at ? datum(at, `sources[id=${id}].at`) : { text: lexiconAt(lang, "/date/none") };
+  return sentence(lang, ["date", state === "not-available" ? "fingerprints" : "received"], { date }, `sources[id=${id}]`);
+}
+
+/** The documents not filled in, by state, each with its n / N from the index. */
+function pieceCountsOf(lang, L, b) {
+  return (Array.isArray(L.deliverables?.byState) ? L.deliverables.byState : []).filter((g) => g.state !== "filled" && g.n > 0).map((g) => {
+    const gpath = `${b}.deliverables.byState[state=${g.state}]`;
+    return sentence(lang, ["pieces", "count", g.state], { count: count(g, gpath, L.src) }, `${gpath}.state`)
+      ?? sentence(lang, ["unknown", "pieceState"], { value: datum(g.state, `${gpath}.state`) }, `${gpath}.state`);
+  });
+}
+
+function piecesOf(lang, L, b) {
+  const out = [];
+  const byNature = new Map();
+  (L.deliverables?.list ?? []).forEach((d, i) => {
+    if (d.state === "filled") return;
+    const p = `${b}.deliverables.list[${i}]`;
+    const nature = d.phaseId ?? "";
+    if (!byNature.has(nature)) {
+      const label = sentence(lang, ["pieces", "nature", nature], {}, `${p}.phaseId`) ?? sentence(lang, ["unknown", "nature"], { value: datum(nature, `${p}.phaseId`) }, `${p}.phaseId`);
+      const g = { nature, label, items: [] };
+      byNature.set(nature, g);
+      out.push(g);
+    }
+    const piece = sentence(lang, ["pieces", "piece", d.relPath], {}, `${p}.relPath`) ?? sentence(lang, ["unknown", "piece"], { value: datum(d.artifact ?? d.relPath, `${p}.artifact`) }, `${p}.relPath`);
+    const stateWord = sentence(lang, ["pieces", "state", d.state], {}, `${p}.state`) ?? sentence(lang, ["unknown", "pieceState"], { value: datum(d.state, `${p}.state`) }, `${p}.state`);
+    const cause = d.cause ? sentence(lang, ["pieces", "cause", d.cause], {}, `${p}.cause`) ?? sentence(lang, ["unknown", "cause"], { value: datum(d.cause, `${p}.cause`) }, `${p}.cause`) : null;
+    const line = sentence(lang, ["pieces", cause ? "itemCause" : "item"], { piece: { text: piece.text, sentence: piece }, state: { text: stateWord.text, sentence: stateWord }, ...(cause ? { cause: { text: cause.text, sentence: cause } } : {}) }, p);
+    byNature.get(nature).items.push({ path: p, relPath: d.relPath, state: d.state, cause: d.cause ?? null, line });
+  });
+  return out;
+}
+
+/** The sentence of a refusal's kind, or, for a kind the lexicon does not know, the kind as written. */
+function kindSentence(lang, kind, from) {
+  return sentence(lang, ["kind", kind], {}, from) ?? sentence(lang, ["unknown", "kind"], { value: datum(kind, from) }, from);
+}
+
+/** The refusals by kind, each with its n / N from the index: what a reader takes in first. */
+function kindsOf(lang, L, b) {
+  return (Array.isArray(L.conformanceByKind) ? L.conformanceByKind : []).map((g) => {
+    const gpath = `${b}.conformanceByKind[state=${g.state}]`;
+    const reason = kindSentence(lang, g.state, `${gpath}.state`);
+    return { kind: g.state, line: sentence(lang, ["problems", "byKind"], { count: count(g, gpath, L.src), reason: { text: reason.text, sentence: reason } }, `${gpath}.state`) };
+  });
+}
+
+function problemsOf(lang, L, b) {
+  return (L.conformance ?? []).map((c, i) => {
+    const p = `${b}.conformance[${i}]`;
+    const piece = pieceOf(c.file);
+    const subject = piece !== null
+      ? sentence(lang, ["pieces", "piece", piece], {}, `${p}.file`)
+      : sentence(lang, ["scope", c.scope ?? ""], {}, `${p}.scope`) ?? sentence(lang, ["unknown", "scope"], { value: datum(c.scope, `${p}.scope`) }, `${p}.scope`);
+    const reason = kindSentence(lang, c.kind ?? "not-observed", `${p}.kind`);
+    const file = c.file ? { ...datum(c.file, `${p}.file`), code: true } : null;
+    const rule = { ...datum(c.rule, `${p}.rule`), code: true };
+    const at = typeof c.line === "number" ? number(c.line, `${p}.line`, L.src) : null;
+    const where = file && at ? sentence(lang, ["problems", "where"], { file, line: at, rule }, p)
+      : file ? sentence(lang, ["problems", "whereFile"], { file, rule }, p) : sentence(lang, ["problems", "whereRule"], { rule }, p);
+    return {
+      path: p, kind: c.kind, known: reason.key.startsWith("/kind/"),
+      line: sentence(lang, ["problems", "line"], { subject: { text: subject.text, sentence: subject }, reason: { text: reason.text, sentence: reason } }, p),
+      where,
+      problem: datum(c.problem, `${p}.problem`),
+    };
+  });
+}
+
+function endorsementOf(lang, idx, L, b) {
+  const r = L.ratification ?? {};
+  const rp = `${b}.ratification`;
+  const lines = [];
+  if (!Array.isArray(r.byMode)) {
+    // An index built before the projection, or an export that lists no row: the mode is not known here.
+    lines.push(sentence(lang, ["endorsement", "notDetailed"], { n: number(r.rows ?? 0, `${rp}.rows`, L.src) }, `${rp}.byMode`));
+  } else {
+    if (r.byMode.every((g) => g.n === 0)) lines.push(sentence(lang, ["endorsement", "noneRecorded"], {}, `${rp}.byMode`));
+    for (const g of r.byMode) {
+      if (g.n === 0 || (AGENT_ENDORSEMENTS.has(g.state) && Array.isArray(r.agentRows))) continue; // an agent's rows are said with its name, below
+      const gp2 = `${rp}.byMode[state=${g.state}]`;
+      lines.push(sentence(lang, ["endorsement", "mode", g.state], { count: count(g, gp2, L.src) }, `${gp2}.state`)
+        ?? sentence(lang, ["unknown", "mode"], { count: count(g, gp2, L.src), value: datum(g.state, `${gp2}.state`) }, `${gp2}.state`));
+    }
+    const omitted = idx.names?.state === "omitted";
+    (Array.isArray(r.agentRows) ? r.agentRows : []).forEach((a, i) => {
+      if (a.n === 0) return;
+      const ap = `${rp}.agentRows[${i}]`;
+      const single = a.state === "agent (single accountable)";
+      const person = typeof a.for === "string" && a.for ? datum(a.for, `${ap}.for`) : null;
+      const key = person ? (single ? "agentSingle" : "agent") : omitted ? (single ? "agentSingleNotPublished" : "agentNotPublished") : "agentNoPerson";
+      lines.push(sentence(lang, ["endorsement", key], { count: count(a, ap, L.src), agent: datum(a.agent, `${ap}.agent`), ...(person ? { person } : {}) }, `${ap}.state`));
+    });
+  }
+  const proposed = typeof L.gaps?.proposed === "number" && L.gaps.proposed > 0
+    ? sentence(lang, ["endorsement", "proposed"], { n: number(L.gaps.proposed, `${b}.gaps.proposed`, L.src) }, `${b}.gaps.proposed`) : null;
+  const disclosure = r.singleAccountable?.disclosure?.length ? r.singleAccountable.disclosure.map((d, i) => datum(d, `${rp}.singleAccountable.disclosure[${i}]`)) : [];
+  return { detailed: Array.isArray(r.byMode), lines, proposed, disclosure, declared: sentence(lang, ["endorsement", "declared"], {}, rp) };
+}
+
+/**
+ * The decision reading of an index, `runward-fleet-decision/0`: for the fleet, the groupings n / N by
+ * state with their lists; for each application, its state (the index's own, renamed, never recomputed),
+ * the sentence that follows it, the date of the last check received, the reason, the missing pieces by
+ * their nature, each refusal with its sentence and its detail as written, how the decided rows were
+ * endorsed, and where the reading comes from. Every value carries its index path.
+ */
+export function decide(idx) {
+  const lang = idx?.lang === "fr" ? "fr" : "en";
+  const s0 = idx.manifest?.src ?? "fleet.json";
+  return {
+    format: DECISION_FORMAT,
+    lang,
+    index: { format: idx.format ?? null, builtBy: idx.builtBy ?? null },
+    names: idx.names?.state === "omitted" ? "omitted" : "shown",
+    title: sentence(lang, ["title"]),
+    fleet: {
+      declared: number(idx.fleet.declared, "fleet.declared", s0),
+      groups: (idx.fleet.byVerdict ?? []).map((g) => {
+        const gpath = `fleet.byVerdict[state=${g.state}]`;
+        return { state: g.state, label: sentence(lang, ["group", g.state], {}, `${gpath}.state`) ?? sentence(lang, ["unknown", "state"], { value: datum(g.state, `${gpath}.state`) }, `${gpath}.state`), count: count(g, gpath, s0) };
+      }),
+    },
+    applications: (idx.missions ?? []).map((m) => {
+      const b = `missions[id=${m.id}].latest`;
+      const L = typeof m.latest === "object" ? m.latest : null;
+      const state = L ? L.verdict : m.latest;
+      const from = L ? `${b}.verdict` : b;
+      const known = lexiconAt(lang, ptr("state", state)) !== undefined;
+      return {
+        id: m.id,
+        path: `missions[id=${m.id}]`,
+        name: datum(m.name, `missions[id=${m.id}].name`),
+        state,
+        stateWord: known ? sentence(lang, ["state", state], {}, from) : sentence(lang, ["unknown", "state"], { value: datum(state, from) }, from),
+        qualifier: state === "clean" ? sentence(lang, ["qualifier", "clean"], {}, from) : null,
+        date: lastCheck(lang, idx, m, state),
+        reason: known ? sentence(lang, ["reason", state], {}, from) : null,
+        pieces: L ? piecesOf(lang, L, b) : [],
+        kinds: L ? kindsOf(lang, L, b) : [],
+        pieceCounts: L ? pieceCountsOf(lang, L, b) : [],
+        problems: L ? problemsOf(lang, L, b) : [],
+        endorsement: L ? endorsementOf(lang, idx, L, b) : null,
+        origin: L ? sentence(lang, ["origin", L.implemented], {}, `${b}.implemented`) ?? sentence(lang, ["unknown", "origin"], { value: datum(L.implemented, `${b}.implemented`) }, `${b}.implemented`) : null,
+        version: L?.runward ? sentence(lang, ["origin", "version"], { version: datum(L.runward, `${b}.runward`) }, `${b}.runward`) : null,
+      };
+    }),
+  };
+}
+
+// ---- its rendering: semantic roles (`data-role`), styled by each deployment's own layer
+function say(lang, s) {
+  if (!s) return "";
+  const template = lexiconAt(lang, s.key) ?? "";
+  let html = "", at = 0;
+  for (const m of template.matchAll(/\{([A-Za-z]+)\}/g)) {
+    html += esc(template.slice(at, m.index)) + arg(lang, s.args?.[m[1]]);
+    at = m.index + m[0].length;
+  }
+  return html + esc(template.slice(at));
+}
+function arg(lang, a) {
+  if (!a) return "";
+  if (a.sentence) return say(lang, a.sentence);
+  if (a.N !== undefined) return frac({ n: a.n, N: a.N, list: a.list }, a.src, a.path);
+  if (typeof a.value === "number") return n(a.value, a.src, null, a.path);
+  if (a.verbatim) return a.code ? code(a.text) : verb(a.text);
+  return esc(a.text);
+}
+const role = (r, inner, attrs = "") => `<p data-role="${r}"${attrs}>${inner}</p>`;
+
+function stateBlock(lang, app) {
+  const st0 = `data-state="${esc(app.state)}"`;
+  return `<p data-role="state" ${st0}><span data-role="mark" aria-hidden="true"></span><span data-role="state-word">${say(lang, app.stateWord)}</span></p>
+      ${app.qualifier ? role("qualifier", say(lang, app.qualifier)) : ""}${app.date ? role("date", say(lang, app.date)) : ""}`;
+}
+
+/** The refusals by kind and the documents not filled in, each with its n / N: why, in a few lines. */
+function why(lang, a) {
+  const lines = [...a.kinds.map((k) => `<li data-role="kind" data-kind="${esc(k.kind)}">${say(lang, k.line)}</li>`), ...a.pieceCounts.map((c) => `<li data-role="piece-count">${say(lang, c)}</li>`)];
+  return lines.length ? `<ul data-role="kinds">${lines.join("")}</ul>` : "";
+}
+
+function decisionPortfolio(doc) {
+  const X = LEXICON[doc.lang], lang = doc.lang;
+  const groups = doc.fleet.groups.filter((g) => g.count.n > 0).map((g) =>
+    `<li data-role="group" data-state="${esc(g.state)}"><span data-role="mark" aria-hidden="true"></span><span data-role="group-label">${say(lang, g.label)}</span> ${arg(lang, g.count)}</li>`).join("");
+  const apps = doc.applications.map((a) => `<li data-role="application" data-state="${esc(a.state)}" data-mission="${esc(a.id)}">
+      <h2 data-role="name">${verb(a.name.text)}</h2>
+      ${stateBlock(lang, a)}
+      ${a.reason ? role("reason", say(lang, a.reason)) : ""}
+      ${why(lang, a)}
+      <p data-role="links"><a href="#/decision/${esc(a.id)}">${esc(X.read)}</a> · <a href="#/mission/${esc(a.id)}">${esc(X.technical)}</a></p>
+    </li>`).join("");
+  return `<section data-reading="decision" data-view="portfolio">
+    <h1 data-role="title">${say(lang, doc.title)}</h1>
+    ${role("lede", esc(X.lede))}
+    <ul data-role="groups">${groups}</ul>
+    ${role("note", esc(X.order))}
+    <ol data-role="applications">${apps}</ol>
+  </section>`;
+}
+
+function decisionApplication(doc, a) {
+  const X = LEXICON[doc.lang], lang = doc.lang;
+  const problems = a.problems.length ? `<section data-role="problems"><h2>${esc(X.problems.title)}</h2><h3>${esc(X.problems.items)}</h3><ol>${a.problems.map((p) => `<li data-role="problem" data-kind="${esc(p.kind ?? "")}">
+        ${role("sentence", say(lang, p.line))}
+        <div data-role="detail"><p data-role="detail-label">${esc(X.problems.detail)}</p>${role("location", say(lang, p.where))}<!--verbatim:start--><p data-role="verbatim" lang="en">${esc(p.problem.text)}</p><!--verbatim:end--></div>
+      </li>`).join("")}</ol></section>` : "";
+  const pieces = a.pieces.length ? `<section data-role="pieces"><h2>${esc(X.pieces.title)}</h2>${role("legend", esc(X.pieces.legend))}${a.pieces.map((g) => `<div data-role="nature"><h3>${say(lang, g.label)}</h3><ul>${g.items.map((it) => `<li data-role="piece" data-state="${esc(it.state)}">${say(lang, it.line)}</li>`).join("")}</ul></div>`).join("")}</section>` : "";
+  const E = a.endorsement;
+  const endorsement = E ? `<section data-role="endorsement"><h2>${esc(X.endorsement.title)}</h2><ul>${[...E.lines, E.proposed].filter(Boolean).map((s) => `<li>${say(lang, s)}</li>`).join("")}</ul>
+      ${E.disclosure.length ? `<div data-role="detail"><p data-role="detail-label">${esc(X.endorsement.disclosure)}</p><!--verbatim:start-->${E.disclosure.map((d) => `<p data-role="verbatim" lang="en">${esc(d.text)}</p>`).join("")}<!--verbatim:end--></div>` : ""}
+      ${role("note", say(lang, E.declared))}</section>` : "";
+  return `<section data-reading="decision" data-view="application" data-mission="${esc(a.id)}">
+    <p data-role="back"><a href="#/decision">${esc(X.back)}</a></p>
+    <h1 data-role="name">${verb(a.name.text)}</h1>
+    ${stateBlock(lang, a)}
+    ${a.reason ? role("reason", say(lang, a.reason)) : ""}
+    ${why(lang, a)}
+    ${problems}${pieces}${endorsement}
+    ${a.origin ? role("origin", say(lang, a.origin)) : ""}${a.version ? role("version", say(lang, a.version)) : ""}
+    <p data-role="links"><a href="#/mission/${esc(a.id)}">${esc(X.technical)}</a></p>
+  </section>`;
+}
+
+/**
+ * The HTML of the decision reading: the portfolio, or one application's page when `id` names a mission.
+ * Each element carries its role (`data-role`), never a look: the static page and a hosted deployment
+ * style the same roles with their own layer, and render the same bytes from the same index.
+ */
+export function renderDecision(idx, id) {
+  const doc = decide(idx);
+  if (id === undefined || id === null || id === "") return decisionPortfolio(doc);
+  const a = doc.applications.find((x) => x.id === id);
+  return a ? decisionApplication(doc, a) : decisionPortfolio(doc);
 }
 
 // ------------------------------------------------------------------ entry points
@@ -723,6 +1297,7 @@ function use(idx) {
 export function renderView(idx, route = "", arg, { strict = false } = {}) {
   use(idx);
   try {
+    if (route === "decision") return renderDecision(idx, arg);
     if (route === "mission") return viewMission(arg);
     if (route === "history") return viewHistory();
     if (route === "proof") return viewProof();
@@ -738,14 +1313,14 @@ export function renderView(idx, route = "", arg, { strict = false } = {}) {
 
 /** Every view the page can show, as [route, arg] pairs: the build checks each of them. */
 export function allViews(idx) {
-  return [["", null], ...idx.missions.map((m) => ["mission", m.id]), ["history", null], ["proof", null], ["signatures", null], ["pr", null], ["sources", null]];
+  return [["decision", null], ...idx.missions.map((m) => ["decision", m.id]), ["", null], ...idx.missions.map((m) => ["mission", m.id]), ["history", null], ["proof", null], ["signatures", null], ["pr", null], ["sources", null]];
 }
 
 export function renderNav(idx, route) {
   use(idx);
   return ROUTES.map((r) => {
     const target = r === "mission" ? `mission/${idx.missions[0]?.id ?? ""}` : r;
-    return `<a href="#/${esc(target)}"${r === route ? ' aria-current="page"' : ""}>${esc(t.nav[r])}</a>`;
+    return `<a href="#/${esc(target)}"${r === route ? ' aria-current="page"' : ""}>${esc(r === "decision" ? LEXICON[lang(idx)].nav : t.nav[r])}</a>`;
   }).join("");
 }
 
