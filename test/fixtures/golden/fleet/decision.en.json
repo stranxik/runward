@@ -25,8 +25,8 @@
         "state": "clean",
         "label": {
           "key": "/group/clean",
-          "text": "Nothing is blocking",
-          "from": "fleet.byVerdict[state=clean].state"
+          "text": "Nothing is blocking, according to the team's requirements",
+          "from": "fleet.byVerdict[0].state"
         },
         "count": {
           "text": "2 / 7",
@@ -36,7 +36,7 @@
             "demo-repaired",
             "agent"
           ],
-          "path": "fleet.byVerdict[state=clean]",
+          "path": "fleet.byVerdict[0]",
           "src": "fleet.json"
         }
       },
@@ -45,7 +45,7 @@
         "label": {
           "key": "/group/gaps",
           "text": "Refused by the check",
-          "from": "fleet.byVerdict[state=gaps].state"
+          "from": "fleet.byVerdict[1].state"
         },
         "count": {
           "text": "2 / 7",
@@ -55,7 +55,7 @@
             "demo-renamed",
             "hosted"
           ],
-          "path": "fleet.byVerdict[state=gaps]",
+          "path": "fleet.byVerdict[1]",
           "src": "fleet.json"
         }
       },
@@ -64,7 +64,7 @@
         "label": {
           "key": "/group/level-not-met",
           "text": "Required level not met",
-          "from": "fleet.byVerdict[state=level-not-met].state"
+          "from": "fleet.byVerdict[2].state"
         },
         "count": {
           "text": "1 / 7",
@@ -73,7 +73,7 @@
           "list": [
             "level"
           ],
-          "path": "fleet.byVerdict[state=level-not-met]",
+          "path": "fleet.byVerdict[2]",
           "src": "fleet.json"
         }
       },
@@ -82,7 +82,7 @@
         "label": {
           "key": "/group/not-observed",
           "text": "No check received",
-          "from": "fleet.byVerdict[state=not-observed].state"
+          "from": "fleet.byVerdict[3].state"
         },
         "count": {
           "text": "1 / 7",
@@ -91,7 +91,7 @@
           "list": [
             "silent"
           ],
-          "path": "fleet.byVerdict[state=not-observed]",
+          "path": "fleet.byVerdict[3]",
           "src": "fleet.json"
         }
       },
@@ -100,7 +100,7 @@
         "label": {
           "key": "/group/not-available",
           "text": "Content not shared",
-          "from": "fleet.byVerdict[state=not-available].state"
+          "from": "fleet.byVerdict[4].state"
         },
         "count": {
           "text": "1 / 7",
@@ -109,7 +109,7 @@
           "list": [
             "digest"
           ],
-          "path": "fleet.byVerdict[state=not-available]",
+          "path": "fleet.byVerdict[4]",
           "src": "fleet.json"
         }
       }
@@ -155,7 +155,7 @@
           "line": {
             "key": "/problems/byKind",
             "text": "2 / 2 refusals of this kind: a cited piece of evidence is refused by the check.",
-            "from": "missions[id=demo-renamed].latest.conformanceByKind[state=evidence-refused].state",
+            "from": "missions[id=demo-renamed].latest.conformanceByKind[0].state",
             "args": {
               "count": {
                 "text": "2 / 2",
@@ -165,7 +165,7 @@
                   "Floor · frontier-deterministic-boundary",
                   "Govern · security-prompt-injection"
                 ],
-                "path": "missions[id=demo-renamed].latest.conformanceByKind[state=evidence-refused]",
+                "path": "missions[id=demo-renamed].latest.conformanceByKind[0]",
                 "src": "demo-renamed:check"
               },
               "reason": {
@@ -173,7 +173,7 @@
                 "sentence": {
                   "key": "/kind/evidence-refused",
                   "text": "a cited piece of evidence is refused by the check.",
-                  "from": "missions[id=demo-renamed].latest.conformanceByKind[state=evidence-refused].state"
+                  "from": "missions[id=demo-renamed].latest.conformanceByKind[0].state"
                 }
               }
             }
@@ -305,7 +305,7 @@
           {
             "key": "/endorsement/mode/untraced",
             "text": "36 / 36 items with no endorsement recorded",
-            "from": "missions[id=demo-renamed].latest.ratification.byMode[state=untraced].state",
+            "from": "missions[id=demo-renamed].latest.ratification.byMode[6].state",
             "args": {
               "count": {
                 "text": "36 / 36",
@@ -349,13 +349,12 @@
                   "handover.md · handover-agents-charter-final",
                   "handover.md · handover-succession-named"
                 ],
-                "path": "missions[id=demo-renamed].latest.ratification.byMode[state=untraced]",
+                "path": "missions[id=demo-renamed].latest.ratification.byMode[6]",
                 "src": "demo-renamed:check"
               }
             }
           }
         ],
-        "proposed": null,
         "disclosure": [],
         "declared": {
           "key": "/endorsement/declared",
@@ -427,7 +426,7 @@
           {
             "key": "/endorsement/mode/untraced",
             "text": "36 / 36 items with no endorsement recorded",
-            "from": "missions[id=demo-repaired].latest.ratification.byMode[state=untraced].state",
+            "from": "missions[id=demo-repaired].latest.ratification.byMode[6].state",
             "args": {
               "count": {
                 "text": "36 / 36",
@@ -471,13 +470,12 @@
                   "handover.md · handover-agents-charter-final",
                   "handover.md · handover-succession-named"
                 ],
-                "path": "missions[id=demo-repaired].latest.ratification.byMode[state=untraced]",
+                "path": "missions[id=demo-repaired].latest.ratification.byMode[6]",
                 "src": "demo-repaired:check"
               }
             }
           }
         ],
-        "proposed": null,
         "disclosure": [],
         "declared": {
           "key": "/endorsement/declared",
@@ -580,7 +578,7 @@
           "line": {
             "key": "/problems/byKind",
             "text": "42 / 46 refusals of this kind: a proposed answer is not yet endorsed.",
-            "from": "missions[id=hosted].latest.conformanceByKind[state=proposed].state",
+            "from": "missions[id=hosted].latest.conformanceByKind[0].state",
             "args": {
               "count": {
                 "text": "42 / 46",
@@ -630,7 +628,7 @@
                   "Govern · security-prompt-injection",
                   "Govern · security-tool-change-reapproval"
                 ],
-                "path": "missions[id=hosted].latest.conformanceByKind[state=proposed]",
+                "path": "missions[id=hosted].latest.conformanceByKind[0]",
                 "src": "hosted:check"
               },
               "reason": {
@@ -638,7 +636,7 @@
                 "sentence": {
                   "key": "/kind/proposed",
                   "text": "a proposed answer is not yet endorsed.",
-                  "from": "missions[id=hosted].latest.conformanceByKind[state=proposed].state"
+                  "from": "missions[id=hosted].latest.conformanceByKind[0].state"
                 }
               }
             }
@@ -649,7 +647,7 @@
           "line": {
             "key": "/problems/byKind",
             "text": "4 / 46 refusals of this kind: a requirement of the team has no answer in the record.",
-            "from": "missions[id=hosted].latest.conformanceByKind[state=missing-row].state",
+            "from": "missions[id=hosted].latest.conformanceByKind[1].state",
             "args": {
               "count": {
                 "text": "4 / 46",
@@ -661,7 +659,7 @@
                   "Handover · handover-runbook-executable",
                   "Handover · handover-succession-named"
                 ],
-                "path": "missions[id=hosted].latest.conformanceByKind[state=missing-row]",
+                "path": "missions[id=hosted].latest.conformanceByKind[1]",
                 "src": "hosted:check"
               },
               "reason": {
@@ -669,7 +667,7 @@
                 "sentence": {
                   "key": "/kind/missing-row",
                   "text": "a requirement of the team has no answer in the record.",
-                  "from": "missions[id=hosted].latest.conformanceByKind[state=missing-row].state"
+                  "from": "missions[id=hosted].latest.conformanceByKind[1].state"
                 }
               }
             }
@@ -680,7 +678,7 @@
         {
           "key": "/pieces/count/untouched",
           "text": "1 / 13 documents missing",
-          "from": "missions[id=hosted].latest.deliverables.byState[state=untouched].state",
+          "from": "missions[id=hosted].latest.deliverables.byState[1].state",
           "args": {
             "count": {
               "text": "1 / 13",
@@ -689,7 +687,7 @@
               "list": [
                 "handover.md"
               ],
-              "path": "missions[id=hosted].latest.deliverables.byState[state=untouched]",
+              "path": "missions[id=hosted].latest.deliverables.byState[1]",
               "src": "hosted:check"
             }
           }
@@ -3350,19 +3348,6 @@
             "from": "missions[id=hosted].latest.ratification.byMode"
           }
         ],
-        "proposed": {
-          "key": "/endorsement/proposed",
-          "text": "42 items proposed, not yet endorsed",
-          "from": "missions[id=hosted].latest.gaps.proposed",
-          "args": {
-            "n": {
-              "text": "42",
-              "value": 42,
-              "path": "missions[id=hosted].latest.gaps.proposed",
-              "src": "hosted:check"
-            }
-          }
-        },
         "disclosure": [],
         "declared": {
           "key": "/endorsement/declared",
@@ -3434,7 +3419,7 @@
           {
             "key": "/endorsement/mode/line-by-line",
             "text": "17 / 46 items endorsed item by item",
-            "from": "missions[id=agent].latest.ratification.byMode[state=line-by-line].state",
+            "from": "missions[id=agent].latest.ratification.byMode[0].state",
             "args": {
               "count": {
                 "text": "17 / 46",
@@ -3459,7 +3444,7 @@
                   "governance/threat-model.md · checklist-pre-production-security",
                   "governance/threat-model.md · routing-confidence-upgrade"
                 ],
-                "path": "missions[id=agent].latest.ratification.byMode[state=line-by-line]",
+                "path": "missions[id=agent].latest.ratification.byMode[0]",
                 "src": "agent:check"
               }
             }
@@ -3467,7 +3452,7 @@
           {
             "key": "/endorsement/mode/untraced",
             "text": "27 / 46 items with no endorsement recorded",
-            "from": "missions[id=agent].latest.ratification.byMode[state=untraced].state",
+            "from": "missions[id=agent].latest.ratification.byMode[6].state",
             "args": {
               "count": {
                 "text": "27 / 46",
@@ -3502,7 +3487,7 @@
                   "handover.md · handover-agents-charter-final",
                   "handover.md · handover-succession-named"
                 ],
-                "path": "missions[id=agent].latest.ratification.byMode[state=untraced]",
+                "path": "missions[id=agent].latest.ratification.byMode[6]",
                 "src": "agent:check"
               }
             }
@@ -3562,7 +3547,6 @@
             }
           }
         ],
-        "proposed": null,
         "disclosure": [
           {
             "text": "single accountable person; agent ratifications are disclosed throughput, not independent approval",
@@ -3636,7 +3620,7 @@
           {
             "key": "/endorsement/mode/untraced",
             "text": "46 / 46 items with no endorsement recorded",
-            "from": "missions[id=level].latest.ratification.byMode[state=untraced].state",
+            "from": "missions[id=level].latest.ratification.byMode[6].state",
             "args": {
               "count": {
                 "text": "46 / 46",
@@ -3690,13 +3674,12 @@
                   "handover.md · handover-agents-charter-final",
                   "handover.md · handover-succession-named"
                 ],
-                "path": "missions[id=level].latest.ratification.byMode[state=untraced]",
+                "path": "missions[id=level].latest.ratification.byMode[6]",
                 "src": "level:check"
               }
             }
           }
         ],
-        "proposed": null,
         "disclosure": [],
         "declared": {
           "key": "/endorsement/declared",

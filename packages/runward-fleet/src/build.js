@@ -117,22 +117,24 @@ const str = (v) => (typeof v === "string" ? v : null);
  * The rows an agent endorsed, grouped by the agent's declared name, the person it declared it answers
  * to, and the mode (ADR-0125): n of the decided rows N, with the rows it counts. A row counts here only
  * while its latest entry still matches it, as the ledger counts it. Sorted by code points, so the order
- * is the same on every machine. With names omitted, the person is null.
+ * is the same on every machine. With names omitted, the person is null, and `forDeclared` still says
+ * whether the export declared one.
  */
 function agentRows(rows, omitNames) {
   const N = rows.length;
   const by = new Map();
   for (const x of rows) {
     if (x.state !== "ratified" || !AGENT_MODES.has(x.mode)) continue;
+    const declared = typeof x.for === "string" && x.for.trim() !== "";
     const agent = str(x.by), person = omitNames ? null : str(x.for);
-    const k = JSON.stringify([agent, person, x.mode]);
-    if (!by.has(k)) by.set(k, { state: x.mode, agent, for: person, list: [] });
+    const k = JSON.stringify([agent, omitNames ? declared : person, x.mode]);
+    if (!by.has(k)) by.set(k, { state: x.mode, agent, for: person, forDeclared: declared, list: [] });
     by.get(k).list.push(`${x.deliverable} · ${x.rule}`);
   }
   const cmp = (a, b) => (a === b ? 0 : a === null ? -1 : b === null ? 1 : a < b ? -1 : 1);
   return [...by.values()]
-    .sort((a, b) => cmp(a.agent, b.agent) || cmp(a.for, b.for) || ENDORSEMENTS.indexOf(a.state) - ENDORSEMENTS.indexOf(b.state))
-    .map((g) => ({ state: g.state, agent: g.agent, for: g.for, n: g.list.length, N, list: g.list }));
+    .sort((a, b) => cmp(a.agent, b.agent) || cmp(a.for, b.for) || Number(b.forDeclared) - Number(a.forDeclared) || ENDORSEMENTS.indexOf(a.state) - ENDORSEMENTS.indexOf(b.state))
+    .map((g) => ({ state: g.state, agent: g.agent, for: g.for, forDeclared: g.forDeclared, n: g.list.length, N, list: g.list }));
 }
 
 /** The names of the people a check export declares: who ratified a row in a person's mode, and the
@@ -198,7 +200,7 @@ export function projectVerdict(d, { omitNames = false } = {}) {
       // The decided rows by how they were endorsed, each with n / N and its list, so no view computes a
       // denominator; `not-observed` when the export lists no row (a CLI before ADR-0095).
       byMode: Array.isArray(r.byRow)
-        ? group(rows, (x) => (x.state === "ratified" ? str(x.mode) ?? "untraced" : str(x.state) ?? "untraced"), (x) => `${x.deliverable} · ${x.rule}`, ENDORSEMENTS)
+        ? group(rows, (x) => (x.state === "ratified" ? str(x.mode) ?? "not-observed" : str(x.state) ?? "not-observed"), (x) => `${x.deliverable} · ${x.rule}`, ENDORSEMENTS)
         : "not-observed",
       agentRows: agentRows(rows, omitNames),
     },
@@ -494,18 +496,21 @@ const reEscape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
  * rewrites a value: the export is fixed, or names are shown.
  */
 export function guardOmittedNames(index, persons) {
-  for (const { name, mission } of persons) {
-    const re = new RegExp(`(?<!${LETTER})${reEscape(name)}(?!${LETTER})`, "iu");
-    const m = index.missions.find((x) => x.id === mission);
-    for (const key of ["latest", "attestation", "verify", "witness", "summary", "history"]) {
-      const hit = firstMatch(m?.[key], re, `missions[id=${mission}].${key}`);
-      if (hit) fail(`a name the export declares would reach a page whose fleet.json omits names, at ${hit}: fix the export, or show names; the build never rewrites a value`);
+  const names = [...new Set(persons.map((p) => p.name.normalize("NFC").trim()).filter(Boolean))];
+  for (const name of names) {
+    // Any run of blanks between its words (a wrapped line, a no-break space), in every mission's exports.
+    const re = new RegExp(`(?<!${LETTER})${name.split(/\s+/).map(reEscape).join("[\\s\\u00a0]+")}(?!${LETTER})`, "iu");
+    for (const m of index.missions) {
+      for (const key of ["latest", "attestation", "verify", "witness", "summary", "history"]) {
+        const hit = firstMatch(m[key], re, `missions[id=${m.id}].${key}`);
+        if (hit) fail(`a name the export declares would reach a page whose fleet.json omits names, at ${hit}: fix the export, or show names; the build never rewrites a value`);
+      }
     }
   }
 }
 
 function firstMatch(value, re, path) {
-  if (typeof value === "string") return re.test(value) ? path : null;
+  if (typeof value === "string") return re.test(value.normalize("NFC")) ? path : null;
   if (Array.isArray(value)) { for (let i = 0; i < value.length; i++) { const h = firstMatch(value[i], re, `${path}[${i}]`); if (h) return h; } return null; }
   if (value && typeof value === "object") { for (const [k, v] of Object.entries(value)) { const h = firstMatch(v, re, `${path}.${k}`); if (h) return h; } }
   return null;

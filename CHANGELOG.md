@@ -10,8 +10,8 @@ met", "No check received", "Nothing is blocking", always followed by "according 
 requirements" and the date of the last check, and "Content not shared"; in French "Refusée par le
 contrôle", "Niveau exigé non atteint", "Aucun contrôle reçu", "Rien ne bloque", "Contenu non partagé"), its
 reason, the refusals by kind with their n / N, each refusal's document and its own text shown at the
-character, the documents not filled in, how the decided rows were endorsed and where the reading comes
-from. Every sentence comes from a closed lexicon keyed on a closed value of the index; a refusal's text is
+character for character, the documents not filled in, how the decided rows were endorsed and where the
+reading comes from. Every sentence comes from a closed lexicon keyed on a closed value of the index; a refusal's text is
 data and is never read; a value the lexicon does not know is shown as written. No model, no clock, nothing
 computed. `runward-fleet/views` exports `decide(index)` (the reading as a document,
 `runward-fleet-decision/0`) and `renderDecision(index, id?)` (its HTML, whose elements carry style roles),
@@ -30,14 +30,17 @@ endorsement is never counted in a person's mode); `fleet.byVerdict` gains `not-a
 mission whose check was declared in `fleet.json` by its digest alone (`{ "sha256": … }`, its content not
 shared). `"names": "omitted"` in `fleet.json` keeps the names of the people an export declares out of the
 index, and the build refuses an index where such a name would still reach the page through another field.
+`latest` may now be the string `not-available`, and a digest-only source has no `path` or `bytes`: a reader
+of the index tests whether `latest` is an object.
 
 The words runward never says are read with boundaries of any script, in each of their forms: the list
 missed a French past participle ending in an accented letter, and several forms of the list it guards. No
 release carried `runward-fleet`. The French word of the technical views for an `untraced` row becomes
-"sans ratification enregistrée". Four rules of the reading join them, held by the build on the reading
-and its lexicon with planted controls: none of the method's own words, no state named as a decision taken
-("go", "ready", "blocked"), "nothing is blocking" never without the requirements and the date, the two
-languages holding the same keys. The golden page and index move (`test/fixtures/golden/fleet/`).
+"sans ratification enregistrée". Five rules of the reading join them, each with a planted control, the
+first four held by the build on the reading and its lexicon: none of the method's own words, every closed
+value with its sentence in both languages, no state named as a decision taken ("go", "ready", "blocked"),
+"nothing is blocking" never without the requirements (and, for an application, the date); and an agent's
+rows never said in a person's words. The golden page and index move (`test/fixtures/golden/fleet/`).
 
 ### What a hosted deployment needs from runward-fleet, and `check --json` names the mission without a path (RWD-2026-0199)
 

@@ -43,14 +43,18 @@ and every technical view is in the navigation.
 
 An application: `id`, `path` (`missions[id=…]`), `name` (data), `state` (the index's own: `clean`,
 `gaps`, `level-not-met`, `not-observed`, `not-available`, or any value it holds, never recomputed),
-`stateWord`, `qualifier` (after `clean` only), `date` (the last check received: the export's `at` label,
+`stateWord` (for a check received whose export writes no verdict, "Check received, no state written",
+never "No check received"), `qualifier` (after `clean` only), `date` (the last check received: the export's `at` label,
 or "date not declared"; none for `not-observed`), `reason`, `kinds[]` (the refusals by kind, from
 `latest.conformanceByKind`, each with its n / N), `pieceCounts[]` (the documents not filled in, by state,
 from `latest.deliverables.byState`), `problems[]` (each refusal: `line`, the sentence "{document}:
 {kind}"; `where`, its file, line and requirement as data; `problem`, its text as data), `pieces[]` (the
 documents not filled in, grouped by nature: `{ nature, label, items[] }`), `endorsement` (`detailed`,
-`lines[]`, `proposed`, `disclosure[]`, `declared`), `origin` (from `implemented`) and `version` (the
-`runward` version the export names).
+`lines[]`, `disclosure[]`, `declared`), `origin` (from `implemented`) and `version` (the `runward`
+version the export names). A grouping read from an export's own values is named by its position
+(`…byMode[3]`, `…conformanceByKind[0]`, `fleet.byVerdict[1]`), so a value that holds any character still
+resolves. The reading shows no count that is not a grouping: proposals are said by the refusals of kind
+`proposed`, with their n / N, and a mode that is not detailed is said without a number.
 
 A sentence is `{ key, text, from?, args? }`: `key` is the JSON Pointer of its template in the lexicon of
 the document's language, `text` the template filled, `from` the index path of the closed value it was read
@@ -66,7 +70,7 @@ a colon. The sentence that always follows `clean` (`qualifier.clean`) reads "acc
 requirements", in French "selon les exigences de l'équipe", and the date line "Last check received:
 {date}", in French "Dernier contrôle reçu : {date}". `{…}` is a value, filled as data.
 
-**States** (`state`; `group` holds the fleet labels, plural in French: "Refusées par le contrôle")
+**States** (`state`) and the fleet's labels (`group`, plural in French; the label of `clean` carries the requirements)
 
 | State | English | French |
 |---|---|---|
@@ -76,7 +80,17 @@ requirements", in French "selon les exigences de l'équipe", and the date line "
 | `not-observed` | No check received | Aucun contrôle reçu |
 | `not-available` | Content not shared | Contenu non partagé |
 
-**Reasons** (`reason`), and the sentence that always follows `clean` (`qualifier`)
+
+
+| Group | English | French |
+|---|---|---|
+| `clean` | Nothing is blocking, according to the team's requirements | Rien ne bloque, selon les exigences de l'équipe |
+| `gaps` | Refused by the check | Refusées par le contrôle |
+| `level-not-met` | Required level not met | Niveau exigé non atteint |
+| `not-observed` | No check received | Aucun contrôle reçu |
+| `not-available` | Content not shared | Contenu non partagé |
+
+**Reasons** (`reason`); a check received that writes no state (`received`)
 
 | State | English | French |
 |---|---|---|
@@ -85,6 +99,13 @@ requirements", in French "selon les exigences de l'équipe", and the date line "
 | `level-not-met` | No gap was found, but the evidence does not reach the level the team requires. | Aucun écart, mais le niveau de preuve que l'équipe exige n'est pas atteint. |
 | `not-observed` | No check has been received for this application. | Aucun contrôle n'a été reçu pour cette application. |
 | `not-available` | Only fingerprints are sent for this application: its content is not shared. | Seules des empreintes remontent pour cette application : son contenu n'est pas partagé. |
+
+
+
+| Received | English | French |
+|---|---|---|
+| `state` | Check received, no state written | Contrôle reçu, sans état écrit |
+| `reason` | The check received for this application writes no state. | Le contrôle reçu pour cette application n'écrit pas d'état. |
 
 **Refusals** (`kind`), each after its document or part of the record: "{subject}: {reason}"
 
@@ -95,7 +116,7 @@ requirements", in French "selon les exigences de l'équipe", and the date line "
 | `empty-status` | a requirement of the team has no answer chosen yet. | une exigence de l'équipe n'a pas encore de réponse choisie. |
 | `invalid-status` | a requirement has an answer the check does not recognise. | une exigence a une réponse que le contrôle ne reconnaît pas. |
 | `applied-without-evidence` | a requirement is said to be met, with no evidence attached. | une exigence est dite tenue sans preuve jointe. |
-| `evidence-placeholder` | a requirement is said to be met, with no evidence attached. | une exigence est dite tenue sans preuve jointe. |
+| `evidence-placeholder` | a requirement is said to be met, its evidence left as the template's example. | une exigence est dite tenue, sa preuve laissée telle que le modèle l'écrit. |
 | `deviated-without-adr` | a deliberate deviation has no written decision. | un écart assumé n'a pas sa décision écrite. |
 | `na-without-reason` | a requirement is set aside with no written reason. | une exigence est écartée sans raison écrite. |
 | `unknown-rule` | the record answers a requirement that is not among the team's rules. | le dossier répond à une exigence qui n'existe pas dans les règles de l'équipe. |
@@ -113,7 +134,7 @@ requirements", in French "selon les exigences de l'équipe", and the date line "
 | `corpus-unrecorded` | the team's rules are not recorded: the check cannot tell whether they changed. | l'état des règles de l'équipe n'est pas enregistré : le contrôle ne peut pas dire si elles ont changé. |
 | `seal-violation` | a piece of evidence changed since it was recorded. | une preuve a changé depuis son enregistrement. |
 | `unratified-decision` | a written decision is not yet endorsed. | une décision écrite n'est pas encore validée. |
-| `unbound-row` | an endorsement no longer matches the current content of its item. | une validation ne correspond plus au contenu actuel du point. |
+| `unbound-row` | an item's endorsement is not accepted under the stricter rules the team chose. | la validation d'un point n'est pas retenue sous les règles plus strictes que l'équipe a choisies. |
 | `charter-malformed` | the charter that delegates acts to agents is malformed. | la charte de délégation aux agents est mal formée. |
 | `charter-stage-unread` | the delegation charter declares a level this version of the check cannot read. | la charte de délégation déclare un niveau que cette version du contrôle ne sait pas lire. |
 | `charter-class-refused` | the charter delegates to agents an act that cannot be delegated to them. | la charte délègue aux agents un acte qui ne peut pas leur être délégué. |
@@ -149,7 +170,7 @@ requirements", in French "selon les exigences de l'équipe", and the date line "
 | `runbook.md` | Recovery procedure | Procédure de reprise |
 | `handover.md` | Handover note | Note de passation |
 
-**Natures** (`pieces.nature`, keyed on `phaseId`; never numbered)
+**Natures** (`pieces.nature`, keyed on `phaseId`; never numbered; `natureNone` when the export writes none)
 
 | Phase | English | French |
 |---|---|---|
@@ -160,14 +181,23 @@ requirements", in French "selon les exigences de l'équipe", and the date line "
 | `govern` | Controls | Contrôles |
 | `handover` | Handover | Passation |
 
-**States and causes of a document** (`pieces.state`, `pieces.cause`)
+**States and causes of a document** (`pieces.state`, `pieces.count`, `pieces.cause`)
 
 | State | English | French |
 |---|---|---|
-| `missing` | missing document | pièce manquante |
+| `missing` | document absent | pièce absente |
 | `untouched` | missing document | pièce manquante |
 | `in-progress` | document started, not finished | pièce commencée, pas finie |
 | `filled` | document filled in | pièce remplie |
+
+
+
+| Count | English | French |
+|---|---|---|
+| `missing` | {count} documents absent | {count} pièces absentes |
+| `untouched` | {count} documents missing | {count} pièces manquantes |
+| `in-progress` | {count} documents started, not finished | {count} pièces commencées, pas finies |
+| `filled` | {count} documents filled in | {count} pièces remplies |
 
 
 
@@ -208,8 +238,9 @@ requirements", in French "selon les exigences de l'équipe", and the date line "
 | `blind` | {count} items endorsed without reviewing the detail | {count} points validés sans relecture du détail |
 | `changed` | {count} items changed since they were endorsed | {count} points modifiés depuis leur validation |
 | `untraced` | {count} items with no endorsement recorded | {count} points sans validation enregistrée |
+| `not-observed` | {count} items endorsed, with no mode written | {count} points validés, sans mode écrit |
 
-**Agents, proposals, and what is not detailed** (`endorsement`)
+**Agents, and what is not detailed** (`endorsement`)
 
 | Key | English | French |
 |---|---|---|
@@ -219,8 +250,7 @@ requirements", in French "selon les exigences de l'équipe", and the date line "
 | `agentSingleNotPublished` | {count} items endorsed by a reviewing agent ({agent}, declared name), under the responsibility of a declared person whose name is not published here; the same person answers for the agent that proposed them and for the one that endorsed them | {count} points validés par un agent relecteur ({agent}, nom déclaré), sous la responsabilité d'une personne déclarée dont le nom n'est pas publié ici ; la même personne répond de l'agent qui les a proposés et de celui qui les a validés |
 | `agentNoPerson` | {count} items endorsed by a reviewing agent ({agent}, declared name), with no person declared as responsible | {count} points validés par un agent relecteur ({agent}, nom déclaré), sans personne responsable déclarée |
 | `noneRecorded` | No endorsement recorded. | Aucune validation enregistrée. |
-| `proposed` | {n} items proposed, not yet endorsed | {n} points proposés, pas encore validés |
-| `notDetailed` | Endorsement mode not detailed for {n} items | Mode de validation non détaillé pour {n} points |
+| `notDetailed` | Endorsement mode not detailed. | Mode de validation non détaillé. |
 | `declared` | These names and modes are declared by the team: the check does not verify who answered. | Ces noms et ces modes sont déclarés par l'équipe : le contrôle ne vérifie pas qui a répondu. |
 
 **Where the reading comes from** (`origin`, keyed on `implemented`)
@@ -289,10 +319,10 @@ with a planted control:
 | # | Rule | Held by |
 |---|---|---|
 | R1 | the reading's own words hold none of the method's internal words (`INTERNAL`) | build and test |
-| R2 | every closed value the CLI writes has a sentence in both languages; an unknown value is shown as written | test (the closed lists against the CLI's code) and build (the two languages hold the same keys) |
+| R2 | every closed value the CLI writes has a sentence in both languages, which hold the same keys; an unknown value is shown as written | test (the closed lists against the CLI's code) and build (the two languages hold the same keys) |
 | R3 | no state, group label or reason reads as a decision taken (`NOT_A_STATE`); the decision is named in a title only | build and test |
-| R4 | "nothing is blocking" is always followed by the team's requirements and the date of the last check | build and test |
-| R5 | a row endorsed by an agent is never worded as a person's; a refusal's text is shown as written and never read | test |
+| R4 | "nothing is blocking" is always followed by the team's requirements, and, for an application, by the date of the last check (the export's `at` label, or "date not declared": a static inventory may declare none) | build and test (on each application's state, and on the fleet's label, which carries the requirements) |
+| R5 | a row endorsed by an agent is never worded as a person's; a refusal's text is shown as written and never read | test (a planted copy of the view that says an agent's rows in a person's words is caught; every `problem` reworded moves no sentence) |
 
 The words runward never says (`BANNED`) are held on every view, the reading's included, in each listed form
 and with boundaries of any script. The eighteen rules of ADR-0093 decision 11 hold too.
@@ -302,8 +332,10 @@ and with boundaries of any script. The eighteen rules of ADR-0093 decision 11 ho
 - It shows no history of states: the index carries the last check of each application only.
 - It names no symbol from a refusal's text: that needs a structured field the CLI does not write.
 - It computes no state, no count, no score, no percentage, no threshold on a date.
-- With names omitted, it knows the names the export declares in fields (who ratified in a person's mode,
-  the person an agent answers to): a name written only in free text is not one it can leave out.
+- With names omitted, it knows the names the exports declare in fields (who ratified in a person's mode,
+  the person an agent answers to), and refuses an index where one of them appears in any mission's
+  projected text, across any run of blanks: a name written only in free text and declared in no field is
+  not one it knows.
 
 ## 7. The fixtures
 

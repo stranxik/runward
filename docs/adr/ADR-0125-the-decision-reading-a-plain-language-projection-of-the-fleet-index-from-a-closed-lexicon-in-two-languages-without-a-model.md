@@ -108,24 +108,29 @@ it is, computes nothing, and calls no model.**
    with n / N and its list) and `agentRows` (each agent's ratified rows, with the person it declared it
    answers to); `fleet.byVerdict` gains the state `not-available`.
 6. **An agent's endorsement is never a person's.** It reads "endorsed by a reviewing agent (declared
-   name), under the responsibility of (declared person)", never in a person's mode. When the index does
-   not detail the modes (an export without `byRow`, or an index built before this record), the reading
-   writes "endorsement mode not detailed for N items" and nothing else.
+   name), under the responsibility of (declared person)", never in a person's mode; an agent whose export
+   declares no person reads so, never "not published". When the index does not detail the modes (an export
+   without `byRow`, or an index built before this record), the reading writes "endorsement mode not
+   detailed", with no number: the export's counts count entries, not rows, and no grouping stands behind
+   them.
 7. **Names can stay out.** `fleet.json` may say `"names": "omitted"`: the index then carries no name of a
    person an export declares (`ratifiers` empty, the person of each agent `null`), the reading says the
    name is not published, and the build refuses an index where one of those names would still reach the
-   page through another projected field. It never rewrites a value. A name written only in free text and
-   never declared in a field is not known to the build, and the specification says so.
+   page through the projected fields of any mission, across any run of blanks. It never rewrites a value. A
+   name written only in free text and never declared in a field is not known to the build, and the
+   specification says so.
 8. **A digest only.** An export may be declared by its `sha256` alone, its content not shared. The mission
    then reads `not-available`, "content not shared", and none of the other states.
 9. **The words, held where the page is built.** `BANNED` is completed and reads its words with
-   boundaries of any script, each in its listed forms. Four rules of the reading join it, held by the
-   build on every rendered view of the reading and on the whole lexicon, in both languages, each with a
-   planted control: none of the method's own words (`INTERNAL`); no state, group label or reason named as a
-   decision taken (`go`, `no-go`, `ready`, `blocked`, and their French), the reader's decision being
-   named in a title only ("Before your go / no-go"); "nothing is blocking" never without "according to the
-   team's requirements" and the date of the last check; and the two languages holding the same keys. The
-   sources view lists them, numbered apart from ADR-0093's eighteen, which are unchanged.
+   boundaries of any script, each in its listed forms. Five rules of the reading join it, R1 to R5, each
+   with a planted control, the first four held by the build on every rendered view of the reading and on
+   the whole lexicon, in both languages: none of the method's own words (`INTERNAL`); every closed value
+   with its sentence, the two languages holding the same keys; no state, group label or reason named as a
+   decision taken (`go`, `no-go`, `ready`, `blocked`, and their French), the reader's decision being named
+   in a title only ("Before your go / no-go"); "nothing is blocking" never without "according to the
+   team's requirements", and, for an application, the date of the last check; and, held by a test, an
+   agent's rows never said in a person's words, a refusal's text never read. The sources view lists them,
+   numbered apart from ADR-0093's eighteen, which are unchanged.
 10. **The English words.** The French state words were chosen by the maintainer; their English
     equivalents are: "Refused by the check" (`gaps`: the CLI's own word, a fact rather than a
     consequence; "failed" would read as pass or fail, and "blocked" claims a release depends on it),
@@ -183,7 +188,7 @@ Shown in this pull request, each with its planted control in `test/unit/fleet-de
    language, in the lexicon and in a rendered view, and none in what ships; a planted state named "Go"
    reddens and the title passes; "nothing is blocking" without the requirements or the date reddens.
 3. Every sentence of the renaming demonstration's refused state derives from `kind` and `file` of its real
-   `check.json`; its `problem` is shown at the character; rewording it moves no sentence.
+   `check.json`; its `problem` is shown character for character; rewording it moves no sentence.
 4. A real `check.json` with two rows ratified by an agent renders the agent's sentence, its rows in no
    person's group, with a planted control. No real export of a repository ratified by an agent existed on
    2026-11-10 (the hosted product's 42 rows are proposed): the fixture is 0.46.0's output on the shipped

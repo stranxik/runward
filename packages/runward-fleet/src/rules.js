@@ -33,17 +33,17 @@ export const BANNED_FORMS = [
   ["mathematical proof", "mathematical proofs", "mathematically proven", "mathematically proved"],
   ["no human", "no-human", "no humans"],
   ["platform", "platforms"],
-  ["sovereign", "sovereigns", "sovereignty"],
+  ["sovereign", "sovereigns", "sovereignty", "sovereignly"],
   ["trace", "traces", "traced", "tracing", "traceable", "traceability"],
   ["conforme", "conformes"],
-  ["certifie", "certifies", "certifié", "certifiée", "certifiés", "certifiées", "certifier", "certifions", "certifiez", "certifient", "certifiera", "certifierait", "certification", "certifications"],
+  ["certifie", "certifies", "certifié", "certifiée", "certifiés", "certifiées", "certifier", "certifions", "certifiez", "certifient", "certifiera", "certifierait", "certification", "certifications", "certifiant", "certifiante", "certifiants", "certifiantes"],
   ["garanti", "garantie", "garantis", "garanties", "garantir", "garantit", "garantissons", "garantissez", "garantissent", "garantira", "garantirait", "garantissant"],
   ["infalsifiable", "infalsifiables"],
   ["inviolable", "inviolables"],
   ["preuve mathématique", "preuves mathématiques", "mathématiquement prouvé", "mathématiquement prouvée"],
   ["sans humain", "sans humains", "aucun humain", "sans intervention humaine"],
-  ["plateforme", "plateformes"],
-  ["souverain", "souveraine", "souverains", "souveraines", "souveraineté"],
+  ["plateforme", "plateformes", "plate-forme", "plates-formes"],
+  ["souverain", "souveraine", "souverains", "souveraines", "souveraineté", "souverainement"],
   ["tracé", "tracée", "tracés", "tracées", "tracer", "traçable", "traçables", "traçabilité"],
 ];
 export const BANNED = BANNED_FORMS.map((forms) => words(...forms));
@@ -317,7 +317,7 @@ export function checkView(html, index, where = "view") {
   if (index) {
     for (const { na, path, shown } of numberSpans(html)) {
       if (!path) { say(`a number carries no index path ("${decode(shown)}")`); continue; }
-      const v = resolvePath(index, path);
+      const v = resolvePath(index, decode(path));
       if (na) { if (v !== undefined && v !== null && v !== "not-observed") say(`${path} is shown as not observed, the index holds ${JSON.stringify(v)}`); continue; }
       if (v === undefined || v === null || String(v) !== decode(shown)) say(`${path} is shown as "${decode(shown)}", the index holds ${JSON.stringify(v)}`);
     }
@@ -382,6 +382,8 @@ export function checkLexicon(lexicon) {
       const section = path.split(".")[1];
       if (STATE_SECTIONS.has(section)) for (const re of NOT_A_STATE) { const m = own.match(re); if (m) problems.push(`lexicon.${lang}${path}: a state reads as a decision taken: "${m[0]}"`); }
     }
+    const q = lexicon[lang]?.qualifier?.clean, g = lexicon[lang]?.group?.clean;
+    if (typeof g === "string" && (typeof q !== "string" || !g.includes(q))) problems.push(`lexicon.${lang}.group.clean: nothing blocking is said without the team's requirements`);
     for (const other of langs) {
       if (other === lang) continue;
       const theirs = keysOf(other);

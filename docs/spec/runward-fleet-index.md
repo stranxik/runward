@@ -176,9 +176,11 @@ the inventory names one),
   `singleAccountable` (`{ rows, disclosure[] }` or `null`), `byMode` (the decided rows by how they were
   endorsed: the mode of a ratified row, `line-by-line`, `en bloc`, `agent` or `agent (single accountable)`,
   or the state of any other, `blind`, `changed` or `untraced`; each always present with n of N and its
-  list, so the groups partition the decided rows; `not-observed` when the export lists no row) and
-  `agentRows` (`{ state, agent, for, n, N, list }`, the ratified rows of each agent, person and mode,
-  sorted). The payload's `mission` is
+  list, so the groups partition the decided rows, a row whose mode or state the export does not write
+  being grouped as `not-observed`; `not-observed` in place of the list when the export lists no row) and
+  `agentRows` (`{ state, agent, for, forDeclared, n, N, list }`, the ratified rows of each agent, person
+  and mode, sorted; `forDeclared` says whether the export declared a person, which `for` no longer does
+  when names are omitted). The payload's `mission` is
   never projected: the mission is named by the inventory's `name`, and the field was the checkout's
   absolute path until RWD-2026-0199 (it is now the name the mission declares, as in the attestation).
 - `history` holds `series[]`, one per origin, never mixed: `src`, `origin`, `judgedBy[]`, `size`,
@@ -189,6 +191,12 @@ the inventory names one),
   `ed25519`), `signer` (the policy entry), `identity` (the certificate's claims, or the manifest's),
   `checks[]` (`{ id, ok, detail, as }`, `as` being `unsupported` or `skipped`), `binds` (`{ how, name }`)
   and `reasons[]` (`{ code, ... }`, §2.3).
+
+**What a reader of `/0` handles since 2026-11-10.** The additions keep every key and every former value,
+and widen three value sets: `latest` may be the string `not-available` beside `not-observed` (test whether
+it is an object, never whether it equals `not-observed`); a source's `path` and `bytes` may be `null` (a
+digest only, `content: "digest-only"`); a finding's `state` may be `not-available`. The views of this
+package handle them, and so does any reader that tests `typeof latest === "object"`.
 
 Source ids are stable join keys: `fleet.json`, `trust-policy.json`, `policy:root:<n>`,
 `policy:key:<signer>`, `<mission>:<kind>`, `<mission>:signature:<n>` (and `:manifest`, `:sig`,

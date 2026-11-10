@@ -747,8 +747,9 @@ export const LEXICON = {
     technical: "Technical detail",
     back: "All applications",
     state: { clean: "Nothing is blocking", gaps: "Refused by the check", "level-not-met": "Required level not met", "not-observed": "No check received", "not-available": "Content not shared" },
-    group: { clean: "Nothing is blocking", gaps: "Refused by the check", "level-not-met": "Required level not met", "not-observed": "No check received", "not-available": "Content not shared" },
+    group: { clean: "Nothing is blocking, according to the team's requirements", gaps: "Refused by the check", "level-not-met": "Required level not met", "not-observed": "No check received", "not-available": "Content not shared" },
     qualifier: { clean: "according to the team's requirements" },
+    received: { state: "Check received, no state written", reason: "The check received for this application writes no state." },
     reason: {
       clean: "The check found no missing document and refuses nothing. The decision stays yours.",
       gaps: "The check refuses this version, for the reasons that follow.",
@@ -763,14 +764,15 @@ export const LEXICON = {
       item: "{piece}: {state}",
       itemCause: "{piece}: {state}, {cause}",
       nature: { frame: "Framing", architect: "Design", topology: "Design", floor: "First version in service", govern: "Controls", handover: "Handover" },
+      natureNone: "Documents with no kind written",
       piece: {
         "framing.md": "Framing note", "mission-contract.md": "Steering agreement", "architecture.md": "Architecture note",
         "execution-topology.md": "Execution map", "decision-matrix.md": "Decision matrix", adr: "Written decisions", contracts: "Interface contracts",
         "floor.md": "First-version measurements", "governance/threat-model.md": "Security assessment", "governance/evaluation-rubric.md": "Evaluation criteria",
         "governance/observability-schema.md": "Monitoring plan", "runbook.md": "Recovery procedure", "handover.md": "Handover note",
       },
-      state: { missing: "missing document", untouched: "missing document", "in-progress": "document started, not finished", filled: "document filled in" },
-      count: { missing: "{count} documents missing", untouched: "{count} documents missing", "in-progress": "{count} documents started, not finished", filled: "{count} documents filled in" },
+      state: { missing: "document absent", untouched: "missing document", "in-progress": "document started, not finished", filled: "document filled in" },
+      count: { missing: "{count} documents absent", untouched: "{count} documents missing", "in-progress": "{count} documents started, not finished", filled: "{count} documents filled in" },
       cause: {
         placeholders: "parts are still to be filled in", "below-floor": "the text is still too short to count", "missing-section": "an expected section is missing",
         "invalid-field": "an expected field does not have the required form", "row-out-of-domain": "a line holds a value outside the allowed list",
@@ -787,7 +789,7 @@ export const LEXICON = {
       "empty-status": "a requirement of the team has no answer chosen yet.",
       "invalid-status": "a requirement has an answer the check does not recognise.",
       "applied-without-evidence": "a requirement is said to be met, with no evidence attached.",
-      "evidence-placeholder": "a requirement is said to be met, with no evidence attached.",
+      "evidence-placeholder": "a requirement is said to be met, its evidence left as the template's example.",
       "deviated-without-adr": "a deliberate deviation has no written decision.",
       "na-without-reason": "a requirement is set aside with no written reason.",
       "unknown-rule": "the record answers a requirement that is not among the team's rules.",
@@ -805,7 +807,7 @@ export const LEXICON = {
       "corpus-unrecorded": "the team's rules are not recorded: the check cannot tell whether they changed.",
       "seal-violation": "a piece of evidence changed since it was recorded.",
       "unratified-decision": "a written decision is not yet endorsed.",
-      "unbound-row": "an endorsement no longer matches the current content of its item.",
+      "unbound-row": "an item's endorsement is not accepted under the stricter rules the team chose.",
       "charter-malformed": "the charter that delegates acts to agents is malformed.",
       "charter-stage-unread": "the delegation charter declares a level this version of the check cannot read.",
       "charter-class-refused": "the charter delegates to agents an act that cannot be delegated to them.",
@@ -838,6 +840,7 @@ export const LEXICON = {
         blind: "{count} items endorsed without reviewing the detail",
         changed: "{count} items changed since they were endorsed",
         untraced: "{count} items with no endorsement recorded",
+        "not-observed": "{count} items endorsed, with no mode written",
       },
       agent: "{count} items endorsed by a reviewing agent ({agent}, declared name), under the responsibility of {person} (declared person)",
       agentSingle: "{count} items endorsed by a reviewing agent ({agent}, declared name), under the responsibility of {person} (declared person); the same person answers for the agent that proposed them and for the one that endorsed them",
@@ -845,8 +848,7 @@ export const LEXICON = {
       agentSingleNotPublished: "{count} items endorsed by a reviewing agent ({agent}, declared name), under the responsibility of a declared person whose name is not published here; the same person answers for the agent that proposed them and for the one that endorsed them",
       agentNoPerson: "{count} items endorsed by a reviewing agent ({agent}, declared name), with no person declared as responsible",
       noneRecorded: "No endorsement recorded.",
-      proposed: "{n} items proposed, not yet endorsed",
-      notDetailed: "Endorsement mode not detailed for {n} items",
+      notDetailed: "Endorsement mode not detailed.",
       declared: "These names and modes are declared by the team: the check does not verify who answered.",
       disclosure: "What the check writes about it:",
     },
@@ -876,8 +878,9 @@ export const LEXICON = {
     technical: "Détail technique",
     back: "Toutes les applications",
     state: { clean: "Rien ne bloque", gaps: "Refusée par le contrôle", "level-not-met": "Niveau exigé non atteint", "not-observed": "Aucun contrôle reçu", "not-available": "Contenu non partagé" },
-    group: { clean: "Rien ne bloque", gaps: "Refusées par le contrôle", "level-not-met": "Niveau exigé non atteint", "not-observed": "Aucun contrôle reçu", "not-available": "Contenu non partagé" },
+    group: { clean: "Rien ne bloque, selon les exigences de l'équipe", gaps: "Refusées par le contrôle", "level-not-met": "Niveau exigé non atteint", "not-observed": "Aucun contrôle reçu", "not-available": "Contenu non partagé" },
     qualifier: { clean: "selon les exigences de l'équipe" },
+    received: { state: "Contrôle reçu, sans état écrit", reason: "Le contrôle reçu pour cette application n'écrit pas d'état." },
     reason: {
       clean: "Le contrôle n'a relevé aucune pièce manquante et ne refuse rien. La décision reste la vôtre.",
       gaps: "Le contrôle refuse cette version, pour les raisons qui suivent.",
@@ -892,14 +895,15 @@ export const LEXICON = {
       item: `{piece}${NB}: {state}`,
       itemCause: `{piece}${NB}: {state}, {cause}`,
       nature: { frame: "Cadrage", architect: "Conception", topology: "Conception", floor: "Première version en service", govern: "Contrôles", handover: "Passation" },
+      natureNone: "Pièces sans nature écrite",
       piece: {
         "framing.md": "Note de cadrage", "mission-contract.md": "Contrat de pilotage", "architecture.md": "Note d'architecture",
         "execution-topology.md": "Carte d'exécution", "decision-matrix.md": "Matrice de décision", adr: "Décisions écrites", contracts: "Contrats d'interface",
         "floor.md": "Mesures de la première version", "governance/threat-model.md": "Dossier de sécurité", "governance/evaluation-rubric.md": "Grille d'évaluation",
         "governance/observability-schema.md": "Plan de surveillance", "runbook.md": "Procédure de reprise", "handover.md": "Note de passation",
       },
-      state: { missing: "pièce manquante", untouched: "pièce manquante", "in-progress": "pièce commencée, pas finie", filled: "pièce remplie" },
-      count: { missing: "{count} pièces manquantes", untouched: "{count} pièces manquantes", "in-progress": "{count} pièces commencées, pas finies", filled: "{count} pièces remplies" },
+      state: { missing: "pièce absente", untouched: "pièce manquante", "in-progress": "pièce commencée, pas finie", filled: "pièce remplie" },
+      count: { missing: "{count} pièces absentes", untouched: "{count} pièces manquantes", "in-progress": "{count} pièces commencées, pas finies", filled: "{count} pièces remplies" },
       cause: {
         placeholders: "des passages restent à remplir", "below-floor": "le texte est encore trop court pour compter", "missing-section": "une section attendue manque",
         "invalid-field": "un champ attendu n'a pas la forme demandée", "row-out-of-domain": "une ligne contient une valeur hors de la liste permise",
@@ -916,7 +920,7 @@ export const LEXICON = {
       "empty-status": "une exigence de l'équipe n'a pas encore de réponse choisie.",
       "invalid-status": "une exigence a une réponse que le contrôle ne reconnaît pas.",
       "applied-without-evidence": "une exigence est dite tenue sans preuve jointe.",
-      "evidence-placeholder": "une exigence est dite tenue sans preuve jointe.",
+      "evidence-placeholder": "une exigence est dite tenue, sa preuve laissée telle que le modèle l'écrit.",
       "deviated-without-adr": "un écart assumé n'a pas sa décision écrite.",
       "na-without-reason": "une exigence est écartée sans raison écrite.",
       "unknown-rule": "le dossier répond à une exigence qui n'existe pas dans les règles de l'équipe.",
@@ -934,7 +938,7 @@ export const LEXICON = {
       "corpus-unrecorded": `l'état des règles de l'équipe n'est pas enregistré${NB}: le contrôle ne peut pas dire si elles ont changé.`,
       "seal-violation": "une preuve a changé depuis son enregistrement.",
       "unratified-decision": "une décision écrite n'est pas encore validée.",
-      "unbound-row": "une validation ne correspond plus au contenu actuel du point.",
+      "unbound-row": "la validation d'un point n'est pas retenue sous les règles plus strictes que l'équipe a choisies.",
       "charter-malformed": "la charte de délégation aux agents est mal formée.",
       "charter-stage-unread": "la charte de délégation déclare un niveau que cette version du contrôle ne sait pas lire.",
       "charter-class-refused": "la charte délègue aux agents un acte qui ne peut pas leur être délégué.",
@@ -967,6 +971,7 @@ export const LEXICON = {
         blind: "{count} points validés sans relecture du détail",
         changed: "{count} points modifiés depuis leur validation",
         untraced: "{count} points sans validation enregistrée",
+        "not-observed": "{count} points validés, sans mode écrit",
       },
       agent: "{count} points validés par un agent relecteur ({agent}, nom déclaré), sous la responsabilité de la personne déclarée {person}",
       agentSingle: "{count} points validés par un agent relecteur ({agent}, nom déclaré), sous la responsabilité de la personne déclarée {person} ; la même personne répond de l'agent qui les a proposés et de celui qui les a validés",
@@ -974,8 +979,7 @@ export const LEXICON = {
       agentSingleNotPublished: "{count} points validés par un agent relecteur ({agent}, nom déclaré), sous la responsabilité d'une personne déclarée dont le nom n'est pas publié ici ; la même personne répond de l'agent qui les a proposés et de celui qui les a validés",
       agentNoPerson: "{count} points validés par un agent relecteur ({agent}, nom déclaré), sans personne responsable déclarée",
       noneRecorded: "Aucune validation enregistrée.",
-      proposed: "{n} points proposés, pas encore validés",
-      notDetailed: "Mode de validation non détaillé pour {n} points",
+      notDetailed: "Mode de validation non détaillé.",
       declared: `Ces noms et ces modes sont déclarés par l'équipe${NB}: le contrôle ne vérifie pas qui a répondu.`,
       disclosure: `Ce que le contrôle écrit à ce sujet (en anglais)${NB}:`,
     },
@@ -1001,9 +1005,9 @@ export const LEXICON = {
 // The rules of the decision reading (ADR-0125), listed on the sources view beside the eighteen of ADR-0093.
 export const DECISION_RULES = [
   { id: "R1", held: "build", en: "The reading's own words hold none of the method's internal words.", fr: "Les mots propres de la lecture ne contiennent aucun mot interne de la méthode." },
-  { id: "R2", held: "test", en: "Every closed value the CLI writes has a sentence in both languages; an unknown value is shown as written, never dropped or guessed.", fr: "Chaque valeur fermée que le CLI écrit a sa phrase dans les deux langues ; une valeur inconnue s'affiche telle qu'écrite, jamais omise ni devinée." },
+  { id: "R2", held: "build", en: "Every closed value the CLI writes has a sentence in both languages, which hold the same keys; an unknown value is shown as written, never dropped or guessed.", fr: "Chaque valeur fermée que le CLI écrit a sa phrase dans les deux langues, qui tiennent les mêmes clés ; une valeur inconnue s'affiche telle qu'écrite, jamais omise ni devinée." },
   { id: "R3", held: "build", en: "No state reads as a decision taken (go, no-go, ready, blocked); the reader's decision is named in a title only.", fr: "Aucun état ne se lit comme une décision prise (go, no-go, prêt, bloqué) ; la décision du lecteur n'est nommée que dans un titre." },
-  { id: "R4", held: "build", en: "Nothing is blocking is always followed by the team's requirements and the date of the last check received.", fr: "Rien ne bloque est toujours suivi des exigences de l'équipe et de la date du dernier contrôle reçu." },
+  { id: "R4", held: "build", en: "Nothing is blocking is always followed by the team's requirements, and, for an application, by the date of the last check received.", fr: "Rien ne bloque est toujours suivi des exigences de l'équipe et, pour une application, de la date du dernier contrôle reçu." },
   { id: "R5", held: "test", en: "A row endorsed by an agent is never worded as a person's endorsement; a refusal's text is shown as written and never read.", fr: "Une ligne validée par un agent ne se dit jamais validée par une personne ; le texte d'un refus s'affiche tel quel et n'est jamais lu." },
 ];
 
@@ -1048,8 +1052,8 @@ function lastCheck(lang, idx, m, state) {
 
 /** The documents not filled in, by state, each with its n / N from the index. */
 function pieceCountsOf(lang, L, b) {
-  return (Array.isArray(L.deliverables?.byState) ? L.deliverables.byState : []).filter((g) => g.state !== "filled" && g.n > 0).map((g) => {
-    const gpath = `${b}.deliverables.byState[state=${g.state}]`;
+  return (Array.isArray(L.deliverables?.byState) ? L.deliverables.byState : []).map((g, i) => [g, i]).filter(([g]) => g.state !== "filled" && g.n > 0).map(([g, i]) => {
+    const gpath = `${b}.deliverables.byState[${i}]`;
     return sentence(lang, ["pieces", "count", g.state], { count: count(g, gpath, L.src) }, `${gpath}.state`)
       ?? sentence(lang, ["unknown", "pieceState"], { value: datum(g.state, `${gpath}.state`) }, `${gpath}.state`);
   });
@@ -1063,7 +1067,8 @@ function piecesOf(lang, L, b) {
     const p = `${b}.deliverables.list[${i}]`;
     const nature = d.phaseId ?? "";
     if (!byNature.has(nature)) {
-      const label = sentence(lang, ["pieces", "nature", nature], {}, `${p}.phaseId`) ?? sentence(lang, ["unknown", "nature"], { value: datum(nature, `${p}.phaseId`) }, `${p}.phaseId`);
+      const label = nature === "" ? sentence(lang, ["pieces", "natureNone"], {}, `${p}.phaseId`)
+        : sentence(lang, ["pieces", "nature", nature], {}, `${p}.phaseId`) ?? sentence(lang, ["unknown", "nature"], { value: datum(nature, `${p}.phaseId`) }, `${p}.phaseId`);
       const g = { nature, label, items: [] };
       byNature.set(nature, g);
       out.push(g);
@@ -1084,8 +1089,8 @@ function kindSentence(lang, kind, from) {
 
 /** The refusals by kind, each with its n / N from the index: what a reader takes in first. */
 function kindsOf(lang, L, b) {
-  return (Array.isArray(L.conformanceByKind) ? L.conformanceByKind : []).map((g) => {
-    const gpath = `${b}.conformanceByKind[state=${g.state}]`;
+  return (Array.isArray(L.conformanceByKind) ? L.conformanceByKind : []).map((g, i) => {
+    const gpath = `${b}.conformanceByKind[${i}]`;
     const reason = kindSentence(lang, g.state, `${gpath}.state`);
     return { kind: g.state, line: sentence(lang, ["problems", "byKind"], { count: count(g, gpath, L.src), reason: { text: reason.text, sentence: reason } }, `${gpath}.state`) };
   });
@@ -1119,12 +1124,12 @@ function endorsementOf(lang, idx, L, b) {
   const lines = [];
   if (!Array.isArray(r.byMode)) {
     // An index built before the projection, or an export that lists no row: the mode is not known here.
-    lines.push(sentence(lang, ["endorsement", "notDetailed"], { n: number(r.rows ?? 0, `${rp}.rows`, L.src) }, `${rp}.byMode`));
+    lines.push(sentence(lang, ["endorsement", "notDetailed"], {}, `${rp}.byMode`));
   } else {
     if (r.byMode.every((g) => g.n === 0)) lines.push(sentence(lang, ["endorsement", "noneRecorded"], {}, `${rp}.byMode`));
-    for (const g of r.byMode) {
+    for (const [i, g] of r.byMode.entries()) {
       if (g.n === 0 || (AGENT_ENDORSEMENTS.has(g.state) && Array.isArray(r.agentRows))) continue; // an agent's rows are said with its name, below
-      const gp2 = `${rp}.byMode[state=${g.state}]`;
+      const gp2 = `${rp}.byMode[${i}]`;
       lines.push(sentence(lang, ["endorsement", "mode", g.state], { count: count(g, gp2, L.src) }, `${gp2}.state`)
         ?? sentence(lang, ["unknown", "mode"], { count: count(g, gp2, L.src), value: datum(g.state, `${gp2}.state`) }, `${gp2}.state`));
     }
@@ -1134,14 +1139,14 @@ function endorsementOf(lang, idx, L, b) {
       const ap = `${rp}.agentRows[${i}]`;
       const single = a.state === "agent (single accountable)";
       const person = typeof a.for === "string" && a.for ? datum(a.for, `${ap}.for`) : null;
-      const key = person ? (single ? "agentSingle" : "agent") : omitted ? (single ? "agentSingleNotPublished" : "agentNotPublished") : "agentNoPerson";
+      // Not published only when one was declared and the index omits names; otherwise none was declared.
+      const declared = a.forDeclared === true || (a.forDeclared === undefined && omitted);
+      const key = person ? (single ? "agentSingle" : "agent") : omitted && declared ? (single ? "agentSingleNotPublished" : "agentNotPublished") : "agentNoPerson";
       lines.push(sentence(lang, ["endorsement", key], { count: count(a, ap, L.src), agent: datum(a.agent, `${ap}.agent`), ...(person ? { person } : {}) }, `${ap}.state`));
     });
   }
-  const proposed = typeof L.gaps?.proposed === "number" && L.gaps.proposed > 0
-    ? sentence(lang, ["endorsement", "proposed"], { n: number(L.gaps.proposed, `${b}.gaps.proposed`, L.src) }, `${b}.gaps.proposed`) : null;
   const disclosure = r.singleAccountable?.disclosure?.length ? r.singleAccountable.disclosure.map((d, i) => datum(d, `${rp}.singleAccountable.disclosure[${i}]`)) : [];
-  return { detailed: Array.isArray(r.byMode), lines, proposed, disclosure, declared: sentence(lang, ["endorsement", "declared"], {}, rp) };
+  return { detailed: Array.isArray(r.byMode), lines, disclosure, declared: sentence(lang, ["endorsement", "declared"], {}, rp) };
 }
 
 /**
@@ -1162,8 +1167,8 @@ export function decide(idx) {
     title: sentence(lang, ["title"]),
     fleet: {
       declared: number(idx.fleet.declared, "fleet.declared", s0),
-      groups: (idx.fleet.byVerdict ?? []).map((g) => {
-        const gpath = `fleet.byVerdict[state=${g.state}]`;
+      groups: (idx.fleet.byVerdict ?? []).map((g, i) => {
+        const gpath = `fleet.byVerdict[${i}]`;
         return { state: g.state, label: sentence(lang, ["group", g.state], {}, `${gpath}.state`) ?? sentence(lang, ["unknown", "state"], { value: datum(g.state, `${gpath}.state`) }, `${gpath}.state`), count: count(g, gpath, s0) };
       }),
     },
@@ -1172,16 +1177,19 @@ export function decide(idx) {
       const L = typeof m.latest === "object" ? m.latest : null;
       const state = L ? L.verdict : m.latest;
       const from = L ? `${b}.verdict` : b;
-      const known = lexiconAt(lang, ptr("state", state)) !== undefined;
+      // A check received whose export writes no verdict: the index reads its verdict `not-observed`, and
+      // the reading says what happened, never that nothing was received.
+      const unwritten = L !== null && (typeof L.verdict !== "string" || L.verdict === "not-observed");
+      const known = !unwritten && lexiconAt(lang, ptr("state", state)) !== undefined;
       return {
         id: m.id,
         path: `missions[id=${m.id}]`,
         name: datum(m.name, `missions[id=${m.id}].name`),
         state,
-        stateWord: known ? sentence(lang, ["state", state], {}, from) : sentence(lang, ["unknown", "state"], { value: datum(state, from) }, from),
+        stateWord: unwritten ? sentence(lang, ["received", "state"], {}, from) : known ? sentence(lang, ["state", state], {}, from) : sentence(lang, ["unknown", "state"], { value: datum(state, from) }, from),
         qualifier: state === "clean" ? sentence(lang, ["qualifier", "clean"], {}, from) : null,
         date: lastCheck(lang, idx, m, state),
-        reason: known ? sentence(lang, ["reason", state], {}, from) : null,
+        reason: unwritten ? sentence(lang, ["received", "reason"], {}, from) : known ? sentence(lang, ["reason", state], {}, from) : null,
         pieces: L ? piecesOf(lang, L, b) : [],
         kinds: L ? kindsOf(lang, L, b) : [],
         pieceCounts: L ? pieceCountsOf(lang, L, b) : [],
@@ -1255,7 +1263,7 @@ function decisionApplication(doc, a) {
       </li>`).join("")}</ol></section>` : "";
   const pieces = a.pieces.length ? `<section data-role="pieces"><h2>${esc(X.pieces.title)}</h2>${role("legend", esc(X.pieces.legend))}${a.pieces.map((g) => `<div data-role="nature"><h3>${say(lang, g.label)}</h3><ul>${g.items.map((it) => `<li data-role="piece" data-state="${esc(it.state)}">${say(lang, it.line)}</li>`).join("")}</ul></div>`).join("")}</section>` : "";
   const E = a.endorsement;
-  const endorsement = E ? `<section data-role="endorsement"><h2>${esc(X.endorsement.title)}</h2><ul>${[...E.lines, E.proposed].filter(Boolean).map((s) => `<li>${say(lang, s)}</li>`).join("")}</ul>
+  const endorsement = E ? `<section data-role="endorsement"><h2>${esc(X.endorsement.title)}</h2><ul>${E.lines.filter(Boolean).map((s) => `<li>${say(lang, s)}</li>`).join("")}</ul>
       ${E.disclosure.length ? `<div data-role="detail"><p data-role="detail-label">${esc(X.endorsement.disclosure)}</p><!--verbatim:start-->${E.disclosure.map((d) => `<p data-role="verbatim" lang="en">${esc(d.text)}</p>`).join("")}<!--verbatim:end--></div>` : ""}
       ${role("note", say(lang, E.declared))}</section>` : "";
   return `<section data-reading="decision" data-view="application" data-mission="${esc(a.id)}">

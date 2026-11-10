@@ -66,24 +66,35 @@ function literalOf(e) {
   if (ts.isBinaryExpression(e) && e.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken) return literalOf(e.right);
   return null;
 }
-/** The kinds and scopes a function of the CLI writes into the table of refusals, read from its code. */
+/** A `kind` the CLI reads from a value whose type is one of the unions read above (`viol.kind`, `c.kind`). */
+const typedKind = (e) => e && ts.isPropertyAccessExpression(e) && e.name.text === "kind";
+/**
+ * The kinds and scopes a function of the CLI writes into the table of refusals, read from its code. A
+ * `kind` it cannot read as a literal, a default of `??`, a typed `x.kind` or the analyzers' template is
+ * reported in `unread`, never skipped: a value the extraction does not see would be a value the list misses.
+ */
 function writtenBy(node) {
-  const kinds = [], scopes = [], templates = [];
+  const kinds = [], scopes = [], templates = [], unread = [];
+  const kindOf = (e) => {
+    const v = literalOf(e);
+    if (v !== null) kinds.push(v);
+    else if (ts.isTemplateExpression(e)) templates.push(e.head.text);
+    else if (!(typedKind(e) || (ts.isBinaryExpression(e) && typedKind(e.left) && literalOf(e.right) !== null))) unread.push(e.getText());
+  };
   const visit = (n) => {
     if (ts.isPropertyAssignment(n) && ts.isIdentifier(n.name)) {
-      const v = literalOf(n.initializer);
-      if (n.name.text === "kind") { if (v !== null) kinds.push(v); else if (ts.isTemplateExpression(n.initializer)) templates.push(n.initializer.head.text); }
-      if (n.name.text === "scope" && v !== null) scopes.push(v);
+      if (n.name.text === "kind") kindOf(n.initializer);
+      if (n.name.text === "scope") { const v = literalOf(n.initializer); if (v !== null) scopes.push(v); else if (!ts.isPropertyAccessExpression(n.initializer)) unread.push(n.initializer.getText()); }
     }
     if (ts.isCallExpression(n) && ts.isIdentifier(n.expression) && n.expression.text === "whole") {
       const [scope, , , kind] = n.arguments;
-      if (scope && literalOf(scope) !== null) scopes.push(literalOf(scope));
-      if (kind && literalOf(kind) !== null) kinds.push(literalOf(kind));
+      if (scope && literalOf(scope) !== null) scopes.push(literalOf(scope)); else if (scope) unread.push(scope.getText());
+      if (kind) kindOf(kind);
     }
     ts.forEachChild(n, visit);
   };
   if (node) visit(node);
-  return { kinds, scopes, templates };
+  return { kinds, scopes, templates, unread };
 }
 
 /** The closed values the CLI of this tree can write, read from its code. `edit` plants a change in one file. */
@@ -99,6 +110,7 @@ async function cliValues(edit = {}) {
   const table = writtenBy(fn(contract, "conformanceEntries"));
   const verdictKinds = writtenBy(verdict).kinds;
   assert.deepEqual(table.templates, ["analysis-"], "the only kind built from a value is analysis-<family>");
+  assert.deepEqual(table.unread, [], "every kind and scope the table writes is read as a closed value");
   const families = literalTypes(typeAlias(analyze, "AnalysisFamily"));
   const { GATED_DELIVERABLES } = await import(pathToFileURL(join(ROOT, "dist", "lib", "conformance.js")).href);
   const { PHASES } = await import(pathToFileURL(join(ROOT, "dist", "lib", "mission.js")).href);
@@ -125,7 +137,12 @@ const differences = (code) => Object.entries(code).flatMap(([name, values]) => {
 test("the closed lists are the values the CLI of this tree writes, read from its code; a planted value reddens", async () => {
   assert.deepEqual(differences(await cliValues()), [], "docs/spec/runward-closed-values.json and the CLI agree on every closed field");
   assert.equal(listOf("conformanceKind").length, 39);
-  assert.equal(CLOSED.lists.conformanceKind.published.length, 31, "the published 0.46.0 writes 31 kinds (surveyed on the npm tarball)");
+  // The published list is the record of a survey of the 0.46.0 tarball (docs/spec/runward-closed-values.json
+  // names its integrity); the suite reads no registry, so it holds the record, not the tarball.
+  assert.equal(CLOSED.lists.conformanceKind.published.length, 31);
+  // A kind the extraction cannot read is reported, not skipped.
+  const hidden = writtenBy(fn(source("x.ts", 'function conformanceEntries(v) { const k = v.flag ? "a-kind" : "b-kind"; rows.push({ scope: "corpus", kind: k }); whole("corpus", f, "p", pick(v), "file"); }'), "conformanceEntries"));
+  assert.deepEqual(hidden.unread, ["k", "pick(v)"]);
   // Planted, one per way a value enters the table: a member of a declared union, a literal of the table's
   // own scopes, a default, a family of the analyzers.
   for (const [rel, from, to, expect] of [
@@ -173,9 +190,19 @@ test("every closed value has its sentence, in both languages; a sentence taken o
   L.conformance[1].file = "runward/a-document-from-tomorrow.md";
   L.conformance[1].scope = "a-scope-from-tomorrow";
   const html = views.renderView(idx, "decision", "demo-renamed");
-  assert.match(html, /détail du contrôle, tel quel : <span data-verbatim>a-kind-from-tomorrow<\/span>\./);
-  assert.match(html, /Partie du dossier telle que le contrôle la nomme : <span data-verbatim>a-scope-from-tomorrow<\/span>/);
+  assert.match(html, /détail du contrôle, tel quel\u00a0: <span data-verbatim>a-kind-from-tomorrow<\/span>\./);
+  assert.match(html, /Partie du dossier telle que le contrôle la nomme\u00a0: <span data-verbatim>a-scope-from-tomorrow<\/span>/);
   assert.deepEqual(rules.checkView(html, idx, "unknown"), []);
+  // Built, not refused: an unknown kind holding what HTML escapes, a deliverable with no phase.
+  const odd = JSON.parse(fx("demo-renamed.check.json").toString("utf8"));
+  odd.conformance[0].kind = 'a&"kind]';
+  odd.deliverables[0].phaseId = null;
+  odd.deliverables[0].state = "untouched";
+  const oi = indexFrom(manifestOf([missionWith("a")], { lang: "en" }), { "exports/a/check.json": odd });
+  assert.doesNotThrow(() => pageFor(oi));
+  const ot = decoded(views.renderView(oi, "decision", "a"));
+  assert.match(ot, /detail of the check, as written: a&"kind\]\./);
+  assert.match(ot, /Documents with no kind written/);
 });
 
 test("the specification shows the lexicon as it ships, in both languages; a sentence changed in the code and not in the specification reddens", () => {
@@ -241,6 +268,11 @@ test("no state reads as a decision taken: a planted Go reddens, in the lexicon a
 });
 
 test("nothing is blocking is never shown without the team's requirements and the date of the last check; taken out, it reddens", () => {
+  // The fleet's line for its applications with nothing blocking carries the requirements too.
+  for (const lang of ["fr", "en"]) assert.ok(views.LEXICON[lang].group.clean.includes(views.LEXICON[lang].qualifier.clean), lang);
+  const cut = structuredClone(views.LEXICON);
+  cut.en.group.clean = "Nothing is blocking";
+  assert.ok(rules.checkLexicon(cut).some((p) => /group\.clean: nothing blocking is said without the team's requirements/.test(p)));
   for (const lang of ["fr", "en"]) {
     const idx = goldenFleet(lang);
     const html = views.renderView(idx, "decision", "demo-repaired");
@@ -260,8 +292,8 @@ test("the refused state of the renaming demonstration: every sentence from close
   assert.equal(app.stateWord.text, "Refusée par le contrôle");
   assert.equal(app.stateWord.from, "missions[id=demo-renamed].latest.verdict");
   assert.deepEqual(app.problems.map((p) => p.line.text), [
-    "Mesures de la première version : une preuve citée est refusée par le contrôle.",
-    "Dossier de sécurité : une preuve citée est refusée par le contrôle.",
+    "Mesures de la première version\u00a0: une preuve citée est refusée par le contrôle.",
+    "Dossier de sécurité\u00a0: une preuve citée est refusée par le contrôle.",
   ]);
   for (const p of app.problems) {
     const [subject, reason] = [p.line.args.subject.sentence, p.line.args.reason.sentence];
@@ -308,17 +340,28 @@ test("how rows were endorsed: groups n / N from the index, partitioning the deci
   const html = views.renderView(idx, "decision", "agent");
   assert.deepEqual(rules.checkView(html, idx, "endorsement"), []);
   // A view that prints a group's count without its denominator is caught.
-  const bare = html.replace(/<span class="n" data-src="agent:check" data-index="(missions\[id=agent\]\.latest\.ratification\.byMode\[state=line-by-line\])\.N"[^>]*>46<\/span>/, "");
-  assert.ok(rules.checkView(bare, idx, "planted").some((p) => /byMode\[state=line-by-line\] is shown without its denominator/.test(p)));
+  const bare = html.replace(/<span class="n" data-src="agent:check" data-index="missions\[id=agent\]\.latest\.ratification\.byMode\[0\]\.N"[^>]*>46<\/span>/, "");
+  assert.ok(rules.checkView(bare, idx, "planted").some((p) => /byMode\[0\] is shown without its denominator/.test(p)));
   // An export that lists no row (a CLI before ADR-0095) is said as not detailed, with the count it carries.
   const old = JSON.parse(fx("agent-ratified.check.json").toString("utf8"));
   delete old.ratification.byRow;
   const o = indexFrom(manifestOf([missionWith("a")], { lang: "fr" }), { "exports/a/check.json": old });
   assert.equal(o.missions[0].latest.ratification.byMode, "not-observed");
-  assert.match(own(views.renderView(o, "decision", "a")), /Mode de validation non détaillé pour 19 points/);
+  assert.match(own(views.renderView(o, "decision", "a")), /Mode de validation non détaillé\./);
+  // An export with no ratification at all builds, and says the same, with no number the index does not hold.
+  const none = JSON.parse(fx("agent-ratified.check.json").toString("utf8"));
+  delete none.ratification;
+  const n0 = indexFrom(manifestOf([missionWith("a")], { lang: "en" }), { "exports/a/check.json": none });
+  assert.doesNotThrow(() => pageFor(n0));
+  assert.match(own(views.renderView(n0, "decision", "a")), /Endorsement mode not detailed\./);
+  // A ratified row whose mode is not written is said so, never counted with the rows nobody endorsed.
+  const nomode = JSON.parse(fx("agent-ratified.check.json").toString("utf8"));
+  nomode.ratification.byRow.filter((x) => x.mode === "line-by-line").slice(0, 3).forEach((x) => { delete x.mode; });
+  const nm = indexFrom(manifestOf([missionWith("a")], { lang: "en" }), { "exports/a/check.json": nomode }).missions[0].latest.ratification.byMode;
+  assert.deepEqual(nm.filter((g) => ["untraced", "not-observed"].includes(g.state)).map((g) => [g.state, g.n]), [["untraced", 27], ["not-observed", 3]]);
 });
 
-test("a row endorsed by an agent is worded as an agent's, under the person declared, never as a person's mode; a planted one is caught", () => {
+test("a row endorsed by an agent is worded as an agent's, under the person declared, never as a person's mode; a planted one is caught", async () => {
   const idx = goldenFleet("fr");
   const html = views.renderView(idx, "decision", "agent");
   const text = own(html);
@@ -338,6 +381,20 @@ test("a row endorsed by an agent is worded as an agent's, under the person decla
   const agentGroup = groups.find((g) => g.state === "agent"), lbl = groups.find((g) => g.state === "line-by-line");
   lbl.list.push(...agentGroup.list); lbl.n = lbl.list.length; agentGroup.list = []; agentGroup.n = 0;
   assert.equal(asPerson(planted).length, 1, "control: an agent's row moved into a person's mode is seen");
+  // Planted in the view's own code: the agent's rows said with a person's sentence. The rule reads the
+  // document: a line drawn from an agent's rows is keyed on an agent's sentence, or it is a breach.
+  const agentAsPersonLine = (doc) => doc.applications.flatMap((a) => a.endorsement?.lines ?? [])
+    .filter((l) => l && /\.agentRows\[\d+\]/.test(l.from ?? "") && !l.key.startsWith("/endorsement/agent"));
+  assert.deepEqual(agentAsPersonLine(views.decide(idx)), []);
+  const SRC = readFileSync(join(PKG, "ui", "views.js"), "utf8");
+  const from = 'lines.push(sentence(lang, ["endorsement", key], { count: count(a, ap, L.src), agent: datum(a.agent, `${ap}.agent`), ...(person ? { person } : {}) }, `${ap}.state`));';
+  assert.ok(SRC.includes(from), "the plant applies");
+  const tmp = mkdtempSync(join(tmpdir(), "rw-fleet-r5-"));
+  try {
+    writeFileSync(join(tmp, "views.mjs"), SRC.replace(from, 'lines.push(sentence(lang, ["endorsement", "mode", "line-by-line"], { count: count(a, ap, L.src) }, `${ap}.state`));'));
+    const plantedViews = await import(pathToFileURL(join(tmp, "views.mjs")).href);
+    assert.equal(agentAsPersonLine(plantedViews.decide(idx)).length, 2, "control: the agent's rows said in a person's words are seen");
+  } finally { rmSync(tmp, { recursive: true, force: true }); }
   // And the CLI's own disclosure is shown as written, beside the agent's line.
   assert.ok(html.includes("single accountable person; agent ratifications are disclosed throughput, not independent approval"));
 });
@@ -361,6 +418,21 @@ test("names can be left out of an index: no declared person reaches it, the agen
   leaking.gateNonScope = "reviewed with Carol Example";
   assert.throws(() => indexFrom(manifestOf([missionWith("a")], { names: "omitted" }), { "exports/a/check.json": leaking }),
     (e) => e instanceof build.BuildError && /missions\[id=a\]\.latest\.gateNonScope/.test(e.message));
+  // Wrapped across a line, in another mission's export: refused too.
+  const wrapped = JSON.parse(fx("demo-renamed.check.json").toString("utf8"));
+  wrapped.gateNonScope = "reviewed with Carol\n  Example";
+  assert.throws(() => indexFrom(manifestOf([missionWith("a"), missionWith("b")], { names: "omitted" }), { "exports/a/check.json": fx("agent-ratified.check.json"), "exports/b/check.json": wrapped }),
+    (e) => e instanceof build.BuildError && /missions\[id=b\]\.latest\.gateNonScope/.test(e.message));
+  // An agent whose export declares no person reads so, with names omitted or not: never "not published".
+  const unattributed = JSON.parse(fx("agent-ratified.check.json").toString("utf8"));
+  unattributed.ratification.byRow.filter((x) => /^agent/.test(x.mode)).forEach((x) => { x.for = null; });
+  unattributed.ratification.agents.forEach((x) => { x.for = "(undeclared)"; });
+  for (const extra of [{}, { names: "omitted" }]) {
+    const u = indexFrom(manifestOf([missionWith("a")], { lang: "en", ...extra }), { "exports/a/check.json": unattributed });
+    const text = decoded(views.renderView(u, "decision", "a"));
+    assert.match(text, /with no person declared as responsible/);
+    assert.doesNotMatch(text, /not published/);
+  }
   assert.throws(() => indexFrom(manifestOf([], { names: "hidden" })), /names must be "shown" or "omitted"/);
 });
 
@@ -383,6 +455,15 @@ test("a mission received as digests only has its own state, in both languages, a
   // Refused, nothing built: a digest that is not one, a file and a digest both.
   assert.throws(() => indexFrom(manifestOf([{ ...missionWith("a"), exports: { check: { sha256: "abc" } } }])), /64 lowercase hexadecimal/);
   assert.throws(() => indexFrom(manifestOf([{ ...missionWith("a"), exports: { check: { file: "x.json", sha256: "a".repeat(64) } } }])), /never both/);
+});
+
+test("a check received whose export writes no verdict says so, never that nothing was received", () => {
+  const noVerdict = JSON.parse(fx("demo-repaired.check.json").toString("utf8"));
+  delete noVerdict.verdict;
+  const idx = indexFrom(manifestOf([missionWith("a", { exports: { check: { file: "exports/a/check.json", at: "2026-11-10" } } })], { lang: "en" }), { "exports/a/check.json": noVerdict });
+  const text = decoded(views.renderView(idx, "decision", "a"));
+  assert.match(text, /Check received, no state written\nLast check received: 2026-11-10\nThe check received for this application writes no state\./);
+  assert.doesNotMatch(text, /No check (received|has been received)/);
 });
 
 test("the reading shows no history of states: the index holds the last check only, and nothing of a replay reaches it", () => {
