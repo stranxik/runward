@@ -5,8 +5,8 @@
  ],
  "verdicts": [
   {
-   "key": "34|9|34|23|ConditionalExpression|false",
-   "line": 34,
+   "key": "88|9|88|23|ConditionalExpression|false",
+   "line": 88,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "Removing the existsSync early return just routes an absent lock through readFileSync's ENOENT, which the surrounding try/catch already converts to the same `null`. Measured: byte-identical output across 30 lock fixtures (absent, malformed, empty, directory-as-lock, wrong version, bad corpus shapes), the CLI cycle and the shim.",
@@ -14,8 +14,8 @@
    "stableKey": "scaffold-lock\u0001readScaffoldLock\u0001ConditionalExpression\u0001false\u0001!existsSync(p)\u0001if (!existsSync(p))"
   },
   {
-   "key": "37|46|37|52|StringLiteral|\"\"",
-   "line": 37,
+   "key": "91|46|91|52|StringLiteral|\"\"",
+   "line": 91,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "readFileSync with encoding \"\" returns a Buffer instead of a string, and JSON.parse coerces it through toString() to the same utf8 text. Measured: identical parse of a lock containing non-ASCII (writtenBy \"é☃\"), and byte-identical output over all 30 lock fixtures including the BOM and empty-file cases, the CLI cycle and the shim.",
@@ -23,8 +23,8 @@
    "stableKey": "scaffold-lock\u0001readScaffoldLock\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001const j = JSON.parse(readFileSync(p, \"utf8\"));"
   },
   {
-   "key": "41|24|41|64|LogicalOperator|j.corpus || typeof j.corpus === \"object\"",
-   "line": 41,
+   "key": "95|24|95|64|LogicalOperator|j.corpus || typeof j.corpus === \"object\"",
+   "line": 95,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "`&&` to `||` accepts any truthy corpus value and, worse, makes a lock containing \"corpus\": null throw on j.corpus.name into the outer catch so the WHOLE lock reads as absent. Measured on the CLI: that mission flips from corpus status verifiable to unrecorded with strict conformance gaps 36 -> 37, and locks pinned {name:7} / \"acme\" / {} now surface a corpusDrift that does not exist.",
@@ -32,8 +32,8 @@
    "stableKey": "scaffold-lock\u0001readScaffoldLock\u0001LogicalOperator\u0001j.corpus || typeof j.corpus === \"object\"\u0001j.corpus && typeof j.corpus === \"object\"\u0001const corpus = j.corpus && typeof j.corpus === \"object\""
   },
   {
-   "key": "41|36|41|64|ConditionalExpression|true",
-   "line": 41,
+   "key": "95|36|95|64|ConditionalExpression|true",
+   "line": 95,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "Reachable only through JSON.parse output, where no non-object value (string, number, boolean, array element, null) carries string `name` and `version` properties, so the typeof check can never be what rejects. Measured: byte-identical output over the 8 malformed-corpus lock fixtures (string, number, 0, false, array, empty object, numeric name, numeric version), the CLI cycle, the shim and the control; the same fixtures do change under mutants 33/35/36, so the site is demonstrably observed.",
@@ -41,8 +41,8 @@
    "stableKey": "scaffold-lock\u0001readScaffoldLock\u0001ConditionalExpression\u0001true\u0001typeof j.corpus === \"object\"\u0001const corpus = j.corpus && typeof j.corpus === \"object\""
   },
   {
-   "key": "42|16|42|49|ConditionalExpression|true",
-   "line": 42,
+   "key": "96|16|96|49|ConditionalExpression|true",
+   "line": 96,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "A numeric corpus.name is accepted as a valid pin. Measured on the CLI with a lock pinned {name: 7, version: \"1.0.0\"} beside a runward/rules/corpus.json of {name: \"acme\", version: \"1.0.0\"}: corpusDrift goes from null to {\"pinned\":{\"name\":7,...},\"onDisk\":{...}}, reporting a corpus drift that the malformed-pin rule exists to suppress.",
@@ -50,8 +50,8 @@
    "stableKey": "scaffold-lock\u0001readScaffoldLock\u0001ConditionalExpression\u0001true\u0001typeof j.corpus.name === \"string\"\u0001&& typeof j.corpus.name === \"string\" && typeof j.corpus.version === \"string\""
   },
   {
-   "key": "42|53|42|89|ConditionalExpression|true",
-   "line": 42,
+   "key": "96|53|96|89|ConditionalExpression|true",
+   "line": 96,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "A numeric corpus.version is accepted as a valid pin. Measured on the CLI with a lock pinned {name: \"acme\", version: 7} beside a corpus.json of {name: \"acme\", version: \"1.0.0\"}: corpusDrift goes from null to {\"pinned\":{\"name\":\"acme\",\"version\":7},\"onDisk\":{...}}.",
@@ -59,8 +59,8 @@
    "stableKey": "scaffold-lock\u0001readScaffoldLock\u0001ConditionalExpression\u0001true\u0001typeof j.corpus.version === \"string\"\u0001&& typeof j.corpus.name === \"string\" && typeof j.corpus.version === \"string\""
   },
   {
-   "key": "38|69|38|85|ConditionalExpression|false",
-   "line": 38,
+   "key": "92|69|92|85|ConditionalExpression|false",
+   "line": 92,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",

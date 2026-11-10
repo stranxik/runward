@@ -1,0 +1,15 @@
+{
+ "function": "LEVELS_NOT_WITNESSED",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "60|37|60|290|StringLiteral|\"\"",
+   "line": 60,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222288438 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 2f863b429931375b9b02cf03951e6bfcc5b53b0687b313991dc4cba8ed8efa52 (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222288438 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 2f863b429931375b9b02cf03951e6bfcc5b53b0687b313991dc4cba8ed8efa52 (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "witness\u0001LEVELS_NOT_WITNESSED\u0001StringLiteral\u0001\"\"\u0001\"each applied row's level of proof and the binding of the run Statements it read (ADR-0119, ADR-0120 decision 6): the witness carries the levels and the pieces the verdict read, not their re-derivation; a signature is counted by runward, never verified\"\u0001export const LEVELS_NOT_WITNESSED = \"each applied row's level of proof and the binding of the run Statements it read (ADR-0119, ADR-0120 decision 6): the witness carries the levels and the pieces the verdict read, not their re-derivation; a signature is counted by runward, never verified\";"
+  }
+ ]
+}

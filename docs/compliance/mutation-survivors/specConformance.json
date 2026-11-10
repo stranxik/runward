@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "125|35|125|40|Regex|/#+/",
-   "line": 125,
+   "key": "117|35|117|40|Regex|/#+/",
+   "line": 117,
    "mutator": "Regex",
    "filing": "equivalent",
    "evidence": "`head` comes out of `heads`, filtered by CRITERIA_HEADING anchored `^#{1,6}\\\\s`: head[0] is always `#`, so the first match of /#+/ is the leading run at index 0, identical to /^#+/. MEASURED: zero diff on the battery of 28 cases (including subhead, nested_heads, decoy, h1_mixed, multi-sections) by function AND by CLI. SENSITIVITY CONTROL: the ctrl_level control (same statement replaced by `const level = 6`) moves the battery (subhead: 2 criteria -> vacuity finding, total 2->1) and is killed by both test files; the instrument sees this site, the mutant moves nothing.",
@@ -12,8 +12,8 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001Regex\u0001/#+/\u0001/^#+/\u0001const level = (head.match(/^#+/) ?? [\"#\"])[0].length;"
   },
   {
-   "key": "125|45|125|50|ArrayDeclaration|[]",
-   "line": 125,
+   "key": "117|45|117|50|ArrayDeclaration|[]",
+   "line": 117,
    "mutator": "ArrayDeclaration",
    "filing": "equivalent",
    "evidence": "The `?? [...]` fallback is dead code: head always starts with `#` (anchored CRITERIA_HEADING), so head.match(/^#+/) is never null and the right-hand branch of ?? is never evaluated; `[]` (which would cause a TypeError on [0].length) is unreachable. MEASURED: zero diff on the 28 cases, function and CLI, no exception. SENSITIVITY CONTROL: ctrl_level on the same site moves the battery and kills the dedicated tests (see m07); the probe sees this statement.",
@@ -21,8 +21,8 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001ArrayDeclaration\u0001[]\u0001[\"#\"]\u0001const level = (head.match(/^#+/) ?? [\"#\"])[0].length;"
   },
   {
-   "key": "125|46|125|49|StringLiteral|\"\"",
-   "line": 125,
+   "key": "117|46|117|49|StringLiteral|\"\"",
+   "line": 117,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "The same dead fallback as m08: the value `\\\"\\\"` (level 0) would only be read if head.match(/^#+/) returned null, impossible since every heading comes from CRITERIA_HEADING anchored on `^#`. MEASURED: zero diff on the 28 cases of the battery, function and CLI. Shared SENSITIVITY CONTROL: ctrl_level on the same site moves the probe and is killed by the dedicated tests.",
@@ -30,8 +30,8 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001StringLiteral\u0001\"\"\u0001\"#\"\u0001const level = (head.match(/^#+/) ?? [\"#\"])[0].length;"
   },
   {
-   "key": "131|38|131|51|Regex|/(#{1,6})\\s/",
-   "line": 131,
+   "key": "123|38|123|51|Regex|/(#{1,6})\\s/",
+   "line": 123,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Without ^, any `# ` in the MIDDLE of a criterion line is read as a level-1 heading and ENDS the section: everything that follows disappears. RECIPE: section with `- login works file:src/auth.ts#login` then `- see item # 2 also file:src/missing.ts` then `- broken file:src/missing2.ts`; spec-check --json. MEASURED shipped: exit 1, total 3, unlinked 2. Mutated: exit 0, verdict linked, total 1; two broken criteria erased from the perimeter by a prose `# `. Major false green. The tests miss it: their criterion lines only have an attached `#symbol` (never a spaced `# `) and no section prose contains `# `.",
@@ -39,8 +39,8 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001Regex\u0001/(#{1,6})\\s/\u0001/^(#{1,6})\\s/\u0001const h = lines[i].match(/^(#{1,6})\\s/);"
   },
   {
-   "key": "146|26|146|40|ConditionalExpression|true",
-   "line": 146,
+   "key": "138|26|138|40|ConditionalExpression|true",
+   "line": 138,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "Every excerpt goes through slice(0,99)+…: 20 cases out of 28 differ (every text field of the JSON gains a spurious …), and a criterion line of EXACTLY 100 characters ending in AC12 has its id truncated to AC1 in declaredIds. RECIPE: `## Criteria` / a 100-char line `- ok file:src/auth.ts#login xxx... AC12` / `see AC12 for detail`; spec-check --json. MEASURED shipped: declaredIds [AC12], exit 0. Mutated: declaredIds [AC1] (an id never written, manufactured), dangling AC12 manufactured, exit 1. The verdict flips and the table of declared ids lies. The tests miss it: no assertion reads criteria[].text and no fixture line comes near 100 characters.",
@@ -48,8 +48,8 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001ConditionalExpression\u0001true\u0001t.length > 100\u0001const text = t.length > 100 ? t.slice(0, 99) + \"…\" : t;"
   },
   {
-   "key": "146|26|146|40|ConditionalExpression|false",
-   "line": 146,
+   "key": "138|26|138|40|ConditionalExpression|false",
+   "line": 138,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "No truncation at all any more: the ids located beyond character 99 of a long line enter declaredIds whereas the shipped build loses them. RECIPE: `## Criteria` / a 113-char line ending in AC12 with a resolving pointer / `see AC12 for detail`; spec-check --json. MEASURED shipped: declaredIds [], dangling [{id:AC12}], exit 1. Mutated: declaredIds [AC12], dangling [], exit 0. The shipped binary's exit code flips on this recipe, and the text field (JSON contract) goes from 100 to 142 chars on long_broken. The tests miss it: the same blind spots as m14 (neither text nor long lines).",
@@ -57,8 +57,8 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001ConditionalExpression\u0001false\u0001t.length > 100\u0001const text = t.length > 100 ? t.slice(0, 99) + \"…\" : t;"
   },
   {
-   "key": "146|26|146|40|EqualityOperator|t.length >= 100",
-   "line": 146,
+   "key": "138|26|138|40|EqualityOperator|t.length >= 100",
+   "line": 138,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "Boundary: the line of exactly 100 characters tips into truncation. RECIPE identical to m14 (a 100-char line ending in AC12 + reference `see AC12`); spec-check --json. MEASURED shipped: full text, declaredIds [AC12], exit 0. Mutated: text cut at 99+…, declaredIds [AC1] (corrupted id), dangling AC12 manufactured, exit 1. One boundary character changes the verdict and invents a declared identifier. The tests miss it: no fixture at the 100-character boundary, no assertion on text or on the text/declaredIds interaction.",
@@ -66,8 +66,8 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001EqualityOperator\u0001t.length >= 100\u0001t.length > 100\u0001const text = t.length > 100 ? t.slice(0, 99) + \"…\" : t;"
   },
   {
-   "key": "146|26|146|40|EqualityOperator|t.length <= 100",
-   "line": 146,
+   "key": "138|26|138|40|EqualityOperator|t.length <= 100",
+   "line": 138,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "Truncation inverted: 22 cases out of 28 differ. Both flips are measured on the same recipes as m14/m15: len100_id exit 0 -> 1 (declaredIds [AC12] -> [AC1], dangling manufactured) AND len113_id exit 1 -> 0 (the id AC12 beyond char 99 rejoins declaredIds, the dangling disappears). On top of that every short criterion gains a spurious … in text. Double corruption of the verdict and of the JSON contract. The same test blind spots as m14/m15.",
@@ -75,8 +75,8 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001EqualityOperator\u0001t.length <= 100\u0001t.length > 100\u0001const text = t.length > 100 ? t.slice(0, 99) + \"…\" : t;"
   },
   {
-   "key": "146|43|146|57|MethodExpression|t",
-   "line": 146,
+   "key": "138|43|138|57|MethodExpression|t",
+   "line": 138,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "The long branch keeps the whole text (+…): the ids beyond character 99 rejoin declaredIds. RECIPE: fixture len113_id from m15; spec-check --json. MEASURED shipped: declaredIds [], dangling [{id:AC12}], exit 1. Mutated: declaredIds [AC12], dangling [], exit 0; text goes from 100 to 114 chars (JSON contract). A false green in the shipped binary's sense on the internal consistency check. The tests miss it: no line >100 chars, no reading of text, the only dangling test uses a 1-digit id on short lines.",
@@ -84,8 +84,8 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001MethodExpression\u0001t\u0001t.slice(0, 99)\u0001const text = t.length > 100 ? t.slice(0, 99) + \"…\" : t;"
   },
   {
-   "key": "146|60|146|63|StringLiteral|\"\"",
-   "line": 146,
+   "key": "138|60|138|63|StringLiteral|\"\"",
+   "line": 138,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Only the truncation MARKER disappears. MEASURED on the 28 cases: the only diffs = len113_id and long_broken, where text is 99 chars without … instead of 100 with … (same excerpt); exit, verdict, ok, reason, total, unlinked, declaredIds, dangling identical everywhere, including on the fixtures with ids at the boundary (CRITERION_ID's \\\\b holds with or without …, measured: declared/dangling unchanged). No remediation touched: the reason stays whole, only the visual cue `this excerpt is cut` is lost in a field that is already truncated. An owned near-forbidden filing: this is the only mutant of the batch whose effect touches neither a reason nor a field that the verdict or the consistency check reads.",
@@ -93,8 +93,8 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001StringLiteral\u0001\"\"\u0001\"…\"\u0001const text = t.length > 100 ? t.slice(0, 99) + \"…\" : t;"
   },
   {
-   "key": "147|69|147|121|LogicalOperator|p.kind === \"file\" || p.kind === \"test\" || !!p.path",
-   "line": 147,
+   "key": "139|69|139|121|LogicalOperator|p.kind === \"file\" || p.kind === \"test\" || !!p.path",
+   "line": 139,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "With ||, a file/test pointer WITHOUT a path passes the filter (adr: pointers stay excluded as they have neither a path nor kind file/test: no crash). RECIPE: section with `- x file:#foo`; spec-check --json. MEASURED shipped: reason `no file:/test: pointer, link this criterion to a delivered artifact` (the correct remediation: there is no usable pointer). Mutated: reason `file:#foo, points outside the project tree`, which sends the operator looking for a nonexistent tree escape. Exit and counts unchanged on the 28 cases; it is a reason (the remediation the operator carries out) that lies, and nothing sees it: the tests only assert the reason for the symbol/junit/line cases and never for a pointer without a path.",
@@ -102,8 +102,8 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001LogicalOperator\u0001p.kind === \"file\" || p.kind === \"test\" || !!p.path\u0001(p.kind === \"file\" || p.kind === \"test\") && !!p.path\u0001const pointers = parseEvidencePointers(t).filter((p) => (p.kind === \"file\" || p.kind === \"test\") && !!p.path);"
   },
   {
-   "key": "147|70|147|108|ConditionalExpression|true",
-   "line": 147,
+   "key": "139|70|139|108|ConditionalExpression|true",
+   "line": 139,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "The predicate becomes `true && !!p.path`: it keeps exactly the pointers with a truthy path. But the grammar only emits three kinds (POINTER_PREFIX = /\\\\b(file|test|adr):/, evidence.js:28) and adr objects are pushed without a path property (evidence.js, adr branches): `!!p.path` already implies kind ∈ {file, test}. The kept set is identical for every input. MEASURED: zero diff on the 28 cases (including adr_pointer and empty_path, cut for this filter), function and CLI. SENSITIVITY CONTROL on the same site: m20, m21 and m22 each move the battery (crash on adr:, reason changed on file:#foo); the probe sees any real modification of the set kept by THIS filter.",
@@ -111,8 +111,8 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001ConditionalExpression\u0001true\u0001p.kind === \"file\" || p.kind === \"test\"\u0001const pointers = parseEvidencePointers(t).filter((p) => (p.kind === \"file\" || p.kind === \"test\") && !!p.path);"
   },
   {
-   "key": "156|55|156|63|StringLiteral|\"\"",
-   "line": 156,
+   "key": "148|55|148|63|StringLiteral|\"\"",
+   "line": 148,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "The reason of a GREEN criterion becomes empty. MEASURED on the 28 cases: only the reason fields of the linked:true rows of the JSON change (\\\"linked\\\" -> \\\"\\\"); exit, verdict, counts, dangling, text, and every reason of the red rows identical; the text CLI never prints the reason of a linked row (guard `if (!cr.linked)`), human output byte-identical. On a green row there is no remediation to carry out and the machine flag is `linked`, not the string: ADR-0046's near-forbidden filing targets refusal reasons, all intact here. This is a degradation of a label in the JSON, not of a verdict or of a remediation.",
@@ -120,8 +120,8 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001StringLiteral\u0001\"\"\u0001\"linked\"\u0001? { line, text, linked: true, reason: \"linked\" }"
   },
   {
-   "key": "164|31|164|46|ArithmeticOperator|heads[0][0] - 1",
-   "line": 164,
+   "key": "156|31|156|46|ArithmeticOperator|heads[0][0] - 1",
+   "line": 156,
    "mutator": "ArithmeticOperator",
    "filing": "hole",
    "evidence": "The vacuity finding points 2 lines too high (down to L-1, measured when the heading is on line 1: a negative line number in the JSON contract), and the exclusion of declaration lines from the bundle scan excludes the wrong line. RECIPE: `see FR-9 first` / empty / `## Acceptance criteria` / `## Next` / `- after file:src/auth.ts#login`; spec-check --json. MEASURED shipped: vacuity L3 + dangling [{line:1, id:FR-9}], exit 1. Mutated: vacuity L1, dangling []: the dangling-reference finding is REMOVED (findings count 2 -> 1; the exit stays 1 thanks to the vacuity alone). The tests miss it: the shapes-test asserts the vacuity reason (/names no criterion/) and unlinked, never the line field, and no fixture combines vacuity and a reference above the heading.",
@@ -129,8 +129,8 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001ArithmeticOperator\u0001heads[0][0] - 1\u0001heads[0][0] + 1\u0001criteria.push({ line: heads[0][0] + 1, text: lines[heads[0][0]].trim(), linked: false,"
   },
   {
-   "key": "164|54|164|79|MethodExpression|lines[heads[0][0]]",
-   "line": 164,
+   "key": "156|54|156|79|MethodExpression|lines[heads[0][0]]",
+   "line": 156,
    "mutator": "MethodExpression",
    "filing": "display-only",
    "evidence": "The echo of the heading in the vacuity finding keeps its trailing whitespace. MEASURED on the 28 cases: the only diff = vacuity_trailing, text `## Acceptance criteria   ` instead of `## Acceptance criteria`; exit, reason, line, counts, declaredIds, dangling identical everywhere. The heading being anchored `^#`, no leading indentation is possible, only TRAILING whitespace survives the non-trim, and CRITERION_ID on this text is insensitive to adjacent whitespace (\\\\b): no path to declared/dangling changes. The text here is a locating echo, not a remediation; the filing rests on a measured and bounded diff (the battery did move on this mutant, the instrument sees it).",

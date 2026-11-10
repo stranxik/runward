@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "19|30|19|37|StringLiteral|\"\"",
-   "line": 19,
+   "key": "21|30|21|37|StringLiteral|\"\"",
+   "line": 21,
    "mutator": "StringLiteral",
    "filing": "defence-in-depth",
    "evidence": "Applied it: `version` becomes \"\". The unit suite passes because sarif-emit.test.js compares the document against the mutated SARIF_VERSION constant itself. `node test/sarif-shape.js` exits 1: `version is 2.1.0` plus the OASIS schema enum error `/version must be equal to one of the allowed values [\"2.1.0\"]`.",

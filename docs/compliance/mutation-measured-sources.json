@@ -23,21 +23,21 @@
     },
     {
       "module": "citations",
-      "sha256": "99de519db2b9bbcb933f95a8fe791244c8c9a63c4fbf2a1f90e924d77fb38635",
-      "run": "39947132062",
-      "measuredAt": "2026-10-23"
+      "sha256": "1f5c4021eba8d20fa17aeb53ba6acd006dea942f1e9f4280018565db29d8c931",
+      "run": "42221690421",
+      "measuredAt": "2026-11-06"
     },
     {
       "module": "compliance",
-      "sha256": "861e4ba340c009172bcb0724eb0b7d11c1a859bdab99ea37d3497b7123b6cd81",
-      "run": "40617438413",
-      "measuredAt": "2026-10-28"
+      "sha256": "9225fa77cf44ba84c7ab7ba5631b374be3436ed562ce747ec664a15bf49173a2",
+      "run": "42221702203",
+      "measuredAt": "2026-11-06"
     },
     {
       "module": "conformance",
-      "sha256": "32f3ff291f966e0403a7f9cc59662986135c5109d8b9c4df582d365b8daf732c",
-      "run": "40617442006",
-      "measuredAt": "2026-10-28"
+      "sha256": "be59cc52ebb6b0c3f53412ad4704fa44425c6d303ffe929a514a896f2383f960",
+      "run": "42221674154",
+      "measuredAt": "2026-11-06"
     },
     {
       "module": "delegation",
@@ -95,21 +95,21 @@
     },
     {
       "module": "sarif",
-      "sha256": "6f4177cf1e45e922c1542194db8fdcf0280e7c12203bbf99e77f939ae847a47d",
-      "run": "39947132062",
-      "measuredAt": "2026-10-23"
+      "sha256": "0da996e795212e73243fab2dc833cc4de1928146303ffb7281e086529c794cf9",
+      "run": "42222295996",
+      "measuredAt": "2026-11-06"
     },
     {
       "module": "scaffold-lock",
-      "sha256": "15612d12a524893a080f28321dc1ea7814d5c7fadd36973a7bf4279834977534",
-      "run": "39947132062",
-      "measuredAt": "2026-10-23"
+      "sha256": "bc87360b8670760f1e89930c1e10ecf523301bc329a7f1375756ddee746c0a08",
+      "run": "42222280584",
+      "measuredAt": "2026-11-06"
     },
     {
       "module": "spec-conformance",
-      "sha256": "dafa6c770f2f4a67d088658e527807f330d12b457b69eb5d26bcd2e2f6f0515f",
-      "run": "39947132062",
-      "measuredAt": "2026-10-23"
+      "sha256": "3d638e48238fe49fdc4943827255934030e3d9eff3cdea8c7a09aa683fbc8325",
+      "run": "42221694476",
+      "measuredAt": "2026-11-06"
     },
     {
       "module": "territory",
@@ -119,9 +119,9 @@
     },
     {
       "module": "territory-map",
-      "sha256": "148ba32271882a45ecc5bb31445c56f70cda171a5675abc6eb36dd36b61cc3e8",
-      "run": "39947132062",
-      "measuredAt": "2026-10-23"
+      "sha256": "627dd234efb4a835d0afe40fbde57825f3e73034e86bb4b325f86aa04e0c9eaa",
+      "run": "42221687052",
+      "measuredAt": "2026-11-06"
     },
     {
       "module": "tool-adapters",
@@ -149,9 +149,9 @@
     },
     {
       "module": "witness",
-      "sha256": "2b7dfa683db417bc6836a2ff4fdbadda0f905adbea9004e76edd60bd8449b3f5",
-      "run": "39947132062",
-      "measuredAt": "2026-10-23"
+      "sha256": "17cc28a0ee4216ad9efcd0a9e6cf04c2a9c80fb94a023d44740c6a4fa3cff669",
+      "run": "42222288438",
+      "measuredAt": "2026-11-06"
     },
     {
       "module": "workflow-contract",
