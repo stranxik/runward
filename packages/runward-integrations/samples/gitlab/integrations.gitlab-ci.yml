@@ -28,7 +28,7 @@ include:
 stages: [regenerate, gate]
 
 variables:
-  RUNWARD_VERSION: "0.46.0" # REPLACE: the runward version your mission pins
+  RUNWARD_VERSION: "0.47.0" # REPLACE: the runward version your mission pins
   RWI_PACKAGE_URL: "https://github.com/stranxik/runward/releases/download/vX.Y.Z/runward-integrations-X.Y.Z.tgz" # REPLACE
   RWI_PACKAGE_SHA256: "0000000000000000000000000000000000000000000000000000000000000000" # REPLACE: its sha256
 

@@ -28,3 +28,4 @@ digest, finds no attestation, and fails. What a summary means, and what it does 
 | `ratchet-summary-0.44.0.json` | v0.44.0 | `3099bb9bfc863ee04e9ad8d18397f0953af40e557b3a400fbb0e88e6f75c925e` (verdict `refused`: 0 of 164 chunks measured, see CHANGELOG 0.44.1) |
 | `ratchet-summary-0.44.1.json` | v0.44.1 | `21116873bc42f2ad700f450bd71bf8a517c2cf26f8886358c49422c12ce49996` (verdict: the register describes this tree) |
 | `ratchet-summary-0.45.0.json` | v0.45.0 | `5e54efccdfd96413ead137890ca25616bb863689373096a8c261842f6a59f8f2` (verdict `refused`: check-contract, conformance and mission did not match the register; regenerated in 0.46.0) |
+| `ratchet-summary-0.46.0.json` | v0.46.0 | `3420f5c5fb349ffdd933bdadbe8c20092edffd29a0aaf62af370ef7674129bdf` (verdict: the register describes this tree) |
