@@ -45,6 +45,12 @@
         "list": [
           "silent"
         ]
+      },
+      {
+        "state": "not-available",
+        "n": 0,
+        "N": 3,
+        "list": []
       }
     ],
     "byImplemented": [
@@ -326,6 +332,7 @@
           ]
         },
         "conformance": [],
+        "conformanceByKind": [],
         "evidence": {
           "rows": 46,
           "applied": 21,
@@ -454,7 +461,104 @@
           "ratifiers": [
             "Thibault Souris",
             "thibaultsouris"
-          ]
+          ],
+          "agent": 0,
+          "agents": [],
+          "singleAccountable": null,
+          "byMode": [
+            {
+              "state": "line-by-line",
+              "n": 1,
+              "N": 46,
+              "list": [
+                "handover.md · handover-agents-charter-final"
+              ]
+            },
+            {
+              "state": "en bloc",
+              "n": 44,
+              "N": 46,
+              "list": [
+                "architecture.md · contracts-governance",
+                "architecture.md · hexa-adapter-pattern",
+                "architecture.md · hexa-architecture",
+                "architecture.md · hexa-typescript-native",
+                "architecture.md · process-adr-and-journal",
+                "architecture.md · security-mcp-server-pinning",
+                "execution-topology.md · topology-port-placement-mapped",
+                "execution-topology.md · topology-sovereignty-by-data-class",
+                "execution-topology.md · topology-trace-export-decision",
+                "execution-topology.md · topology-usage-registry-present",
+                "floor.md · config-secrets-boundary",
+                "floor.md · frontier-deterministic-boundary",
+                "floor.md · hexa-adapter-pattern",
+                "floor.md · hexa-architecture",
+                "floor.md · hexa-move-deterministic-out",
+                "floor.md · provider-llm-auto-detection",
+                "floor.md · provider-no-crash-missing-env",
+                "floor.md · security-prompt-injection",
+                "floor.md · state-event-sourcing",
+                "floor.md · tools-scope-atomicity",
+                "floor.md · async-post-turn-pipeline",
+                "floor.md · checklist-day-zero-project",
+                "floor.md · data-migrations-forward-only",
+                "floor.md · scaling-state-externalization",
+                "floor.md · tools-registry-pattern",
+                "governance/threat-model.md · config-secrets-boundary",
+                "governance/threat-model.md · data-memory-provenance",
+                "governance/threat-model.md · eval-loop",
+                "governance/threat-model.md · resilience-fail-open",
+                "governance/threat-model.md · resilience-multi-provider-fallback",
+                "governance/threat-model.md · resilience-retry-backoff",
+                "governance/threat-model.md · security-code-execution-sandbox",
+                "governance/threat-model.md · security-human-agent-trust",
+                "governance/threat-model.md · security-mcp-server-pinning",
+                "governance/threat-model.md · security-prompt-injection",
+                "governance/threat-model.md · security-tool-change-reapproval",
+                "governance/threat-model.md · checklist-pre-production-observability",
+                "governance/threat-model.md · checklist-pre-production-performance",
+                "governance/threat-model.md · checklist-pre-production-resilience",
+                "governance/threat-model.md · checklist-pre-production-security",
+                "governance/threat-model.md · routing-confidence-upgrade",
+                "handover.md · handover-redone-task-proof",
+                "handover.md · handover-runbook-executable",
+                "handover.md · handover-succession-named"
+              ]
+            },
+            {
+              "state": "agent",
+              "n": 0,
+              "N": 46,
+              "list": []
+            },
+            {
+              "state": "agent (single accountable)",
+              "n": 0,
+              "N": 46,
+              "list": []
+            },
+            {
+              "state": "blind",
+              "n": 0,
+              "N": 46,
+              "list": []
+            },
+            {
+              "state": "changed",
+              "n": 1,
+              "N": 46,
+              "list": [
+                "governance/threat-model.md · async-job-guardrails"
+              ]
+            },
+            {
+              "state": "untraced",
+              "n": 0,
+              "N": 46,
+              "list": []
+            }
+          ],
+          "agentRows": []
         },
         "requiresUnmet": {
           "list": [
@@ -1488,6 +1592,7 @@
           ]
         },
         "conformance": [],
+        "conformanceByKind": [],
         "evidence": {
           "rows": 46,
           "applied": 24,
@@ -1614,7 +1719,102 @@
             }
           ],
           "changedRows": [],
-          "ratifiers": []
+          "ratifiers": [],
+          "agent": 0,
+          "agents": [],
+          "singleAccountable": null,
+          "byMode": [
+            {
+              "state": "line-by-line",
+              "n": 0,
+              "N": 46,
+              "list": []
+            },
+            {
+              "state": "en bloc",
+              "n": 0,
+              "N": 46,
+              "list": []
+            },
+            {
+              "state": "agent",
+              "n": 0,
+              "N": 46,
+              "list": []
+            },
+            {
+              "state": "agent (single accountable)",
+              "n": 0,
+              "N": 46,
+              "list": []
+            },
+            {
+              "state": "blind",
+              "n": 0,
+              "N": 46,
+              "list": []
+            },
+            {
+              "state": "changed",
+              "n": 0,
+              "N": 46,
+              "list": []
+            },
+            {
+              "state": "untraced",
+              "n": 46,
+              "N": 46,
+              "list": [
+                "architecture.md · contracts-governance",
+                "architecture.md · hexa-architecture",
+                "architecture.md · hexa-adapter-pattern",
+                "architecture.md · hexa-typescript-native",
+                "architecture.md · process-adr-and-journal",
+                "architecture.md · security-mcp-server-pinning",
+                "execution-topology.md · topology-port-placement-mapped",
+                "execution-topology.md · topology-sovereignty-by-data-class",
+                "execution-topology.md · topology-trace-export-decision",
+                "execution-topology.md · topology-usage-registry-present",
+                "floor.md · frontier-deterministic-boundary",
+                "floor.md · hexa-move-deterministic-out",
+                "floor.md · config-secrets-boundary",
+                "floor.md · provider-llm-auto-detection",
+                "floor.md · security-prompt-injection",
+                "floor.md · hexa-architecture",
+                "floor.md · hexa-adapter-pattern",
+                "floor.md · provider-no-crash-missing-env",
+                "floor.md · state-event-sourcing",
+                "floor.md · tools-scope-atomicity",
+                "floor.md · async-post-turn-pipeline",
+                "floor.md · checklist-day-zero-project",
+                "floor.md · data-migrations-forward-only",
+                "floor.md · scaling-state-externalization",
+                "floor.md · tools-registry-pattern",
+                "governance/threat-model.md · eval-loop",
+                "governance/threat-model.md · security-prompt-injection",
+                "governance/threat-model.md · config-secrets-boundary",
+                "governance/threat-model.md · resilience-fail-open",
+                "governance/threat-model.md · resilience-multi-provider-fallback",
+                "governance/threat-model.md · resilience-retry-backoff",
+                "governance/threat-model.md · async-job-guardrails",
+                "governance/threat-model.md · security-mcp-server-pinning",
+                "governance/threat-model.md · security-tool-change-reapproval",
+                "governance/threat-model.md · data-memory-provenance",
+                "governance/threat-model.md · security-code-execution-sandbox",
+                "governance/threat-model.md · security-human-agent-trust",
+                "governance/threat-model.md · checklist-pre-production-observability",
+                "governance/threat-model.md · checklist-pre-production-performance",
+                "governance/threat-model.md · checklist-pre-production-resilience",
+                "governance/threat-model.md · checklist-pre-production-security",
+                "governance/threat-model.md · routing-confidence-upgrade",
+                "handover.md · handover-redone-task-proof",
+                "handover.md · handover-runbook-executable",
+                "handover.md · handover-agents-charter-final",
+                "handover.md · handover-succession-named"
+              ]
+            }
+          ],
+          "agentRows": []
         },
         "requiresUnmet": {
           "list": [

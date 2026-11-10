@@ -17,6 +17,14 @@ export const INDEX_FORMAT = "runward-fleet-index/0";
 export const MANIFEST_FORMAT = "runward-fleet-manifest/0";
 export const EXPORT_KINDS = ["check", "attestation", "verify", "witness", "summary", "report", "history"];
 export const EXPECTABLE = [...EXPORT_KINDS, "signature"];
+/** The states a mission's verdict cell may hold, each always grouped: the four the CLI and the build
+ *  write, and `not-available`, a mission whose check reached the inventory as a digest only (ADR-0125). */
+export const VERDICT_STATES = ["clean", "gaps", "level-not-met", "not-observed", "not-available"];
+/** How a decided row was endorsed, as the ledger counts it (ADR-0125): the mode of its latest entry when
+ *  that entry still matches the row, else the row's state. One group per row, so the groups partition
+ *  the decided rows. */
+export const ENDORSEMENTS = ["line-by-line", "en bloc", "agent", "agent (single accountable)", "blind", "changed", "untraced"];
+const AGENT_MODES = new Set(["agent", "agent (single accountable)"]);
 const VERDICT_PREDICATE = "https://runward.dev/verdict/v1";
 // A private filesystem path: an absolute POSIX home or temporary path not inside a URL, a file URL,
 // or a Windows user profile. A URL whose path merely contains "/home/" is not one.
@@ -46,6 +54,10 @@ export function readManifest(doc) {
   if (!Array.isArray(doc.missions)) fail("fleet.json: missions must be a list");
   const lang = doc.lang ?? "en";
   if (!["en", "fr"].includes(lang)) fail(`fleet.json: lang must be "en" or "fr" (found ${JSON.stringify(lang)})`);
+  // ADR-0125: "omitted" keeps the names of the people an export declares out of the index, for a page
+  // published in public. Absent, the index keeps them, as before.
+  const names = doc.names ?? "shown";
+  if (!["shown", "omitted"].includes(names)) fail(`fleet.json: names must be "shown" or "omitted" (found ${JSON.stringify(doc.names)})`);
   if (doc.trustPolicy !== undefined && doc.trustPolicy !== null && !isRel(doc.trustPolicy)) fail("fleet.json: trustPolicy must be a path relative to fleet.json");
   const ids = new Set();
   const missions = doc.missions.map((m, i) => {
@@ -65,7 +77,13 @@ export function readManifest(doc) {
     const exports = m.exports ?? {};
     for (const [k, e] of Object.entries(exports)) {
       if (!EXPORT_KINDS.includes(k)) fail(`${where}: exports.${k} is not a kind this version reads (${EXPORT_KINDS.join(", ")})`);
+      // ADR-0125: an export whose content is not shared is declared by its digest alone; it is never read.
+      if (e && e.file === undefined && e.sha256 !== undefined) {
+        if (typeof e.sha256 !== "string" || !/^[0-9a-f]{64}$/.test(e.sha256)) fail(`${where}: exports.${k}.sha256 must be the 64 lowercase hexadecimal digits of a SHA-256`);
+        continue;
+      }
       if (!e || !isRel(e.file)) fail(`${where}: exports.${k}.file must be a path relative to fleet.json`);
+      if (e.sha256 !== undefined) fail(`${where}: exports.${k} declares a file or, when its content is not shared, its sha256 alone, never both`);
     }
     const signatures = m.signatures ?? [];
     if (!Array.isArray(signatures)) fail(`${where}: signatures must be a list`);
@@ -85,6 +103,7 @@ export function readManifest(doc) {
     title: typeof doc.title === "string" && doc.title ? doc.title : "runward-fleet",
     asOf: typeof doc.asOf === "string" && doc.asOf ? doc.asOf : null,
     lang,
+    names,
     trustPolicy: doc.trustPolicy ?? null,
     missions,
   };
@@ -94,12 +113,50 @@ export function readManifest(doc) {
 const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null);
 const str = (v) => (typeof v === "string" ? v : null);
 
-export function projectVerdict(d) {
+/**
+ * The rows an agent endorsed, grouped by the agent's declared name, the person it declared it answers
+ * to, and the mode (ADR-0125): n of the decided rows N, with the rows it counts. A row counts here only
+ * while its latest entry still matches it, as the ledger counts it. Sorted by code points, so the order
+ * is the same on every machine. With names omitted, the person is null, and `forDeclared` still says
+ * whether the export declared one.
+ */
+function agentRows(rows, omitNames) {
+  const N = rows.length;
+  const by = new Map();
+  for (const x of rows) {
+    if (x.state !== "ratified" || !AGENT_MODES.has(x.mode)) continue;
+    const declared = typeof x.for === "string" && x.for.trim() !== "";
+    const agent = str(x.by), person = omitNames ? null : str(x.for);
+    const k = JSON.stringify([agent, omitNames ? declared : person, x.mode]);
+    if (!by.has(k)) by.set(k, { state: x.mode, agent, for: person, forDeclared: declared, list: [] });
+    by.get(k).list.push(`${x.deliverable} · ${x.rule}`);
+  }
+  const cmp = (a, b) => (a === b ? 0 : a === null ? -1 : b === null ? 1 : a < b ? -1 : 1);
+  return [...by.values()]
+    .sort((a, b) => cmp(a.agent, b.agent) || cmp(a.for, b.for) || Number(b.forDeclared) - Number(a.forDeclared) || ENDORSEMENTS.indexOf(a.state) - ENDORSEMENTS.indexOf(b.state))
+    .map((g) => ({ state: g.state, agent: g.agent, for: g.for, forDeclared: g.forDeclared, n: g.list.length, N, list: g.list }));
+}
+
+/** The names of the people a check export declares: who ratified a row in a person's mode, and the
+ *  person an agent declared it answers to. An agent's own name is not a person's. */
+export function declaredPersons(d) {
+  const r = d?.ratification ?? {};
+  const out = new Set();
+  for (const x of Array.isArray(r.byRow) ? r.byRow : []) {
+    if (typeof x?.for === "string" && x.for.trim()) out.add(x.for.trim());
+    if (typeof x?.by === "string" && x.by.trim() && !AGENT_MODES.has(x.mode)) out.add(x.by.trim());
+  }
+  for (const x of Array.isArray(r.agents) ? r.agents : []) if (typeof x?.for === "string" && x.for.trim()) out.add(x.for.trim());
+  return out;
+}
+
+export function projectVerdict(d, { omitNames = false } = {}) {
   const r = d.ratification ?? {};
   const rows = Array.isArray(r.byRow) ? r.byRow : [];
   const a = d.delegation?.assurance;
   const unmet = Array.isArray(d.requiresUnmet) ? d.requiresUnmet : [];
   const deliverables = Array.isArray(d.deliverables) ? d.deliverables : [];
+  const conformance = (Array.isArray(d.conformance) ? d.conformance : []).map((c) => ({ scope: str(c.scope), rule: str(c.rule), kind: str(c.kind), problem: str(c.problem), file: str(c.file), line: num(c.line), phaseId: str(c.phaseId) }));
   return {
     runward: str(d.runward),
     verdict: str(d.verdict) ?? "not-observed",
@@ -113,7 +170,12 @@ export function projectVerdict(d) {
       list: deliverables.map((x) => ({ phase: str(x.phase), phaseId: str(x.phaseId), artifact: str(x.artifact), relPath: str(x.relPath), state: str(x.state), cause: str(x.cause) })),
       byState: group(deliverables, (x) => x.state, (x) => x.relPath, ["filled"]),
     },
-    conformance: (Array.isArray(d.conformance) ? d.conformance : []).map((c) => ({ scope: str(c.scope), rule: str(c.rule), kind: str(c.kind), problem: str(c.problem), file: str(c.file) })),
+    // `line` and `phaseId` are the export's own (RWD-2026-0149), additive here since ADR-0125; null when
+    // the export does not carry them (a CLI before 0.42.3) or the refusal has no row.
+    conformance,
+    // ADR-0125: the refusals by kind, in the order the export lists them, each n of N with the rows it
+    // counts; a refusal whose export writes no kind is grouped as `not-observed`.
+    conformanceByKind: group(conformance, (c) => c.kind ?? "not-observed", (c) => `${c.scope} · ${c.rule}`),
     evidence: {
       rows: num(d.evidence?.rows), applied: num(d.evidence?.applied), deviated: num(d.evidence?.deviated), na: num(d.evidence?.na),
       typed: num(d.evidence?.typed), prose: num(d.evidence?.prose), signed: num(d.evidence?.signed),
@@ -127,7 +189,20 @@ export function projectVerdict(d) {
       rows: num(r.rows), lineByLine: num(r.lineByLine), enBloc: num(r.enBloc), blind: num(r.blind), untraced: num(r.untraced), changed: num(r.changed) ?? 0,
       byState: group(rows, (x) => x.state, (x) => `${x.deliverable} · ${x.rule}`, ["ratified", "changed", "blind", "untraced"]),
       changedRows: (r.changedRows ?? []).map((x) => `${x.deliverable} · ${x.rule}`),
-      ratifiers: [...new Set(rows.map((x) => x.by).filter((x) => typeof x === "string" && x))],
+      ratifiers: omitNames ? [] : [...new Set(rows.map((x) => x.by).filter((x) => typeof x === "string" && x))],
+      // ADR-0125, additive. What the CLI counts apart for agents (ADR-0082, ADR-0088 decision 4), as it
+      // writes it: `agent` is absent from an export when no agent ratified, read here as 0.
+      agent: num(r.agent) ?? 0,
+      agents: (Array.isArray(r.agents) ? r.agents : []).map((x) => ({ agent: str(x?.agent), for: omitNames ? null : str(x?.for), rows: num(x?.rows) })),
+      singleAccountable: r.singleAccountable && typeof r.singleAccountable === "object"
+        ? { rows: num(r.singleAccountable.rows), disclosure: (Array.isArray(r.singleAccountable.disclosure) ? r.singleAccountable.disclosure : []).map(String) }
+        : null,
+      // The decided rows by how they were endorsed, each with n / N and its list, so no view computes a
+      // denominator; `not-observed` when the export lists no row (a CLI before ADR-0095).
+      byMode: Array.isArray(r.byRow)
+        ? group(rows, (x) => (x.state === "ratified" ? str(x.mode) ?? "not-observed" : str(x.state) ?? "not-observed"), (x) => `${x.deliverable} · ${x.rule}`, ENDORSEMENTS)
+        : "not-observed",
+      agentRows: agentRows(rows, omitNames),
     },
     requiresUnmet: {
       list: unmet.map((x) => ({ deliverable: str(x.deliverable), rule: str(x.rule), requires: str(x.requires) })),
@@ -245,7 +320,11 @@ export function buildIndex({ manifest: given, read, version }) {
   const byId = new Map();
   const addSource = (id, path, buf, meta) => {
     if (byId.has(id)) return id;
-    const s = { id, path, sha256: sha256hex(buf), bytes: buf.length, kind: meta.kind, producedBy: meta.producedBy ?? null, at: meta.at ?? null, origin: meta.origin, declaredIn: meta.declaredIn ?? "fleet.json" };
+    // A digest only (ADR-0125): the content was not shared, so nothing was read; the digest is the one
+    // fleet.json declares, never one this build computed.
+    const s = meta.digestOnly === true
+      ? { id, path: null, sha256: meta.sha256, bytes: null, kind: meta.kind, producedBy: meta.producedBy ?? null, at: meta.at ?? null, origin: "declared", declaredIn: meta.declaredIn ?? "fleet.json", content: "digest-only" }
+      : { id, path, sha256: sha256hex(buf), bytes: buf.length, kind: meta.kind, producedBy: meta.producedBy ?? null, at: meta.at ?? null, origin: meta.origin, declaredIn: meta.declaredIn ?? "fleet.json" };
     sources.push(s);
     byId.set(id, s);
     return id;
@@ -273,6 +352,7 @@ export function buildIndex({ manifest: given, read, version }) {
   }
 
   // ---- missions
+  const persons = []; // with names omitted: each person an export declares, to be kept off the page
   const missions = manifest.missions.map((m) => {
     const out = {
       id: m.id, name: m.name, role: m.role, repository: normRepo(m.repository), path: m.path,
@@ -286,9 +366,16 @@ export function buildIndex({ manifest: given, read, version }) {
     };
     const finding = (what, state, why, extra = {}) => out.findings.push({ what, state, why, ...extra });
     const exports = {};
+    const digestOnly = new Set();
     for (const kind of EXPORT_KINDS) {
       const e = m.exports[kind];
       if (!e) continue;
+      if (e.file === undefined) {
+        const src = addSource(`${m.id}:${kind}`, null, null, { kind: SOURCE_KIND[kind], producedBy: str(e.producedBy), at: str(e.at), sha256: e.sha256, digestOnly: true });
+        finding(kind, "not-available", "digest-only", { src });
+        digestOnly.add(kind);
+        continue;
+      }
       const buf = read(e.file);
       if (!buf) { finding(kind, "not-observed", "declared-file-absent", { file: e.file }); continue; }
       const src = addSource(`${m.id}:${kind}`, e.file, buf, { kind: SOURCE_KIND[kind], producedBy: str(e.producedBy), at: str(e.at), origin: "undetermined" });
@@ -303,11 +390,18 @@ export function buildIndex({ manifest: given, read, version }) {
       if (!m.exports[kind]) finding(kind, "not-observed", "expected-none-declared");
     }
 
-    // The verdict is read from check --json, else from the attestation's predicate (same fields).
+    // The verdict is read from check --json, else from the attestation's predicate (same fields). When
+    // neither was read and one of them reached the inventory as a digest only, the cell is
+    // `not-available`: something was received, and its content was not shared (ADR-0125).
+    const omitNames = manifest.names === "omitted";
     if (exports.check) {
-      out.latest = { from: "check", src: exports.check.src, origin: "undetermined", implemented: "ci-declared", ...projectVerdict(exports.check.json) };
+      out.latest = { from: "check", src: exports.check.src, origin: "undetermined", implemented: "ci-declared", ...projectVerdict(exports.check.json, { omitNames }) };
+      if (omitNames) persons.push(...[...declaredPersons(exports.check.json)].map((name) => ({ name, mission: m.id })));
     } else if (exports.attestation && exports.attestation.json?.predicateType === VERDICT_PREDICATE && exports.attestation.json.predicate) {
-      out.latest = { from: "attestation", src: exports.attestation.src, origin: "undetermined", implemented: "ci-declared", ...projectVerdict(exports.attestation.json.predicate) };
+      out.latest = { from: "attestation", src: exports.attestation.src, origin: "undetermined", implemented: "ci-declared", ...projectVerdict(exports.attestation.json.predicate, { omitNames }) };
+      if (omitNames) persons.push(...[...declaredPersons(exports.attestation.json.predicate)].map((name) => ({ name, mission: m.id })));
+    } else if (digestOnly.has("check") || digestOnly.has("attestation")) {
+      out.latest = "not-available";
     }
     if (exports.attestation) out.attestation = { src: exports.attestation.src, implemented: "ci-declared", ...projectAttestation(exports.attestation.json) };
     if (exports.verify) out.verify = { src: exports.verify.src, ...projectVerify(exports.verify.json) };
@@ -340,7 +434,7 @@ export function buildIndex({ manifest: given, read, version }) {
       if (res.state === "absent") finding("signature", "not-observed", "declared-file-absent", { file: decl.file ?? decl.manifest });
       if (res.state === "refused") finding("signature", "refused", "signature-refused", { signature: sid });
       if (res.raised) {
-        if (out.latest !== "not-observed" && out.latest.from === decl.covers) { out.latest.implemented = "machine-established"; out.latest.raisedBy = sid; }
+        if (typeof out.latest === "object" && out.latest.from === decl.covers) { out.latest.implemented = "machine-established"; out.latest.raisedBy = sid; }
         if (decl.covers === "attestation" && out.attestation) { out.attestation.implemented = "machine-established"; out.attestation.raisedBy = sid; }
       }
     });
@@ -348,12 +442,14 @@ export function buildIndex({ manifest: given, read, version }) {
     return out;
   });
 
-  const observed = missions.filter((m) => m.latest !== "not-observed");
+  // A cell is a verdict object, or the state that stands for one (`not-observed`, `not-available`).
+  const cellState = (m, field) => (typeof m.latest === "string" ? m.latest : m.latest[field]);
+  const observed = missions.filter((m) => typeof m.latest === "object");
   const allSignatures = missions.flatMap((m) => m.signatures);
   const fleet = {
     declared: missions.length,
-    byVerdict: group(missions, (m) => (m.latest === "not-observed" ? "not-observed" : m.latest.verdict), (m) => m.id, ["clean", "gaps", "level-not-met", "not-observed"]),
-    byImplemented: group(missions, (m) => (m.latest === "not-observed" ? "not-observed" : m.latest.implemented), (m) => m.id, ["machine-established", "ci-declared", "not-observed"]),
+    byVerdict: group(missions, (m) => cellState(m, "verdict"), (m) => m.id, VERDICT_STATES),
+    byImplemented: group(missions, (m) => cellState(m, "implemented"), (m) => m.id, ["machine-established", "ci-declared", "not-observed"]),
     sealed: group(observed, (m) => (m.latest.seal !== "not-observed" && m.latest.seal.present ? "sealed" : "unsealed"), (m) => m.id, ["sealed", "unsealed"]),
     signatures: {
       declared: allSignatures.length,
@@ -368,6 +464,9 @@ export function buildIndex({ manifest: given, read, version }) {
     builtBy: { name: "runward-fleet", version: version ?? null },
     title: manifest.title,
     lang: manifest.lang,
+    // ADR-0125: whether the names of the people the exports declare are in this index. Present only when
+    // fleet.json omits them, so an index built without the option keeps its bytes.
+    ...(manifest.names === "omitted" ? { names: { state: "omitted", source: "fleet.json" } } : {}),
     asOf: { label: manifest.asOf, source: "declared in fleet.json; neither the build nor the page reads a clock" },
     manifest: { src: "fleet.json" },
     policy: policyView,
@@ -382,7 +481,39 @@ export function buildIndex({ manifest: given, read, version }) {
     sources,
   };
   guardPrivatePaths(index);
+  if (manifest.names === "omitted") guardOmittedNames(index, persons);
   return index;
+}
+
+const LETTER = "[\\p{L}\\p{N}_]";
+const reEscape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * With names omitted (ADR-0125), refuse an index where a name an export declares would still reach the
+ * page through another field it projects: a refusal text, a summary, a note. The fields that hold
+ * names by design are emptied before; this sees what is left. It reads the projected exports of each
+ * mission, never the operator's own labels (a title, a mission name, a repository), and the build never
+ * rewrites a value: the export is fixed, or names are shown.
+ */
+export function guardOmittedNames(index, persons) {
+  const names = [...new Set(persons.map((p) => p.name.normalize("NFC").trim()).filter(Boolean))];
+  for (const name of names) {
+    // Any run of blanks between its words (a wrapped line, a no-break space), in every mission's exports.
+    const re = new RegExp(`(?<!${LETTER})${name.split(/\s+/).map(reEscape).join("[\\s\\u00a0]+")}(?!${LETTER})`, "iu");
+    for (const m of index.missions) {
+      for (const key of ["latest", "attestation", "verify", "witness", "summary", "history"]) {
+        const hit = firstMatch(m[key], re, `missions[id=${m.id}].${key}`);
+        if (hit) fail(`a name the export declares would reach a page whose fleet.json omits names, at ${hit}: fix the export, or show names; the build never rewrites a value`);
+      }
+    }
+  }
+}
+
+function firstMatch(value, re, path) {
+  if (typeof value === "string") return re.test(value.normalize("NFC")) ? path : null;
+  if (Array.isArray(value)) { for (let i = 0; i < value.length; i++) { const h = firstMatch(value[i], re, `${path}[${i}]`); if (h) return h; } return null; }
+  if (value && typeof value === "object") { for (const [k, v] of Object.entries(value)) { const h = firstMatch(v, re, `${path}.${k}`); if (h) return h; } }
+  return null;
 }
 
 /** Refuse a page that would carry a private filesystem path, naming where it would come from. */
