@@ -266,9 +266,13 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
 }
 
 /** One concrete, citable form per requirable nature. A nature the operator cannot picture is a
- *  nature they satisfy by accident or not at all. Shapes taken from the adapters themselves. */
+ *  nature they satisfy by accident or not at all. Shapes taken from the adapters themselves.
+ *  The junit form was written `file:reports/junit.xml::…` until 2026-11-06: the pointer grammar gives a
+ *  `::NAME` to `test:` only, so the copied form read as a `file:` pointer at a path ending in `::the`,
+ *  which resolves nowhere (RWD-2026-0209). Each form is now parsed by a test, and the recipes of
+ *  runward-integrations carry them as they are printed here. */
 const REQUIRES_EXAMPLE: Record<string, string> = {
-  junit: "file:reports/junit.xml::the test case that proves it — the case must be present AND green",
+  junit: "test:reports/junit.xml::the test case that proves it — the case must be present AND green",
   sarif: "file:reports/scan.sarif#the-rule-id — the scan must know the rule and record no open finding",
   eslint: "file:reports/eslint.json#src/adapters/model.ts — linted, with no error-severity finding",
   coverage: "file:coverage/lcov.info#src/core/guard.ts — measured AND actually exercised (0 covered lines is not evidence)",

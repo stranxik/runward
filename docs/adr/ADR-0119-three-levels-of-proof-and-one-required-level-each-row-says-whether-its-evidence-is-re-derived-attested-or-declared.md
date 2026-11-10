@@ -305,6 +305,125 @@ cites its own manifest), which `re-derived` refuses: the laboratory of ADR-0120'
 example does not yet. The mutation fact of decision 2 waits for ADR-0120's R2: until then every surface
 says that no run Statement bound here carries a mutation leg.
 
+## Note, 2026-11-06 (later): the lock, the fallback and the surfaces of decisions 4 and 6
+
+Delivered on a second branch, each piece pinned by `test/unit/levels-lock.test.js`:
+
+- **The lock** (decision 4). A full strict verdict reads `"requiredLevel"` in `runward/scaffold-lock.json`
+  when `--require` names none (`lockRequiredLevel`, `requiredLevel(opts, lock)` in `src/lib/verdict.ts`);
+  a `--through` prefix never reads it; a value that is not a level is refused before the gate runs, exit
+  2 (ADR-0083), the flag included, so a typo never reads as a weaker level. `levels.source` is `lock`.
+  `update` carries the line through as written, a refused value included, and writes none on its own:
+  the writer rebuilds the lock, and RWD-2026-0106 is what happened when a lock opt-in was not one of its
+  parameters.
+- **The fallback** (decision 4). A `re-derived` the lock asks for, on a territory holding a language the
+  analyzers do not read, requires `mechanical` (`require.level`), says so at the character in
+  `levels.fallback` and on every surface, and `levels.below` then names only what holds the run, a
+  declared row staying listed under `rows.declared`. For an `attested` the lock asks for, the static half
+  falls and the name is kept; the sentence adds « for its static half, and attested for its execution ».
+  Asked by name, `--require re-derived` still refuses the territory. Measured on `init --example` with
+  `code/tools/convert.py` added: exit 0 under the lock, `require: { level: "mechanical", met: true }`,
+  exit 5 under the flag.
+- **Every strict run prints the level the tree meets** and what the next level would refuse, read at
+  `attested` for the terminal only, so the payload, the renderings and the exit code of a run that asks
+  for no upper level keep their bytes. On `init --example`: « level of proof this tree meets: mechanical;
+  the next level, re-derived, would refuse 1 row(s) that rest on a declaration ». On runward's own mission:
+  mechanical; re-derived would refuse 1 row that rests on a declaration, and the mission pins no analysis
+  policy.
+- **The surfaces** (decision 6), each only when the run reads the levels: the SARIF run's property bag
+  (`levels`, each applied row named under its level), the witness (a `levels` member, and the family
+  `levels` under `notWitnessed` in that witness alone, `docs/spec/witness.md` 7.8), the delivery report and
+  the job summary (a table of each applied row at its level, and what holds it below), and the VSA (one
+  more `verifiedLevels` value naming the level met, never overstated: `RUNWARD_PROOF_RE_DERIVED`,
+  `RUNWARD_PROOF_ATTESTED`, or `RUNWARD_PROOF_MECHANICAL` under the fallback, by the ladder of decision 2).
+  The attestation predicate already carried the level through `require` and `levels`. `status` names the
+  level the lock asks for. `gate-hook` names `mechanical`: the session gate's question is gaps (ADR-0065),
+  and an `attested` level needs a run the session cannot make (ADR-0120).
+
+Not delivered, and why. **`init` still writes no level**: this decision moves the default of new missions
+in the first release that meets ADR-0117's criterion 2, and no classification of false reds on three real
+repositories is published. The switch is one constant, `NEW_MISSION_REQUIRED_LEVEL` in
+`src/lib/evidence-levels.ts`, read by `init`; the release that flips it also types the shipped example's
+prose row (`topology-usage-registry-present`), takes `re-derived` on runward's own mission or says why not
+in its CHANGELOG entry (the mission pins no analysis policy today, and its lock is a pre-merge path), and
+regenerates the goldens that row reaches. The text output names each row below the level and counts the
+others, listed in `--json`; it does not print every row's level.
+
+## Note, 2026-11-06 (R2): the mutation fact of decision 2
+
+With ADR-0120's R2, `attested` reads the mutation of the cited lines (`src/lib/mutation-targets.ts`,
+`docs/spec/runward-run.md` §7). A row that cites a code location and a test is below `attested` when its
+cited tests kill no mutant of its cited lines through a failed assertion, as decision 2 writes it; held to
+« at least one mutant killed » where no failure carries the distinction; reaching `attested` without the
+fact where runward-run has no mutator for the language. One reading this record did not spell out, made
+here: a row whose cited lines hold no operator the mutator changes (a port's interface, a type) kills no
+mutant of them, so it is below `attested`, read as written: neither exception applies, and such a row
+cites the lines that implement what it claims. Two rows of the shipped example cite an interface that
+way; the laboratory of ADR-0120's tests also cites the adapter that implements each, the example does
+not yet.
+
+## Note, 2026-11-06: two readings of the notes above, decided under the delegation of 2026-11-05
+
+Taken under the maintainer's delegation of 2026-11-05 ("carry it out each time instead of asking me"),
+on the recommendation of the agent session that built the lock, R2 and R3, and recorded by the session
+that merged them into the third integration train; the maintainer did not review them before they were
+written, and each stands until he reverses it.
+
+- **A row whose cited lines hold no mutant, a port's interface or a type, stays below `attested`.** The
+  reading of the R2 note holds as decided: neither exception of decision 2 applies to such a row, and it
+  is kept because it closes the sabotage on those lines. Were it lifted, a row could reach `attested` by
+  citing lines no mutant can reach, whatever its cited tests assert. The row reaches `attested` by also
+  citing the lines that implement the interface, as the laboratory of ADR-0120's tests does.
+- **`NEW_MISSION_REQUIRED_LEVEL` moves to `re-derived` only in the release that publishes the
+  classification of ADR-0117's criterion 2 at zero false reds**, and that release also types the shipped
+  example's prose row (`topology-usage-registry-present`), with the other work the note on decisions 4
+  and 6 lists. Until that release, `init` writes no level.
+
+## Note, 2026-11-06: the condition of decision 4 met at `51675dc`, and what the move waits on
+
+ADR-0117's criterion 2 holds at `51675dc`: [the measurement of the analyzers on three repositories runward
+did not write](../compliance/analyzers-on-real-repositories.md), published with its commands and with the
+classification of every finding by reviewer sessions that did not write the analyzers, reads zero false reds
+on express, fastify and hono, and the head of the third integration train reads the same 227 ids. The
+condition this decision sets on the default of new missions is met.
+
+`NEW_MISSION_REQUIRED_LEVEL` does not move in that train. Measured on its tree with the constant set to
+`re-derived`: a new mission that follows the blank template is refused, exit 5, on
+`topology-usage-registry-present`. The rule keeps the usage registry in `execution-topology.md` and the
+template puts it there, so the row's one pointer is at the manifest itself, which the gate does not open as
+evidence: the row is `declared`, below `re-derived`, and the audit corpus's honest case AC-015, a
+documentary rule citing the section that states the fact, reads exit 5 where it is accepted today. The move
+is made with the coherence of that rule and the template, in the pull request that follows the third
+integration train, so the release that publishes the classification carries both. Decided under the
+maintainer's delegation of 2026-11-05, on the recommendation of the session that measured it; the
+maintainer did not review it before it was written.
+
+## Note, 2026-11-06: the default of new missions moved, with the usage registry in a file of its own
+
+`NEW_MISSION_REQUIRED_LEVEL` is `re-derived`: `runward init` writes `"requiredLevel": "re-derived"` in a new
+mission's lock, as the note above on two readings decided, ADR-0117's criterion 2 being published at zero
+false reds. What the note above found in the way is gone. `topology-usage-registry-present` now says the
+registry lives in a file of its own, `runward/governance/usage-registry.md`, cited by deployment from the
+row, and `execution-topology.md` points at it; the blank template ships that file (a seventeenth mission
+template), so a new mission that follows it cites a file the gate opens, and the row is `re-derived`.
+`templates/rule-history.json` gains the rule's new text and loses none. The shipped example cites its
+registry in that file, so `init --example` meets the level it asks for, 24 applied rows re-derived and none
+declared, and the goldens it reaches are regenerated; the goldens of runward's own mission keep their bytes.
+The audit corpus's honest case AC-015 cites the section of the registry's own file and is accepted; no
+refusal case is added, since the corpus holds vectors once found and closed, and the one reading this move
+needs in the other direction, a pointer at the manifest itself read `declared` below the level, is held by
+`test/unit/levels-lock.test.js` and `test/unit/run-binding.test.js`. The metamorphic relations MR-1, MR-2,
+MR-3 and MR-5 compare the whole judgement but `levels.execution.expected`, the inventory a run Statement is
+bound to (ADR-0120 decision 4), which lists the files by path and digests the manifests' bytes, the bytes
+those relations change.
+
+runward's own mission does not take the level: it pins no analysis policy, so its territory is not
+analysed, and its lock is a pre-merge path. Measured at the head of the pull request that moves the
+default, `check --strict --require re-derived` on it exits 5 with 20 applied rows re-derived and 1 declared,
+its usage registry row, which still cites its own manifest. Decided under the maintainer's delegation of
+2026-11-05; the lock of runward's mission and its copy of the rule change in the same pull request, a
+pre-merge path the maintainer approves.
+
 ## References
 
 - [ADR-0046](ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md),

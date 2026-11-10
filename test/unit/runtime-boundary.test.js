@@ -399,3 +399,67 @@ test("ADR-0120, positive controls: a planted import of runward-run into runward,
   ]) assert.equal(runCrossings(f, plant).length, 1, `${what} reddens`);
   assert.equal(runCrossings(f, 'import { spawnSync } from "node:child_process";\nimport { readPolicy } from "./policy.js";').length, 0, "but spawning and its own modules do not: runward-run is the package that runs");
 });
+
+// ── ADR-0122 decision 4: runward-integrations, the recipes, sit outside the verdict, both ways ──────────
+// A recipe changes which files exist when the gate runs, never how they are judged: no module of runward
+// imports runward-integrations, spawns it or ships it, and the verdict rings never reach it. The package
+// imports nothing of runward's src/ or dist/ and opens no socket of its own. Like runward-run it RUNS
+// processes (the project's own command, and in its controls npm and the runward under test), and one of its
+// writers loads the project's own ESLint by a name computed from the project: this file names each module
+// that does, so the boundary cannot pass vacuously on a package that does neither.
+const RWI_PKG = join(ROOT, "packages", "runward-integrations");
+const RWI_FILES = () => listFiles(join(RWI_PKG, "src"), [".js", ".mjs"]);
+/** The recipes' boundary, as a function, so the controls below run the very code the guard runs. */
+function rwiCrossings(file, src) {
+  const found = [];
+  for (const s of SPECIFIERS(src)) {
+    if (s.startsWith(".")) {
+      if (!resolve(dirname(file), s).startsWith(RWI_PKG + sep)) found.push(`${file} reaches outside its package with "${s}"`);
+    } else if (!/^node:/.test(s)) found.push(`${file} imports "${s}": Node built-ins only, and never runward`);
+  }
+  return [...found, ...networkIn(file, src)];
+}
+const rwiImportIn = (file, src) => SPECIFIERS(src).filter((s) => /(^|\/)runward-integrations(\/|$)|(^|\/)packages\//.test(s)).map((s) => `${file} imports "${s}"`);
+const RWI_SPAWN = /\b(?:spawn|spawnSync|exec|execSync|execFile|execFileSync|fork)\s*\([^)]*runward-integrations/;
+const COMPUTED_IMPORT = /\bimport\s*\(\s*(?!["'`])/;
+const rel = (f) => f.slice(RWI_PKG.length + 1).split(sep).join("/");
+
+test("ADR-0122: runward-integrations imports nothing from runward and opens no socket; it spawns and loads the project's ESLint, and this test says where", () => {
+  const files = RWI_FILES();
+  assert.ok(files.length >= 8, `the recipes' package was walked (${files.length} modules)`);
+  assert.deepEqual(files.flatMap((f) => rwiCrossings(f, readFileSync(f, "utf8"))), [], "runward-integrations crosses its boundary (ADR-0122 decision 4)");
+  const spawners = files.filter((f) => SPECIFIERS(readFileSync(f, "utf8")).includes("node:child_process")).map(rel).sort();
+  assert.deepEqual(spawners, ["src/control.js", "src/regenerate.js"], "the step runs the project's command, the controls run npm and the runward under test, and nothing else spawns");
+  assert.deepEqual(files.filter((f) => COMPUTED_IMPORT.test(readFileSync(f, "utf8"))).map(rel), ["src/tools/eslint-sarif.mjs"], "the one computed import is the SARIF writer loading the project's own ESLint");
+});
+
+test("ADR-0122: the runward package imports nothing from runward-integrations, never spawns it, and does not ship it", () => {
+  const files = RUNWARD_FILES();
+  assert.deepEqual(files.flatMap((f) => rwiImportIn(f, readFileSync(f, "utf8"))), [], "runward imports the recipes");
+  assert.deepEqual(files.filter((f) => RWI_SPAWN.test(readFileSync(f, "utf8"))), [], "runward spawns the recipes");
+  const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+  for (const k of ["dependencies", "optionalDependencies", "peerDependencies", "devDependencies"]) assert.ok(!pkg[k]?.["runward-integrations"], `runward-integrations is not a ${k} entry`);
+  assert.ok(!pkg.files.some((f) => f.startsWith("packages")), "packages/ is not in the runward tarball");
+  for (const entry of [join(ROOT, "dist", "lib", "verdict.js"), join(ROOT, "dist", "commands", "check.js"), join(ROOT, "dist", "commands", "gate-hook.js")]) {
+    const { files: ring } = importClosure(entry);
+    assert.ok(![...ring].some((f) => f.startsWith(RWI_PKG)), `${entry}: a recipe module is inside a verdict ring`);
+  }
+});
+
+test("ADR-0122, positive controls: a planted import of the recipes into runward, a planted spawn of them, and planted escapes out of them redden", () => {
+  assert.equal(rwiImportIn("x.ts", 'import { regenerate } from "runward-integrations";').length, 1, "a package import of the recipes into runward reddens");
+  assert.equal(rwiImportIn("x.js", 'import { normalizeJUnit } from "../../packages/runward-integrations/src/normalize.js";').length, 1, "a relative import into packages/ reddens");
+  assert.equal(rwiImportIn("x.js", 'const m = await import("runward-integrations/count");').length, 1, "a dynamic import of a subpath reddens");
+  assert.ok(RWI_SPAWN.test('execFileSync("node", ["packages/runward-integrations/src/cli.js", "regenerate"])'), "a spawn of the recipes from runward reddens");
+  assert.ok(!RWI_SPAWN.test('log("regenerate it with runward-integrations in your CI")'), "but not the name in a sentence runward prints");
+  const f = join(RWI_PKG, "src", "planted.js");
+  for (const [plant, what] of [
+    ['import { computeVerdict } from "runward/dist/lib/verdict.js";', "a runward import"],
+    ['import { parseEvidencePointers } from "../../../src/lib/evidence.js";', "a relative escape into runward"],
+    ['import { request } from "node:https";', "a socket of its own"],
+    ['export const x = async () => fetch("https://example.invalid/report.xml");', "a fetch"],
+    ['import yaml from "js-yaml";', "a dependency"],
+  ]) assert.equal(rwiCrossings(f, plant).length, 1, `${what} reddens`);
+  assert.equal(rwiCrossings(f, 'import { spawnSync } from "node:child_process";\nimport { NORMALIZERS } from "./normalize.js";').length, 0, "but spawning and its own modules do not: the step is a command that runs");
+  assert.ok(COMPUTED_IMPORT.test("const m = await import(pathToFileURL(resolved).href);") && !COMPUTED_IMPORT.test('await import("./normalize.js")'), "the computed-import guard sees a computed name, and only that");
+});

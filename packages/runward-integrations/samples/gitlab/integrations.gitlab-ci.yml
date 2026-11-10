@@ -1,0 +1,83 @@
+# runward-integrations on GitLab (runward ADR-0122, laid out as ADR-0120 decision 5), at parity with
+# samples/github/integrations.yml. An inert sample: runward installs nothing.
+#
+# WHERE IT RUNS. In the pipeline of a project the agent cannot write (your "CI project"), run for the
+# mission's commit. The mission's own pipeline only triggers it, naming a commit and nothing else:
+#
+#   runward-integrations:
+#     trigger: { project: your-group/your-ci-project, strategy: depend }
+#     variables: { RUNWARD_MISSION_PROJECT: $CI_PROJECT_PATH, RUNWARD_MISSION_SHA: $CI_COMMIT_SHA }
+#
+# This file holds what decides what each report says: the commands. The recipes' templates are included at
+# a pinned commit of the project that holds them (a mirror of runward's repository, or this project if you
+# copy them in), and the package their jobs run is fetched by a URL pinned with its sha256. Make the
+# trigger job required (Pipelines must succeed), so that removing it from the mission blocks the merge.
+#
+# What a green pipeline says: on the mission's commit, the reports the gate read were written by the
+# project's own tools in this pipeline. They are declared (runward ADR-0119 decision 1); for attested, run
+# the same commands as the legs of a runward-run policy (packages/runward-run/samples/gitlab).
+# Each REPLACE marks what to set before use.
+include:
+  - project: "your-group/runward-mirror" # REPLACE: a project the agent cannot write, holding runward's repository
+    ref: "0000000000000000000000000000000000000000" # REPLACE: a 40-character commit of it
+    file:
+      - "/packages/runward-integrations/recipes/sarif/gitlab/sarif.gitlab-ci.yml"
+      - "/packages/runward-integrations/recipes/junit/gitlab/junit.gitlab-ci.yml"
+      - "/packages/runward-integrations/recipes/coverage/gitlab/coverage.gitlab-ci.yml"
+
+stages: [regenerate, gate]
+
+variables:
+  RUNWARD_VERSION: "0.46.0" # REPLACE: the runward version your mission pins
+  RWI_PACKAGE_URL: "https://github.com/stranxik/runward/releases/download/vX.Y.Z/runward-integrations-X.Y.Z.tgz" # REPLACE
+  RWI_PACKAGE_SHA256: "0000000000000000000000000000000000000000000000000000000000000000" # REPLACE: its sha256
+
+# The mission at the commit this pipeline is for, and its dependencies from its lockfile, scripts off.
+.mission:
+  image: node:24.22.1-bookworm@sha256:0000000000000000000000000000000000000000000000000000000000000000 # REPLACE: pin by digest
+  before_script:
+    - case "$RUNWARD_MISSION_SHA" in ""|*[!0-9a-f]*) echo "RUNWARD_MISSION_SHA is not a commit"; exit 2;; esac
+    - git clone --no-checkout "https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${RUNWARD_MISSION_PROJECT}.git" mission
+    - git -C mission checkout --detach "$RUNWARD_MISSION_SHA"
+    - (cd mission/code && npm ci --ignore-scripts --no-audit --no-fund)
+
+sarif:
+  stage: regenerate
+  extends: [.mission, .runward-integrations-sarif]
+  variables:
+    RWI_CWD: mission/code
+    RWI_REPORT: reports/eslint.sarif
+    RWI_COMMAND: '["node", "{rwi}/src/tools/eslint-sarif.mjs", "--out", "{raw}", "src"]'
+
+junit:
+  stage: regenerate
+  extends: [.mission, .runward-integrations-junit]
+  variables:
+    RWI_CWD: mission/code
+    RWI_REPORT: reports/junit.xml
+    RWI_COMMAND: '["node", "--import", "tsx", "--test", "--test-reporter=junit", "--test-reporter-destination={raw}", "test/*.test.ts"]'
+
+coverage:
+  stage: regenerate
+  extends: [.mission, .runward-integrations-coverage]
+  variables:
+    RWI_CWD: mission/code
+    RWI_REPORT: reports/lcov.info
+    RWI_COMMAND: '["node", "--import", "tsx", "--test", "--experimental-test-coverage", "--test-coverage-include=src/**", "--test-reporter=lcov", "--test-reporter-destination={raw}", "test/*.test.ts"]'
+
+# The gate reads the reports the three jobs wrote, red or green: `when: always` runs it after a red tool,
+# so it names the rows a red report refuses. The mission's runward/hooks.json is the agent's: not run.
+gate:
+  stage: gate
+  image: node:24.22.1-bookworm@sha256:0000000000000000000000000000000000000000000000000000000000000000 # REPLACE: pin by digest
+  needs:
+    - { job: sarif, artifacts: true }
+    - { job: junit, artifacts: true }
+    - { job: coverage, artifacts: true }
+  when: always
+  script:
+    - case "$RUNWARD_VERSION" in ""|*[!0-9.]*) echo "invalid runward version"; exit 2;; esac
+    - git clone --no-checkout "https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${RUNWARD_MISSION_PROJECT}.git" judged
+    - git -C judged checkout --detach "$RUNWARD_MISSION_SHA"
+    - cp -R mission/. judged/
+    - cd judged && npx --yes "runward@$RUNWARD_VERSION" check --strict

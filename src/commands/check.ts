@@ -9,7 +9,7 @@ import { buildCodeQuality, buildJUnit, payloadDigest, renderCodeQuality, renderi
 import { buildVsaStatement } from "../lib/attestation.js";
 import { collectEvidenceSeal, renderEvidenceSeal, EVIDENCE_LOCK, citedJUnitNotGreen } from "../lib/evidence.js";
 import { attestedQuestion, conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, currentGateLabel, impliesStrict, isMachineRun, machinePayload, nextPayload, nextStep, optionFault, redPhases, rerunCommand } from "../lib/check-contract.js";
-import { computeVerdict, verdictFrom, verdictOutcome, verdictSummaryParts, LEVEL_NOT_MET_EXIT, type RequiredLevel } from "../lib/verdict.js";
+import { computeVerdict, verdictFrom, verdictOutcome, verdictSummaryParts, withinHorizon, LEVEL_NOT_MET_EXIT, type RequiredLevel } from "../lib/verdict.js";
 
 import { behavioralProof } from "../lib/behavioral-proof.js";
 import { manifestsDigest, verifyFindings, verifyFindingsPath } from "../lib/verify-findings.js";
@@ -20,7 +20,8 @@ import { VERSION } from "../lib/paths.js";
 import { emitJson, errorPayload } from "../lib/machine-output.js";
 import { buildWitness, renderWitness, witnessPathFault, WITNESS_SCHEMA } from "../lib/witness.js";
 import { analysisLines } from "../lib/analysis-render.js";
-import { levelNotMetSummary, levelsLines } from "../lib/levels-render.js";
+import { levelMetLines, levelNotMetSummary, levelsLines } from "../lib/levels-render.js";
+import { REQUIRED_LEVELS, levelMetOf, levelsReading, lockRequiredLevel } from "../lib/evidence-levels.js";
 
 /**
  * Gate audit — the gap analysis: which deliverable, expected at which
@@ -71,6 +72,16 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     process.exit(2);
   }
   const mission = join(root, "runward");
+  // ADR-0119 decision 4: the level the mission's lock asks for is a lock opt-in, and a value that is not a
+  // level is a misuse (exit 2), refused before the gate runs, never read as a weaker level.
+  const lockRead = lockRequiredLevel(mission);
+  if (opts.strict && lockRead && "invalid" in lockRead) {
+    const msg = `runward/scaffold-lock.json declares \`"requiredLevel": ${JSON.stringify(lockRead.invalid)}\`, which is not a level of proof (${REQUIRED_LEVELS.join(", ")}): the gate refuses rather than guess one (runward ADR-0119).`;
+    console.error(status.error(msg));
+    if (opts.json && !opts.sarif && !opts.vsa && !opts.attest) emitJson(errorPayload(VERSION, "usage", msg));
+    process.exit(2);
+  }
+  const lockLevel = lockRead && "level" in lockRead ? lockRead.level : null;
   // ADR-0089: a witness path that cannot be written is refused BEFORE the gate runs, so the refusal
   // prints no partial audit and writes nothing. Relative paths are read from the working directory,
   // like a shell redirection.
@@ -506,6 +517,15 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     if (verdict.levels) {
       log(section("Level of proof (--strict, runward ADR-0119)"));
       for (const line of levelsLines(verdict.levels)) log(line);
+    } else if (!machine) {
+      // ADR-0119 decision 4: every strict run prints the level the tree meets and what the next level
+      // would refuse. Read for the terminal only: a run that does not ask for an upper level keeps its
+      // payload, its renderings and its exit code byte for byte.
+      const top = levelsReading(mission, {
+        required: "attested", source: "default", mechanical: verdict.breakdown.typed > 0, proseRows: verdict.breakdown.proseRows, analysis: verdict.analysis,
+        inHorizon: withinHorizon(verdict.horizon?.index ?? null),
+      });
+      for (const line of levelMetLines(top, verdict.breakdown.typed)) log(line);
     }
     if (checked > 0 && strictGaps === 0) {
       // The two proofs, made legible together: this gate is the DOCUMENTARY proof (decisions traced);
@@ -803,8 +823,10 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   if (machine || renderingOut.length > 0) {
     // ADR-0030's contract is built in check-contract.ts, not here: it is what a CI or an agent
     // branches on, and it could not be asserted without spawning the CLI (ADR-0047, finished
-    // 2026-08-24).
-    const payload = machinePayload(verdict, {
+    // 2026-08-24). Every emission of check names the mission by the name it declares (ADR-0109), the
+    // --json payload included since RWD-2026-0199: the checkout's absolute path is in none of them, so
+    // a payload copied off the machine (a CI artifact, a log, an upload to a fleet) names no account.
+    const payload = { ...machinePayload(verdict, {
       version: VERSION,
       missionRoot: root,
       currentGate: gateLabel,
@@ -828,7 +850,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       next: nextPayload(next),
       coverage,
       junitNotGreen,
-    });
+    }), mission: declaredMissionName(mission) };
     // ADR-0096: the Code Quality and JUnit renderings, spelled from the list the SARIF log is spelled
     // from, after the verdict and before stdout. Written whole (temporary file renamed into place);
     // a failed write is exit 2, the question could not be asked, and never a change of verdict.
@@ -838,7 +860,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       for (const r of renderingOut) {
         const text = r.flag === "--codequality"
           ? renderCodeQuality(buildCodeQuality(findings))
-          : buildJUnit(findings, { version: VERSION, payloadDigest: payloadDigest({ ...payload, mission: declaredMissionName(mission) }), strict: !!opts.strict, exitCode, through: verdict.through ?? null, requiredLevel: verdict.require?.level ?? null });
+          : buildJUnit(findings, { version: VERSION, payloadDigest: payloadDigest(payload), strict: !!opts.strict, exitCode, through: verdict.through ?? null, requiredLevel: verdict.require?.level ?? null });
         writeRendering(r.flag, r.shown, r.abs, text, !!(opts.json && !opts.sarif && !opts.vsa && !opts.attest));
       }
     }
@@ -855,6 +877,8 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         // ADR-0114: PASSED only on exit 0; a level not met is not a pass.
         resourceUri: opts.resourceUri!, passed: outcome.exitCode === 0, strict: !!opts.strict,
         timeVerified, through: verdict.through ?? null,
+        // ADR-0119 decision 6: the level met, only when the run read the levels.
+        proofLevel: levelMetOf(verdict.levels),
       });
       process.stdout.write(JSON.stringify(statement, null, 2) + "\n");
     } else if (opts.sarif) {
@@ -864,12 +888,12 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       process.stdout.write(JSON.stringify(buildSarif(mission, verdict, hookFailed), null, 2) + "\n");
     } else if (opts.attest) {
       // ADR-0055 layer 1: wrap the verdict in an UNSIGNED in-toto Statement. The predicate is the
-      // same payload with the machine-specific absolute mission path replaced by the name the
-      // mission DECLARES (its contract's title, ADR-0109), so the attestation is portable and the
-      // same tree gives the same bytes whatever the checkout folder is called (it was the folder's
-      // basename until 2026-10-28: RWD-2026-0186); the subject digest binds it to the mission state,
-      // runward/ and the evidence the manifests cite, and nothing else (RWD-2026-0193). No signature
-      // field: signing is the operator's opt-in step under their own key (layer 5).
+      // same payload, which names the mission by what it DECLARES (its contract's title, ADR-0109), so
+      // the attestation is portable and the same tree gives the same bytes whatever the checkout folder
+      // is called (it was the folder's basename until 2026-10-28: RWD-2026-0186); the subject digest
+      // binds it to the mission state, runward/ and the evidence the manifests cite, and nothing else
+      // (RWD-2026-0193). No signature field: signing is the operator's opt-in step under their own
+      // key (layer 5).
       //
       // ADR-0113: the Next line it carries is the bare command's (`attestedQuestion`), never the `-p`
       // this invocation typed, so it re-derives and one tree gives one attestation however the command
@@ -877,8 +901,8 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // `--whole-tree`, the files the project delivers are bound as a second subject; the verdict above
       // never reads them.
       const predicate = {
-        ...payload, mission: declaredMissionName(mission),
-        next: nextPayload(nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown, levelNotMet, level: verdict.require?.level ?? null }, attestedQuestion(opts))),
+        ...payload,
+        next: nextPayload(nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown, levelNotMet, level: verdict.require?.level ?? null }, attestedQuestion(opts, lockLevel))),
       };
       const statement = buildVerdictStatement(root, mission, predicate, { deliveredTree: opts.wholeTree ? deliveredTreeOf(root) : undefined });
       process.stdout.write(JSON.stringify(statement, null, 2) + "\n");

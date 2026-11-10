@@ -39,11 +39,13 @@ wrongly often enough, or are new enough, to be said here:
   `conformance` array. `proposed` and `unboundRows` are **included in** `conformance`, published
   apart so a consumer knows which gesture closes them: never add them to it. `deferred` is outside
   the verdict (deliverables past a declared `--through` horizon).
-- **`mission`: the project root in `--json`, the declared name in `--attest`.** The local payload
-  says where it ran, as an absolute path. The attestation replaces it with what the mission declares,
-  the title of `runward/mission-contract.md` (`# Mission Contract: <name>`), or `mission` when the
-  scaffold's placeholder was never filled; the same name is the `subject[].name` of `--attest` and
-  `--vsa`, the `predicate.mission` of `bundle`, and the OSCAL pack's component title and UUID seed.
+- **`mission`: the name the mission declares, in `--json` as in `--attest`.** It is the title of
+  `runward/mission-contract.md` (`# Mission Contract: <name>`), or `mission` when the scaffold's
+  placeholder was never filled; the same name is the `subject[].name` of `--attest` and `--vsa`, the
+  `predicate.mission` of `bundle`, and the OSCAL pack's component title and UUID seed. Until 0.46.0
+  `check --json` carried here the project root's absolute path, which names the user's account
+  whenever the checkout sits under a home directory, in every copy of the payload (RWD-2026-0199,
+  ADR-0109 note of 2026-11-06); the root is the directory `check` ran in, or its `-p`.
   Until 0.46.0 those carried the checkout folder's basename, so the same tree cloned under two folder
   names gave two attestations (RWD-2026-0186, ADR-0109). `runward verify` compares `mission` and
   `subject[0].name` with the name the tree declares (ADR-0113); an attestation made by 0.46.0 or
@@ -93,7 +95,9 @@ wrongly often enough, or are new enough, to be said here:
   without a digest (before 0.42.3, or by hand) cannot be read this way and is counted in its mode as
   before; under the regulated tier it is a gap of its own (`no-digest`). `--sarif` carries the same
   rows in the run's `properties.ratificationChanged` (`{rows, changedRows}`), a disclosure, not a
-  result.
+  result. When the run reads the levels of proof (ADR-0119), the same bag carries `levels`: `{ required,
+  source, met, fallback?, sentence, signatureVerified: false, rows, below }`, `rows` naming each applied
+  row (`{ deliverable, rule }`) under its level; absent otherwise, so every other log keeps its bytes.
 - **`ratification.byRow`: the same ledger, one element per decided row** (additive, ADR-0095),
   sorted by gated deliverable in phase order, then manifest order: `{ deliverable, rule, phaseId,
   state, mode, by, for, date, bound, current, unboundCause }`. `state` follows the row's latest
@@ -119,8 +123,17 @@ wrongly often enough, or are new enough, to be said here:
   named under `analysis`; the attestation's subject does not bind the files it reads (`--whole-tree`
   binds them as its second subject).
 - **`levels`** (strict, additive, ADR-0119 and ADR-0120, present only when the run requires
-  `re-derived` or `attested` with `--require`): `{ required, source, met, sentence, signatureVerified,
-  counts, rows, territory, below, execution }`. `rows` holds each applied row under its level
+  `re-derived` or `attested`, asked with `--require` or by the mission's lock): `{ required, source, met,
+  fallback?, sentence, signatureVerified, counts, rows, territory, below, execution }`. `source` is `flag`
+  (`--require`), `lock` (`"requiredLevel"` in `runward/scaffold-lock.json`, which `init` writes as `re-derived` in a
+  new mission's lock, ADR-0119 decision 4; read for a full strict verdict only, never for a `--through`
+  prefix; a value that is not a level is a misuse, exit 2) or `default`.
+  `fallback`, present only when the lock asks for `re-derived` or `attested` on a territory holding a
+  language the analyzers do not read, is ADR-0119 decision 4's sentence at the character (« re-derived: not
+  reachable, <language> is not analysed; this run requires mechanical », and for `attested` « … for its
+  static half, and attested for its execution »): `require.level` then reads `mechanical` for a
+  `re-derived`, and `below` names only what holds the run, a declared row staying listed under
+  `rows.declared`; asked by name, `--require re-derived` refuses such a territory instead. `rows` holds each applied row under its level
   (`re-derived`, `attested`, `declared`), each `{ deliverable, rule, level, pieces, requires? }`, a piece
   being `{ pointer, kind: "static" | "execution", level, setsLevel, nature?, report?, statement?, why? }`;
   `counts` counts those lists. `below` lists every applied row below the required level with what holds
@@ -129,7 +142,15 @@ wrongly often enough, or are new enough, to be said here:
   problems, mutation }`): `signatures` is a count, and `signatureVerified` is `false` in every payload;
   the identity is verified outside runward (`runward-fleet verify-run`, `docs/spec/runward-run.md` §6).
   `execution.expected` is the source set this tree implies, the one `runward-run` records
-  (`{ rule, files, manifests, manifestsDigest }`). `require` keeps its shape; `verify` re-derives the block
+  (`{ rule, files, manifests, manifestsDigest }`). `execution.mutationTargets` (ADR-0120 R2) lists the
+  rows that cite a code location and a test, with their cited lines and cases (`{ deliverable, rule,
+  locations: [{ file, from, to }], tests }`), the ones `runward-run`'s mutation leg mutates, and
+  `execution.mutation` says, in one sentence, what was read of them. Such a row carries `mutation`: `{
+  state, met, why, statement?, mutants?, killed?, survived?, languages? }`, `state` one of `killed`,
+  `killed-indistinct`, `not-killed`, `no-mutant`, `baseline-failed`, `mismatch`, `absent`, `unbound`,
+  `unsigned`, `no-mutator`; at `attested` a row whose `met` is false is below the level, `mutation: <why>`
+  among what holds it. `coverage`, when a signed run recorded it, gives the cited lines instrumented and
+  executed by the suite; it sets no level (`docs/spec/runward-run.md` §7). `require` keeps its shape; `verify` re-derives the block
   with every other field.
 - **`delegation.assurance`** (with a charter, additive, ADR-0095 for the shape, ADR-0090 for the
   computation): `{ declared, inForce, degraded, notInForce, sentence }`. `declared` is the charter's
@@ -183,8 +204,9 @@ not phases and carry `phaseId: null`.
 Each takes `--json` and follows the same contract (ADR-0030): one JSON document on stdout and
 nothing else (the human text is suppressed, errors go to stderr), fields added and never renamed or
 removed, the exit code unchanged. Fields that `check --json` already publishes keep their name and
-their meaning: `runward` is the runward version, `mission` the project root, `strict`, `verdict`
-(`clean` | `gaps`), `gaps.deliverables`, `gaps.conformance`, `currentGate`, `next`. Without a
+their meaning: `runward` is the runward version, `strict`, `verdict` (`clean` | `gaps`),
+`gaps.deliverables`, `gaps.conformance`, `currentGate`, `next`. `mission` is the project root here, an
+absolute path, where `check` names the declared mission since RWD-2026-0199 (above). Without a
 mission, `status`, `manifest`, `propose`, `report` and `compliance` print the shape `check --json`
 prints, `{ runward, mission: null, verdict: "no-mission", error: "no-mission", exitCode: 2 }`, and
 exit 2; a usage error (an unknown regime, an `--out` outside the project) prints the error document
@@ -376,6 +398,14 @@ four things, and each one is there because dropping it breaks something specific
 | `verifiedLevels` **AnyIn** your accepted list | the check most easily forgotten, and the one that matters — see below |
 | `policy.uri` | cheap, and it survives a runward that one day publishes more than one policy |
 
+**The level of proof travels too** (ADR-0119 decision 6). A run that reads the levels (`--require
+re-derived` or `attested`, or the mission's lock) and exits 0 adds one value naming the level it met,
+never overstated: `RUNWARD_PROOF_RE_DERIVED`, `RUNWARD_PROOF_ATTESTED`, or `RUNWARD_PROOF_MECHANICAL` when
+the lock's level fell back for a language the analyzers do not read. Every other VSA keeps the single
+value it had. `RUNWARD_PROOF_ATTESTED` says the CLI re-derived the binding of each execution piece and
+counted its signature; the signature itself is verified outside runward (`runward-fleet verify-run`),
+so a policy that admits on it runs that verification too.
+
 **The level is not a detail.** `RUNWARD_GATE_PRESENCE` is a weaker statement than
 `RUNWARD_GATE_STRICT` (the deliverables are present, their rule-conformance manifests unverified),
 and `RUNWARD_GATE_STRICT_THROUGH_<PHASE>` is a **declared prefix** of the delivery arc — a
@@ -393,7 +423,7 @@ policy cannot lose it.
 
 ### Two things the VSA does NOT say
 
-- **It claims no SLSA level.** `verifiedLevels` carries a custom value and never an `SLSA_` one,
+- **It claims no SLSA level.** `verifiedLevels` carries custom values and never an `SLSA_` one,
   because runward evaluates no build pipeline. A VSA saying `SLSA_BUILD_LEVEL_3` because a delivery
   gate is green would be a claim about machinery runward never looked at. (The SLSA spec allows
   custom values explicitly, and forbids custom values starting with `SLSA_` — this is that rule,

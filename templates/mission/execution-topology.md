@@ -29,13 +29,7 @@ One row per domain port from `architecture.md`. The location family is one of th
 
 ## Usage registry
 
-Risk is classed **by deployment, not by platform** (§15): the same platform hosts a harmless FAQ bot and an agent with write access to payments. Governance attaches to each deployment. This registry is what answers, at audit time, "what runs where, touching what." It is a governed engineering artifact, not a compliance declaration (see ADR-0015/0016 and `runward compliance`).
-
-| Deployment | Risk class | Data classes touched | Action scopes | Owner / responsible | Last review |
-|---|---|---|---|---|---|
-| _e.g._ triage-bot / prod | low | public reference | read-only | — | — |
-| _e.g._ payments-agent / prod | high | regulated, personal | mutate (approval-gated) | — | — |
-| … | … | … | … | … | … |
+Risk is classed **by deployment, not by platform** (§15): the same platform hosts a harmless FAQ bot and an agent with write access to payments. Governance attaches to each deployment. The registry lives in a file of its own, [`governance/usage-registry.md`](governance/usage-registry.md), one row per deployment, and the `topology-usage-registry-present` row below cites it there: `file:runward/governance/usage-registry.md#<deployment>`. A pointer at this note itself is never opened as evidence, so a row resting on one is `declared`, below the level of proof `re-derived` a new mission asks for.
 
 ## Rule conformance
 

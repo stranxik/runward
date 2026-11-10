@@ -52,7 +52,8 @@ test("vsa: verifiedLevels carries a CUSTOM value and NEVER an SLSA_ one", () => 
   // runward never looked at: the exact overclaim class this project fails a test over elsewhere.
   const m = mission();
   const s = JSON.parse(emit(m.dir, ["check", "--strict", "--vsa", "--resource-uri", URI, "-p", "."]).out);
-  assert.deepEqual(s.predicate.verifiedLevels, ["RUNWARD_GATE_STRICT"]);
+  // A new mission's lock asks for `re-derived` (ADR-0119 decision 4): the VSA names it once met (decision 6).
+  assert.deepEqual(s.predicate.verifiedLevels, ["RUNWARD_GATE_STRICT", "RUNWARD_PROOF_RE_DERIVED"]);
   for (const l of s.predicate.verifiedLevels) assert.ok(!l.startsWith("SLSA_"), `${l} claims a SLSA level runward never evaluated`);
   const presence = JSON.parse(emit(m.dir, ["check", "--vsa", "--resource-uri", URI, "-p", "."]).out);
   assert.deepEqual(presence.predicate.verifiedLevels, ["RUNWARD_GATE_PRESENCE"], "without --strict the level says so");

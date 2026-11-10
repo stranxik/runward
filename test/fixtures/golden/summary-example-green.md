@@ -11,15 +11,45 @@ runward `<version>` · strict verdict · current gate: all gates passed · 3 arc
 | Deliverable gaps | 0 | computed by the gate |
 | Rule-conformance gaps | 0 | computed by the gate |
 | Delivered-code analysis | 0 finding(s), 0 hypothesis(es), 0 item(s) not analysed | computed by the gate from the source text under `runward-analysis/1`, never run; findings are inside the conformance gaps |
-| Evidence rows | 46: 24 applied, 0 deviated, 22 n/a | 23 typed pointer(s) resolved by the gate; 1 prose row(s) declared, never verified; 5 signature-checked |
+| Evidence rows | 46: 24 applied, 0 deviated, 22 n/a | 24 typed pointer(s) resolved by the gate; 0 prose row(s) declared, never verified; 5 signature-checked |
 | Ratification | 0 traced: 0 line-by-line, 0 en bloc, 0 blind; 46 untraced | declared: names and dates as the tree writes them; runward cannot tell who answered |
 | Evidence seal | absent (opt-in) | nothing is compared with a previous state |
 | Assurance mode in force | none | no delegation charter: not-observed |
+| Level of proof | `re-derived` required (asked by the mission's lock), met | computed by the gate: 0 attested, 24 re-derived, 0 declared applied row(s); attested: the binding is re-derived by this command; the signature is verified outside it |
 | Attestation subject | `<digest>` | unsigned: runward never signs and never verifies a signature |
 
 ### Gaps by kind
 
 No gap: every expected deliverable is filled and every CRITICAL/HIGH rule mapped to a crossed phase is accounted for.
+
+### Level of proof
+
+| Deliverable | Rule | Level | What holds it below the level required |
+|---|---|---|---|
+| `architecture.md` | `contracts-governance` | `re-derived` |  |
+| `architecture.md` | `hexa-architecture` | `re-derived` |  |
+| `architecture.md` | `hexa-adapter-pattern` | `re-derived` |  |
+| `architecture.md` | `process-adr-and-journal` | `re-derived` |  |
+| `execution-topology.md` | `topology-port-placement-mapped` | `re-derived` |  |
+| `execution-topology.md` | `topology-sovereignty-by-data-class` | `re-derived` |  |
+| `execution-topology.md` | `topology-usage-registry-present` | `re-derived` |  |
+| `floor.md` | `frontier-deterministic-boundary` | `re-derived` |  |
+| `floor.md` | `hexa-move-deterministic-out` | `re-derived` |  |
+| `floor.md` | `security-prompt-injection` | `re-derived` |  |
+| `floor.md` | `hexa-architecture` | `re-derived` |  |
+| `floor.md` | `hexa-adapter-pattern` | `re-derived` |  |
+| `floor.md` | `provider-no-crash-missing-env` | `re-derived` |  |
+| `floor.md` | `state-event-sourcing` | `re-derived` |  |
+| `floor.md` | `tools-scope-atomicity` | `re-derived` |  |
+| `floor.md` | `checklist-day-zero-project` | `re-derived` |  |
+| `governance/threat-model.md` | `eval-loop` | `re-derived` |  |
+| `governance/threat-model.md` | `security-prompt-injection` | `re-derived` |  |
+| `governance/threat-model.md` | `resilience-fail-open` | `re-derived` |  |
+| `governance/threat-model.md` | `security-human-agent-trust` | `re-derived` |  |
+| `handover.md` | `handover-redone-task-proof` | `re-derived` |  |
+| `handover.md` | `handover-runbook-executable` | `re-derived` |  |
+| `handover.md` | `handover-agents-charter-final` | `re-derived` |  |
+| `handover.md` | `handover-succession-named` | `re-derived` |  |
 
 ### Ratification (declared)
 

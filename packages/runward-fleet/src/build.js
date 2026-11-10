@@ -56,6 +56,10 @@ export function readManifest(doc) {
     if (typeof m.name !== "string" || !m.name) fail(`${where}: name is required`);
     if (typeof m.repository !== "string" || !/^[a-z0-9.-]+\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(m.repository)) fail(`${where}: repository must read host/owner/repo (e.g. github.com/org/app)`);
     if (m.commit !== undefined && m.commit !== null && !/^[0-9a-f]{40}([0-9a-f]{24})?$/.test(String(m.commit))) fail(`${where}: commit must be a full git commit digest`);
+    if (m.commitSource !== undefined && m.commitSource !== null) {
+      if (typeof m.commitSource !== "string" || !m.commitSource.trim() || m.commitSource.length > 200) fail(`${where}: commitSource names where commit was read from, in 200 characters at most`);
+      if (m.commit === undefined || m.commit === null) fail(`${where}: commitSource names where commit was read from, and commit is absent`);
+    }
     const expects = m.expects ?? [];
     if (!Array.isArray(expects) || !expects.every((k) => EXPECTABLE.includes(k))) fail(`${where}: expects lists kinds among ${EXPECTABLE.join(", ")}`);
     const exports = m.exports ?? {};
@@ -75,7 +79,7 @@ export function readManifest(doc) {
         if (typeof s.format !== "string") fail(`${w}: format names the manifest schema`);
       } else fail(`${w}: kind must be "sigstore-bundle" or "ed25519-manifest"`);
     });
-    return { ...m, expects, exports, signatures, role: typeof m.role === "string" ? m.role : null, commit: m.commit ?? null, path: typeof m.path === "string" ? m.path : null };
+    return { ...m, expects, exports, signatures, role: typeof m.role === "string" ? m.role : null, commit: m.commit ?? null, commitSource: m.commitSource ?? null, path: typeof m.path === "string" ? m.path : null };
   });
   return {
     title: typeof doc.title === "string" && doc.title ? doc.title : "runward-fleet",
@@ -272,7 +276,9 @@ export function buildIndex({ manifest: given, read, version }) {
   const missions = manifest.missions.map((m) => {
     const out = {
       id: m.id, name: m.name, role: m.role, repository: normRepo(m.repository), path: m.path,
-      commit: m.commit ? { value: m.commit, source: "fleet.json (declared)" } : null,
+      // `commitSource`, when the inventory names one: where its author read the commit (a hosted
+      // deployment, the claim of the upload's workload identity token). Carried as declared, never checked.
+      commit: m.commit ? { value: m.commit, source: "fleet.json (declared)", ...(m.commitSource ? { commitSource: m.commitSource } : {}) } : null,
       expects: m.expects,
       latest: "not-observed",
       findings: [],

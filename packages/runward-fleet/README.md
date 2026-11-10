@@ -62,7 +62,16 @@ written), 2 a usage error.
 
 Paths are relative to `fleet.json`. `asOf` is a label: neither the build nor the page reads a clock.
 `lang` is `en` or `fr`. The export kinds are `check`, `attestation`, `verify`, `witness`, `summary`,
-`report` and `history`; `expects` may also name `signature`.
+`report` and `history`; `expects` may also name `signature`. A mission may add `commitSource`, a short
+label of where `commit` was read from; the index carries it as written, and nothing checks it.
+
+## In a hosted deployment
+
+A hosted deployment imports this package, pinned, and copies none of its files: `buildIndex` from
+`runward-fleet`, the view rules from `runward-fleet/rules`, the views from `runward-fleet/views`, and from
+`runward-fleet/site` `renderPage(index)`, the page `runward-fleet build` writes, byte for byte, or
+`siteAssets()`, the template, the views' source and the fonts. The same `index.json` gives the same page in
+both deployments; `test/unit/fleet-build.test.js` holds it against golden files.
 
 ## trust-policy.json, and when a cell is raised
 

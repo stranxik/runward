@@ -49,6 +49,7 @@ const EXPECTED_LAYOUT = {
   "threat-model.md": "governance/threat-model.md",
   "evaluation-rubric.md": "governance/evaluation-rubric.md",
   "observability-schema.md": "governance/observability-schema.md",
+  "usage-registry.md": "governance/usage-registry.md",
   "port-contract.md": "contracts/port-contract.md",
   "runbook.md": "runbook.md",
   "handover.md": "handover.md",
@@ -56,7 +57,7 @@ const EXPECTED_LAYOUT = {
 const EXPECTED_WORKFLOWS = ["method", "frame", "architect", "floor", "iterate", "govern",
   "handover", "brownfield", "review", "decision-loop", "verify"];
 
-test("the mission layout holds exactly the sixteen declared destinations", () => {
+test("the mission layout holds exactly the seventeen declared destinations", () => {
   assert.deepEqual(MISSION_LAYOUT, EXPECTED_LAYOUT,
     "a template's destination changed. That is a change to what every mission gets — make it " +
     "deliberately, and update this list in the same commit.");

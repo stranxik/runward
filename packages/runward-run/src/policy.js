@@ -9,9 +9,13 @@
 //           digest, an install whose scripts are not disabled, a leg this version does not deliver.
 export const POLICY_FORMAT = "runward-run-policy/0";
 
-/** The legs of ADR-0120 decision 2 this version runs; the others are refused by name. */
-export const LEGS = ["tests", "reports"];
-const LATER_LEGS = { coverage: "R2", mutation: "R2", evals: "R3" };
+/** The legs of ADR-0120 decision 2, all delivered (R1, R2, R3). */
+export const LEGS = ["tests", "reports", "coverage", "mutation", "evals"];
+const LATER_LEGS = {};
+/** The mutation leg's bounds: each mutant's run, and the mutants of one cited location (ADR-0120: the
+ *  wall clock of the leg is bounded by the cited lines; a capped location says so). */
+export const MUTANT_TIMEOUT_SECONDS = 300;
+export const MAX_MUTANTS_PER_LOCATION = 40;
 export const NATURES = ["junit", "sarif", "eslint", "coverage", "sbom", "loadtest"];
 /** An image reference pinned by digest: `name[:tag]@sha256:<64 hex>`. */
 export const PINNED_IMAGE = /^[a-z0-9][a-z0-9._/:-]*@sha256:[0-9a-f]{64}$/;
@@ -69,6 +73,8 @@ export function readPolicy(doc) {
     if (!LEGS.includes(l.leg)) throw usage(`${where}.leg must be one of ${LEGS.join(", ")} (found ${JSON.stringify(l.leg)})`);
     const cwd = l.cwd ?? ".";
     if (cwd !== "." && !safeRel(cwd)) throw usage(`${where}.cwd ${JSON.stringify(cwd)} is not a project-relative path`);
+    if (l.leg === "mutation") return mutationLeg(l, where, cwd);
+    if (l.leg === "evals" && l.remote === true) return remoteEvals(l, where, cwd);
     if (!Array.isArray(l.reports) || l.reports.length === 0) throw usage(`${where}.reports must list the reports the leg writes`);
     const reports = l.reports.map((r, k) => {
       if (!r || !safeRel(r.path)) throw usage(`${where}.reports[${k}].path must be a project-relative path`);
@@ -76,18 +82,57 @@ export function readPolicy(doc) {
       return { path: r.path, nature: r.nature };
     });
     if (l.leg === "tests" && !reports.some((r) => r.nature === "junit")) throw usage(`${where}: a tests leg writes a JUnit report`);
+    if (l.leg === "coverage" && !reports.some((r) => r.nature === "coverage")) throw usage(`${where}: a coverage leg writes a coverage report (LCOV)`);
     const timeoutSeconds = l.timeoutSeconds ?? 1800;
     if (!Number.isInteger(timeoutSeconds) || timeoutSeconds < 1 || timeoutSeconds > 6 * 3600) throw usage(`${where}.timeoutSeconds must be an integer between 1 and 21600`);
     return { leg: l.leg, cwd, command: command(l.command, where), reports, timeoutSeconds };
   });
+  if (legs.filter((l) => l.leg === "mutation").length > 1) throw usage("one mutation leg per run: its mutants are the cited lines', not the leg's");
   const paths = legs.flatMap((l) => l.reports.map((r) => r.path));
+  if (legs.every((l) => l.remote)) throw usage("no leg runs: every evals leg is remote, and a run Statement binds what a leg of the run wrote");
   const dup = paths.find((p, i) => paths.indexOf(p) !== i);
   if (dup) throw usage(`two legs write ${dup}`);
+  if (legs.filter((l) => !l.remote).flatMap((l) => l.reports).length === 0) throw usage("no leg writes a report: a run Statement binds the reports of the run, and the mutation leg's facts ride the Statement of a run that has some");
   const dirs = [...new Set(paths.map(dirOf))];
   // runward reads a run Statement in the directory of the report it binds (docs/spec/runward-run.md §4):
   // one run, one directory, one Statement beside every report it binds.
   if (dirs.length !== 1) throw usage(`every report of a run is written to one directory, where its Statement is written too (found ${dirs.join(", ")})`);
   return { format: POLICY_FORMAT, image: doc.image, install, legs, reportsDir: dirs[0] };
+}
+
+/**
+ * The mutation leg: the test command run against each mutant of the cited lines, and the JUnit report it
+ * writes under `${out}` (`junit`, project-relative), read for the cited cases and never bound: the facts
+ * go into the run Statement. `timeoutSeconds` bounds one mutant's run (a mutant that outlives it is
+ * recorded killed by a timeout); `maxMutantsPerLocation` bounds the mutants of one cited location, the
+ * first in source order, and the Statement records how many there were.
+ */
+function mutationLeg(l, where, cwd) {
+  if (l.reports !== undefined) throw usage(`${where}: a mutation leg binds no report (its facts are in the run Statement); name the JUnit report its command writes with "junit"`);
+  if (!safeRel(l.junit)) throw usage(`${where}.junit must be the project-relative path, under \${out}, of the JUnit report its command writes`);
+  const timeoutSeconds = l.timeoutSeconds ?? MUTANT_TIMEOUT_SECONDS;
+  if (!Number.isInteger(timeoutSeconds) || timeoutSeconds < 1 || timeoutSeconds > 3600) throw usage(`${where}.timeoutSeconds (one mutant's run) must be an integer between 1 and 3600`);
+  const max = l.maxMutantsPerLocation ?? MAX_MUTANTS_PER_LOCATION;
+  if (!Number.isInteger(max) || max < 1 || max > 1000) throw usage(`${where}.maxMutantsPerLocation must be an integer between 1 and 1000`);
+  return { leg: "mutation", cwd, command: command(l.command, where), junit: l.junit, reports: [], timeoutSeconds, maxMutantsPerLocation: max };
+}
+
+/**
+ * An evals leg whose evals need a remote model (ADR-0120 decision 2): runward-run runs every leg with the
+ * network cut, so it cannot run them. The leg names the reports such evals write elsewhere, with no
+ * command; runward-run runs nothing for it and records each report in the Statement as declared, with the
+ * reason, so runward names why a row citing one is not attested. It binds nothing.
+ */
+function remoteEvals(l, where, cwd) {
+  if (l.command !== undefined) throw usage(`${where}: a remote evals leg has no command: runward-run never runs an eval that needs the network`);
+  if (!Array.isArray(l.reports) || l.reports.length === 0) throw usage(`${where}.reports must list the reports the remote evals write`);
+  const reports = l.reports.map((r, k) => {
+    if (!r || !safeRel(r.path)) throw usage(`${where}.reports[${k}].path must be a project-relative path`);
+    if (!NATURES.includes(r.nature)) throw usage(`${where}.reports[${k}].nature must be one of ${NATURES.join(", ")}`);
+    return { path: r.path, nature: r.nature };
+  });
+  const why = l.why === undefined ? null : String(l.why).slice(0, 300);
+  return { leg: "evals", remote: true, cwd, command: [], reports, why, timeoutSeconds: 1 };
 }
 
 /** `${out}` and `${work}` in a command, expanded to the container paths of the run. */

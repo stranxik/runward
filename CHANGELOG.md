@@ -2,6 +2,185 @@
 
 ## Unreleased
 
+### What a hosted deployment needs from runward-fleet, and `check --json` names the mission without a path (RWD-2026-0199)
+
+`runward-fleet` exports `runward-fleet/site` (ADR-0121 decision 1): `renderPage(index)` returns the page
+`runward-fleet build` writes to `index.html`, byte for byte, and `siteAssets()` the template, the source of
+the views and the fonts, read from the package. A hosted deployment assembles the index with
+`buildIndex`, checks it with `runward-fleet/rules` and serves the view from the package it pins, with no
+copy of its files. The CLI now builds its page through the same function. A golden test holds what
+ADR-0121 names as the interface's test: the page rendered from the bytes of the `index.json` the build
+wrote is the `index.html` it wrote, imported through the package's exports map as a consumer imports it,
+and the index and the page of one inventory are golden files (`test/fixtures/golden/fleet/`,
+`UPDATE_GOLDEN=1` to regenerate).
+
+`fleet.json` may say where a mission's `commit` was read from: `missions[].commitSource`, a label of 200
+characters at most, refused without `commit`. The index carries it as written, in
+`missions[].commit.commitSource`, only when the inventory names one, so every index built without it keeps
+its bytes (`runward-fleet-index/0`, expand-only). Nothing checks it: a hosted deployment that writes the
+inventory from an upload's workload identity token says so there.
+
+`check --json` names the mission by the name it declares, as `--attest` does: `mission` is the title of
+`runward/mission-contract.md`, or `mission`. Until now it was the checkout's absolute path, which names the
+user's account whenever the checkout sits under a home directory, in every copy of the payload, and a
+fleet that refuses an absolute path at ingestion would have refused every `check` export from a hosted CI
+runner (RWD-2026-0199, `fixed-in=unreleased`). This changes the field's value: a consumer that read it as a
+path reads a name from now on, and the project root is the directory `check` ran in, or its `-p`. The
+choice, over an additive field that would have left the path in the bytes, is recorded as a note of
+2026-11-06 on ADR-0109, under ADR-0121 decision 7. The same tree now gives the same `--json` bytes in any
+folder; the JUnit rendering's `payload-sha256` is unchanged, since it already hashed the payload with the
+declared name. The other read paths (`status`, `doctor`, `report`, and the rest) keep `mission` as the
+project root. On a red tree, `next` still echoes the `-p` as typed (RWD-2026-0145).
+
+The fleet view names the verdict `level-not-met` by what it says: "level not met" (in French "niveau non
+atteint"), where it said "not crossed" ("non franchi"). A mission at that verdict has crossed every gate; only
+the level of proof its lock asks for is missing, and the row now reads so, as do the fleet's and the history's
+sentences and the legend. The index does not change; the golden page's digest does.
+
+### A new mission asks for the level of proof `re-derived`, and the usage registry lives in a file of its own (ADR-0119 decision 4)
+
+`runward init` now writes `"requiredLevel": "re-derived"` in a new mission's lock, since ADR-0117's
+criterion 2 holds (zero false reds on three repositories runward did not write, classified and published in
+`docs/compliance/analyzers-on-real-repositories.md`). Under `--strict`, such a mission is refused, exit 5,
+while an applied row rests on a declaration or its territory is not analysed under a pinned policy; a
+mission asks for another level, or none, by editing the line. Existing missions do not move: `update`
+carries what the lock says and never writes the line.
+
+The rule `topology-usage-registry-present` and the blank template now agree with that level. The rule said
+the registry lives in `execution-topology.md`, and the template put its table there, so the row's one
+pointer was at the manifest itself, which the gate never opens as evidence: at `re-derived`, a new mission
+that followed the template exited 5 on that row, and the audit corpus's honest case AC-015 read exit 5
+where it is accepted. The registry now lives in `runward/governance/usage-registry.md`, which `init`
+scaffolds (a seventeenth mission template, its row a bracketed placeholder), and the row cites it by
+deployment, `file:runward/governance/usage-registry.md#<deployment>`; `execution-topology.md` points at it.
+`templates/rule-history.json` gains the rule's new text and keeps every text runward published. The shipped
+example cites its registry in that file, its last prose row, so `init --example` meets the level it asks
+for: 24 applied rows re-derived, none declared. AC-015 cites the section of the registry's own file; that
+the manifest's own section is read as evidence and its row never stays held at the evidence layer
+(`test/unit/pointer-grammar.test.js`). The metamorphic relations MR-1, MR-2, MR-3 and MR-5 compare the
+whole judgement but one field, `levels.execution.expected`, the inventory a run Statement is bound to,
+which is sensitive to bytes by construction.
+
+runward's own mission does not take the level. It pins no analysis policy, so its territory is not
+analysed, and its lock is a pre-merge path (`runward/delegation.md`), so the line is the maintainer's to
+add. Measured on this tree, `check --strict --require re-derived` on it exits 5: 20 applied rows
+re-derived, 1 declared, its usage registry row, which still cites its own manifest. Its lock and its copy
+of the rule carry the rule's new text.
+
+### Fixed: what CodeQL raised on the second integration train, runward-run's JUnit reader and the measurement's cells
+
+runward-run reads a JUnit report in linear time. Its reader (`junitCases`, which writes the test-result
+Statement) dropped comments with `xml.replace(/<!--[\s\S]*?-->/g, "")`, then read each `<testcase …>` with
+a quote-aware lazy pattern and searched each case's body: each restarts from every opener that does not
+close, and the report is written by the project's own test runner. Measured as CPU time at 100,000
+characters: 1.3 s for a run of `<!--`, 1.9 s for the tag pattern's attack string, 2.0 s for a quote never
+closed, 0.8 s for cases that never close. It now reads the comments in one pass, where each tag's attributes
+end once per position, and each case's body by a forward search, as the example's `reports.mjs` does since
+RWD-2026-0207, with its own code (runward-run shares none with another package): 1,000,000 characters of
+each shape in 0.12 s or less. The same answers as the former reader on 40,000 generated reports and on the
+JUnit reports this repository commits, and the laboratory's run Statements, run through runward-run with the
+former reader and with this one, keep every byte. The mutation leg's reader (`caseOutcomes`) had kept the
+former shape: it now reads with the same code, 1.5 s to 2.5 s at 100,000 characters before, 26 ms or less
+after. The two readers share one rule: a case's body runs to its `</testcase>`, or to where the next
+`<testcase …>` begins, whichever comes first, so a case left open no longer reads the cases after it as its
+own; a well-formed report never opens a case inside another, and both give the former readers' answers, with
+that rule, on 40,000 generated reports. The JUnit normalisers of runward-run and runward-integrations
+removed `file`, `time`, `timestamp` and `hostname` with `\s+(?:file|…)`, which read a run of blanks again
+from each of its blanks: 22 s of CPU for 100,000 blanks. The pattern now starts only where a run starts, and
+strips the same bytes on 20,000 generated reports; 1,000,000 blanks read in under 2 s, held by a test.
+Neither runward-run nor runward-integrations was ever released, so no published version is affected.
+
+The analyzers' measurement (`scripts/measure-analyzers.mjs`, ADR-0117 criterion 2) writes its cells as
+GitHub shows them. It escaped `|` in every cell and nothing else. Measured with GitHub's renderer, as the
+register was in #492: the pipe escape alone is right in a code span, where a backslash is literal, and wrong
+in prose, where a backslash before punctuation vanishes and `*`, `_`, `~`, `<`, `&` and `[` are markup. A
+finding's message, a repository's reason and a reader's sentence are now written through the register's
+prose escape, with `&` and `[` escaped too, and a code span's fence is one backtick longer than any run it
+holds. Rendered on 2026-11-06, the 182 strings of the third train's measurement and 15 written to break a
+cell all show as written; the former cells showed 8 of the 15 otherwise and every real one as written. On
+this head the harness writes the same 227 ids with every field the same as the published measurement; its
+`findings.md` and `hypotheses.md`, which are not published, change in three rows (a `[` and two `*`
+escaped). The files published in `docs/compliance/analyzers-on-real-repositories/` do not change.
+
+### The analyzers' classification at the second train's head: zero false reds (ADR-0117 criterion 2)
+
+`docs/compliance/analyzers-on-real-repositories.md` publishes the measurement of `51675dc` on express,
+fastify and hono at their pinned commits, with its commands, and its classification by two reviewer
+sessions that wrote neither the analyzers, nor their correction, nor the harness: 98 findings (12 in a new
+mission's default, 86 more with the declared core), every one classified true, and 129 hypotheses, which
+never count. Against `9004563`, 225 of 227 ids are kept with their verdicts, one finding is new (hono's
+process environment read in the declared core, true) and one hypothesis was reworded. The reviewers' two
+files join the published classification data. ADR-0117's criterion 2 holds: zero false reds on three
+repositories runward did not write, and no family had to stay opt-in. The head of the third integration
+train, which changes no analyzer, writes the same 227 ids with the same fields.
+
+### runward-integrations is released with runward, as a verified release asset (ADR-0122, ADR-0116)
+
+The isolated builder packs `packages/runward-integrations` in its own directory after the suite has
+passed, in the job that holds `contents: read` only, and declares its digest; the job that signs, which
+checks out nothing and runs no npm, refuses a file under another name or digest and attests it; the
+release workflow packs it again, refuses a byte of difference, and attaches
+`runward-integrations-X.Y.Z.tgz` as the eleventh asset, read back by digest with the others. The package
+stays private on npm, so no job publishes it, and the recipes' steps still take it from a commit of this
+repository. `docs/verifying-a-release.md` Step 9 verifies it with `gh attestation verify`, pinned to the
+tag, and the release runbook checks eleven assets. `verify-release.yml`, which replayed none of Step 9,
+now runs its four attestation commands (runward-forge, runward-fleet, runward-run, runward-integrations)
+after each release, and a release-triggered run that misses one of the four tarballs fails.
+
+### runward-integrations: three recipes regenerate the reports a mission cites out of the agent's reach, each counted only while its control passes (ADR-0122)
+
+ADR-0122 is accepted, on option (A), by the maintainer's delegation in chat of 2026-11-05: a new package of
+this repository, `packages/runward-integrations` (MIT, no dependency, `private`, versioned with runward),
+outside the verdict: `runward` imports nothing from it, never runs it and does not ship it, and it imports
+nothing from `runward` (boundary tests with planted controls, both ways). Three recipes, in the decision's
+order: `sarif`, `junit`, `coverage` (LCOV). Each is a step for GitHub Actions (a composite action, called by
+a 40-character commit of this repository) and for GitLab CI (a hidden job to extend, its template included
+at a pinned commit, the package fetched by a URL pinned with its sha256), which runs the project's own
+command, normalises the report it wrote as ADR-0073 option 1 does (no absolute path, no timing, every
+verdict and count kept) and replaces the report the rows cite before the gate reads it. A command that
+writes no report of the recipe's format is refused, exit 3, and the cited report is removed, so that the
+gate cannot read a report this tree did not produce. Each manifest carries the `requires:` nature its
+report satisfies with the form `runward explain` prints for it, the step for each forge, its `runward-run`
+leg, its control, its limits, and its maintainer, `stranxik`, with the date and runward version of the last
+passing control. Inert samples put the commands out of the agent's reach too: a reusable workflow in a
+repository the agent cannot write, called by commit from the mission, and the pipeline of a protected
+GitLab project, at parity.
+
+Each control runs for real on the shipped example (`node packages/runward-integrations/src/cli.js
+control`): the healthy tree is accepted after the step; the planted sabotage is accepted by the gate on the
+committed reports, built-in analyzers included, and refused once the step regenerated them; and each other
+recipe's sabotage is not caught, as the manifest says. Measured on 2026-11-06 (Node.js 24.22.1, on macOS and on Linux):
+`sarif`, a bearer token in a new adapter no row cites, refused on `checklist-day-zero-project`; `junit`, a
+guard that promotes an unknown account reference as verified, refused on `frontier-deterministic-boundary`
+and `security-prompt-injection`; `coverage`, a journal that overwrites instead of appending while the tests
+run a copy of their own, refused on `state-event-sourcing`, which no regenerated JUnit report refuses; each
+exit 0 without its recipe, 1 with it, 0 on the healthy tree, where each regenerated report is the committed
+one byte for byte. A plain CI step leaves its report `declared` (ADR-0119), and every step says so on every
+run; the JUnit and LCOV recipes' commands are the shipped example's `runward-run` legs, argument for
+argument, which reach `attested` once the operator's CI signs the run.
+
+The count: the README, `docs/recipes/junit-freshness-in-ci.md` and the package's README carry a block
+rendered from the manifests (`count --write`); a recipe reads "counted" only when its manifest records a
+control passed with this runward version and is not withdrawn, otherwise "not counted" with the reason, and
+no total of recipes may be written outside the block (`count --check`, in the unit tests). A new CI job,
+`integrations`, runs the controls, refuses a text that counts a recipe whose control did not pass in that
+run, then runs each recipe's GitHub step on a sabotaged and a healthy copy of the example; the offline
+GitLab CE bench gains a job per recipe and tree, its template included from a second project at a pinned
+commit, and the gate's exit read back three ways: it passed by hand on 2026-11-06 on a Linux machine with
+SELinux enforcing (GitLab CE 19.4.2, network cut, 15 jobs green, each recipe 0 without, 1 with, 0 healthy),
+after the bench learned to label its package server's mount and run its runner unlabelled there. Not
+delivered: Jenkins, the agent harnesses and the consumers of in-toto attestations (the decision's next
+steps), and an adopter who installs a recipe from its manifest alone.
+
+### Fixed: the citable form `runward explain` prints for `junit` is a `test:` pointer (RWD-2026-0209)
+
+`explain` printed `e.g. file:reports/junit.xml::the test case that proves it` for every rule that requires
+`junit`. The pointer grammar gives a `::NAME` to `test:` only, so the form, copied as printed, read as a
+`file:` pointer at a path ending in `::the`, which resolves nowhere, and the row was refused for a dead
+pointer instead of being judged on the case. It now prints `test:reports/junit.xml::…`, and a test parses
+every form `explain` prints. Found while writing the manifests of runward-integrations, which carry the
+forms as printed.
+
 ### runward-run: the tests and the declared reports run out of the agent's reach, and the gate reads them at `attested` (ADR-0120 R1, ADR-0119)
 
 Measured on 2026-11-05 (ADR-0117): a hand-committed report satisfied `requires:`, and nothing in the
@@ -30,9 +209,87 @@ when the run requires one of the two levels: every other payload keeps its bytes
 GitHub (a reusable workflow: the executing job holds no id-token and no secret, the signing job runs no
 project code) and GitLab (the pipeline of a project the agent cannot write), at parity, with the shipped
 example's run policy. Not delivered yet: the coverage and mutation legs of the cited lines (R2) and the
-evals leg (R3); the required level read from the mission's lock (ADR-0119 decision 4); the shipped
-example still answers one row in prose, which `re-derived` refuses until it is typed; runward-run is not
-in the release chain yet. The specification is `docs/spec/runward-run.md`.
+evals leg (R3); the shipped example still answers one row in prose, which `re-derived` refuses until it
+is typed. The specification is `docs/spec/runward-run.md`.
+
+### runward-run is released with runward, as a verified release asset (ADR-0120 decision 1, ADR-0116)
+
+The isolated builder packs `packages/runward-run` in its own directory after the suite has passed, in the
+job that holds `contents: read` only, and declares its digest; the job that signs, which checks out
+nothing and runs no npm, refuses a file under another name or digest and attests it; the release
+workflow packs it again, refuses a byte of difference, and attaches `runward-run-X.Y.Z.tgz` as the tenth
+asset, read back by digest with the others. It stays private on npm until the bootstrap `runward-forge`
+waits on (RWD-2026-0195), so no job publishes it. `docs/verifying-a-release.md` Step 9 verifies it with
+`gh attestation verify`, pinned to the tag, and the release runbook checks it with the other assets.
+
+### The level of proof a mission asks for, read from its lock and carried by every surface (ADR-0119 decisions 4 and 6)
+
+Under `--strict`, a full verdict now reads `"requiredLevel"` in `runward/scaffold-lock.json` when
+`--require` names no level: a lock opt-in like `structureContract`, so setting it is the maintainer's act
+(class R, ADR-0088). The flag beats it, a `--through` prefix never reads it, and a value that is not a
+level is a misuse, exit 2, refused before the gate runs. `runward update` carries the line through as
+written and never writes one on its own (a refresh that dropped a lock opt-in is RWD-2026-0106). A
+`re-derived` the lock asks for, on a territory holding a language the analyzers do not read, requires
+`mechanical` instead and says so at the character, « re-derived: not reachable, Python is not analysed;
+this run requires mechanical », in `levels.fallback` and on every surface; asked by name, `--require
+re-derived` refuses that territory. Every strict run prints the level the tree meets and what the next
+level would refuse (« level of proof this tree meets: mechanical; the next level, re-derived, would
+refuse 1 row(s) that rest on a declaration »), for the terminal only. When the run reads the levels, the
+SARIF log carries them in its run's property bag, the witness in a `levels` member with the family
+`levels` under `notWitnessed` (`docs/spec/witness.md` 7.8), the delivery report and the job summary in a
+table naming each applied row's level, and the VSA in one more `verifiedLevels` value naming the level
+met, never overstated: `RUNWARD_PROOF_RE_DERIVED`, `RUNWARD_PROOF_ATTESTED`, or `RUNWARD_PROOF_MECHANICAL`
+when the lock's level fell back. A run that reads no level keeps every byte of its payload, log, witness,
+report and VSA. `runward status` names the level the lock asks for; the session gate (`gate-hook`) asks
+for none, since its question is gaps and an `attested` level needs a run the session cannot make.
+
+Not changed for existing missions: `update` never writes the line. runward's own mission asks for no
+level: it pins no analysis policy, and its lock is a pre-merge path; at `re-derived` it would refuse 1 of
+its rows, which rests on a declaration. (The default of new missions moved: the entry above.)
+
+### runward-run R3: the evals leg, and an eval that needs a remote model reads `declared`, named (ADR-0120 R3)
+
+runward-run runs the evals the run policy declares like any other leg, the network cut, so only evals that
+replay recorded outputs or run a pinned local model; their report is bound by the run Statement and reads
+`attested` once it is signed. An eval that needs a remote model is outside runward-run: the policy names
+its reports in an evals leg with `"remote": true` and no command, runward-run runs nothing for it and
+records the reports in the Statement as declared (`predicate.declared`, never a subject), and runward
+reads a row citing one as `declared`, « an eval that needs a remote model: runward-run runs every leg
+with the network cut, so this report is produced outside it and its result stays declared », with the
+policy's reason, rather than « no run Statement binds it ». Measured on the laboratory: a row citing a
+local eval and a remote one reads the first `attested` and the second `declared`, named, and stays below
+`attested`. A run with no remote evals leg writes the Statement it wrote before. With R1 and R2, every leg
+of ADR-0120 decision 2 is delivered.
+
+### runward-run R2: the coverage and the mutation of the cited lines, and `attested` reads them (ADR-0120 R2, ADR-0119 decision 2)
+
+Measured on 2026-11-05 (ADR-0117, row 8): with every assertion of the example's tests replaced by
+`assert.ok(true)`, the real tools regenerate green reports, the cited file stays covered, and the gate
+passed. runward-run gains a coverage leg and a mutation leg. For each applied row that cites a code
+location and a test, `check --strict --require attested --json` publishes the row's cited lines
+(`levels.execution.mutationTargets`: a symbol's declaration to the end of its block, a line, or the file)
+and its cited cases with their report; runward-run mutates those lines only, one operator at a time (the
+mutator `runward-run/js-ts/1`, JavaScript and TypeScript, by a lexer: equality, relational, logical,
+arithmetic, boolean, negation, `if` condition, block, string literal), runs the leg's tests against each
+mutant with the network cut, and records in the run Statement every cited case's outcome: failed on an
+assertion, on another error, with no class the runner tells, skipped or absent. Under `--require
+attested`, a row whose cited tests kill no mutant of its cited lines through a failed assertion is below
+the level, named, its survivors listed and never summed; where the runner does not tell an assertion from
+an error, the row is held to « at least one mutant killed », and says so; a row whose cited lines hold no
+operator to change (a port's interface) is below until it cites the lines that implement it; a row whose
+cited code is in a language with no mutator reaches `attested` without the fact, said; a Statement that
+records other cited lines than the tree implies binds nothing for the row. The coverage leg records, per
+cited location, the lines the LCOV instruments and executes, shown on the row, setting no level. The
+shipped example's run policy and the GitHub and GitLab samples carry both legs. Containers are now named,
+and one that outlives its timeout is removed. A run with neither leg writes the Statement it wrote before.
+Measured on the laboratory (the shipped example, its prose row typed, its two rows citing a port's
+interface citing the adapter too): the original tests exit 0 at `attested`, the 8 rows that cite a code
+location and a test each with a mutant killed through a failed assertion; the weakened tests exit 5, the
+same 8 rows refused and nothing else. On a real container runtime (the maintainer's NAS, Docker 29.0.4, 4 CPUs), with the
+example's run policy and image: the mutation leg runs 79 mutants of 8 cited locations in 91 s of wall clock
+on the laboratory and 59 of 7 in 69 s on the shipped example, inside ADR-0120's 30-minute bound; the
+original tests exit 0 at `attested`, the weakened ones 5. The shipped example as `init --example` writes it
+stays below `attested` on the 2 rows that cite a port's interface, and on its prose row. The specification is `docs/spec/runward-run.md` §7.
 
 ### runward-fleet verify-run: the signature on a run Statement, verified offline against the trust policy (ADR-0120 D4a)
 

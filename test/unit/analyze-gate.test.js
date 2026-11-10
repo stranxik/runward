@@ -138,16 +138,26 @@ test("a planted capability: refused under --strict, and named with its file and 
 });
 
 test("the opt-in, measured on the same planted tree: without the pin the strict gate is green, as it was before", () => {
+  // A mission that never opted in is one from before ADR-0118: its lock pins no policy and asks for no
+  // level (ADR-0119 decision 4 made `re-derived` the default of new missions, and a lock that keeps it
+  // while it drops the pin is refused, below).
   const dir = copy((d) => {
     writeFileSync(join(d, PLANTED), PLANT);
     const lock = lockOf(d);
     delete lock.analysis;
+    delete lock.requiredLevel;
     writeFileSync(join(d, "runward", "scaffold-lock.json"), `${JSON.stringify(lock, null, 2)}\n`);
   });
   try {
     const r = run(dir, "check", "--strict");
     assert.equal(r.status, 0);
     assert.doesNotMatch(r.stdout, /Delivered code/);
+    // The same tree whose lock still asks for re-derived, the pin dropped: the level is not met (exit 5),
+    // so dropping the pin is no way out of the analyzers for a new mission.
+    const lock = lockOf(dir);
+    lock.requiredLevel = "re-derived";
+    writeFileSync(join(dir, "runward", "scaffold-lock.json"), `${JSON.stringify(lock, null, 2)}\n`);
+    assert.equal(run(dir, "check", "--strict").status, 5);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

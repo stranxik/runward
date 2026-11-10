@@ -270,14 +270,17 @@ honest("AC-014", ["ADR-0045"], "a house rule that cannot satisfy the floor is we
   });
 
 honest("AC-015", ["ADR-0045"], "a documentary rule may cite the section that states the fact",
-  "the usage registry and the named successor have no evidence but the section stating them. Refusing every self-pointer made the gate contradict its own advice.",
+  "the usage registry and the named successor have no evidence but the section stating them. Refusing every self-pointer made the gate contradict its own advice. Since a new mission asks for re-derived (ADR-0119), the registry's section lives in a file of its own, as the rule says, which the gate opens.",
   (dir) => {
-    const p = join(dir, "runward", "execution-topology.md");
-    let s = readFileSync(p, "utf8");
-    if (!s.includes("## Usage registry")) s = s.replace("## Rule conformance", "## Usage registry\n\nOne deployment, owner named.\n\n## Rule conformance", 1);
-    writeFileSync(p, s);
+    // The section the row cites is in the registry's own file, as `topology-usage-registry-present` says: a
+    // pointer at the manifest itself is `declared`, below the `re-derived` the example's lock asks for, and
+    // this case would read exit 5. That the manifest's own section is still read as evidence, and its row
+    // never, is held at the evidence layer (test/unit/pointer-grammar.test.js).
+    const p = join(dir, "runward", "governance", "usage-registry.md");
+    mkdirSync(dirname(p), { recursive: true });
+    writeFileSync(p, "# Governance\n\n## Usage registry\n\nOne deployment, its risk class and data classes listed, owner named, last review dated.\n");
     rewriteRows(dir, (slug, rel) => (rel === "execution-topology.md" && slug === "topology-usage-registry-present"
-      ? { status: "applied", evidence: 'file:runward/execution-topology.md#"Usage registry"' } : null));
+      ? { status: "applied", evidence: 'file:runward/governance/usage-registry.md#"Usage registry"' } : null));
   });
 
 honest("AC-016", ["ADR-0045"], "an accepted ADR whose line merely names another one",

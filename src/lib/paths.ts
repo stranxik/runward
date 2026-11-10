@@ -37,6 +37,7 @@ export const MISSION_LAYOUT: Record<string, string> = {
   "threat-model.md": "governance/threat-model.md",
   "evaluation-rubric.md": "governance/evaluation-rubric.md",
   "observability-schema.md": "governance/observability-schema.md",
+  "usage-registry.md": "governance/usage-registry.md",
   "port-contract.md": "contracts/port-contract.md",
   "runbook.md": "runbook.md",
   "handover.md": "handover.md",

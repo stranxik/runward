@@ -1,12 +1,20 @@
 # ADR-0122 — runward-integrations: MIT recipes outside the verdict, each regenerating its report out of the agent's reach, with its `requires:` rows, a planted-sabotage control and a named maintainer, counted only while its control passes
 
 **Date**: 2026-11-06
-**Status**: proposed (2026-11-06), to be decided after ADR-0121. Recorded as a question on the
-maintainer's delegation in chat of 2026-11-05, which asked for it to be written `proposed` and settled
-next; nothing here is decided. Proposed as class D under ADR-0088 decision 2: it touches no verdict path
-and no charter path; the maintainer decides the class with the record
-**Deciders**: to be decided by the maintainer. Written by an agent session; under ADR-0088 decision 4 the
-agent's writing is disclosed throughput, not independent review
+**Status**: accepted (2026-11-06), on option (A) of decision 6, by the maintainer's delegation in chat of
+2026-11-05 (« je te fais confiance, réalise à chaque fois au lieu de me demander »: "I trust you, carry it
+out each time instead of asking me"), on the recommendation of the agent session that wrote this record;
+the maintainer did not review this text before acceptance. This is a delegation, not a review. Proposed
+the same day as a question that delegation asked to be written `proposed` and settled next, after
+ADR-0121 (accepted). Non-constitutional, class D under ADR-0088 decision 2 (`scope-D` of
+`runward/delegation.md`: non-constitutional ADRs): it adds a package beside the product, and touches no
+verdict path and no charter path. Its first delivery (the note of 2026-11-06 below) adds a job to
+`.github/workflows/ci.yml`, a pre-merge path of the charter: that pull request waits for the maintainer
+before merge (ADR-0088 decision 7, ADR-0110)
+**Deciders**: the maintainer, by delegation. Written by an agent session; as ADR-0088 decision 3 asks, the
+act is recorded by an agent session (agent), for `github:stranxik` (accountable). Under ADR-0088 decision 4
+the maintainer is the single accountable person, and the agent's writing is disclosed throughput, not
+independent review
 **Method**: the bench of 2026-11-05 described in ADR-0121 (fresh copies of `examples/request-triage`,
 runward 0.46.0 installed from npm, seven sabotages each pushed as is and after an attempt to re-seal it,
 two healthy runs).
@@ -146,6 +154,72 @@ third party proposes a recipe; a counted recipe's control fails on a release.
 
 **Trigger set on**: 2026-11-06 · **Watched via**: the recipes' controls in CI, the offline GitLab CE bench,
 the pull requests that add a recipe.
+
+## Note, 2026-11-06: what the first delivery covers, and what remains
+
+**Covered: decisions 1 to 6, for the three report formats and the two forges this repository tests.**
+`packages/runward-integrations` (MIT, `private`, no dependency, at runward's version) holds the recipes
+`sarif`, `junit` and `coverage` (LCOV), in that order. Each has a manifest validated against
+`schema/recipe-manifest.schema.json` by the tests (with planted manifests the schema refuses); a step for
+GitHub Actions (a composite action, called by a 40-character commit of this repository) and one for GitLab
+CI (a hidden job, its template included at a pinned commit, the package fetched by a URL pinned with its
+sha256); its `requires:` row with the form `runward explain` prints, character for character; its
+`runward-run` leg; its control; its limits; and its maintainer, `stranxik`, with the date and runward version
+of the last passing control. The step runs the project's own command, normalises the report as ADR-0073
+option 1 does, and replaces the cited report; a command that writes no report of the recipe's format is
+refused and the cited report removed. Samples put the commands out of the agent's reach as well (a reusable
+workflow of the operator's, called by commit; the pipeline of a protected project), at parity.
+
+**Measured on 2026-11-06**, by `node packages/runward-integrations/src/cli.js control` on the shipped
+example, under Node.js 24.22.1 on macOS and on Linux, with the same exits: for each recipe the healthy tree exits 0 after
+the step, the planted sabotage exits 0 without the recipe (built-in analyzers included) and 1 with it, on the
+rows its manifest names, and each other recipe's sabotage exits 0 with it. `sarif` refuses a bearer token in
+a new adapter no row cites (`checklist-day-zero-project`), a shape the analyzers do not know; `junit` refuses
+a guard that promotes an unknown account reference as verified (`frontier-deterministic-boundary`,
+`security-prompt-injection`); `coverage` refuses a journal that overwrites instead of appending while the
+tests run a copy of their own (`state-event-sourcing`), which every case still asserts and which no
+regenerated JUnit report refuses. On the healthy tree, each regenerated report is byte for byte the one the
+example commits. The sabotages chosen first were measured and changed: test bodies emptied are already
+refused by the analyzers' test-integrity family, and a `Function` constructor in an adapter by their
+capability family, so neither shows that a recipe is needed.
+
+**The count (decision 3).** "The current release" is read as the runward version of the tree: a recipe is
+counted when its manifest records a control that passed with that version and it is not withdrawn. The
+README, `docs/recipes/junit-freshness-in-ci.md` and the package's README carry a block rendered from the
+manifests; `count --check` refuses another block and any total of recipes written outside one (unit
+tests, offline), and in CI, with the results of that run's controls, a text that counts a recipe whose
+control did not pass. A version bump therefore reads every recipe "not counted" until its control passes
+again and is recorded (`runward/runbook.md` §3).
+
+**Decision 5.** The JUnit and LCOV recipes' commands are the legs of
+`packages/runward-run/samples/request-triage.run-policy.json`, argument for argument, and the two
+normalisers agree byte for byte on a run's container paths: tested, with runward-run's code unchanged. The
+SARIF leg needs an image that carries the package; the sample policy runs the example's own lint script.
+
+**Decision 6, option (A).** A CI job, `integrations`, runs the controls, then `count --check --results`,
+then each recipe's GitHub step on a sabotaged and a healthy copy of the example. The offline GitLab CE bench
+gains a job per recipe and tree, its template included from a second project at a pinned commit, and the
+gate's exit read back three ways. The bench passed by hand on 2026-11-06, on a Linux machine with SELinux
+enforcing (GitLab CE 19.4.2 and GitLab Runner 19.4.1, network cut, 15 jobs green, each recipe 0 without, 1
+with, 0 on the healthy tree): the GitLab step is proven there, its include pinned by commit, its package
+fetched by its sha256 and its report handed to the gate job as an artifact. The GitHub step is proven by
+the `integrations` job's first run on GitHub, which no session of this delivery could start; its logic was
+rehearsed locally, each composite action's script run with its inputs in the environment.
+
+**What remains.** Jenkins, which has no bench here; the agent harnesses, measured per channel in ADR-0028's
+format; the consumers of in-toto attestations, whose control is a tampered attestation refused; the site's
+count, which reads `count --json`; and the criterion "one adopter installs one recipe from its manifest
+alone", which no delivery of this repository can meet: an independent agent session installing a recipe from its manifest
+is a rehearsal, never that adopter. Found on the way, and fixed in the same delivery: `explain` printed
+for `junit` a form that resolves nowhere (RWD-2026-0209).
+
+**Release asset (ADR-0121 decision 5), added by the integration of 2026-11-06.** The release chain packs
+the package in runward's isolated builder after the suite has passed, the job that signs refuses a file
+under another name or digest and attests it, the release workflow packs it again and refuses a byte of
+difference, and the draft attaches it as the eleventh asset, `runward-integrations-X.Y.Z.tgz`; it stays
+private on npm. Step 9 of `docs/verifying-a-release.md` verifies it, and `verify-release.yml` replays that
+verification after each release (`test/unit/integrations-release.test.js`). The steps still take the
+recipes from a commit of this repository: the asset is the file a reader verifies, not what a step runs.
 
 ## References
 

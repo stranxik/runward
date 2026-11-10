@@ -217,3 +217,48 @@ test("gitlab bench: the workflow runs on demand and weekly, never on a push or a
   assert.match(wf, /^permissions:\n {2}contents: read$/m, "read-only token");
   assert.match(wf, /test\/gitlab-bench\/bench\.sh/);
 });
+
+// ---- Layer 2, the recipes of runward-integrations (ADR-0122 decision 6): guards on the jobs these tests
+// cannot run. Each recipe's GitLab template is included from a second project of the bench's instance at a
+// pinned commit, its job regenerates its report on its sabotaged tree and on the healthy one, and the gate
+// reads each tree with the exit code checked three ways, read back from the job trace by bench.sh.
+test("gitlab bench: each recipe runs through its own template, included at a pinned commit, with the control's command", async () => {
+  const yaml = await import("js-yaml");
+  // GitLab's `!reference` tag, read as what it is: a reference, not a sequence of strings.
+  const reference = yaml.defineSequenceTag("!reference", { create: () => [], addItem: (c, i) => { c.push(i); }, finalize: (c) => ({ reference: c }) });
+  const ci = yaml.load(read("test/gitlab-bench/gitlab-ci.yml"), { schema: new yaml.Schema([...yaml.CORE_SCHEMA.tags, reference]) });
+  const { readManifests } = await import(new URL("../../packages/runward-integrations/src/manifest.js", import.meta.url).href);
+  const manifests = readManifests();
+  assert.deepEqual(ci.include, [{ project: "root/integrations", ref: "__RWI_TEMPLATES_SHA__",
+    file: manifests.map((m) => `/${m.steps.gitlab.template}`) }], "the three templates, from the second project, at the commit bench.sh substitutes");
+  assert.equal(ci[".rwi"].variables.RWI_PACKAGE_SHA256, "__RWI_SHA256__", "the package the templates fetch is pinned by its sha256");
+  for (const m of manifests) {
+    for (const tree of [m.id, "healthy"]) {
+      const job = ci[`recipe-${m.id}-${tree === "healthy" ? "healthy" : "sabotaged"}`];
+      assert.ok(job.extends.includes(m.steps.gitlab.extends), `${m.id}: the job extends the recipe's template`);
+      assert.equal(job.variables.RWI_CWD, `recipes/${tree}/code`);
+    }
+    assert.deepEqual(JSON.parse(ci[`.rwi-${m.id}`].variables.RWI_COMMAND), m.control.command.argv, `${m.id}: the bench runs the control's command`);
+    assert.equal(ci[`.rwi-${m.id}`].variables.RWI_REPORT, m.control.command.report);
+    assert.deepEqual(ci[`gate-${m.id}-without-recipe`], { extends: ".recipe-gate", needs: [], variables: { TREE: m.id, EXPECT: "0" } }, `${m.id}: the sabotage passes without the recipe`);
+    assert.deepEqual(ci[`gate-${m.id}-with-recipe`], { extends: ".recipe-gate", needs: [{ job: `recipe-${m.id}-sabotaged`, artifacts: true }], variables: { TREE: m.id, EXPECT: "1" } }, `${m.id}: refused with it`);
+  }
+  assert.deepEqual(ci["gate-healthy-with-recipes"].needs.map((n) => n.job).sort(), manifests.map((m) => `recipe-${m.id}-healthy`).sort());
+  assert.equal(ci["gate-healthy-with-recipes"].variables.EXPECT, "0");
+  assert.equal(ci[".recipe-gate"].when, "always", "the gate reads a red recipe job's report too");
+  assert.match(ci[".recipe-gate"].script.at(-1), /echo "bench-runward-exit=\$code"; test "\$code" -eq "\$EXPECT"/);
+  assert.equal(ci[".rwi"]["allow_failure"], true, "a red tool fails its own job, not the pipeline: the gate jobs decide");
+  const bench = read("test/gitlab-bench/bench.sh");
+  for (const m of manifests) {
+    assert.match(bench, new RegExp(`gate-${m.id}-without-recipe:0`));
+    assert.match(bench, new RegExp(`gate-${m.id}-with-recipe:1`));
+  }
+  assert.match(bench, /gate-healthy-with-recipes:0/);
+  assert.match(bench, /\[ "\$\(get "\$job-runward-exit"\)" = "\$want" \] \|\| fail/, "each exit is read back and compared");
+  const cut = bench.indexOf("docker network create --internal");
+  for (const step of ["npm ci --silent --ignore-scripts", "npm pack --silent --pack-destination \"$PKGS\" >/dev/null )\nmv \"$PKGS\"/runward-integrations", "RWI_SHA256=", "sabotage --recipe"]) {
+    const at = bench.indexOf(step);
+    assert.ok(at !== -1 && at < cut, `${step.split("\n")[0]} happens before the cut`);
+  }
+  assert.ok(bench.indexOf("root/integrations.git main") < bench.indexOf("root/bench.git main"), "the templates' project is pushed before the pipeline that includes it");
+});

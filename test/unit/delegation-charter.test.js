@@ -217,7 +217,9 @@ test("no charter: the verdict, the JSON, the SARIF and the report carry nothing 
     assert.equal("delegation" in j, false);
     assert.equal("charter" in j.gaps, false);
     const s = JSON.parse(run(m.dir, ["check", "--strict", "--sarif"]).out);
-    assert.equal(s.runs[0].properties, undefined, "no property bag on a run with nothing to disclose");
+    // A new mission's lock asks for `re-derived` (ADR-0119 decision 4), whose levels the run's property
+    // bag carries (decision 6); the charter adds nothing to it.
+    assert.deepEqual(Object.keys(s.runs[0].properties ?? {}), ["levels"], "no charter, nothing in the property bag but the levels the lock asks for");
     const t = run(m.dir, ["check", "--strict"]);
     assert.equal(t.code, 0);
     assert.ok(!t.out.includes("Delegation charter"));

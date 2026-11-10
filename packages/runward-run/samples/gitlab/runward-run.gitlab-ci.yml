@@ -57,8 +57,9 @@ execute:
         "install": { "cwd": "code", "lockfile": "code/package-lock.json", "command": ["npm", "ci", "--ignore-scripts", "--no-audit", "--no-fund"] },
         "legs": [
           { "leg": "tests", "cwd": "code", "command": ["node", "--import", "tsx", "--test", "--test-reporter=junit", "--test-reporter-destination=${out}/code/reports/junit.xml", "test/*.test.ts"], "reports": [{ "path": "code/reports/junit.xml", "nature": "junit" }] },
-          { "leg": "reports", "cwd": "code", "command": ["node", "--import", "tsx", "--test", "--experimental-test-coverage", "--test-coverage-include=src/**", "--test-reporter=lcov", "--test-reporter-destination=${out}/code/reports/lcov.info", "test/*.test.ts"], "reports": [{ "path": "code/reports/lcov.info", "nature": "coverage" }] },
-          { "leg": "reports", "cwd": "code", "command": ["node", "scripts/lint-committable.mjs", "${out}/code/reports"], "reports": [{ "path": "code/reports/eslint.json", "nature": "eslint" }, { "path": "code/reports/eslint.sarif", "nature": "sarif" }] }
+          { "leg": "coverage", "cwd": "code", "command": ["node", "--import", "tsx", "--test", "--experimental-test-coverage", "--test-coverage-include=src/**", "--test-reporter=lcov", "--test-reporter-destination=${out}/code/reports/lcov.info", "test/*.test.ts"], "reports": [{ "path": "code/reports/lcov.info", "nature": "coverage" }] },
+          { "leg": "reports", "cwd": "code", "command": ["node", "scripts/lint-committable.mjs", "${out}/code/reports"], "reports": [{ "path": "code/reports/eslint.json", "nature": "eslint" }, { "path": "code/reports/eslint.sarif", "nature": "sarif" }] },
+          { "leg": "mutation", "cwd": "code", "command": ["node", "--import", "tsx", "--test", "--test-reporter=junit", "--test-reporter-destination=${out}/code/reports/junit.xml", "test/*.test.ts"], "junit": "code/reports/junit.xml" }
         ]
       }
       POLICY

@@ -83,5 +83,45 @@ beside a case classified true. Under ADR-0118's decision (b), these false reds, 
 carried the analyzers, are this measurement, not `undue-refusal` entries of the
 [defect register](known-defects.md).
 
-The measurement of the head of the second integration train of 2026-11-06, and its classification, are added
-to this page when the reviewers have classified it.
+## The measurement at `51675dc`, and its classification: zero false reds
+
+The head of the second integration train of 2026-11-06, `51675dcf7ddab8665087663eb128773148bd1eb2`, was
+measured on the same three commits with the commands above, its tree clean, under Node.js 24.22.1:
+
+```sh
+git checkout 51675dcf7ddab8665087663eb128773148bd1eb2
+npm ci && npm run build
+node scripts/measure-analyzers.mjs --build . --out /path/to/output
+```
+
+| Repository | Findings in a new mission's default | More findings with the declared core | Hypotheses (never counted) | Classified `FALSE` |
+|---|---|---|---|---|
+| express | 3 | 47 | 63 | 0 |
+| fastify | 1 | 32 | 56 | 0 |
+| hono | 8 | 7 | 10 | 0 |
+| **Total** | **12** | **86** | **129** | **0** |
+
+Two reviewer sessions that wrote neither the analyzers, nor their correction, nor the harness, one for express
+and fastify and one for hono, classified it by id against `9004563`: 225 of the 227 ids are kept, each with
+its message, path, line and verdict unchanged; one finding is new, `hono-b885ee1078` (the process environment
+read through a binding of `globalThis` in the declared core, `src/utils/color.ts:23`), classified `TRUE`; one
+hypothesis was reworded to name the promise whose `reject` fails its case (`fastify-1f0de68d26`, now
+`fastify-dab19f1d22`), classified `TRUE`, and a hypothesis does not count. Every one of the 98 findings is
+classified `TRUE`, and no `TRUE` id of the earlier measurement disappeared:
+
+| File | Build measured | What it holds |
+|---|---|---|
+| [`express-fastify-51675dc.json`](analyzers-on-real-repositories/express-fastify-51675dc.json) | `51675dc`, the second integration train | the delta by id against `9004563`: the 201 kept ids (83 findings, all `TRUE`), the reworded hypothesis classified, the 13 hypotheses `case-asserts-completion` checked again against the independent scan of 2,938 cases; 0 false reds |
+| [`hono-51675dc.json`](analyzers-on-real-repositories/hono-51675dc.json) | `51675dc` | the delta by id: the 14 kept ids, all `TRUE`, and the new id classified `TRUE`; the type check of hono checked again; 0 false reds |
+
+The two files are published as the reviewers wrote them, except for five phrases referring to the measuring
+session's scratch directory, each replaced by the name of the file here, the measurement or the branch it
+named.
+
+**ADR-0117's criterion 2 holds at `51675dc`**: zero false reds on three repositories runward did not write,
+in a new mission's default and with a declared core, every finding classified by a reviewer session that did
+not write it, the classification published here with its commands. No family had to stay opt-in.
+
+**The head of the third integration train reads the same.** That train changes no analyzer. Measured on
+2026-11-06 with the same harness on the same commits, its merge of the second train's head (`30b7bf7`) writes
+the same 227 ids, each with every field the same as at `51675dc`: the classification above holds for it.

@@ -14,18 +14,10 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { BuildError, buildIndex } from "./build.js";
 import { readPolicy } from "./trust.js";
 import { REASON_TEXT, verifyRunSignature } from "./run-signature.js";
-import { renderSite } from "./site.js";
-import * as api from "../ui/views.js";
+import { renderPage } from "./site.js";
 
 const PKG = join(dirname(fileURLToPath(import.meta.url)), "..");
 const USAGE = "usage: runward-fleet build <fleet.json> [--out <dir>]\n       runward-fleet verify-run <bundle|envelope> --policy <trust-policy.json> --repository <host/owner/repo> --commit <sha> [--ref <ref>] [--statement <run.intoto.json>] [--json]";
-const FONTS = [
-  { family: "Inter", weight: 300, file: "inter-latin-300-normal.woff2" },
-  { family: "Inter", weight: 400, file: "inter-latin-400-normal.woff2" },
-  { family: "Inter", weight: 500, file: "inter-latin-500-normal.woff2" },
-  { family: "Inter", weight: 600, file: "inter-latin-600-normal.woff2" },
-  { family: "Departure Mono", weight: 400, file: "DepartureMono-Regular.woff2" },
-];
 
 export function version() {
   return JSON.parse(readFileSync(join(PKG, "package.json"), "utf8")).version;
@@ -100,12 +92,7 @@ export async function main(argv, out = console) {
   try { bytes = readFileSync(manifestPath); } catch (e) { out.error(`runward-fleet: ${manifestPath} not readable (${e?.code ?? "error"})`); return 2; }
   try {
     const index = buildIndex({ manifest: { name: manifestPath.split(/[\\/]/).pop(), bytes }, read: readerFor(dirname(resolve(manifestPath))), version: version() });
-    const html = renderSite(index, {
-      template: readFileSync(join(PKG, "ui", "template.html"), "utf8"),
-      views: readFileSync(join(PKG, "ui", "views.js"), "utf8"),
-      api,
-      fonts: FONTS.map((f) => ({ ...f, bytes: readFileSync(join(PKG, "ui", "fonts", f.file)) })),
-    });
+    const html = renderPage(index);
     mkdirSync(outDir, { recursive: true });
     writeFileSync(join(outDir, "index.json"), `${JSON.stringify(index, null, 2)}\n`);
     writeFileSync(join(outDir, "index.html"), html);

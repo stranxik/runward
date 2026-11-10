@@ -251,7 +251,10 @@ test("the arithmetic a checker re-checks holds on a mission red in several famil
     for (const f of ["deliverable-state", "conformance", "corpus", "unratified-decision"]) assert.ok(fam(f) > 0, `${f} is exercised`);
     assert.deepEqual(w.unratified, [{ file: "runward/adr/DRAFT-0099-guess.md", reason: "DRAFT — reconstructed decision not yet ratified" }]);
     assert.equal(w.corpus.rules.find((x) => x.slug === "hexa-architecture").lock, "other");
-    assert.deepEqual(w.notWitnessed.map((x) => x.family), Object.keys(NOT_WITNESSED));
+    // The example's lock asks for `re-derived`, the default of new missions since ADR-0119 decision 4, so
+    // the run reads the levels and the witness says what of them it does not re-check (decision 6).
+    assert.equal(w.levels?.required, "re-derived");
+    assert.deepEqual(w.notWitnessed.map((x) => x.family), [...Object.keys(NOT_WITNESSED), "levels"]);
     assert.equal(w.notWitnessed.find((x) => x.family === "deliverable-state").causes, v.gaps);
   } finally { rmSync(ex.parent, { recursive: true, force: true }); }
 });

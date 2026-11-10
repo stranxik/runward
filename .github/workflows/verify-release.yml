@@ -64,6 +64,8 @@ jobs:
             # A release before ADR-0116 attached a scan of the checkout, not the package's SBOM: Step 10
             # runs on a dispatched tag only when that tag carries the derivation.
             EXPECT_PACKAGE_SBOM="if-present"
+            # Step 9 verifies, on a dispatched tag, the tarballs that tag's release carries.
+            EXPECT_ASSET_TARBALLS="if-present"
           else
             # For a release-triggered run, head_branch carries the tag. Every release cut after
             # 2026-08-11 attaches the provenance bundle, and every one cut after ADR-0049 signs it
@@ -73,6 +75,7 @@ jobs:
             EXPECT_PROV="true"
             EXPECT_BUILDER="true"
             EXPECT_PACKAGE_SBOM="true"
+            EXPECT_ASSET_TARBALLS="true"
           fi
           test -n "$TAG" || { echo "::error::no tag to verify — use workflow_dispatch with a tag"; exit 1; }
           echo "TAG=$TAG" >> "$GITHUB_ENV"
@@ -80,6 +83,7 @@ jobs:
           echo "EXPECT_PROV=$EXPECT_PROV" >> "$GITHUB_ENV"
           echo "EXPECT_BUILDER=$EXPECT_BUILDER" >> "$GITHUB_ENV"
           echo "EXPECT_PACKAGE_SBOM=$EXPECT_PACKAGE_SBOM" >> "$GITHUB_ENV"
+          echo "EXPECT_ASSET_TARBALLS=$EXPECT_ASSET_TARBALLS" >> "$GITHUB_ENV"
 
       # npm accepts a publish before it serves the tarball ("Your package is being processed and may
       # take a few minutes to become available"). This job starts seconds after the Release workflow
@@ -181,6 +185,54 @@ jobs:
             gh release verify-asset "$TAG" "runward-$VERSION.tgz" --repo "$GITHUB_REPOSITORY"
           else
             echo "::notice::release $TAG reports immutable=$IMMUTABLE: no release attestation to verify; skipped, and said so (ADR-0085)"
+          fi
+
+      # Step 9 of the guide: the tarballs a release carries beside runward's, each packed and attested by
+      # the isolated builder from the tag (ADR-0094, ADR-0093 D4, ADR-0120, ADR-0122), the same command
+      # for each. A release-triggered run requires the four, which the draft job attaches to every
+      # release; a dispatch on an older tag verifies those its release carries and names the others. The
+      # guide's npm comparison for runward-forge is not replayed: npm holds no runward-forge before its
+      # bootstrap (runward/runbook.md §3.1).
+      - name: "Step 9 — the runward-forge, runward-fleet, runward-run and runward-integrations tarballs"
+        run: |
+          set -euo pipefail
+          absent() {
+            if [ "$EXPECT_ASSET_TARBALLS" = "true" ]; then
+              echo "::error::$TAG carries no $1; the draft job attaches it to every release"; exit 1
+            fi
+            echo "$TAG carries no $1; skipped, and said so"
+          }
+          if [ -f "runward-forge-$VERSION.tgz" ]; then
+            gh attestation verify "runward-forge-$VERSION.tgz" --repo "$GITHUB_REPOSITORY" \
+              --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/build-and-attest.yml" \
+              --source-ref refs/tags/"$TAG" \
+              --deny-self-hosted-runners
+          else
+            absent "runward-forge-$VERSION.tgz"
+          fi
+          if [ -f "runward-fleet-$VERSION.tgz" ]; then
+            gh attestation verify "runward-fleet-$VERSION.tgz" --repo "$GITHUB_REPOSITORY" \
+              --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/build-and-attest.yml" \
+              --source-ref refs/tags/"$TAG" \
+              --deny-self-hosted-runners
+          else
+            absent "runward-fleet-$VERSION.tgz"
+          fi
+          if [ -f "runward-run-$VERSION.tgz" ]; then
+            gh attestation verify "runward-run-$VERSION.tgz" --repo "$GITHUB_REPOSITORY" \
+              --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/build-and-attest.yml" \
+              --source-ref refs/tags/"$TAG" \
+              --deny-self-hosted-runners
+          else
+            absent "runward-run-$VERSION.tgz"
+          fi
+          if [ -f "runward-integrations-$VERSION.tgz" ]; then
+            gh attestation verify "runward-integrations-$VERSION.tgz" --repo "$GITHUB_REPOSITORY" \
+              --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/build-and-attest.yml" \
+              --source-ref refs/tags/"$TAG" \
+              --deny-self-hosted-runners
+          else
+            absent "runward-integrations-$VERSION.tgz"
           fi
 
       # ADR-0116, decision 2: the release's SBOM is a pure function of the tag and the tarball, and the

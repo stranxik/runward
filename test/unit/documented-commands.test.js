@@ -30,14 +30,18 @@ const V = "<V>";
 
 // What verify-release.yml claims to replay: each of its steps named "Step <x> — …", mapped to the
 // guide's step. A workflow step named "Step …" that is not declared here fails.
-const WORKFLOW_TO_GUIDE = { "Step 0": "0", "Step 2": "2", "Step 2b": "2", "Step 2c": "2c", "Step 3": "3", "Step 7": "7", "Step 10": "10" };
+const WORKFLOW_TO_GUIDE = { "Step 0": "0", "Step 2": "2", "Step 2b": "2", "Step 2c": "2c", "Step 3": "3", "Step 7": "7", "Step 9": "9", "Step 10": "10" };
 // The guide's steps whose gh commands the workflow replays, command for command.
-const REPLAYED = ["2", "2c", "3", "7"];
+const REPLAYED = ["2", "2c", "3", "7", "9"];
 // Commands of a replayed step the workflow does not run, each with its reason. Matched in the
 // canonical form, so a change to one of them is a drift too.
 const GUIDE_ONLY = {
   "gh attestation verify runward-<V>.tgz | --deny-self-hosted-runners | --repo stranxik/runward | --source-ref refs/tags/v<V>":
     "gh's default predicate; the workflow names the same predicate explicitly in Step 2b",
+  "curl -fsSL https://registry.npmjs.org/runward-forge/-/runward-forge-<V>.tgz | shasum -a 256":
+    "npm holds no runward-forge before its bootstrap (runward/runbook.md §3.1); the workflow replays Step 9's attestations only",
+  "shasum -a 256 runward-forge-<V>.tgz":
+    "the other half of the npm comparison above, which the workflow does not replay",
 };
 // Step 0 is replayed in substance, not command for command: the workflow downloads with
 // `gh release download`, waits for npm, and compares with sha256sum. The guide's own block is executed,
@@ -260,8 +264,9 @@ test("documented commands: every release verification of the guide and of verify
   assert.deepEqual(unpinnedVerifications(GUIDE_TEXT, WORKFLOW_TEXT), []);
   const counted = parseGuide(GUIDE_TEXT).filter((s) => PINNED_STEPS.includes(s.id))
     .flatMap((s) => s.blocks.flat()).filter((c) => /^gh attestation verify /.test(c.text)).length;
-  // Nine since Step 9 verifies the runward-fleet tarball too (ADR-0093 D4).
-  assert.equal(counted, 9, "the guide's pinned steps hold nine verifications");
+  // Nine since Step 9 verifies the runward-fleet tarball too (ADR-0093 D4), ten since it verifies the
+  // runward-run tarball too (ADR-0120), eleven since it verifies the runward-integrations tarball (ADR-0122).
+  assert.equal(counted, 11, "the guide's pinned steps hold eleven verifications");
 });
 
 test("documented commands, control: a Step 8 verification without --source-ref fails, naming Step 8", () => {

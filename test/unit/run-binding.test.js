@@ -17,7 +17,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
-import { CLI, ROOT, check, checkJson, countedEnvelope, env, makeLab, runLab } from "../support/run-lab.js";
+import { CLI, ROOT, check, checkJson, countedEnvelope, env, makeLab, mutationPolicy, runLab } from "../support/run-lab.js";
 import { githubIdentity, makeBundle, makeSigstore } from "../support/fleet-sigstore.js";
 
 const POSIX = process.platform !== "win32";
@@ -30,7 +30,9 @@ before(() => {
   if (!POSIX) return;
   base = mkdtempSync(join(tmpdir(), "rw-run-bind-"));
   lab = makeLab(join(base, "lab"));
-  run = runLab(join(base), lab);
+  // With the legs of R2: since ADR-0120 R2, a row that cites a code location and a test reaches attested
+  // only with the mutation of its cited lines (ADR-0119 decision 2).
+  run = runLab(join(base), lab, { policy: mutationPolicy() });
   assert.equal(run.status, 0, run.stderr);
   // The operator's CI commits what the run wrote with the tree it judges (decision 6).
   cpSync(run.out, lab, { recursive: true });
@@ -184,18 +186,26 @@ test("R1: a run Statement and its bundle are about the tree, not part of it: the
   assert.equal(v.status, 0, `verify re-derives the attestation made at attested, the levels block included: ${v.stdout.slice(-800)}`);
 });
 
-test("the shipped example as `init --example` writes it: below re-derived on its one prose row, named, and the lab is what types it", () => {
+test("the shipped example as `init --example` writes it: its lock asks for re-derived, and every applied row meets it", () => {
   const dir = mkdtempSync(join(tmpdir(), "rw-run-example-"));
   try {
     spawnSync(process.execPath, [CLI, "--yes", "init", "--example"], { cwd: dir, env, encoding: "utf8" });
-    assert.equal(check(dir).status, 0, "control: green at mechanical, the default");
-    const j = checkJson(dir, "--require", "re-derived");
-    assert.equal(j.exitCode, 5);
-    assert.deepEqual(j.levels.below.map((b) => [b.deliverable, b.rule, b.level]), [["execution-topology.md", "topology-usage-registry-present", "declared"]],
-      "ADR-0119 decision 4 asks the example to type this row before re-derived becomes a default; until then it is named");
-    assert.match(j.levels.below[0].holds[0], /file:runward\/execution-topology\.md#Usage \(the gate does not open it as evidence/);
-    assert.equal(j.levels.territory.analysed, true, "its territory is analysed: the prose row alone holds it below");
-    assert.equal(j.next.action, "re-derive-the-rows");
+    const lock = JSON.parse(readFileSync(join(dir, "runward", "scaffold-lock.json"), "utf8"));
+    assert.equal(lock.requiredLevel, "re-derived", "ADR-0119 decision 4: the default of new missions, since ADR-0117's criterion 2 is published");
+    assert.equal(check(dir).status, 0, "green at the level its lock asks for");
+    const j = checkJson(dir);
+    assert.equal(j.exitCode, 0);
+    assert.deepEqual(j.require, { level: "re-derived", met: true });
+    assert.deepEqual(j.levels.below, [], "the usage registry row, the example's last prose row until then, cites a file the gate opens");
+    assert.equal(j.levels.territory.analysed, true, "its territory is analysed");
+    // The row answered in prose again is named below the level, as before the example typed it.
+    const topo = join(dir, "runward", "execution-topology.md");
+    writeFileSync(topo, readFileSync(topo, "utf8").replace("file:runward/governance/usage-registry.md#triage-bot", "file:runward/execution-topology.md#Usage"));
+    const k = checkJson(dir);
+    assert.equal(k.exitCode, 5);
+    assert.deepEqual(k.levels.below.map((b) => [b.deliverable, b.rule, b.level]), [["execution-topology.md", "topology-usage-registry-present", "declared"]]);
+    assert.match(k.levels.below[0].holds[0], /file:runward\/execution-topology\.md#Usage \(the gate does not open it as evidence/);
+    assert.equal(k.next.action, "re-derive-the-rows");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
