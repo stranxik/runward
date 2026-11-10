@@ -124,7 +124,7 @@ mutant there is not counted here, and saying otherwise would be the overclaim th
 
 <!-- GENERATED BELOW — scripts/mutation-register.mjs -->
 
-**Measured perimeter (derived from `stryker.config.json`):** 25 module(s): `attestation`, `check-contract`, `citations`, `compliance`, `conformance`, `delegation`, `delegation-sample`, `evidence`, `gate-hook`, `identity`, `mission`, `paths`, `ratify`, `rules`, `sarif`, `scaffold-lock`, `spec-conformance`, `territory`, `territory-map`, `tool-adapters`, `verdict`, `verify-findings`, `wire-install`, `witness`, `workflow-contract`.
+**Measured perimeter (derived from `stryker.config.json`):** 25 module(s): `attestation`, `check-contract`, `citations`, `compliance`, `conformance`, `delegation`, `delegation-sample`, `evidence`, `gate-hook`, `identity`, `mission`, `paths`, `ratify`, `rules`, `sarif`, `scaffold-lock`, `spec-conformance`, `territory`, `territory-map`, `tool-adapters`, `verdict`, `verify-findings`, `wire-install`, `witness`, `workflow-contract`. With no filing in this register: `paths` (every mutant killed, or never instructed; the ratchet says which).
 
 Rows filed `hole`, `equivalent` or `display-only` survived the unit suite AND the whole net —
 the self-gate, OSCAL validation, the smoke test, in-toto schema validation, the spelling corpus,
@@ -3889,17 +3889,3 @@ Holes: 1 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 0
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 9 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The seeded element is a project-relative candidate path that can only be returned if it equals an ASKED path, and an asked path is a normalised project path: the string "Stryker was here" is never on… |
-
-## Module: paths
-
-Survivors: 1
-
-Holes: 0 · Equivalent: 1 · Display-only: 0 · Defence-in-depth: 0
-
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `afe6d4026179…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
-
-### VERSION — 1 survivor(s): 1 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 17 | StringLiteral | `""` | equivalent | Measured on Node v24.18.0: readFileSync(package.json, "") returns a Buffer and JSON.parse coerces it identically, so VERSION is the same string "0.37.0"; JSON.stringify of both parses is byte-equal, … |
