@@ -552,7 +552,10 @@ const PATHOLOGICAL = {
   "fences": "```\n".repeat(25_000),
   "hidden characters": "\u202e\u0000".repeat(50_000),
 };
-const BOUND_MS = 200;
+// The bound is 200 ms of CPU. Under the coverage run (`npm run coverage`, node --experimental-test-coverage,
+// which sets NODE_V8_COVERAGE in the test process) the instrumented code runs about twice as slow, so the
+// bound doubles there; the planted quadratic scans slow down with it and still exceed it.
+const BOUND_MS = process.env.NODE_V8_COVERAGE ? 400 : 200;
 const BOUND_GROWTH = 20; // an output is at most this many times its source: the widest is a heading of one character
 /** CPU time of a call, in milliseconds, the best of five: a measure that the load of the machine does not stretch. */
 function best(f) {
