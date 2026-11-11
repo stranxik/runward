@@ -662,10 +662,10 @@
         "ruleId": "no-control-regex",
         "severity": 2,
         "message": "Unexpected control character(s) in regular expression: \\x1b.",
-        "line": 223,
+        "line": 226,
         "column": 20,
         "messageId": "unexpected",
-        "endLine": 223,
+        "endLine": 226,
         "endColumn": 34,
         "suppressions": [
           {
