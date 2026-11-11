@@ -2,7 +2,7 @@
 
 **Status**: specification of `runward-fleet/documents`, dated 2026-11-11, with the code that implements it
 (`packages/runward-fleet/ui/documents.js`) · **Decided by**:
-[ADR-0126](../adr/ADR-0126-mission-documents-are-rendered-by-runward-fleet-from-a-closed-subset-of-markdown-safe-by-construction-and-checked-on-the-way-out-the-register-is-read-from-each-records-header.md)
+[ADR-0127](../adr/ADR-0127-mission-documents-are-rendered-by-runward-fleet-from-a-closed-subset-of-markdown-safe-by-construction-and-checked-on-the-way-out-the-register-is-read-from-each-records-header.md)
 · **Reads**: Markdown text handed by the caller, and nothing else
 
 A mission's documents are written in a repository this package does not hold. Shown in a page they are

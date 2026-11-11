@@ -1,4 +1,4 @@
-# ADR-0126: Mission documents are rendered by runward-fleet from a closed subset of Markdown, safe by construction and checked on the way out; the register of decision records is read from each record's header
+# ADR-0127: Mission documents are rendered by runward-fleet from a closed subset of Markdown, safe by construction and checked on the way out; the register of decision records is read from each record's header
 
 **Date**: 2026-11-11
 **Status**: proposed (written by an agent session; acceptance is the maintainer's, by approving the pull

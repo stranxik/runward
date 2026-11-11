@@ -49,7 +49,7 @@ and [docs/spec/runward-closed-values.json](https://github.com/stranxik/runward/b
 ## A mission's documents
 
 `runward-fleet/documents` is for a deployment that shows a mission's own Markdown documents, which are
-untrusted text (ADR-0126). `renderDocument(markdown, context?)` renders a closed subset of Markdown into a
+untrusted text (ADR-0127). `renderDocument(markdown, context?)` renders a closed subset of Markdown into a
 closed list of elements: raw HTML is shown as text, a link is rewritten (a slug, a route of the
 application, or an https address without credentials) and anything else stays text; there is no class, no
 style and no image. `checkRendered(html)` is the check a page asks before inserting an output.

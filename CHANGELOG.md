@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### runward-fleet renders a mission's documents from a closed subset of Markdown, and reads the register of its decision records (ADR-0126)
+### runward-fleet renders a mission's documents from a closed subset of Markdown, and reads the register of its decision records (ADR-0127)
 
 A new module, `runward-fleet/documents` (`ui/documents.js`), for a deployment that shows a mission's own
 documents. They are written in a repository the package does not hold, so they are untrusted text.
