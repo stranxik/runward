@@ -1094,7 +1094,7 @@ function kindSentence(lang, kind, from) {
 
 /**
  * The refusals by kind, each with its n / N from the index: what a reader takes in first. Within a kind,
- * its refusals by their text as written (ADR-0127, `byText`): the text once, the label of its detail with
+ * its refusals by their text as written (ADR-0128, `byText`): the text once, the label of its detail with
  * the n / N of the refusals it stands for when there are several, and their positions in `conformance`.
  */
 function kindsOf(lang, L, b) {
@@ -1123,7 +1123,7 @@ function kindsOf(lang, L, b) {
 
 /**
  * The positions of the refusals no text group names, in the export's order: none for an index this
- * version builds; every refusal of an index built before ADR-0127, which carries no `byText`. Each is
+ * version builds; every refusal of an index built before ADR-0128, which carries no `byText`. Each is
  * then shown alone, with its own sentence and its detail: grouping never hides a refusal.
  */
 function ungroupedOf(L, kinds) {
@@ -1131,13 +1131,13 @@ function ungroupedOf(L, kinds) {
   return (Array.isArray(L.conformance) ? L.conformance : []).map((_, i) => i).filter((i) => !named.has(i));
 }
 
-/** The states the reading lists first (ADR-0127): what the check refuses, then the level not met. */
+/** The states the reading lists first (ADR-0128): what the check refuses, then the level not met. */
 const FIRST = ["gaps", "level-not-met"];
 /** The groupings of a list of `{ state }`, those of FIRST first, the others after them in their order. */
 const ranked = (groups) => [...FIRST.flatMap((s) => groups.filter((g) => g.state === s)), ...groups.filter((g) => !FIRST.includes(g.state))];
 
 /**
- * The order the reading lists the applications in (ADR-0127), read from `fleet.byVerdict`: the lists of
+ * The order the reading lists the applications in (ADR-0128), read from `fleet.byVerdict`: the lists of
  * its groups, refused first, then level not met, then the others in the index's order, each list in the
  * inventory's order. An application no list names is listed after them, in the inventory's order: never
  * dropped.
@@ -1210,7 +1210,7 @@ function endorsementOf(lang, idx, L, b) {
 /**
  * The decision reading of an index, `runward-fleet-decision/0`: for the fleet, the groupings n / N by
  * state with their lists, and the order the reading lists the applications in (`listing`, read from
- * those groupings, ADR-0127); for each application, in the inventory's order, its state (the index's
+ * those groupings, ADR-0128); for each application, in the inventory's order, its state (the index's
  * own, renamed, never recomputed), the sentence that follows it, the date of the last check received,
  * the reason, the missing pieces by their nature, the refusals by kind and, within a kind, by their text
  * as written, each refusal with its sentence and where it is, how the decided rows were endorsed, and
@@ -1299,7 +1299,7 @@ function why(lang, a, { kinds = true } = {}) {
   return lines.length ? `<ul data-role="kinds">${lines.join("")}</ul>` : "";
 }
 
-/** The applications of the reading, in the order it lists them (`listing`, ADR-0127). */
+/** The applications of the reading, in the order it lists them (`listing`, ADR-0128). */
 function listed(doc) {
   const byId = new Map(doc.applications.map((a) => [a.id, a]));
   return (doc.listing?.ids ?? doc.applications.map((a) => a.id)).map((id) => byId.get(id)).filter(Boolean);
@@ -1307,7 +1307,7 @@ function listed(doc) {
 
 function decisionPortfolio(doc) {
   const X = LEXICON[doc.lang], lang = doc.lang;
-  // Every state, with its n / N, 0 / N included (ADR-0127): a state with no application is a fact too.
+  // Every state, with its n / N, 0 / N included (ADR-0128): a state with no application is a fact too.
   const groups = ranked(doc.fleet.groups).map((g) =>
     `<li data-role="group" data-state="${esc(g.state)}"><span data-role="mark" aria-hidden="true"></span><span data-role="group-label">${say(lang, g.label)}</span> ${arg(lang, g.count)}</li>`).join("");
   const apps = listed(doc).map((a) => `<li data-role="application" data-state="${esc(a.state)}" data-mission="${esc(a.id)}">
@@ -1332,7 +1332,7 @@ const detailOf = (lang, label, text, open) => `<details data-role="detail"${open
 const refusalOf = (lang, p, tag) => `<${tag} data-role="problem" data-kind="${esc(p.kind ?? "")}" data-index="${esc(p.path)}">${say(lang, p.entry)}</${tag}>`;
 
 /**
- * What the check refuses (ADR-0127): for each kind, its sentence with n / N; for each text the check wrote
+ * What the check refuses (ADR-0128): for each kind, its sentence with n / N; for each text the check wrote
  * for that kind, the text once, folded (the first of the page open), and every refusal it stands for,
  * listed behind a second disclosure when there are several. A refusal no text group names is shown alone,
  * with its own sentence: no refusal is ever hidden by a grouping. No script: `<details>` folds.

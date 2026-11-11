@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### The decision reading groups the refusals by kind and by text, and lists the refused applications first (ADR-0127, proposed)
+### The decision reading groups the refusals by kind and by text, and lists the refused applications first (ADR-0128, proposed)
 
 An application's page of the decision reading said every refusal with its text in full: the 46 refusals of a
 public repository whose rows are all proposed carry four texts, so the same paragraph was shown 22 times, and

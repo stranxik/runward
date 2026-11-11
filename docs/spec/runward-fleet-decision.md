@@ -3,7 +3,7 @@
 **Status**: specification of `runward-fleet-decision/0`, dated 2026-11-10, refined on 2026-11-11, with the code
 that implements it (`packages/runward-fleet/ui/views.js`) · **Decided by**:
 [ADR-0125](../adr/ADR-0125-the-decision-reading-a-plain-language-projection-of-the-fleet-index-from-a-closed-lexicon-in-two-languages-without-a-model.md),
-refined by [ADR-0127](../adr/ADR-0127-the-decision-reading-groups-refusals-by-kind-and-by-text-folds-the-text-and-lists-refused-applications-first.md)
+refined by [ADR-0128](../adr/ADR-0128-the-decision-reading-groups-refusals-by-kind-and-by-text-folds-the-text-and-lists-refused-applications-first.md)
 (the refusals grouped by kind and by text, the order of the applications, the five states always shown)
 · **Reads**: `runward-fleet-index/0` ([runward-fleet-index.md](runward-fleet-index.md)) and nothing else
 · **Closed lists**: [runward-closed-values.json](runward-closed-values.json)
@@ -40,7 +40,7 @@ and every technical view is in the navigation.
 | `index` | `{ format, builtBy }` of the index read |
 | `names` | `shown`, or `omitted` when the index leaves the names of people out (`fleet.json` `"names": "omitted"`) |
 | `title` | a sentence: the title, the one place where the reader's decision is named |
-| `listing` | the order the reading lists the applications in (ADR-0127): `ids`, read from the lists of `fleet.byVerdict`, the group `gaps` first, then `level-not-met`, then the other groups in the index's order, each list in the inventory's order (an application no list names comes after them, never dropped); and `note`, the sentence that says so, `from` `fleet.byVerdict` |
+| `listing` | the order the reading lists the applications in (ADR-0128): `ids`, read from the lists of `fleet.byVerdict`, the group `gaps` first, then `level-not-met`, then the other groups in the index's order, each list in the inventory's order (an application no list names comes after them, never dropped); and `note`, the sentence that says so, `from` `fleet.byVerdict` |
 | `fleet` | `declared` (a number with its path) and `groups[]`: for each state of `fleet.byVerdict`, `{ state, label, count }`, `count` being `{ text, n, N, list, path }`; every state is present, `0 / N` included |
 | `applications[]` | one per mission, in the inventory's order (`listing` gives the order of the page) |
 
@@ -56,7 +56,7 @@ detail, as written" for one refusal, "(the same for n / N)" for several, N being
 from `latest.deliverables.byState`), `problems[]` (each refusal: `line`, the sentence "{document}:
 {kind}"; `where`, its file, line and requirement as data; `entry`, the sentence "{document}: {where}" the
 page lists it with; `problem`, its text as data), `ungrouped` (the positions of the refusals no text group
-lists: none for an index this version builds, every refusal for an index built before ADR-0127, each
+lists: none for an index this version builds, every refusal for an index built before ADR-0128, each
 then shown alone with its own sentence and text), `pieces[]` (the
 documents not filled in, grouped by nature: `{ nature, label, items[] }`), `endorsement` (`detailed`,
 `lines[]`, `disclosure[]`, `declared`), `origin` (from `implemented`) and `version` (the `runward`
@@ -79,7 +79,7 @@ a colon. The sentence that always follows `clean` (`qualifier.clean`) reads "acc
 requirements", in French "selon les exigences de l'équipe", and the date line "Last check received:
 {date}", in French "Dernier contrôle reçu : {date}". `{…}` is a value, filled as data.
 
-**The order of the list** (`orderByState`, the note of the portfolio, ADR-0127; `order` is kept for a view
+**The order of the list** (`orderByState`, the note of the portfolio, ADR-0128; `order` is kept for a view
 listed in the inventory's order)
 
 | Key | English | French |
@@ -170,7 +170,7 @@ listed in the inventory's order)
 | `not-observed` | a refusal whose kind the check does not write. | un refus dont le contrôle n'écrit pas le genre. |
 
 **What the check refuses** (`problems`): a kind's sentence, then each text of that kind once, behind a
-disclosure, then where each refusal is, behind a second one when there are several (ADR-0127). The label of
+disclosure, then where each refusal is, behind a second one when there are several (ADR-0128). The label of
 the text does not name its language: the text carries `lang="en"`.
 
 | Key | English | French |
@@ -362,7 +362,7 @@ Held by the build on every rendered view of the reading and on the whole lexicon
 | R3 | no state, group label or reason reads as a decision taken (`NOT_A_STATE`); the decision is named in a title only | build and test |
 | R4 | "nothing is blocking" is always followed by the team's requirements, and, for an application, by the date of the last check (the export's `at` label, or "date not declared": a static inventory may declare none) | build and test (on each application's state, and on the fleet's label, which carries the requirements) |
 | R5 | a row endorsed by an agent is never worded as a person's; a refusal's text is shown as written and never read | test (a planted copy of the view that says an agent's rows in a person's words is caught; every `problem` reworded moves no sentence) |
-| R6 | grouped, no refusal is hidden: within a kind, the text groups partition its refusals, each n / N of the kind and holding only refusals of its text; an application's page lists every refusal once, under its index path (ADR-0127) | build (`checkIndex` on the index, `checkRefusals` on each application's page) and test (a refusal taken out of a group, out of a page, or listed twice, and a planted copy of the view that lists one fewer, are refused) |
+| R6 | grouped, no refusal is hidden: within a kind, the text groups partition its refusals, each n / N of the kind and holding only refusals of its text; an application's page lists every refusal once, under its index path (ADR-0128) | build (`checkIndex` on the index, `checkRefusals` on each application's page) and test (a refusal taken out of a group, out of a page, or listed twice, and a planted copy of the view that lists one fewer, are refused) |
 
 The words runward never says (`BANNED`) are held on every view, the reading's included, in each listed form
 and with boundaries of any script. The eighteen rules of ADR-0093 decision 11 hold too.

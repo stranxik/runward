@@ -171,7 +171,7 @@ the inventory names one),
   `conformance` row carries the export's `line` and `phaseId` beside `scope`, `rule`, `kind`, `problem` and
   `file` (`null` when the export does not carry them); `conformanceByKind` groups the rows by `kind`, in the
   order the export lists them (`not-observed` for a row without one), each `{ state, n, N, list }` listing
-  `scope · rule`, and, since ADR-0127, `byText`: the rows of that kind by their `problem`, compared
+  `scope · rule`, and, since ADR-0128, `byText`: the rows of that kind by their `problem`, compared
   character for character, in the order the export lists them, each `{ state, n, N, list }`, `state` being
   the text as written, `N` the kind's `n` and `list` the positions of its rows in `conformance` (the groups
   of a kind partition its rows, a rule of the build); `ratification` adds `agent` (the rows an agent ratified, 0 when the export does not write
@@ -200,7 +200,7 @@ and widen three value sets: `latest` may be the string `not-available` beside `n
 it is an object, never whether it equals `not-observed`); a source's `path` and `bytes` may be `null` (a
 digest only, `content: "digest-only"`); a finding's `state` may be `not-available`. The views of this
 package handle them, and so does any reader that tests `typeof latest === "object"`. Since 2026-11-11
-(ADR-0127), each group of `conformanceByKind` carries `byText`, whose `state` is a refusal's free text,
+(ADR-0128), each group of `conformanceByKind` carries `byText`, whose `state` is a refusal's free text,
 never a closed value; an index built before carries none, and the decision reading then lists each refusal
 alone.
 

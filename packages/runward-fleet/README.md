@@ -37,7 +37,7 @@ written), 2 a usage error.
 
 The page opens on a plain-language reading of the index, for the people who answer for what agents deliver
 and do not read code (ADR-0125): the applications refused first, then those whose required level is not
-met, then the others (ADR-0127); for each, its state, the reason, the refusals by kind and, within a kind,
+met, then the others (ADR-0128); for each, its state, the reason, the refusals by kind and, within a kind,
 by their own text as written, shown once and folded with every refusal it stands for, the documents not
 filled in, how the decided rows were endorsed (an agent's endorsement is never worded as a person's), and
 where the reading comes from. Every sentence

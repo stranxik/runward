@@ -313,7 +313,7 @@ test("the refused state of the renaming demonstration: every sentence from close
   }
   const check = JSON.parse(fx("demo-renamed.check.json").toString("utf8"));
   // Shown character for character: the escaped text in the page decodes to the export's own. The two
-  // refusals carry the same text: it is shown once, for both (ADR-0127), and each refusal is listed.
+  // refusals carry the same text: it is shown once, for both (ADR-0128), and each refusal is listed.
   const html = views.renderView(idx, "decision", "demo-renamed");
   const shown = verbatims(html);
   assert.deepEqual(shown, [...new Set(check.conformance.map((c) => c.problem))]);
@@ -344,7 +344,7 @@ test("the line of each refusal is the export's, projected into the index and tie
   assert.deepEqual(o.missions[0].latest.conformance[0], { scope: "Floor", rule: "x", kind: null, problem: "y", file: null, line: null, phaseId: null });
 });
 
-// ------------------------------------------------------------------ the refusals grouped, the order, the tiles (ADR-0127)
+// ------------------------------------------------------------------ the refusals grouped, the order, the tiles (ADR-0128)
 /**
  * What one application's page and its index must hold once the refusals are grouped: every refusal of the
  * index listed exactly once, under a block whose shown text is its own `problem`, character for character;
@@ -435,7 +435,7 @@ test("grouped, no refusal is hidden: every refusal of the real exports is listed
     assert.throws(() => site.renderSite(idx, { template, views: SRC, api: plantedViews, fonts: [] }), (e) => e instanceof build.BuildError && /#\/decision\/hosted: the refusal missions\[id=hosted\]\.latest\.conformance\[0\] is listed 0 times/.test(e.message));
     assert.doesNotThrow(() => site.renderSite(idx, { template, views: SRC, api: views, fonts: [] }), "control: the shipped reading passes");
   } finally { rmSync(tmp, { recursive: true, force: true }); }
-  // An index built before ADR-0127 carries no text group: every refusal is listed alone, with its text.
+  // An index built before ADR-0128 carries no text group: every refusal is listed alone, with its text.
   const before = structuredClone(idx);
   for (const g of before.missions.find((m) => m.id === "hosted").latest.conformanceByKind) delete g.byText;
   const old = views.renderView(before, "decision", "hosted");

@@ -49,7 +49,7 @@ export function group(items, keyOf, idOf, order = []) {
 }
 
 /**
- * The refusals by kind (ADR-0125), each with its refusals by text (ADR-0127): within a kind, one group
+ * The refusals by kind (ADR-0125), each with its refusals by text (ADR-0128): within a kind, one group
  * per `problem` as written, compared character for character, in the order the export lists them, N
  * being the kind's n and the list the positions of its refusals in `conformance`. The text groups of a
  * kind partition its refusals, so no refusal is in two groups or in none.
@@ -189,7 +189,7 @@ export function projectVerdict(d, { omitNames = false } = {}) {
     // the export does not carry them (a CLI before 0.42.3) or the refusal has no row.
     conformance,
     // ADR-0125: the refusals by kind, in the order the export lists them, each n of N with the rows it
-    // counts; a refusal whose export writes no kind is grouped as `not-observed`. ADR-0127, additive:
+    // counts; a refusal whose export writes no kind is grouped as `not-observed`. ADR-0128, additive:
     // each kind's refusals by their text as written (`byText`), so the reading shows a text once with
     // every refusal it stands for, and counts nothing itself.
     conformanceByKind: byKindAndText(conformance),

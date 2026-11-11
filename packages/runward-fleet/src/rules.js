@@ -288,7 +288,7 @@ export function checkIndex(index) {
       if (series.records.some((r) => r.signatureVerified !== false)) problems.push(`missions[id=${m.id}]: a history record claims a verified signature`);
     }
   }
-  // ADR-0127: within a kind, the refusals by text partition its refusals, each n of the kind's n, and
+  // ADR-0128: within a kind, the refusals by text partition its refusals, each n of the kind's n, and
   // each lists only refusals that carry its text. An index built before carries no `byText`.
   for (const m of index.missions ?? []) {
     const L = m.latest;
@@ -388,7 +388,7 @@ export function refusalPaths(html) {
 }
 
 /**
- * ADR-0127, on one application's page of the decision reading: grouped by kind and by text, the page
+ * ADR-0128, on one application's page of the decision reading: grouped by kind and by text, the page
  * still lists every refusal the index holds for it, each exactly once, under its index path. A refusal a
  * grouping would hide, or show twice, is named.
  */

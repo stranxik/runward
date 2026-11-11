@@ -1,4 +1,4 @@
-# ADR-0127: The decision reading groups the refusals by kind and by text, folds the text, keeps a count for every state and lists the refused applications first
+# ADR-0128: The decision reading groups the refusals by kind and by text, folds the text, keeps a count for every state and lists the refused applications first
 
 **Date**: 2026-11-11
 **Status**: proposed. It records what the maintainer validated on a mock-up of the hosted product's screens
