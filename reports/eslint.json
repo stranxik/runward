@@ -319,6 +319,17 @@
     "usedDeprecatedRules": []
   },
   {
+    "filePath": "src/lib/cli-args.ts",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
     "filePath": "src/lib/compliance.ts",
     "messages": [],
     "suppressedMessages": [],
@@ -534,6 +545,17 @@
     "usedDeprecatedRules": []
   },
   {
+    "filePath": "src/lib/prompt.ts",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
     "filePath": "src/lib/ratify.ts",
     "messages": [],
     "suppressedMessages": [],
@@ -640,10 +662,10 @@
         "ruleId": "no-control-regex",
         "severity": 2,
         "message": "Unexpected control character(s) in regular expression: \\x1b.",
-        "line": 100,
+        "line": 223,
         "column": 20,
         "messageId": "unexpected",
-        "endLine": 100,
+        "endLine": 223,
         "endColumn": 34,
         "suppressions": [
           {
