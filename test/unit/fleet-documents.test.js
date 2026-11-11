@@ -7,7 +7,8 @@
 //     attribute or an address outside the closed lists, and what the check accepts the reader accepts;
 //   - planted controls: a copy of the module with one rule loosened turns the corpus red, each in turn,
 //     and a copy with one rule of the check loosened accepts an output it must refuse;
-//   - a time bound: 100 KB of pathological input renders, and is checked, in under 200 ms of CPU;
+//   - a time bound: 100 KB of pathological input renders, and is checked, in under ten times the CPU time of a
+//     plain document of the same size on the same machine, and never under 200 ms;
 //   - the register is exact on the decision records of a real mission, and says nothing a file does not.
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -552,10 +553,16 @@ const PATHOLOGICAL = {
   "fences": "```\n".repeat(25_000),
   "hidden characters": "\u202e\u0000".repeat(50_000),
 };
-// The bound is 200 ms of CPU. Under the coverage run (`npm run coverage`, node --experimental-test-coverage,
-// which sets NODE_V8_COVERAGE in the test process) the instrumented code runs about twice as slow, so the
-// bound doubles there; the planted quadratic scans slow down with it and still exceed it.
-const BOUND_MS = process.env.NODE_V8_COVERAGE ? 400 : 200;
+// The bound is relative to the machine that runs the test: ten times the CPU time the same module takes on
+// a plain document of the same size (PLAIN, a sound input), and never under 200 ms. A fixed 200 ms failed on
+// a slower CI runner (Windows, 2026-11-11: "headings" in 203 ms, 55 ms on macOS). Measured on macOS the same
+// day: the worst pathological input takes about 3 times PLAIN, a planted quadratic scan 26 to 50 times; ten
+// leaves room on both sides. Under the coverage run (`npm run coverage`, node --experimental-test-coverage,
+// which sets NODE_V8_COVERAGE in the test process) the floor doubles; PLAIN slows down with the code.
+const PLAIN = Array.from({ length: 1_700 }, (_, k) => `Paragraph ${k} with **bold**, a [link](docs/a.md) and \`code\`.\n`).join("\n");
+const FLOOR_MS = process.env.NODE_V8_COVERAGE ? 400 : 200;
+const RATIO = 10;
+let BOUND_MS = FLOOR_MS; // set from PLAIN at the start of the time bound's test
 const BOUND_GROWTH = 20; // an output is at most this many times its source: the widest is a heading of one character
 /** CPU time of a call, in milliseconds, the best of five: a measure that the load of the machine does not stretch. */
 function best(f) {
@@ -565,14 +572,18 @@ function best(f) {
   return [ms, out];
 }
 
-test("time bound: 100 KB of each pathological input renders in under 200 ms of CPU, grows at most 20 times and is checked in under 200 ms; planted quadratic scans and a planted filling of rows are caught", async () => {
+test("time bound: 100 KB of each pathological input renders in under ten times a plain document's CPU time (at least 200 ms), grows at most 20 times and is checked within the same bound; planted quadratic scans and a planted filling of rows are caught", async () => {
+  assert.ok(PLAIN.length >= 96_000 && PLAIN.length <= 120_000, `PLAIN: ${PLAIN.length} characters`);
+  let plain = Infinity;
+  for (let k = 0; k < 5; k++) { const t0 = process.cpuUsage(); documents.renderDocument(PLAIN, CONTEXT); const t = process.cpuUsage(t0); plain = Math.min(plain, (t.user + t.system) / 1000); }
+  BOUND_MS = Math.max(FLOOR_MS, RATIO * plain);
   for (const [name, src] of Object.entries(PATHOLOGICAL)) {
     assert.ok(src.length >= 96_000 && src.length <= 102_000, `${name}: ${src.length} characters`);
     const [render, html] = best(() => documents.renderDocument(src, CONTEXT));
-    assert.ok(render < BOUND_MS, `${name}: rendered in ${render.toFixed(0)} ms of CPU`);
+    assert.ok(render < BOUND_MS, `${name}: rendered in ${render.toFixed(0)} ms of CPU, bound ${BOUND_MS.toFixed(0)} ms (PLAIN ${plain.toFixed(0)} ms)`);
     assert.ok(html.length <= BOUND_GROWTH * src.length, `${name}: ${src.length} characters became ${html.length}`);
     const [check, c] = best(() => documents.checkRendered(html));
-    assert.ok(check < BOUND_MS, `${name}: checked in ${check.toFixed(0)} ms of CPU`);
+    assert.ok(check < BOUND_MS, `${name}: checked in ${check.toFixed(0)} ms of CPU, bound ${BOUND_MS.toFixed(0)} ms (PLAIN ${plain.toFixed(0)} ms)`);
     assert.equal(c.ok, true, name);
   }
   // Control: the index of backtick runs read again from its start at each run, a quadratic scan, is seen by the same bound.
@@ -580,7 +591,7 @@ test("time bound: 100 KB of each pathological input renders in under 200 ms of C
   const t0 = process.cpuUsage();
   slow.renderDocument(PATHOLOGICAL["backticks that never close"], CONTEXT);
   const t = process.cpuUsage(t0);
-  assert.ok((t.user + t.system) / 1000 >= BOUND_MS, "the bound does not see a quadratic scan");
+  assert.ok((t.user + t.system) / 1000 >= BOUND_MS, `the bound does not see a quadratic scan (bound ${BOUND_MS.toFixed(0)} ms)`);
   // Control: emphasis nested without a limit joins the whole inner string again at each closing mark.
   const deep = await planted([`const over = frames.length > MAX_DEPTH;`, `const over = false;`]);
   for (const name of ["nested stars that close", "nested double stars that close", "nested underscores that close"]) {

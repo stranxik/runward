@@ -188,8 +188,11 @@ Shown in this pull request, in `test/unit/fleet-documents.test.js`, each with it
    rules only the renderer can hold (where a relative path leads, what a context is handed and what it
    answers, which suffix a heading takes, what a refused link shows, the length limit). Eighteen copies
    with one rule of the check loosened each accept an output it must refuse, out of 126.
-4. 100,000 characters of each of 32 pathological inputs render in under 200 ms of CPU, grow at most 20
-   times (16.4 measured, on one-character headings) and are checked in under 200 ms. Three planted
+4. 100,000 characters of each of 32 pathological inputs render in under ten times the CPU time of a plain
+   document of the same size on the same machine, and never under 200 ms (a fixed 200 ms failed on a slower
+   Windows runner: 203 ms; on macOS the worst input takes about 3 times the plain document, a planted
+   quadratic scan 26 to 50 times), grow at most 20 times (16.4 measured, on one-character headings) and
+   are checked within the same bound. Three planted
    copies exceed it: an unbounded scan of backtick runs, emphasis nested without a limit (on the three
    closing shapes, `*`, `**` and `_`), and short rows filled to the header's width (more than 200 times
    the source).
