@@ -1,0 +1,601 @@
+{
+  "format": "runward-fleet-register/0",
+  "count": 21,
+  "adrs": [
+    {
+      "number": "0001",
+      "path": "runward/adr/ADR-0001-one-node-js-monolith-no-web-framework-the-domain-behind-ports-one-network-exit.md",
+      "title": "One Node.js monolith, no web framework, the domain behind ports, one network exit",
+      "titleNumber": "0001",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "accepted",
+      "statusWritten": "accepted",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "Thibault Souris (author), ratified as PADR-0016 (and its note: more than sixty routes reopens it). Written by an agent session.",
+      "method": "decision-loop; this mission ADR restates the ratified product decision PADR-0016 (and its note: more than sixty routes reopens it) at the boundary where the code applies it",
+      "reopening": {
+        "text": "Reopen on 2027-02-06, or earlier: more than sixty routes (37 today); a need the static shell cannot cover, measured; runward-fleet changes language.",
+        "setOn": "2026-11-06",
+        "watchedVia": "the boundary test, `package.json` dependencies"
+      },
+      "settles": null,
+      "references": [
+        "PADR-0016 and its note of 2026-11-06",
+        "M. Fowler, MonolithFirst (2015); A. Cockburn, Hexagonal Architecture (2005)"
+      ]
+    },
+    {
+      "number": "0002",
+      "path": "runward/adr/ADR-0002-runward-fleet-is-pinned-by-a-vendored-npm-pack-tarball-of-a-git-commit-verified.md",
+      "title": "runward-fleet is pinned by a vendored npm-pack tarball of a git commit, verified file by file",
+      "titleNumber": "0002",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "accepted",
+      "statusWritten": "accepted (2026-11-08), ratified on the author's delegation in chat (\"ratifie pour moi\", \"ratify for me\"), the session having recommended it; the author did not read this text again before delegating",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "proposed by an agent session; Thibault Souris (author) decides.",
+      "method": "decision-loop",
+      "reopening": {
+        "text": "Reopen when runward-fleet publishes an attested release, or when PR #496 of runward merges with a head other than 2ab48025 (re-pack at the merged commit).",
+        "setOn": "2026-11-06",
+        "watchedVia": "`scripts/verify-runward-fleet.mjs` in CI"
+      },
+      "settles": null,
+      "references": [
+        "PADR-0011 point 6",
+        "stranxik/runward PR #496, heads da888958 then 2ab48025"
+      ]
+    },
+    {
+      "number": "0003",
+      "path": "runward/adr/ADR-0003-an-upload-enters-only-with-the-oidc-token-of-the-product-s-send-workflow-called.md",
+      "title": "An upload enters only with the OIDC token of the product's send workflow, called by SHA",
+      "titleNumber": "0003",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "accepted",
+      "statusWritten": "accepted",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "Thibault Souris (author), ratified as PADR-0010 and its note (7 bis to 7 sexies). Written by an agent session.",
+      "method": "decision-loop; this mission ADR restates the ratified product decision PADR-0010 and its note (7 bis to 7 sexies) at the boundary where the code applies it",
+      "reopening": {
+        "text": "Reopen on 2027-02-06, or earlier: a first GitLab repository; GitHub changes its token format; a forged upload passes (incident); a first tenant who is not the maintainer.",
+        "setOn": "2026-11-06",
+        "watchedVia": "the refusal codes of the journal, `test/unit/ingest.test.js`, `scripts/check-workflows.mjs`"
+      },
+      "settles": null,
+      "references": [
+        "PADR-0010 and its note",
+        "GitHub Docs, OpenID Connect with reusable workflows; RFC 8725; RFC 9530"
+      ]
+    },
+    {
+      "number": "0004",
+      "path": "runward/adr/ADR-0004-the-index-is-assembled-by-the-pinned-runward-fleet-without-a-trust-policy-the-vi.md",
+      "title": "The index is assembled by the pinned runward-fleet without a trust policy; the view is imported as is",
+      "titleNumber": "0004",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "accepted",
+      "statusWritten": "accepted",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "Thibault Souris (author), ratified as PADR-0011 and its note. Written by an agent session.",
+      "method": "decision-loop; this mission ADR restates the ratified product decision PADR-0011 and its note at the boundary where the code applies it",
+      "reopening": {
+        "text": "Reopen on 2027-02-06, or earlier: a customer asks to see cells its own runward-fleet raised; `runward-fleet-index/0` changes in a non-additive way; assembly in the request exceeds 10 s.",
+        "setOn": "2026-11-06",
+        "watchedVia": "the replay test, the S1 job"
+      },
+      "settles": null,
+      "references": [
+        "PADR-0011 and its note; ADR-0121 of runward"
+      ]
+    },
+    {
+      "number": "0005",
+      "path": "runward/adr/ADR-0005-human-identity-by-passkeys-only-one-link-mechanism-for-bootstrap-recovery-and-in.md",
+      "title": "Human identity by passkeys only; one link mechanism for bootstrap, recovery and invitation",
+      "titleNumber": "0005",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "accepted",
+      "statusWritten": "accepted",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "Thibault Souris (author), ratified as PADR-0012, its accepted amendment and its note. Written by an agent session.",
+      "method": "decision-loop; this mission ADR restates the ratified product decision PADR-0012, its accepted amendment and its note at the boundary where the code applies it",
+      "reopening": {
+        "text": "Reopen on 2027-02-06, or earlier: a second human in a tenant; a first organisation tenant; a recovery used in earnest.",
+        "setOn": "2026-11-06",
+        "watchedVia": "`test/unit/identity.test.js`, the journal's access entries"
+      },
+      "settles": null,
+      "references": [
+        "PADR-0012 and its notes; W3C WebAuthn Level 3; NIST SP 800-63B-4"
+      ]
+    },
+    {
+      "number": "0006",
+      "path": "runward/adr/ADR-0006-tenant-isolation-by-forced-row-level-security-proven-with-two-real-tenants-exact.md",
+      "title": "Tenant isolation by forced row level security, proven with two real tenants; exact-key resolution",
+      "titleNumber": "0006",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "accepted",
+      "statusWritten": "accepted",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "Thibault Souris (author), ratified as PADR-0013 and its note. Written by an agent session.",
+      "method": "decision-loop; this mission ADR restates the ratified product decision PADR-0013 and its note at the boundary where the code applies it",
+      "reopening": {
+        "text": "Reopen on 2027-02-06, or earlier: a first third-party tenant (a key per tenant); a leak found; a qualified target that imposes a database per tenant.",
+        "setOn": "2026-11-06",
+        "watchedVia": "`test/pg/isolation.test.js`, `scripts/isolation-deployed.mjs`"
+      },
+      "settles": null,
+      "references": [
+        "PADR-0013 and its note; PostgreSQL, Row Security Policies"
+      ]
+    },
+    {
+      "number": "0007",
+      "path": "runward/adr/ADR-0007-the-journal-is-append-only-chained-over-a-canonical-encoding-the-security-log-is.md",
+      "title": "The journal is append only, chained over a canonical encoding; the security log is doubled in the object store",
+      "titleNumber": "0007",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "accepted",
+      "statusWritten": "accepted",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "Thibault Souris (author), ratified as PADR-0014 and its note. Written by an agent session.",
+      "method": "decision-loop; this mission ADR restates the ratified product decision PADR-0014 and its note at the boundary where the code applies it",
+      "reopening": {
+        "text": "Reopen on 2027-02-06, or earlier: a first third-party tenant; the legal entity registered; a buyer asks for qualified timestamps; an integrity incident.",
+        "setOn": "2026-11-06",
+        "watchedVia": "the daily `verify-chains` job; `test/unit/domain.test.js`"
+      },
+      "settles": null,
+      "references": [
+        "PADR-0014 and its note; RFC 9162; Crosby and Wallach (2009)"
+      ]
+    },
+    {
+      "number": "0008",
+      "path": "runward/adr/ADR-0008-the-deployment-chain-verdict-on-the-exact-commit-deploy-by-digest-version-with-t.md",
+      "title": "The deployment chain: verdict on the exact commit, deploy by digest, version with two digests, smoke, rollback, two targets",
+      "titleNumber": "0008",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "accepted",
+      "statusWritten": "accepted",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "Thibault Souris (author), ratified as PADR-0015 and its note. Written by an agent session.",
+      "method": "decision-loop; this mission ADR restates the ratified product decision PADR-0015 and its note at the boundary where the code applies it",
+      "reopening": {
+        "text": "Reopen on 2027-02-06, or earlier: a first buyer who requires the qualified offer; a green deploy that serves another commit; a failed rollback.",
+        "setOn": "2026-11-06",
+        "watchedVia": "the deploy evidence, the runbook"
+      },
+      "settles": null,
+      "references": [
+        "PADR-0015 and its note; SLSA v1.0 Build; DORA research"
+      ]
+    },
+    {
+      "number": "0009",
+      "path": "runward/adr/ADR-0009-consent-to-content-per-repository-empty-box-retention-while-declared-then-30-day.md",
+      "title": "Consent to content per repository, empty box; retention while declared then 30 days; erasure keeps digests",
+      "titleNumber": "0009",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "accepted",
+      "statusWritten": "accepted",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "Thibault Souris (author), ratified as PADR-0017. Written by an agent session.",
+      "method": "decision-loop; this mission ADR restates the ratified product decision PADR-0017 at the boundary where the code applies it",
+      "reopening": {
+        "text": "Reopen on 2027-02-06, or earlier: a first third-party tenant; the lawyer's opinion; a hoster that imposes versioning.",
+        "setOn": "2026-11-06",
+        "watchedVia": "the retention job's report"
+      },
+      "settles": null,
+      "references": [
+        "PADR-0017; GDPR art. 5 and 17"
+      ]
+    },
+    {
+      "number": "0010",
+      "path": "runward/adr/ADR-0010-operating-with-one-human-an-hourly-probe-maintenance-and-version-said-on-screen.md",
+      "title": "Operating with one human: an hourly probe, maintenance and version said on screen, operator jobs in the private network, a restore drill",
+      "titleNumber": "0010",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "accepted",
+      "statusWritten": "accepted",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "Thibault Souris (author), ratified as PADR-0018. Written by an agent session.",
+      "method": "decision-loop; this mission ADR restates the ratified product decision PADR-0018 at the boundary where the code applies it",
+      "reopening": {
+        "text": "Reopen on 2027-02-06, or earlier: a first third-party tenant (a public status page); an outage of more than an hour not seen; a bill where the probe costs more than 1 EUR.",
+        "setOn": "2026-11-06",
+        "watchedVia": "the probe's issues, the drill's report"
+      },
+      "settles": null,
+      "references": [
+        "PADR-0018"
+      ]
+    },
+    {
+      "number": "0011",
+      "path": "runward/adr/ADR-0011-members-exist-in-the-schema-from-the-floor-the-invitation-is-built-when-a-second.md",
+      "title": "Members exist in the schema from the floor; the invitation is built when a second human arrives",
+      "titleNumber": "0011",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "accepted",
+      "statusWritten": "accepted",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "Thibault Souris (author), ratified as PADR-0019. Written by an agent session.",
+      "method": "decision-loop; this mission ADR restates the ratified product decision PADR-0019 at the boundary where the code applies it",
+      "reopening": {
+        "text": "Reopen on 2027-02-06, or earlier: a second human in a tenant.",
+        "setOn": "2026-11-06",
+        "watchedVia": "the member table"
+      },
+      "settles": null,
+      "references": [
+        "PADR-0019"
+      ]
+    },
+    {
+      "number": "0012",
+      "path": "runward/adr/ADR-0012-the-witness-reader-a-read-only-workload-identity-that-measures-s1-and-s2-without.md",
+      "title": "The witness reader: a read-only workload identity that measures S1 and S2 without a human gesture",
+      "titleNumber": "0012",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "accepted",
+      "statusWritten": "accepted",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "Thibault Souris (author), ratified as PADR-0020. Written by an agent session.",
+      "method": "decision-loop; this mission ADR restates the ratified product decision PADR-0020 at the boundary where the code applies it",
+      "reopening": {
+        "text": "Reopen on 2027-02-06, or earlier: a first third-party tenant; an agent's need to read (MCP).",
+        "setOn": "2026-11-06",
+        "watchedVia": "the reader's journal entries"
+      },
+      "settles": null,
+      "references": [
+        "PADR-0020"
+      ]
+    },
+    {
+      "number": "0013",
+      "path": "runward/adr/ADR-0013-licence-fsl-1-1-mit-hosting-in-paris-at-scaleway-nothing-outside-the-union-in-th.md",
+      "title": "Licence FSL-1.1-MIT; hosting in Paris at Scaleway; nothing outside the Union in the data path",
+      "titleNumber": "0013",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "accepted",
+      "statusWritten": "accepted",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "Thibault Souris (author), ratified as PADR-0009 (and its notes of 2026-11-06). Written by an agent session.",
+      "method": "decision-loop; this mission ADR restates the ratified product decision PADR-0009 (and its notes of 2026-11-06) at the boundary where the code applies it",
+      "reopening": {
+        "text": "Reopen when the entity is registered, or at a first buyer who requires qualified hosting.",
+        "setOn": "2026-11-06",
+        "watchedVia": "the infrastructure validation in CI"
+      },
+      "settles": null,
+      "references": [
+        "PADR-0009; fsl.software"
+      ]
+    },
+    {
+      "number": "0014",
+      "path": "runward/adr/ADR-0014-design-tokens-the-family-s-structure-then-one-runward-layer-that-holds-every-col.md",
+      "title": "Design tokens: the family's structure, then one runward layer that holds every colour, font, radius and motion value",
+      "titleNumber": "0014",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "superseded",
+      "statusWritten": "superseded by ADR-0019 (2026-11-10); accepted (2026-11-08), ratified on the author's delegation in chat (\"ratifie pour moi\", \"ratify for me\"), the session having recommended it; the author did not read this text again before delegating",
+      "supersededBy": "0019",
+      "supersedes": [],
+      "refines": [],
+      "deciders": "proposed by an agent session; Thibault Souris (author) decides.",
+      "method": "decision-loop",
+      "reopening": {
+        "text": "Reopen when the author decides the base of the hosted app.",
+        "setOn": "2026-11-06",
+        "watchedVia": "`test/unit/tokens.test.js`"
+      },
+      "settles": null,
+      "references": [
+        "the author's decisions of 2026-11-06 relayed in this session",
+        "runward-site CLAUDE.md (the identity)"
+      ]
+    },
+    {
+      "number": "0015",
+      "path": "runward/adr/ADR-0015-the-in-memory-store-is-the-reference-adapter-of-the-store-port-and-a-parity-suit.md",
+      "title": "The in-memory store is the reference adapter of the store port, and a parity suite runs on PostgreSQL",
+      "titleNumber": "0015",
+      "date": "2026-11-06",
+      "dateWritten": "2026-11-06",
+      "status": "accepted",
+      "statusWritten": "accepted (2026-11-08), ratified on the author's delegation in chat (\"ratifie pour moi\", \"ratify for me\"), the session having recommended it; the author did not read this text again before delegating",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "proposed by an agent session; Thibault Souris (author) decides.",
+      "method": "decision-loop",
+      "reopening": {
+        "text": "Reopen when the PostgreSQL suite finds a behaviour the memory store does not have (one found and fixed on 2026-11-06: jsonb double encoding, on the PostgreSQL side).",
+        "setOn": "2026-11-06",
+        "watchedVia": "`test/pg/isolation.test.js`"
+      },
+      "settles": null,
+      "references": [
+        "PADR-0015 point 7 (the suite on the same image, R9)"
+      ]
+    },
+    {
+      "number": "0016",
+      "path": "runward/adr/ADR-0016-the-operator-s-gestures-reach-the-private-database-through-a-private-gateway-container-one-role-per-gesture.md",
+      "title": "The operator's gestures reach the private database through a private gateway container, one role per gesture",
+      "titleNumber": "0016",
+      "date": "2026-11-08",
+      "dateWritten": "2026-11-08",
+      "status": "accepted",
+      "statusWritten": "accepted (2026-11-08), ratified by the author in chat (\"ratifie\", \"ratify\"), the session having recommended it",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "Thibault Souris (author). Written by an agent session.",
+      "method": "decision-loop: reality-check (provider 2.88.0 schema, the hoster's documentation and the phase 1 state), sourced state of the art, challenge, durable position",
+      "reopening": {
+        "text": "Reopen when Serverless Jobs can join a Private Network (Jobs FAQ or provider changelog), when a gesture needs more than 900 s, or when a second operator needs a separate credential.",
+        "setOn": "2026-11-08",
+        "watchedVia": "the provider upgrade review, the gateway's `operator.gesture` log lines (duration), the deploy's run summary"
+      },
+      "settles": "- **Confirms**: the first `roles`, `migrate` and `isolation` calls through the gateway answer 200 with `DATABASE_SSL=verify-full` against 172.16.16.2; a call without `X-Auth-Token` is refused by the hoster (HTTP 401 or 403, measured on the public endpoint, the gateway's log showing nothing); the two triggers have run at 03:23 and 03:37 Paris time on a day before and a day after a clock change.\n- **Reverses**: a trigger that cannot reach a private container's path (then the schedule moves to a CI cron calling the gateway with the token), or the hoster forwarding a trigger without being able to authenticate it (then the token goes in a header from a sensitive variable and this ADR is superseded).",
+      "references": [
+        "Scaleway: Serverless Jobs FAQ (Private Networks), Secure a container (private, `X-Auth-Token`, IAM conditions on the namespace), Use Serverless Containers with Private Networks, Add a trigger to a container (cron with time zone), all read 2026-11-08; provider `scaleway/scaleway` 2.88.0 schema (`scaleway_container`, `scaleway_container_trigger`).",
+        "ADR-0006 (one role per process, forced RLS), ADR-0008 (deploy by digest), ADR-0010 (operating with one human), ADR-0013 (no public database endpoint); `runward/runbook.md` §8, §11, §12."
+      ]
+    },
+    {
+      "number": "0017",
+      "path": "runward/adr/ADR-0017-no-load-test-before-the-preview-the-bounds-are-tested-a-k6-run-before-the-first-third-party-tenant.md",
+      "title": "No load test before the preview; the bounds are tested, a k6 run comes before the first third-party tenant",
+      "titleNumber": "0017",
+      "date": "2026-11-08",
+      "dateWritten": "2026-11-08",
+      "status": "accepted",
+      "statusWritten": "accepted (2026-11-09), by the author in chat (\"je confirme et j'accepte\")",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [],
+      "deciders": "Thibault Souris (author). Written by an agent session.",
+      "method": "decision-loop",
+      "reopening": {
+        "text": "Reopen before the first third-party tenant is invited, or when the probe's error-rate alert fires twice in a week: a k6 run against the preview with its thresholds, committed as `reports/k6-summary.json`, and the row applied on it.",
+        "setOn": "2026-11-08",
+        "watchedVia": "the invitation gesture (ADR-0011) and `.github/workflows/probe.yml`"
+      },
+      "settles": null,
+      "references": [
+        "`runward explain checklist-pre-production-performance`"
+      ]
+    },
+    {
+      "number": "0018",
+      "path": "runward/adr/ADR-0018-runward-fleet-re-pinned-at-main-5a9cdf0-where-pr-496-merged-refines-adr-0002.md",
+      "title": "runward-fleet re-pinned at main@5a9cdf0, the commit where PR #496 merged (refines ADR-0002)",
+      "titleNumber": "0018",
+      "date": "2026-11-10",
+      "dateWritten": "2026-11-10",
+      "status": "accepted",
+      "statusWritten": "accepted 2026-11-10 by the author, after three independent readings recommended it (2026-11-10, at `7f00128`, `e60a0d4` and `b487818`); written by an agent session",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [
+        "0002"
+      ],
+      "deciders": "Thibault Souris (author). Written by an agent session.",
+      "method": "decision-loop: reality-check (the two commits of runward, the tarballs, the lock), challenge, durable position",
+      "reopening": {
+        "text": "Reopen when runward-fleet publishes an attested release (ADR-0002's own trigger, which stands), or when the product needs a change of `packages/runward-fleet` merged into `main` after 5a9cdf08 (re-pack at that commit of `main`, in a new record that refines this one).",
+        "setOn": "2026-11-10",
+        "watchedVia": "`scripts/verify-runward-fleet.mjs` in CI; the release page of runward"
+      },
+      "settles": "- **Confirms**: `node scripts/verify-runward-fleet.mjs` green in CI against main@5a9cdf0 (22 files identical); the export replay test green on Node.js 22.\n- **Reverses**: a file of the tarball that differs from main@5a9cdf0 on GitHub (the check fails closed), or a history rewrite of `main` of runward.",
+      "references": [
+        "ADR-0002 (refined), ADR-0004; PADR-0011 point 6",
+        "stranxik/runward PR #496, heads da888958 then 2ab48025, merged into `main` at 5a9cdf08a76977f9b671662f562e98d332ccc95e",
+        "commit c0b9948 of this repository (the re-pin), `vendor/runward-fleet.lock.json`"
+      ]
+    },
+    {
+      "number": "0019",
+      "path": "runward/adr/ADR-0019-the-hosted-app-has-its-own-design-layer-over-the-family-s-structure-it-supersedes-adr-0014.md",
+      "title": "The hosted app has its own design layer over the family's structure; it supersedes ADR-0014",
+      "titleNumber": "0019",
+      "date": "2026-11-10",
+      "dateWritten": "2026-11-10",
+      "status": "accepted",
+      "statusWritten": "accepted 2026-11-10 by the author in chat (\"je suis ok pour tout ce que tu m'as cité\", in answer to a list that named this record), after he agreed to its direction and validated the mock-up of all states the same day",
+      "supersededBy": null,
+      "supersedes": [
+        "0014"
+      ],
+      "refines": [],
+      "deciders": "Thibault Souris (author). Written by an agent session.",
+      "method": "decision-loop: the layer and the token test at `main`; the author's design references of 2026-11-10; a palette validator; two adversarial reviews of the mock-up; durable position",
+      "reopening": {
+        "text": "Reopen on 2026-11-19 on what was observed on 2026-11-18, or earlier: the author decides a brand accent; a third theme is asked for; the family's structure changes its scale.",
+        "setOn": "2026-11-10",
+        "watchedVia": "`test/unit/tokens.test.js`, `test/unit/assets.test.js`, the palette validator"
+      },
+      "settles": "- **Confirms**: the token test is green with its planted controls; the captures of the app at 1280, 768, 390 and 360 px in both themes show no overflow, no text under 12 px and no contrast under AA measured on the render; people who do not read code tell the two alert states apart.\n- **Reverses**: the author refuses a hue that reads red (then one alert hue, the two states told apart by shape and word); the comprehension measure shows the two alert states are confused.",
+      "references": [
+        "ADR-0014 (superseded by this record)",
+        "The family's structure (`web/famille.css`) and its contract for a product layer",
+        "M. Okabe and K. Ito, Color Universal Design (2008)"
+      ]
+    },
+    {
+      "number": "0020",
+      "path": "runward/adr/ADR-0020-erasure-empties-every-index-version-built-from-the-erased-content-refines-adr-0009.md",
+      "title": "Erasure empties every index version built from the erased content (refines ADR-0009)",
+      "titleNumber": "0020",
+      "date": "2026-11-10",
+      "dateWritten": "2026-11-10",
+      "status": "accepted",
+      "statusWritten": "accepted 2026-11-10 by the author in chat (\"je suis ok pour tout ce que tu m'as cité\", in answer to a list that named this record), after the independent review of `8fae95e` and its fixes",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [
+        "0009"
+      ],
+      "deciders": "Thibault Souris (author). Written by an agent session.",
+      "method": "decision-loop: reality-check (the store, the archive and the restore replay at `9e5728e`), a planted control on the old code, durable position; revised on 2026-11-10, while still proposed, after the independent review of `8fae95e` (`runward/governance/reviews/2026-11-10_code-review_8fae95e.md`, findings C21 to C26)",
+      "reopening": {
+        "text": "Reopen on 2026-12-10, or earlier when a column that projects content is added to `rw.fleet_index`, or when the index format changes (`runward-fleet-index/0`).",
+        "setOn": "2026-11-10",
+        "watchedVia": "`test/unit/erasure.test.js`, `test/pg/erasure.test.js`, `db/schema.snapshot.txt`"
+      },
+      "settles": "- **Confirms**: `test/unit/erasure.test.js` (11 cases) and `test/pg/erasure.test.js` (9 cases, as `rw_app` and as `rw_maint`) green, with the retention case of `test/pg/restore-replay.test.js`. They search a content marker in each version, object, journal entry and archive, as a superuser across tenants on PostgreSQL, with a positive control before the erasure and another tenant unchanged. A store that never empties a version reddens them. Four cases force, on two real connections, a transaction in flight during an erasure (an upload of another repository, an upload of the erased one, a change of language, a restore at the end of its window); two restore a backup of before a retention erasure.\n- **Reverses**: an erased marker found in a version, an object or an archive; a legitimate change of a published version that the trigger refuses; a daily pass that fails on a tenant because of what it reads.",
+      "references": [
+        "ADR-0009 (refined); PADR-0017",
+        "`db/migrations/0006_fleet_index_erasure.sql`, `db/grants.sql`, `src/application/context.js` (`eraseIndexVersions`, `republish`), `src/application/repositories.js` (`eraseIn`), `src/application/operator.js` (`retention`, the replay of `content-erased`), `src/application/reading.js`, `src/adapters/store/` (`indexVersionsWhole`)",
+        "`runward/governance/reviews/2026-11-10_code-review_8fae95e.md` (C21 to C26)"
+      ]
+    },
+    {
+      "number": "0021",
+      "path": "runward/adr/ADR-0021-runward-fleet-re-pinned-at-main-d05b597-where-pr-499-merged-the-archive-digest-names-the-build-refines-adr-0018.md",
+      "title": "runward-fleet re-pinned at main@d05b597, the commit where PR #499 merged; the archive digest, not the version, names the build (refines ADR-0018)",
+      "titleNumber": "0021",
+      "date": "2026-11-10",
+      "dateWritten": "2026-11-10",
+      "status": "proposed",
+      "statusWritten": "proposed (written by an agent session; acceptance is the author's)",
+      "supersededBy": null,
+      "supersedes": [],
+      "refines": [
+        "0018"
+      ],
+      "deciders": "Thibault Souris (author). Written by an agent session.",
+      "method": "decision-loop: reality-check (the two commits of runward, the two tarballs, the same inputs built by each pin, an export archive of each pin replayed by the other), challenge, durable position",
+      "reopening": {
+        "text": "Reopen when one of these is observed:\n\n- runward-fleet publishes an attested release (the trigger of ADR-0002, which stands);\n- the product needs a change of `packages/runward-fleet` merged into `main` after d05b5974 (re-pack at that commit, measured, in a new record that refines this one);\n- runward-fleet changes its version whenever its build changes: the version names the build again, and the replay's sentence can be the version's;\n- a rollback (`rollback.yml`) to an image built before this pin while a tenant holds an index of this one, or the reverse: the image then records the earlier archive on what it publishes, the witness reader is red on \"another archive after the pinned one\", and the record to write says which archive the fleet's next indexes are built by;\n- a re-pin is about to land while a tenant holds a published index: decide then, in a record, how an index of an earlier archive is replayed here (a second archive fetched by its digest) and what the screens say of it.",
+        "setOn": "2026-11-10",
+        "watchedVia": "`scripts/verify-runward-fleet.mjs` in CI; the witness reader's daily summary and exit (`scripts/witness-reader.mjs`: a count of `not rebuilt here` above zero is visible in the summary, and a refused label or another archive after the pinned one makes the run red; the per-fleet JSON keeps each index's state); the service's start, which `fleetPin` refuses on another install; the release page of runward"
+      },
+      "settles": "- **Confirms**: `node scripts/verify-runward-fleet.mjs` green in CI against main@d05b597 (the 22 files are the pack of the commit, byte for byte, and nothing else is in the tarball); `test/unit/pin.test.js` green: the review's tarball (a second root, a missing file) refused in both modes, its table of labels (each one judged or the fleet not passed), an install that is not the archive refused, the three exits of the replay, the witness reader's rule and words; the router's own `resolve` answering null for `decision`; `/api/version` serving the sha256 of the tarball npm installed.\n- **Reverses**: a file of the tarball that differs from main@d05b597 on GitHub, a file packed there and missing from the tarball, or an entry npm would install that is not one of them (the online check refuses each, and exits 2 rather than 0 when it cannot read the commit; before the review of 3afe41d, finding C40, it compared only the files under `package/` and a second root or a missing file passed); a view the app shows that breaks on an index of the previous archive; or the author deciding that a re-pin must republish every tenant's index, which needs its own record (a journaled gesture, and what the export then says of the versions before).",
+      "references": [
+        "ADR-0018 (refined), ADR-0002, ADR-0004, ADR-0019; PADR-0011 points 4 and 6, note 6 bis",
+        "stranxik/runward PR #499, merged into `main` at d05b59742bf10f6bfe803a0caaa9a289cd272ab0; ADR-0125 of runward (the decision reading)",
+        "`vendor/runward-fleet.lock.json`, `scripts/verify-runward-fleet.mjs`, `scripts/replay-export.mjs`, `scripts/witness-reader.mjs`, `src/adapters/fleet/assembler.js` (`fleetPin`), `runward/contracts/index-assembler.md`",
+        "`runward/governance/reviews/2026-11-10_code-review_3afe41d.md`: the adversarial review of this record's branch; its findings C40 to C45 are answered here and in `test/unit/pin.test.js`"
+      ]
+    }
+  ],
+  "byStatus": [
+    {
+      "status": "proposed",
+      "n": 1,
+      "of": 21,
+      "numbers": [
+        "0021"
+      ]
+    },
+    {
+      "status": "accepted",
+      "n": 19,
+      "of": 21,
+      "numbers": [
+        "0001",
+        "0002",
+        "0003",
+        "0004",
+        "0005",
+        "0006",
+        "0007",
+        "0008",
+        "0009",
+        "0010",
+        "0011",
+        "0012",
+        "0013",
+        "0015",
+        "0016",
+        "0017",
+        "0018",
+        "0019",
+        "0020"
+      ]
+    },
+    {
+      "status": "superseded",
+      "n": 1,
+      "of": 21,
+      "numbers": [
+        "0014"
+      ]
+    },
+    {
+      "status": "deprecated",
+      "n": 0,
+      "of": 21,
+      "numbers": []
+    },
+    {
+      "status": "as-written",
+      "n": 0,
+      "of": 21,
+      "numbers": []
+    },
+    {
+      "status": "not-observed",
+      "n": 0,
+      "of": 21,
+      "numbers": []
+    }
+  ],
+  "duplicates": [],
+  "unread": [
+    {
+      "path": "runward/adr/ADR-0000-template.md",
+      "why": "template"
+    }
+  ]
+}

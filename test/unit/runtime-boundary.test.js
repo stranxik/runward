@@ -290,7 +290,7 @@ test("ADR-0094, positive controls: the guard reddens on a planted fetch, a plant
 // when the index is not inlined. The other direction holds too: runward imports nothing of it and
 // ships none of it.
 const FLEET_PKG = join(ROOT, "packages", "runward-fleet");
-const FLEET_FILES = () => [...listFiles(join(FLEET_PKG, "src"), [".js"]), join(FLEET_PKG, "ui", "views.js")];
+const FLEET_FILES = () => [...listFiles(join(FLEET_PKG, "src"), [".js"]), join(FLEET_PKG, "ui", "views.js"), join(FLEET_PKG, "ui", "documents.js")];
 /** The satellite's boundary, as a function, so the controls below run the very code the guard runs. */
 function fleetCrossings(file, src) {
   const found = [];

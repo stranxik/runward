@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+### runward-fleet renders a mission's documents from a closed subset of Markdown, and reads the register of its decision records (ADR-0126)
+
+A new module, `runward-fleet/documents` (`ui/documents.js`), for a deployment that shows a mission's own
+documents. They are written in a repository the package does not hold, so they are untrusted text.
+`renderDocument(markdown, context?)` renders a closed subset of Markdown (headings, paragraphs, lists,
+quotes, tables, fenced code, rules, code spans, bold, italic, links) into a closed list of elements, with
+no class, no style, no image and no event attribute. No character of the source is copied: raw HTML is
+shown as text. A link is rewritten: a fragment becomes a slug, a relative path must stay inside the
+repository and goes to the application's route or to the file in the forge, an absolute address is kept
+only when it is https without credentials, and anything else (`javascript:`, `data:`, `http:`, `//host`)
+is shown as the text the document wrote. `checkRendered(html)` is the second net a page asks before
+inserting an output: it refuses whatever is outside the same closed lists and says why.
+
+`register(files)` reads the register of a mission's decision records from the header of each
+`adr/ADR-NNNN-*.md`: number, title, date, status, what it supersedes and refines, the reevaluation
+trigger, what would settle it, the references. Nothing is inferred: a field a file does not carry is
+`null`, a status outside the template's words is shown as written, and the groups by status arrive with
+their n / N. `topology(markdown)` gives the port placement table of a topology note as data.
+
+Held by a corpus of 186 attack vectors, a seeded property test over 10,000 strings, planted copies of the
+module with one rule loosened each, a time bound on 100,000 characters of pathological input, and the
+register of a real mission's 21 records. The specification is `docs/spec/runward-fleet-documents.md`.
+Nothing changes in the index, the views or the CLI.
+
 ### runward-fleet reads the index in plain words, from a closed lexicon in English and French (ADR-0125)
 
 The page `runward-fleet build` writes now opens on a decision reading: for the people who answer for what
