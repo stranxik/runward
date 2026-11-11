@@ -279,7 +279,7 @@ test("the lexicon holds no word runward never says and names no reading as a dec
 test("the specification shows the lexicon as it ships, in both languages; a sentence changed in the code and not in the specification reddens", () => {
   const spec = readFileSync(join(ROOT, "docs", "spec", "runward-fleet-mission.md"), "utf8");
   const shown = (lexicon) => ["en", "fr"].flatMap((lang) => [...strings(lexicon[lang], "")].map(([, t]) => t))
-    .filter((t) => !spec.includes(t.replace(/ /g, " ").replace(/\|/g, "\\|")));
+    .filter((t) => !spec.includes(t.replace(/ /g, " ").replace(/\\/g, "\\\\").replace(/\|/g, "\\|")));
   assert.deepEqual(shown(mission.MISSION_LEXICON), [], "docs/spec/runward-fleet-mission.md holds every sentence");
   const changed = structuredClone(mission.MISSION_LEXICON);
   changed.fr.reading.crossed = "Passée";
