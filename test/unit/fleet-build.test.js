@@ -171,7 +171,7 @@ test("the CLI writes index.json and index.html, refuses without writing, and rea
 });
 
 test("the build reads no clock, and the scan for one sees a planted one", () => {
-  const files = ["src/build.js", "src/trust.js", "src/sigstore.js", "src/der.js", "src/ed25519.js", "src/rules.js", "src/site.js", "src/cli.js", "src/errors.js", "ui/views.js"];
+  const files = ["src/build.js", "src/trust.js", "src/sigstore.js", "src/der.js", "src/ed25519.js", "src/rules.js", "src/site.js", "src/cli.js", "src/errors.js", "ui/views.js", "ui/mission.js"];
   // A clock read: Date.now, a Date built from nothing, performance.now, process.hrtime. Parsing a
   // date the input carries (Date.parse, Date.UTC, new Date(x)) reads no clock.
   const READS = /\bDate\.now\s*\(|\bnew\s+Date\s*\(\s*\)|(?<!new\s)\bDate\s*\(\s*\)|performance\.now|process\.hrtime/;

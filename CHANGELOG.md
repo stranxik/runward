@@ -40,6 +40,59 @@ are replaced, and `checkRendered` refuses what a browser's parser would move or 
 paragraph, anything but rows in a table, nesting deeper than 64). The specification is `docs/spec/runward-fleet-documents.md`.
 Nothing changes in the index, the views or the CLI.
 
+### runward-fleet places each application on the six steps of the method, side by side and over time (ADR-0126, proposed)
+
+`runward-fleet/mission` is a new module of `runward-fleet`, with its views and a closed lexicon in English and
+French. `path(index, id)` gives an application's six steps (Frame, Architect, Floor, Iterate, Govern, Hand over;
+in French Cadrer, Architecturer, Plancher, Itérer, Gouverner, Transmettre): each reads "Crossed", "Documents
+complete", "Refused at this step", "Current step", "Not reached yet" or "Not asked by the gate", with its
+documents filled and its refusals as n / N, the documents missing with their state and cause, and the refusals
+by kind; the refusals that belong to no step are listed apart. The current step is the CLI's own: the first
+whose documents are not all filled. A step is crossed only where its documents are filled, nothing is refused
+at it, and the check is strict with a verdict that judges the answers: below the level the team requires, under
+a presence-only check or a check that writes no state, it reads "Documents complete" and says why. Step 4 is
+never crossed. `portfolio(index)` maps applications by step, each step's readings counted over every application
+declared. `point(index)` is one version's compact summary for a history, and `series(entries)` the series of
+points over the versions a service received: in the order of `seq`, an erased version a hole that breaks a run,
+a change of the runward version that judged marked, and since when the last state and position hold.
+`renderPath`, `renderPortfolio` and `renderSeries` give their HTML, whose elements carry style roles.
+
+The projections read `runward-fleet-index/0` as it is and add nothing to it: every version a service already
+keeps has its path and its point, and an index written before refusals carried their phase reads the same steps
+(the gated scope names it). A document, a refusal and an application's state are named as the decision reading
+names them. Six rules, M1 to M6, are held by `test/unit/fleet-mission.test.js` with planted controls, among them
+the steps of the five real exports of the decision reading agreeing with the CLI's own words for them. The closed
+values gain a `mission` section (`docs/spec/runward-closed-values.json`), and the specification is
+`docs/spec/runward-fleet-mission.md`. The static page does not show these views yet. The satellite's boundary
+test now walks every module of `ui/`.
+
+### The decision reading groups the refusals by kind and by text, and lists the refused applications first (ADR-0128, proposed)
+
+An application's page of the decision reading said every refusal with its text in full: the 46 refusals of a
+public repository whose rows are all proposed carry four texts, so the same paragraph was shown 22 times, and
+the page was 10,555 px tall at 1440 px and 19,118 px on a phone where the hosted product shows it. It now says,
+for each kind, its sentence with n / N; for each text of that kind, the text once, as written, behind a
+`<details>` labelled "Check detail, as written (the same for n / N)" ("Détail du contrôle, tel quel (le même
+pour n / N)"), the first of the page open; and where each refusal is ("{document}: {file}, line {line},
+requirement {rule}"), behind a second disclosure when there are several. No script: every refusal stays in the
+HTML. The same page is now 1,483 px tall at 1440 px and 3,656 px on a phone. A label no longer announces the
+text's language; the text keeps `lang="en"`.
+
+The portfolio lists the applications refused first, then those whose required level is not met, then the
+others, each state in the inventory's order, read from the lists of `fleet.byVerdict`, and says so; it shows a
+tile for every state, `0 / N` included. `decide()` keeps `applications[]` in the inventory's order and adds
+`listing`, the order of the page.
+
+`runward-fleet-index/0` grows, additively: each group of `conformanceByKind` carries `byText`, its refusals by
+text as written, each n / N of the kind with the positions of its refusals in `conformance`, so the reading
+counts nothing. A sixth rule of the reading, held by the build (`checkIndex`, and `checkRefusals` of
+`runward-fleet/rules` on each application's page): the text groups partition each kind's refusals, and a page
+lists every refusal exactly once. An index built before carries no `byText`; the reading then lists each
+refusal alone. The golden readings and the page's digest move (`test/fixtures/golden/fleet/decision.*`,
+`page.sha256`): the decision documents gain `listing`, `kinds[].path`, `kinds[].texts`, `problems[].entry` and
+`ungrouped`, and lose nothing. A hosted deployment re-pins and styles the new roles (`refusal-kinds`,
+`refusal-kind`, `refusal-text`, `where`, `where-label`, `refusals`).
+
 ### runward-fleet reads the index in plain words, from a closed lexicon in English and French (ADR-0125)
 
 The page `runward-fleet build` writes now opens on a decision reading: for the people who answer for what

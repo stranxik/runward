@@ -171,7 +171,10 @@ the inventory names one),
   `conformance` row carries the export's `line` and `phaseId` beside `scope`, `rule`, `kind`, `problem` and
   `file` (`null` when the export does not carry them); `conformanceByKind` groups the rows by `kind`, in the
   order the export lists them (`not-observed` for a row without one), each `{ state, n, N, list }` listing
-  `scope · rule`; `ratification` adds `agent` (the rows an agent ratified, 0 when the export does not write
+  `scope · rule`, and, since ADR-0128, `byText`: the rows of that kind by their `problem`, compared
+  character for character, in the order the export lists them, each `{ state, n, N, list }`, `state` being
+  the text as written, `N` the kind's `n` and `list` the positions of its rows in `conformance` (the groups
+  of a kind partition its rows, a rule of the build); `ratification` adds `agent` (the rows an agent ratified, 0 when the export does not write
   the field, which the CLI omits at zero), `agents` (`{ agent, for, rows }` as the CLI writes them),
   `singleAccountable` (`{ rows, disclosure[] }` or `null`), `byMode` (the decided rows by how they were
   endorsed: the mode of a ratified row, `line-by-line`, `en bloc`, `agent` or `agent (single accountable)`,
@@ -196,7 +199,10 @@ the inventory names one),
 and widen three value sets: `latest` may be the string `not-available` beside `not-observed` (test whether
 it is an object, never whether it equals `not-observed`); a source's `path` and `bytes` may be `null` (a
 digest only, `content: "digest-only"`); a finding's `state` may be `not-available`. The views of this
-package handle them, and so does any reader that tests `typeof latest === "object"`.
+package handle them, and so does any reader that tests `typeof latest === "object"`. Since 2026-11-11
+(ADR-0128), each group of `conformanceByKind` carries `byText`, whose `state` is a refusal's free text,
+never a closed value; an index built before carries none, and the decision reading then lists each refusal
+alone.
 
 Source ids are stable join keys: `fleet.json`, `trust-policy.json`, `policy:root:<n>`,
 `policy:key:<signer>`, `<mission>:<kind>`, `<mission>:signature:<n>` (and `:manifest`, `:sig`,
@@ -208,7 +214,10 @@ Eight views read the index: the decision reading (the page opens on it, ADR-0125
 [runward-fleet-decision.md](runward-fleet-decision.md)), the fleet, a mission, its history, the proof
 (re-derive without us), the signatures, the PR summary, the sources. Each is a pure function of the index (`ui/views.js`), the same
 in the static page and in a hosted deployment. Every number carries its source, its path in that
-source and its path in the index. The eighteen rules of ADR-0093 decision 11:
+source and its path in the index. Beside them, the mission projections (the six steps of each
+application, the portfolio by step, a version's point and the series of the versions received,
+ADR-0126, [runward-fleet-mission.md](runward-fleet-mission.md)) read the index as it is and add nothing
+to it. The eighteen rules of ADR-0093 decision 11:
 
 | # | Rule | Held by |
 |---|---|---|
@@ -245,7 +254,7 @@ the view with this package, pinned, and copies none of its files. Its entry poin
 | Export | What it gives |
 |---|---|
 | `runward-fleet` | `buildIndex({ manifest, read, version })`, `readManifest`, `BuildError`, `PRIVATE_PATH`, `INDEX_FORMAT`, `MANIFEST_FORMAT` |
-| `runward-fleet/rules` | `checkIndex`, `checkView`, `checkPage`: the view rules, run on an index before it is served; `checkReading` and `checkLexicon`, the rules of the decision reading, with the word lists they hold (`BANNED`, `INTERNAL`, `NOT_A_STATE`, each with its forms) |
+| `runward-fleet/rules` | `checkIndex`, `checkView`, `checkPage`: the view rules, run on an index before it is served; `checkReading`, `checkLexicon` and `checkRefusals` (with `refusalPaths`, the refusals a page lists), the rules of the decision reading, with the word lists they hold (`BANNED`, `INTERNAL`, `NOT_A_STATE`, each with its forms) |
 | `runward-fleet/views` | `renderView`, `renderNav`, `renderStamp`, `allViews`, `ROUTES`: the views, for a shell of its own; `decide(index)`, the decision reading as a document (`runward-fleet-decision/0`), `renderDecision(index, id?)`, its HTML, `LEXICON` and `lexiconAt`, the closed lexicon in both languages |
 | `runward-fleet/site` | `renderPage(index)`, the page `runward-fleet build` writes to `index.html`, byte for byte; `renderSite(index, assets)`, the same with assets given; `siteAssets()`, the template (the identity's tokens and the shell), the source of the views and the fonts, read from the package |
 | `runward-fleet/trust`, `runward-fleet/sigstore` | the trust policy and the offline verification of §2 |

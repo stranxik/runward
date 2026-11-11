@@ -179,7 +179,7 @@ test("rule 15 and the words: no view says emergency, nor a word runward refuses,
 });
 
 test("the package's own words: no source of runward-fleet uses a refused word (the list itself excepted)", () => {
-  const files = [...readdirSync(join(PKG, "src")).map((f) => join(PKG, "src", f)), join(PKG, "ui", "views.js"), join(PKG, "ui", "documents.js"), join(PKG, "ui", "template.html"), join(PKG, "README.md")];
+  const files = [...readdirSync(join(PKG, "src")).map((f) => join(PKG, "src", f)), ...readdirSync(join(PKG, "ui")).filter((f) => f.endsWith(".js")).map((f) => join(PKG, "ui", f)), join(PKG, "ui", "template.html"), join(PKG, "README.md")];
   for (const f of files) {
     if (f.endsWith("rules.js")) continue;
     const text = readFileSync(f, "utf8");

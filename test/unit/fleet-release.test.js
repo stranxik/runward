@@ -43,10 +43,13 @@ test("the runward-fleet tarball holds its modules, its page, its fonts with thei
   assert.equal(packed.version, ROOT_PKG.version);
   const src = readdirSync(join(PKG, "src")).filter((f) => f.endsWith(".js")).map((f) => `src/${f}`);
   const fonts = readdirSync(join(PKG, "ui", "fonts")).map((f) => `ui/fonts/${f}`);
+  // The views and the mission projections (ADR-0126) beside them: every module of ui/ ships.
+  const ui = readdirSync(join(PKG, "ui")).filter((f) => f.endsWith(".js")).map((f) => `ui/${f}`);
   assert.ok(src.length >= 9, `the package's modules were listed (${src.length})`);
+  assert.ok(ui.includes("ui/views.js") && ui.includes("ui/mission.js"), `the interface's modules were listed (${ui.join(", ")})`);
   assert.deepEqual(fonts.filter((f) => f.endsWith(".txt")).sort(), ["ui/fonts/OFL-DepartureMono.txt", "ui/fonts/OFL-Inter.txt"], "each embedded font ships with its licence");
   assert.ok(fonts.filter((f) => f.endsWith(".woff2")).length === 5);
-  assert.deepEqual(packed.files, ["LICENSE", "README.md", "package.json", ...src, "ui/documents.js", "ui/template.html", "ui/views.js", ...fonts].sort());
+  assert.deepEqual(packed.files, ["LICENSE", "README.md", "package.json", ...src, "ui/template.html", ...ui, ...fonts].sort());
   assert.equal(readFileSync(join(PKG, "LICENSE"), "utf8"), readFileSync(join(ROOT, "LICENSE"), "utf8"), "the package's LICENSE is the repository's, byte for byte");
   for (const f of ["OFL-Inter.txt", "OFL-DepartureMono.txt"]) assert.match(readFileSync(join(PKG, "ui", "fonts", f), "utf8"), /SIL Open Font License, Version 1\.1/);
   assert.ok(!/\]\(\.\.?\//.test(readFileSync(join(PKG, "README.md"), "utf8")), "the README links nothing relative: in a tarball a relative link points at no file");

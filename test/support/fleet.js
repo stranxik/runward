@@ -20,6 +20,7 @@ export const rules = await load("src", "rules.js");
 export const site = await load("src", "site.js");
 export const views = await load("ui", "views.js");
 export const documents = await load("ui", "documents.js");
+export const mission = await load("ui", "mission.js");
 
 const asBuf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(typeof v === "string" ? v : JSON.stringify(v)));
 

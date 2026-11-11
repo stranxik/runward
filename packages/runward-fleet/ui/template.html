@@ -139,12 +139,23 @@ ul.checks{ list-style:none; padding-left:0; }
 [data-state="not-available"] > [data-role="mark"]{ border-radius:1px; background:linear-gradient(90deg,currentColor 50%,transparent 50%); }
 [data-role="kind"], [data-role="piece-count"], [data-role="sentence"], [data-role="piece"], [data-role="endorsement"] li{ font-size:18px; line-height:1.4; margin:0 0 8px; }
 [data-role="date"] [data-verbatim]{ white-space:nowrap; }
-[data-role="problem"]{ margin:0 0 20px; }
-[data-role="problems"] ol, [data-role="pieces"] ul, [data-role="endorsement"] ul{ padding-left:1.2em; margin:0 0 12px; }
+[data-role="pieces"] ul, [data-role="endorsement"] ul{ padding-left:1.2em; margin:0 0 12px; }
+/* the refusals (ADR-0128): by kind, then by text, the text and the list each folded; no script, <details> folds */
+[data-role="refusal-kinds"]{ list-style:none; padding:0; margin:0 0 12px; }
+[data-role="refusal-kind"]{ border-top:1px solid var(--hair); padding:16px 0 18px; }
+[data-role="refusal-kind"]:first-child{ border-top:0; padding-top:0; }
+[data-role="refusal-text"] + [data-role="refusal-text"]{ margin-top:14px; }
+[data-reading] summary{ cursor:pointer; width:fit-content; max-width:100%; }
+[data-reading] details[open] > summary{ margin-bottom:8px; }
 [data-role="detail"]{ background:var(--panel); padding:12px 14px; border-radius:2px; margin-top:10px; }
 [data-role="detail-label"]{ font-size:14px; color:var(--soft); margin:0 0 6px; }
-[data-role="location"]{ font-size:14px; color:var(--soft); margin:0 0 6px; overflow-wrap:break-word; }
+details[data-role="detail"] > [data-role="detail-label"]{ margin:0; }
 [data-role="verbatim"]{ font-family:var(--code); font-size:15px; line-height:1.5; white-space:pre-wrap; overflow-wrap:break-word; margin:0; }
+[data-role="where"]{ margin:8px 0 0; }
+[data-role="where-label"]{ font-size:15px; color:var(--soft); }
+[data-role="refusals"]{ padding-left:1.4em; margin:0; }
+[data-role="problem"]{ font-size:15px; line-height:1.45; margin:6px 0 0; overflow-wrap:anywhere; }
+[data-role="problem"] code{ word-break:normal; }
 @media print{ nav.views, .theme, body::after{ display:none; } }
 </style>
 </head>
