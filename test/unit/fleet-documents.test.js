@@ -563,10 +563,12 @@ const PLAIN = Array.from({ length: 1_700 }, (_, k) => `Paragraph ${k} with **bol
 const FLOOR_MS = process.env.NODE_V8_COVERAGE ? 400 : 200;
 const RATIO = 10;
 let BOUND_MS = FLOOR_MS; // set from PLAIN at the start of the time bound's test
-const GROWTH_SOUND = 8; // linear is about 4 from 50 KB to 200 KB; 8 leaves room for noise
-const GROWTH_QUADRATIC = 10; // quadratic is about 16; 10 stays above any linear module's noise
-/** Best CPU time of `n` calls, in milliseconds. */
-function cpuBest(f, n) { let ms = Infinity; for (let k = 0; k < n; k++) { const t0 = process.cpuUsage(); f(); const t = process.cpuUsage(t0); ms = Math.min(ms, (t.user + t.system) / 1000); } return ms; }
+const GROWTH_SOUND = 10; // linear is about 4 from 50 KB to 200 KB (4.3 to 4.8 at rest); 8.1 was seen under load
+const GROWTH_QUADRATIC = 12; // quadratic is about 16 (16.9 to 19.9 measured); 12 stays above the sound module's worst
+/** Best elapsed time of `n` calls, in milliseconds, on the high-resolution clock. Not CPU time: on Windows
+ *  process.cpuUsage() ticks in steps of about 15 ms, so a short render read 0 and a growth read 124 times
+ *  (CI, 2026-11-11). The best of several runs removes the load's noise. */
+function wallBest(f, n) { let ms = Infinity; for (let k = 0; k < n; k++) { const t0 = performance.now(); f(); ms = Math.min(ms, performance.now() - t0); } return ms; }
 const BOUND_GROWTH = 20; // an output is at most this many times its source: the widest is a heading of one character
 /** CPU time of a call, in milliseconds, the best of five: a measure that the load of the machine does not stretch. */
 function best(f) {
@@ -610,7 +612,7 @@ test("time bound: 100 KB of each pathological input renders in under ten times a
     const quarter = Math.round(full / 4);
     const growthOf = (m, fullRuns) => {
       m.renderDocument(shape(quarter), CONTEXT); // warm-up: the first call compiles
-      return cpuBest(() => m.renderDocument(shape(full), CONTEXT), fullRuns) / Math.max(cpuBest(() => m.renderDocument(shape(quarter), CONTEXT), 7), 0.5);
+      return wallBest(() => m.renderDocument(shape(full), CONTEXT), fullRuns) / Math.max(wallBest(() => m.renderDocument(shape(quarter), CONTEXT), 7), 0.5);
     };
     const sound = growthOf(documents, 5);
     assert.ok(sound <= GROWTH_SOUND, `${label}: the sound module grows ${sound.toFixed(1)} times from a quarter to the full size`);

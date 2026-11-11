@@ -194,8 +194,9 @@ Shown in this pull request, in `test/unit/fleet-documents.test.js`, each with it
    quadratic scan 26 to 50 times), grow at most 20 times (16.4 measured, on one-character headings) and
    are checked within the same bound. The planted quadratic copies are caught by how their cost grows,
    which does not depend on the machine: from 50 KB to 200 KB of the same shape, after a warm-up, the sound
-   module grows at most 8 times (4.3 to 4.8 measured) and each planted copy at least 10 times (16.9 to 19.9
-   measured): an unbounded scan of backtick runs, and emphasis nested without a limit (on the three
+   module grows at most 10 times (4.3 to 4.8 measured at rest, 8.1 under load) and each planted copy at least
+   12 times (16.9 to 19.9 measured), timed on the high-resolution clock (CPU time ticks by about 15 ms on
+   Windows): an unbounded scan of backtick runs, and emphasis nested without a limit (on the three
    closing shapes, `*`, `**` and `_`). A time bound alone let a planted copy pass on a slower Linux runner
    (2026-11-11). Short rows filled to the header's width are caught on size (more than 200 times the
    source).
