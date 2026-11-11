@@ -46,6 +46,20 @@ style roles. The specification, the lexicon and the closed lists are
 [docs/spec/runward-fleet-decision.md](https://github.com/stranxik/runward/blob/main/docs/spec/runward-fleet-decision.md)
 and [docs/spec/runward-closed-values.json](https://github.com/stranxik/runward/blob/main/docs/spec/runward-closed-values.json).
 
+## The mission projections
+
+`runward-fleet/mission` (ADR-0126) says where each application stands in the six steps of the method (Frame,
+Architect, Floor, Iterate, Govern, Hand over; in French Cadrer, Architecturer, Plancher, Itérer, Gouverner,
+Transmettre), side by side for a portfolio, and how that changed over the versions a hosted service received.
+`path(index, id)` reads each step crossed, documents complete, refused at this step, current, not reached yet,
+or not asked by the gate (step 4: the gate asks for no document there), each with its documents and
+refusals as n / N and what is missing; `portfolio(index)` maps applications by step; `point(index)` is one
+version's compact summary, and `series(entries)` the series of points over the versions received, with since
+when the last state holds. They read the index as it is and add nothing to it, share the decision reading's
+words, and `renderPath`, `renderPortfolio` and `renderSeries` give their HTML with style roles. The static page
+does not show them yet. The specification is
+[docs/spec/runward-fleet-mission.md](https://github.com/stranxik/runward/blob/main/docs/spec/runward-fleet-mission.md).
+
 ## fleet.json, the declared inventory
 
 ```json

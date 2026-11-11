@@ -1,0 +1,5562 @@
+{
+  "portfolio": {
+    "format": "runward-fleet-portfolio/0",
+    "lang": "en",
+    "index": {
+      "format": "runward-fleet-index/0",
+      "builtBy": {
+        "name": "runward-fleet",
+        "version": "test"
+      }
+    },
+    "title": {
+      "key": "/portfolio/title",
+      "text": "Applications by step"
+    },
+    "declared": {
+      "text": "7",
+      "value": 7,
+      "path": "declared",
+      "src": "fleet.json"
+    },
+    "columns": [
+      {
+        "step": 1,
+        "id": "frame",
+        "number": {
+          "key": "/number",
+          "text": "Step 1",
+          "args": {
+            "step": {
+              "text": "1"
+            }
+          }
+        },
+        "name": {
+          "key": "/step/frame",
+          "text": "Frame"
+        },
+        "byReading": [
+          {
+            "state": "crossed",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Crossed: 4 / 7",
+              "args": {
+                "reading": {
+                  "text": "Crossed",
+                  "sentence": {
+                    "key": "/reading/crossed",
+                    "text": "Crossed"
+                  }
+                },
+                "count": {
+                  "text": "4 / 7",
+                  "n": 4,
+                  "N": 7,
+                  "list": [
+                    "demo-renamed",
+                    "demo-repaired",
+                    "hosted",
+                    "agent"
+                  ],
+                  "at": [
+                    "missions[id=demo-renamed]",
+                    "missions[id=demo-repaired]",
+                    "missions[id=hosted]",
+                    "missions[id=agent]"
+                  ],
+                  "path": "columns[0].byReading[0].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "complete",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Documents complete: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "Documents complete",
+                  "sentence": {
+                    "key": "/reading/complete",
+                    "text": "Documents complete"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "level"
+                  ],
+                  "at": [
+                    "missions[id=level]"
+                  ],
+                  "path": "columns[0].byReading[1].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "not-observed",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "No check received: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "No check received",
+                  "sentence": {
+                    "key": "/decision/state/not-observed",
+                    "text": "No check received"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "silent"
+                  ],
+                  "at": [
+                    "missions[id=silent]"
+                  ],
+                  "path": "columns[0].byReading[2].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "not-available",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Content not shared: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "Content not shared",
+                  "sentence": {
+                    "key": "/decision/state/not-available",
+                    "text": "Content not shared"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "digest"
+                  ],
+                  "at": [
+                    "missions[id=digest]"
+                  ],
+                  "path": "columns[0].byReading[3].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "step": 2,
+        "id": "architect",
+        "number": {
+          "key": "/number",
+          "text": "Step 2",
+          "args": {
+            "step": {
+              "text": "2"
+            }
+          }
+        },
+        "name": {
+          "key": "/step/architect",
+          "text": "Architect"
+        },
+        "byReading": [
+          {
+            "state": "crossed",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Crossed: 3 / 7",
+              "args": {
+                "reading": {
+                  "text": "Crossed",
+                  "sentence": {
+                    "key": "/reading/crossed",
+                    "text": "Crossed"
+                  }
+                },
+                "count": {
+                  "text": "3 / 7",
+                  "n": 3,
+                  "N": 7,
+                  "list": [
+                    "demo-renamed",
+                    "demo-repaired",
+                    "agent"
+                  ],
+                  "at": [
+                    "missions[id=demo-renamed]",
+                    "missions[id=demo-repaired]",
+                    "missions[id=agent]"
+                  ],
+                  "path": "columns[1].byReading[0].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "complete",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Documents complete: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "Documents complete",
+                  "sentence": {
+                    "key": "/reading/complete",
+                    "text": "Documents complete"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "level"
+                  ],
+                  "at": [
+                    "missions[id=level]"
+                  ],
+                  "path": "columns[1].byReading[1].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "refused",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Refused at this step: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "Refused at this step",
+                  "sentence": {
+                    "key": "/reading/refused",
+                    "text": "Refused at this step"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "hosted"
+                  ],
+                  "at": [
+                    "missions[id=hosted]"
+                  ],
+                  "path": "columns[1].byReading[2].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "not-observed",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "No check received: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "No check received",
+                  "sentence": {
+                    "key": "/decision/state/not-observed",
+                    "text": "No check received"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "silent"
+                  ],
+                  "at": [
+                    "missions[id=silent]"
+                  ],
+                  "path": "columns[1].byReading[3].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "not-available",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Content not shared: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "Content not shared",
+                  "sentence": {
+                    "key": "/decision/state/not-available",
+                    "text": "Content not shared"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "digest"
+                  ],
+                  "at": [
+                    "missions[id=digest]"
+                  ],
+                  "path": "columns[1].byReading[4].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "step": 3,
+        "id": "floor",
+        "number": {
+          "key": "/number",
+          "text": "Step 3",
+          "args": {
+            "step": {
+              "text": "3"
+            }
+          }
+        },
+        "name": {
+          "key": "/step/floor",
+          "text": "Floor"
+        },
+        "byReading": [
+          {
+            "state": "crossed",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Crossed: 2 / 7",
+              "args": {
+                "reading": {
+                  "text": "Crossed",
+                  "sentence": {
+                    "key": "/reading/crossed",
+                    "text": "Crossed"
+                  }
+                },
+                "count": {
+                  "text": "2 / 7",
+                  "n": 2,
+                  "N": 7,
+                  "list": [
+                    "demo-repaired",
+                    "agent"
+                  ],
+                  "at": [
+                    "missions[id=demo-repaired]",
+                    "missions[id=agent]"
+                  ],
+                  "path": "columns[2].byReading[0].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "complete",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Documents complete: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "Documents complete",
+                  "sentence": {
+                    "key": "/reading/complete",
+                    "text": "Documents complete"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "level"
+                  ],
+                  "at": [
+                    "missions[id=level]"
+                  ],
+                  "path": "columns[2].byReading[1].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "refused",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Refused at this step: 2 / 7",
+              "args": {
+                "reading": {
+                  "text": "Refused at this step",
+                  "sentence": {
+                    "key": "/reading/refused",
+                    "text": "Refused at this step"
+                  }
+                },
+                "count": {
+                  "text": "2 / 7",
+                  "n": 2,
+                  "N": 7,
+                  "list": [
+                    "demo-renamed",
+                    "hosted"
+                  ],
+                  "at": [
+                    "missions[id=demo-renamed]",
+                    "missions[id=hosted]"
+                  ],
+                  "path": "columns[2].byReading[2].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "not-observed",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "No check received: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "No check received",
+                  "sentence": {
+                    "key": "/decision/state/not-observed",
+                    "text": "No check received"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "silent"
+                  ],
+                  "at": [
+                    "missions[id=silent]"
+                  ],
+                  "path": "columns[2].byReading[3].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "not-available",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Content not shared: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "Content not shared",
+                  "sentence": {
+                    "key": "/decision/state/not-available",
+                    "text": "Content not shared"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "digest"
+                  ],
+                  "at": [
+                    "missions[id=digest]"
+                  ],
+                  "path": "columns[2].byReading[4].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "step": 4,
+        "id": "iterate",
+        "number": {
+          "key": "/number",
+          "text": "Step 4",
+          "args": {
+            "step": {
+              "text": "4"
+            }
+          }
+        },
+        "name": {
+          "key": "/step/iterate",
+          "text": "Iterate"
+        },
+        "byReading": [
+          {
+            "state": "not-asked",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Not asked by the gate: 5 / 7",
+              "args": {
+                "reading": {
+                  "text": "Not asked by the gate",
+                  "sentence": {
+                    "key": "/reading/not-asked",
+                    "text": "Not asked by the gate"
+                  }
+                },
+                "count": {
+                  "text": "5 / 7",
+                  "n": 5,
+                  "N": 7,
+                  "list": [
+                    "demo-renamed",
+                    "demo-repaired",
+                    "hosted",
+                    "agent",
+                    "level"
+                  ],
+                  "at": [
+                    "missions[id=demo-renamed]",
+                    "missions[id=demo-repaired]",
+                    "missions[id=hosted]",
+                    "missions[id=agent]",
+                    "missions[id=level]"
+                  ],
+                  "path": "columns[3].byReading[0].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "not-observed",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "No check received: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "No check received",
+                  "sentence": {
+                    "key": "/decision/state/not-observed",
+                    "text": "No check received"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "silent"
+                  ],
+                  "at": [
+                    "missions[id=silent]"
+                  ],
+                  "path": "columns[3].byReading[1].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "not-available",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Content not shared: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "Content not shared",
+                  "sentence": {
+                    "key": "/decision/state/not-available",
+                    "text": "Content not shared"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "digest"
+                  ],
+                  "at": [
+                    "missions[id=digest]"
+                  ],
+                  "path": "columns[3].byReading[2].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "step": 5,
+        "id": "govern",
+        "number": {
+          "key": "/number",
+          "text": "Step 5",
+          "args": {
+            "step": {
+              "text": "5"
+            }
+          }
+        },
+        "name": {
+          "key": "/step/govern",
+          "text": "Govern"
+        },
+        "byReading": [
+          {
+            "state": "crossed",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Crossed: 2 / 7",
+              "args": {
+                "reading": {
+                  "text": "Crossed",
+                  "sentence": {
+                    "key": "/reading/crossed",
+                    "text": "Crossed"
+                  }
+                },
+                "count": {
+                  "text": "2 / 7",
+                  "n": 2,
+                  "N": 7,
+                  "list": [
+                    "demo-repaired",
+                    "agent"
+                  ],
+                  "at": [
+                    "missions[id=demo-repaired]",
+                    "missions[id=agent]"
+                  ],
+                  "path": "columns[4].byReading[0].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "complete",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Documents complete: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "Documents complete",
+                  "sentence": {
+                    "key": "/reading/complete",
+                    "text": "Documents complete"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "level"
+                  ],
+                  "at": [
+                    "missions[id=level]"
+                  ],
+                  "path": "columns[4].byReading[1].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "refused",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Refused at this step: 2 / 7",
+              "args": {
+                "reading": {
+                  "text": "Refused at this step",
+                  "sentence": {
+                    "key": "/reading/refused",
+                    "text": "Refused at this step"
+                  }
+                },
+                "count": {
+                  "text": "2 / 7",
+                  "n": 2,
+                  "N": 7,
+                  "list": [
+                    "demo-renamed",
+                    "hosted"
+                  ],
+                  "at": [
+                    "missions[id=demo-renamed]",
+                    "missions[id=hosted]"
+                  ],
+                  "path": "columns[4].byReading[2].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "not-observed",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "No check received: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "No check received",
+                  "sentence": {
+                    "key": "/decision/state/not-observed",
+                    "text": "No check received"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "silent"
+                  ],
+                  "at": [
+                    "missions[id=silent]"
+                  ],
+                  "path": "columns[4].byReading[3].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "not-available",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Content not shared: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "Content not shared",
+                  "sentence": {
+                    "key": "/decision/state/not-available",
+                    "text": "Content not shared"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "digest"
+                  ],
+                  "at": [
+                    "missions[id=digest]"
+                  ],
+                  "path": "columns[4].byReading[4].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "step": 6,
+        "id": "handover",
+        "number": {
+          "key": "/number",
+          "text": "Step 6",
+          "args": {
+            "step": {
+              "text": "6"
+            }
+          }
+        },
+        "name": {
+          "key": "/step/handover",
+          "text": "Hand over"
+        },
+        "byReading": [
+          {
+            "state": "crossed",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Crossed: 3 / 7",
+              "args": {
+                "reading": {
+                  "text": "Crossed",
+                  "sentence": {
+                    "key": "/reading/crossed",
+                    "text": "Crossed"
+                  }
+                },
+                "count": {
+                  "text": "3 / 7",
+                  "n": 3,
+                  "N": 7,
+                  "list": [
+                    "demo-renamed",
+                    "demo-repaired",
+                    "agent"
+                  ],
+                  "at": [
+                    "missions[id=demo-renamed]",
+                    "missions[id=demo-repaired]",
+                    "missions[id=agent]"
+                  ],
+                  "path": "columns[5].byReading[0].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "complete",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Documents complete: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "Documents complete",
+                  "sentence": {
+                    "key": "/reading/complete",
+                    "text": "Documents complete"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "level"
+                  ],
+                  "at": [
+                    "missions[id=level]"
+                  ],
+                  "path": "columns[5].byReading[1].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "current",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Current step: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "Current step",
+                  "sentence": {
+                    "key": "/reading/current",
+                    "text": "Current step"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "hosted"
+                  ],
+                  "at": [
+                    "missions[id=hosted]"
+                  ],
+                  "path": "columns[5].byReading[2].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "not-observed",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "No check received: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "No check received",
+                  "sentence": {
+                    "key": "/decision/state/not-observed",
+                    "text": "No check received"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "silent"
+                  ],
+                  "at": [
+                    "missions[id=silent]"
+                  ],
+                  "path": "columns[5].byReading[3].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          },
+          {
+            "state": "not-available",
+            "line": {
+              "key": "/portfolio/group",
+              "text": "Content not shared: 1 / 7",
+              "args": {
+                "reading": {
+                  "text": "Content not shared",
+                  "sentence": {
+                    "key": "/decision/state/not-available",
+                    "text": "Content not shared"
+                  }
+                },
+                "count": {
+                  "text": "1 / 7",
+                  "n": 1,
+                  "N": 7,
+                  "list": [
+                    "digest"
+                  ],
+                  "at": [
+                    "missions[id=digest]"
+                  ],
+                  "path": "columns[5].byReading[4].line.args.count",
+                  "src": "fleet.json"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "applications": [
+      {
+        "id": "demo-renamed",
+        "path": "missions[id=demo-renamed]",
+        "name": {
+          "text": "runward-demo-renaming · a name changed in the code",
+          "path": "missions[id=demo-renamed].name",
+          "verbatim": true
+        },
+        "state": "gaps",
+        "stateWord": {
+          "key": "/decision/state/gaps",
+          "text": "Refused by the check",
+          "from": "missions[id=demo-renamed].latest.verdict"
+        },
+        "qualifier": null,
+        "date": {
+          "key": "/decision/date/received",
+          "text": "Last check received: 2026-11-10",
+          "from": "sources[id=demo-renamed:check]",
+          "args": {
+            "date": {
+              "text": "2026-11-10",
+              "path": "sources[id=demo-renamed:check].at",
+              "verbatim": true
+            }
+          }
+        },
+        "reason": null,
+        "cells": [
+          {
+            "step": 1,
+            "id": "frame",
+            "reading": "crossed",
+            "readingWord": {
+              "key": "/reading/crossed",
+              "text": "Crossed",
+              "from": "missions[id=demo-renamed].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "2 / 2 documents",
+              "args": {
+                "count": {
+                  "text": "2 / 2",
+                  "n": 2,
+                  "N": 2,
+                  "list": [
+                    "framing.md",
+                    "mission-contract.md"
+                  ],
+                  "at": [
+                    "missions[id=demo-renamed].latest.deliverables.list[0]",
+                    "missions[id=demo-renamed].latest.deliverables.list[1]"
+                  ],
+                  "path": "applications[0].cells[0].documents.args.count",
+                  "src": "demo-renamed:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 2,
+            "id": "architect",
+            "reading": "crossed",
+            "readingWord": {
+              "key": "/reading/crossed",
+              "text": "Crossed",
+              "from": "missions[id=demo-renamed].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "5 / 5 documents",
+              "args": {
+                "count": {
+                  "text": "5 / 5",
+                  "n": 5,
+                  "N": 5,
+                  "list": [
+                    "architecture.md",
+                    "execution-topology.md",
+                    "decision-matrix.md",
+                    "adr",
+                    "contracts"
+                  ],
+                  "at": [
+                    "missions[id=demo-renamed].latest.deliverables.list[2]",
+                    "missions[id=demo-renamed].latest.deliverables.list[3]",
+                    "missions[id=demo-renamed].latest.deliverables.list[4]",
+                    "missions[id=demo-renamed].latest.deliverables.list[5]",
+                    "missions[id=demo-renamed].latest.deliverables.list[6]"
+                  ],
+                  "path": "applications[0].cells[1].documents.args.count",
+                  "src": "demo-renamed:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 3,
+            "id": "floor",
+            "reading": "refused",
+            "readingWord": {
+              "key": "/reading/refused",
+              "text": "Refused at this step",
+              "from": "missions[id=demo-renamed].latest.conformance"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "1 / 1 documents",
+              "args": {
+                "count": {
+                  "text": "1 / 1",
+                  "n": 1,
+                  "N": 1,
+                  "list": [
+                    "floor.md"
+                  ],
+                  "at": [
+                    "missions[id=demo-renamed].latest.deliverables.list[7]"
+                  ],
+                  "path": "applications[0].cells[2].documents.args.count",
+                  "src": "demo-renamed:check"
+                }
+              }
+            },
+            "refusals": {
+              "key": "/portfolio/refusals",
+              "text": "1 / 2 refusals",
+              "args": {
+                "count": {
+                  "text": "1 / 2",
+                  "n": 1,
+                  "N": 2,
+                  "list": [
+                    "Floor · frontier-deterministic-boundary"
+                  ],
+                  "at": [
+                    "missions[id=demo-renamed].latest.conformance[0]"
+                  ],
+                  "path": "applications[0].cells[2].refusals.args.count",
+                  "src": "demo-renamed:check"
+                }
+              }
+            }
+          },
+          {
+            "step": 4,
+            "id": "iterate",
+            "reading": "not-asked",
+            "readingWord": {
+              "key": "/reading/not-asked",
+              "text": "Not asked by the gate",
+              "from": "missions[id=demo-renamed].latest.deliverables.list"
+            },
+            "documents": null,
+            "refusals": null
+          },
+          {
+            "step": 5,
+            "id": "govern",
+            "reading": "refused",
+            "readingWord": {
+              "key": "/reading/refused",
+              "text": "Refused at this step",
+              "from": "missions[id=demo-renamed].latest.conformance"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "3 / 3 documents",
+              "args": {
+                "count": {
+                  "text": "3 / 3",
+                  "n": 3,
+                  "N": 3,
+                  "list": [
+                    "governance/threat-model.md",
+                    "governance/evaluation-rubric.md",
+                    "governance/observability-schema.md"
+                  ],
+                  "at": [
+                    "missions[id=demo-renamed].latest.deliverables.list[8]",
+                    "missions[id=demo-renamed].latest.deliverables.list[9]",
+                    "missions[id=demo-renamed].latest.deliverables.list[10]"
+                  ],
+                  "path": "applications[0].cells[4].documents.args.count",
+                  "src": "demo-renamed:check"
+                }
+              }
+            },
+            "refusals": {
+              "key": "/portfolio/refusals",
+              "text": "1 / 2 refusals",
+              "args": {
+                "count": {
+                  "text": "1 / 2",
+                  "n": 1,
+                  "N": 2,
+                  "list": [
+                    "Govern · security-prompt-injection"
+                  ],
+                  "at": [
+                    "missions[id=demo-renamed].latest.conformance[1]"
+                  ],
+                  "path": "applications[0].cells[4].refusals.args.count",
+                  "src": "demo-renamed:check"
+                }
+              }
+            }
+          },
+          {
+            "step": 6,
+            "id": "handover",
+            "reading": "crossed",
+            "readingWord": {
+              "key": "/reading/crossed",
+              "text": "Crossed",
+              "from": "missions[id=demo-renamed].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "2 / 2 documents",
+              "args": {
+                "count": {
+                  "text": "2 / 2",
+                  "n": 2,
+                  "N": 2,
+                  "list": [
+                    "runbook.md",
+                    "handover.md"
+                  ],
+                  "at": [
+                    "missions[id=demo-renamed].latest.deliverables.list[11]",
+                    "missions[id=demo-renamed].latest.deliverables.list[12]"
+                  ],
+                  "path": "applications[0].cells[5].documents.args.count",
+                  "src": "demo-renamed:check"
+                }
+              }
+            },
+            "refusals": null
+          }
+        ]
+      },
+      {
+        "id": "demo-repaired",
+        "path": "missions[id=demo-repaired]",
+        "name": {
+          "text": "runward-demo-renaming · the record follows the new name",
+          "path": "missions[id=demo-repaired].name",
+          "verbatim": true
+        },
+        "state": "clean",
+        "stateWord": {
+          "key": "/decision/state/clean",
+          "text": "Nothing is blocking",
+          "from": "missions[id=demo-repaired].latest.verdict"
+        },
+        "qualifier": {
+          "key": "/decision/qualifier/clean",
+          "text": "according to the team's requirements",
+          "from": "missions[id=demo-repaired].latest.verdict"
+        },
+        "date": {
+          "key": "/decision/date/received",
+          "text": "Last check received: 2026-11-10",
+          "from": "sources[id=demo-repaired:check]",
+          "args": {
+            "date": {
+              "text": "2026-11-10",
+              "path": "sources[id=demo-repaired:check].at",
+              "verbatim": true
+            }
+          }
+        },
+        "reason": null,
+        "cells": [
+          {
+            "step": 1,
+            "id": "frame",
+            "reading": "crossed",
+            "readingWord": {
+              "key": "/reading/crossed",
+              "text": "Crossed",
+              "from": "missions[id=demo-repaired].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "2 / 2 documents",
+              "args": {
+                "count": {
+                  "text": "2 / 2",
+                  "n": 2,
+                  "N": 2,
+                  "list": [
+                    "framing.md",
+                    "mission-contract.md"
+                  ],
+                  "at": [
+                    "missions[id=demo-repaired].latest.deliverables.list[0]",
+                    "missions[id=demo-repaired].latest.deliverables.list[1]"
+                  ],
+                  "path": "applications[1].cells[0].documents.args.count",
+                  "src": "demo-repaired:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 2,
+            "id": "architect",
+            "reading": "crossed",
+            "readingWord": {
+              "key": "/reading/crossed",
+              "text": "Crossed",
+              "from": "missions[id=demo-repaired].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "5 / 5 documents",
+              "args": {
+                "count": {
+                  "text": "5 / 5",
+                  "n": 5,
+                  "N": 5,
+                  "list": [
+                    "architecture.md",
+                    "execution-topology.md",
+                    "decision-matrix.md",
+                    "adr",
+                    "contracts"
+                  ],
+                  "at": [
+                    "missions[id=demo-repaired].latest.deliverables.list[2]",
+                    "missions[id=demo-repaired].latest.deliverables.list[3]",
+                    "missions[id=demo-repaired].latest.deliverables.list[4]",
+                    "missions[id=demo-repaired].latest.deliverables.list[5]",
+                    "missions[id=demo-repaired].latest.deliverables.list[6]"
+                  ],
+                  "path": "applications[1].cells[1].documents.args.count",
+                  "src": "demo-repaired:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 3,
+            "id": "floor",
+            "reading": "crossed",
+            "readingWord": {
+              "key": "/reading/crossed",
+              "text": "Crossed",
+              "from": "missions[id=demo-repaired].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "1 / 1 documents",
+              "args": {
+                "count": {
+                  "text": "1 / 1",
+                  "n": 1,
+                  "N": 1,
+                  "list": [
+                    "floor.md"
+                  ],
+                  "at": [
+                    "missions[id=demo-repaired].latest.deliverables.list[7]"
+                  ],
+                  "path": "applications[1].cells[2].documents.args.count",
+                  "src": "demo-repaired:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 4,
+            "id": "iterate",
+            "reading": "not-asked",
+            "readingWord": {
+              "key": "/reading/not-asked",
+              "text": "Not asked by the gate",
+              "from": "missions[id=demo-repaired].latest.deliverables.list"
+            },
+            "documents": null,
+            "refusals": null
+          },
+          {
+            "step": 5,
+            "id": "govern",
+            "reading": "crossed",
+            "readingWord": {
+              "key": "/reading/crossed",
+              "text": "Crossed",
+              "from": "missions[id=demo-repaired].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "3 / 3 documents",
+              "args": {
+                "count": {
+                  "text": "3 / 3",
+                  "n": 3,
+                  "N": 3,
+                  "list": [
+                    "governance/threat-model.md",
+                    "governance/evaluation-rubric.md",
+                    "governance/observability-schema.md"
+                  ],
+                  "at": [
+                    "missions[id=demo-repaired].latest.deliverables.list[8]",
+                    "missions[id=demo-repaired].latest.deliverables.list[9]",
+                    "missions[id=demo-repaired].latest.deliverables.list[10]"
+                  ],
+                  "path": "applications[1].cells[4].documents.args.count",
+                  "src": "demo-repaired:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 6,
+            "id": "handover",
+            "reading": "crossed",
+            "readingWord": {
+              "key": "/reading/crossed",
+              "text": "Crossed",
+              "from": "missions[id=demo-repaired].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "2 / 2 documents",
+              "args": {
+                "count": {
+                  "text": "2 / 2",
+                  "n": 2,
+                  "N": 2,
+                  "list": [
+                    "runbook.md",
+                    "handover.md"
+                  ],
+                  "at": [
+                    "missions[id=demo-repaired].latest.deliverables.list[11]",
+                    "missions[id=demo-repaired].latest.deliverables.list[12]"
+                  ],
+                  "path": "applications[1].cells[5].documents.args.count",
+                  "src": "demo-repaired:check"
+                }
+              }
+            },
+            "refusals": null
+          }
+        ]
+      },
+      {
+        "id": "hosted",
+        "path": "missions[id=hosted]",
+        "name": {
+          "text": "runward-hosted",
+          "path": "missions[id=hosted].name",
+          "verbatim": true
+        },
+        "state": "gaps",
+        "stateWord": {
+          "key": "/decision/state/gaps",
+          "text": "Refused by the check",
+          "from": "missions[id=hosted].latest.verdict"
+        },
+        "qualifier": null,
+        "date": {
+          "key": "/decision/date/received",
+          "text": "Last check received: date not declared",
+          "from": "sources[id=hosted:check]",
+          "args": {
+            "date": {
+              "text": "date not declared"
+            }
+          }
+        },
+        "reason": null,
+        "cells": [
+          {
+            "step": 1,
+            "id": "frame",
+            "reading": "crossed",
+            "readingWord": {
+              "key": "/reading/crossed",
+              "text": "Crossed",
+              "from": "missions[id=hosted].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "2 / 2 documents",
+              "args": {
+                "count": {
+                  "text": "2 / 2",
+                  "n": 2,
+                  "N": 2,
+                  "list": [
+                    "framing.md",
+                    "mission-contract.md"
+                  ],
+                  "at": [
+                    "missions[id=hosted].latest.deliverables.list[0]",
+                    "missions[id=hosted].latest.deliverables.list[1]"
+                  ],
+                  "path": "applications[2].cells[0].documents.args.count",
+                  "src": "hosted:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 2,
+            "id": "architect",
+            "reading": "refused",
+            "readingWord": {
+              "key": "/reading/refused",
+              "text": "Refused at this step",
+              "from": "missions[id=hosted].latest.conformance"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "5 / 5 documents",
+              "args": {
+                "count": {
+                  "text": "5 / 5",
+                  "n": 5,
+                  "N": 5,
+                  "list": [
+                    "architecture.md",
+                    "execution-topology.md",
+                    "decision-matrix.md",
+                    "adr",
+                    "contracts"
+                  ],
+                  "at": [
+                    "missions[id=hosted].latest.deliverables.list[2]",
+                    "missions[id=hosted].latest.deliverables.list[3]",
+                    "missions[id=hosted].latest.deliverables.list[4]",
+                    "missions[id=hosted].latest.deliverables.list[5]",
+                    "missions[id=hosted].latest.deliverables.list[6]"
+                  ],
+                  "path": "applications[2].cells[1].documents.args.count",
+                  "src": "hosted:check"
+                }
+              }
+            },
+            "refusals": {
+              "key": "/portfolio/refusals",
+              "text": "10 / 46 refusals",
+              "args": {
+                "count": {
+                  "text": "10 / 46",
+                  "n": 10,
+                  "N": 46,
+                  "list": [
+                    "Architect · contracts-governance",
+                    "Architect · hexa-adapter-pattern",
+                    "Architect · hexa-architecture",
+                    "Architect · hexa-typescript-native",
+                    "Architect · process-adr-and-journal",
+                    "Architect · security-mcp-server-pinning",
+                    "Topology · topology-port-placement-mapped",
+                    "Topology · topology-sovereignty-by-data-class",
+                    "Topology · topology-trace-export-decision",
+                    "Topology · topology-usage-registry-present"
+                  ],
+                  "at": [
+                    "missions[id=hosted].latest.conformance[0]",
+                    "missions[id=hosted].latest.conformance[1]",
+                    "missions[id=hosted].latest.conformance[2]",
+                    "missions[id=hosted].latest.conformance[3]",
+                    "missions[id=hosted].latest.conformance[4]",
+                    "missions[id=hosted].latest.conformance[5]",
+                    "missions[id=hosted].latest.conformance[6]",
+                    "missions[id=hosted].latest.conformance[7]",
+                    "missions[id=hosted].latest.conformance[8]",
+                    "missions[id=hosted].latest.conformance[9]"
+                  ],
+                  "path": "applications[2].cells[1].refusals.args.count",
+                  "src": "hosted:check"
+                }
+              }
+            }
+          },
+          {
+            "step": 3,
+            "id": "floor",
+            "reading": "refused",
+            "readingWord": {
+              "key": "/reading/refused",
+              "text": "Refused at this step",
+              "from": "missions[id=hosted].latest.conformance"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "1 / 1 documents",
+              "args": {
+                "count": {
+                  "text": "1 / 1",
+                  "n": 1,
+                  "N": 1,
+                  "list": [
+                    "floor.md"
+                  ],
+                  "at": [
+                    "missions[id=hosted].latest.deliverables.list[7]"
+                  ],
+                  "path": "applications[2].cells[2].documents.args.count",
+                  "src": "hosted:check"
+                }
+              }
+            },
+            "refusals": {
+              "key": "/portfolio/refusals",
+              "text": "15 / 46 refusals",
+              "args": {
+                "count": {
+                  "text": "15 / 46",
+                  "n": 15,
+                  "N": 46,
+                  "list": [
+                    "Floor · async-post-turn-pipeline",
+                    "Floor · checklist-day-zero-project",
+                    "Floor · config-secrets-boundary",
+                    "Floor · data-migrations-forward-only",
+                    "Floor · frontier-deterministic-boundary",
+                    "Floor · hexa-adapter-pattern",
+                    "Floor · hexa-architecture",
+                    "Floor · hexa-move-deterministic-out",
+                    "Floor · provider-llm-auto-detection",
+                    "Floor · provider-no-crash-missing-env",
+                    "Floor · scaling-state-externalization",
+                    "Floor · security-prompt-injection",
+                    "Floor · state-event-sourcing",
+                    "Floor · tools-registry-pattern",
+                    "Floor · tools-scope-atomicity"
+                  ],
+                  "at": [
+                    "missions[id=hosted].latest.conformance[10]",
+                    "missions[id=hosted].latest.conformance[11]",
+                    "missions[id=hosted].latest.conformance[12]",
+                    "missions[id=hosted].latest.conformance[13]",
+                    "missions[id=hosted].latest.conformance[14]",
+                    "missions[id=hosted].latest.conformance[15]",
+                    "missions[id=hosted].latest.conformance[16]",
+                    "missions[id=hosted].latest.conformance[17]",
+                    "missions[id=hosted].latest.conformance[18]",
+                    "missions[id=hosted].latest.conformance[19]",
+                    "missions[id=hosted].latest.conformance[20]",
+                    "missions[id=hosted].latest.conformance[21]",
+                    "missions[id=hosted].latest.conformance[22]",
+                    "missions[id=hosted].latest.conformance[23]",
+                    "missions[id=hosted].latest.conformance[24]"
+                  ],
+                  "path": "applications[2].cells[2].refusals.args.count",
+                  "src": "hosted:check"
+                }
+              }
+            }
+          },
+          {
+            "step": 4,
+            "id": "iterate",
+            "reading": "not-asked",
+            "readingWord": {
+              "key": "/reading/not-asked",
+              "text": "Not asked by the gate",
+              "from": "missions[id=hosted].latest.deliverables.list"
+            },
+            "documents": null,
+            "refusals": null
+          },
+          {
+            "step": 5,
+            "id": "govern",
+            "reading": "refused",
+            "readingWord": {
+              "key": "/reading/refused",
+              "text": "Refused at this step",
+              "from": "missions[id=hosted].latest.conformance"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "3 / 3 documents",
+              "args": {
+                "count": {
+                  "text": "3 / 3",
+                  "n": 3,
+                  "N": 3,
+                  "list": [
+                    "governance/threat-model.md",
+                    "governance/evaluation-rubric.md",
+                    "governance/observability-schema.md"
+                  ],
+                  "at": [
+                    "missions[id=hosted].latest.deliverables.list[8]",
+                    "missions[id=hosted].latest.deliverables.list[9]",
+                    "missions[id=hosted].latest.deliverables.list[10]"
+                  ],
+                  "path": "applications[2].cells[4].documents.args.count",
+                  "src": "hosted:check"
+                }
+              }
+            },
+            "refusals": {
+              "key": "/portfolio/refusals",
+              "text": "17 / 46 refusals",
+              "args": {
+                "count": {
+                  "text": "17 / 46",
+                  "n": 17,
+                  "N": 46,
+                  "list": [
+                    "Govern · async-job-guardrails",
+                    "Govern · checklist-pre-production-observability",
+                    "Govern · checklist-pre-production-performance",
+                    "Govern · checklist-pre-production-resilience",
+                    "Govern · checklist-pre-production-security",
+                    "Govern · config-secrets-boundary",
+                    "Govern · data-memory-provenance",
+                    "Govern · eval-loop",
+                    "Govern · resilience-fail-open",
+                    "Govern · resilience-multi-provider-fallback",
+                    "Govern · resilience-retry-backoff",
+                    "Govern · routing-confidence-upgrade",
+                    "Govern · security-code-execution-sandbox",
+                    "Govern · security-human-agent-trust",
+                    "Govern · security-mcp-server-pinning",
+                    "Govern · security-prompt-injection",
+                    "Govern · security-tool-change-reapproval"
+                  ],
+                  "at": [
+                    "missions[id=hosted].latest.conformance[25]",
+                    "missions[id=hosted].latest.conformance[26]",
+                    "missions[id=hosted].latest.conformance[27]",
+                    "missions[id=hosted].latest.conformance[28]",
+                    "missions[id=hosted].latest.conformance[29]",
+                    "missions[id=hosted].latest.conformance[30]",
+                    "missions[id=hosted].latest.conformance[31]",
+                    "missions[id=hosted].latest.conformance[32]",
+                    "missions[id=hosted].latest.conformance[33]",
+                    "missions[id=hosted].latest.conformance[34]",
+                    "missions[id=hosted].latest.conformance[35]",
+                    "missions[id=hosted].latest.conformance[36]",
+                    "missions[id=hosted].latest.conformance[37]",
+                    "missions[id=hosted].latest.conformance[38]",
+                    "missions[id=hosted].latest.conformance[39]",
+                    "missions[id=hosted].latest.conformance[40]",
+                    "missions[id=hosted].latest.conformance[41]"
+                  ],
+                  "path": "applications[2].cells[4].refusals.args.count",
+                  "src": "hosted:check"
+                }
+              }
+            }
+          },
+          {
+            "step": 6,
+            "id": "handover",
+            "reading": "current",
+            "readingWord": {
+              "key": "/reading/current",
+              "text": "Current step",
+              "from": "missions[id=hosted].latest.deliverables.list"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "1 / 2 documents",
+              "args": {
+                "count": {
+                  "text": "1 / 2",
+                  "n": 1,
+                  "N": 2,
+                  "list": [
+                    "runbook.md"
+                  ],
+                  "at": [
+                    "missions[id=hosted].latest.deliverables.list[11]"
+                  ],
+                  "path": "applications[2].cells[5].documents.args.count",
+                  "src": "hosted:check"
+                }
+              }
+            },
+            "refusals": {
+              "key": "/portfolio/refusals",
+              "text": "4 / 46 refusals",
+              "args": {
+                "count": {
+                  "text": "4 / 46",
+                  "n": 4,
+                  "N": 46,
+                  "list": [
+                    "Handover · handover-agents-charter-final",
+                    "Handover · handover-redone-task-proof",
+                    "Handover · handover-runbook-executable",
+                    "Handover · handover-succession-named"
+                  ],
+                  "at": [
+                    "missions[id=hosted].latest.conformance[42]",
+                    "missions[id=hosted].latest.conformance[43]",
+                    "missions[id=hosted].latest.conformance[44]",
+                    "missions[id=hosted].latest.conformance[45]"
+                  ],
+                  "path": "applications[2].cells[5].refusals.args.count",
+                  "src": "hosted:check"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "agent",
+        "path": "missions[id=agent]",
+        "name": {
+          "text": "example · two rows endorsed by an agent",
+          "path": "missions[id=agent].name",
+          "verbatim": true
+        },
+        "state": "clean",
+        "stateWord": {
+          "key": "/decision/state/clean",
+          "text": "Nothing is blocking",
+          "from": "missions[id=agent].latest.verdict"
+        },
+        "qualifier": {
+          "key": "/decision/qualifier/clean",
+          "text": "according to the team's requirements",
+          "from": "missions[id=agent].latest.verdict"
+        },
+        "date": {
+          "key": "/decision/date/received",
+          "text": "Last check received: 2026-11-10",
+          "from": "sources[id=agent:check]",
+          "args": {
+            "date": {
+              "text": "2026-11-10",
+              "path": "sources[id=agent:check].at",
+              "verbatim": true
+            }
+          }
+        },
+        "reason": null,
+        "cells": [
+          {
+            "step": 1,
+            "id": "frame",
+            "reading": "crossed",
+            "readingWord": {
+              "key": "/reading/crossed",
+              "text": "Crossed",
+              "from": "missions[id=agent].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "2 / 2 documents",
+              "args": {
+                "count": {
+                  "text": "2 / 2",
+                  "n": 2,
+                  "N": 2,
+                  "list": [
+                    "framing.md",
+                    "mission-contract.md"
+                  ],
+                  "at": [
+                    "missions[id=agent].latest.deliverables.list[0]",
+                    "missions[id=agent].latest.deliverables.list[1]"
+                  ],
+                  "path": "applications[3].cells[0].documents.args.count",
+                  "src": "agent:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 2,
+            "id": "architect",
+            "reading": "crossed",
+            "readingWord": {
+              "key": "/reading/crossed",
+              "text": "Crossed",
+              "from": "missions[id=agent].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "5 / 5 documents",
+              "args": {
+                "count": {
+                  "text": "5 / 5",
+                  "n": 5,
+                  "N": 5,
+                  "list": [
+                    "architecture.md",
+                    "execution-topology.md",
+                    "decision-matrix.md",
+                    "adr",
+                    "contracts"
+                  ],
+                  "at": [
+                    "missions[id=agent].latest.deliverables.list[2]",
+                    "missions[id=agent].latest.deliverables.list[3]",
+                    "missions[id=agent].latest.deliverables.list[4]",
+                    "missions[id=agent].latest.deliverables.list[5]",
+                    "missions[id=agent].latest.deliverables.list[6]"
+                  ],
+                  "path": "applications[3].cells[1].documents.args.count",
+                  "src": "agent:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 3,
+            "id": "floor",
+            "reading": "crossed",
+            "readingWord": {
+              "key": "/reading/crossed",
+              "text": "Crossed",
+              "from": "missions[id=agent].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "1 / 1 documents",
+              "args": {
+                "count": {
+                  "text": "1 / 1",
+                  "n": 1,
+                  "N": 1,
+                  "list": [
+                    "floor.md"
+                  ],
+                  "at": [
+                    "missions[id=agent].latest.deliverables.list[7]"
+                  ],
+                  "path": "applications[3].cells[2].documents.args.count",
+                  "src": "agent:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 4,
+            "id": "iterate",
+            "reading": "not-asked",
+            "readingWord": {
+              "key": "/reading/not-asked",
+              "text": "Not asked by the gate",
+              "from": "missions[id=agent].latest.deliverables.list"
+            },
+            "documents": null,
+            "refusals": null
+          },
+          {
+            "step": 5,
+            "id": "govern",
+            "reading": "crossed",
+            "readingWord": {
+              "key": "/reading/crossed",
+              "text": "Crossed",
+              "from": "missions[id=agent].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "3 / 3 documents",
+              "args": {
+                "count": {
+                  "text": "3 / 3",
+                  "n": 3,
+                  "N": 3,
+                  "list": [
+                    "governance/threat-model.md",
+                    "governance/evaluation-rubric.md",
+                    "governance/observability-schema.md"
+                  ],
+                  "at": [
+                    "missions[id=agent].latest.deliverables.list[8]",
+                    "missions[id=agent].latest.deliverables.list[9]",
+                    "missions[id=agent].latest.deliverables.list[10]"
+                  ],
+                  "path": "applications[3].cells[4].documents.args.count",
+                  "src": "agent:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 6,
+            "id": "handover",
+            "reading": "crossed",
+            "readingWord": {
+              "key": "/reading/crossed",
+              "text": "Crossed",
+              "from": "missions[id=agent].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "2 / 2 documents",
+              "args": {
+                "count": {
+                  "text": "2 / 2",
+                  "n": 2,
+                  "N": 2,
+                  "list": [
+                    "runbook.md",
+                    "handover.md"
+                  ],
+                  "at": [
+                    "missions[id=agent].latest.deliverables.list[11]",
+                    "missions[id=agent].latest.deliverables.list[12]"
+                  ],
+                  "path": "applications[3].cells[5].documents.args.count",
+                  "src": "agent:check"
+                }
+              }
+            },
+            "refusals": null
+          }
+        ]
+      },
+      {
+        "id": "level",
+        "path": "missions[id=level]",
+        "name": {
+          "text": "example · a level required and not met",
+          "path": "missions[id=level].name",
+          "verbatim": true
+        },
+        "state": "level-not-met",
+        "stateWord": {
+          "key": "/decision/state/level-not-met",
+          "text": "Required level not met",
+          "from": "missions[id=level].latest.verdict"
+        },
+        "qualifier": null,
+        "date": {
+          "key": "/decision/date/received",
+          "text": "Last check received: 2026-11-10",
+          "from": "sources[id=level:check]",
+          "args": {
+            "date": {
+              "text": "2026-11-10",
+              "path": "sources[id=level:check].at",
+              "verbatim": true
+            }
+          }
+        },
+        "reason": null,
+        "cells": [
+          {
+            "step": 1,
+            "id": "frame",
+            "reading": "complete",
+            "readingWord": {
+              "key": "/reading/complete",
+              "text": "Documents complete",
+              "from": "missions[id=level].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "2 / 2 documents",
+              "args": {
+                "count": {
+                  "text": "2 / 2",
+                  "n": 2,
+                  "N": 2,
+                  "list": [
+                    "framing.md",
+                    "mission-contract.md"
+                  ],
+                  "at": [
+                    "missions[id=level].latest.deliverables.list[0]",
+                    "missions[id=level].latest.deliverables.list[1]"
+                  ],
+                  "path": "applications[4].cells[0].documents.args.count",
+                  "src": "level:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 2,
+            "id": "architect",
+            "reading": "complete",
+            "readingWord": {
+              "key": "/reading/complete",
+              "text": "Documents complete",
+              "from": "missions[id=level].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "5 / 5 documents",
+              "args": {
+                "count": {
+                  "text": "5 / 5",
+                  "n": 5,
+                  "N": 5,
+                  "list": [
+                    "architecture.md",
+                    "execution-topology.md",
+                    "decision-matrix.md",
+                    "adr",
+                    "contracts"
+                  ],
+                  "at": [
+                    "missions[id=level].latest.deliverables.list[2]",
+                    "missions[id=level].latest.deliverables.list[3]",
+                    "missions[id=level].latest.deliverables.list[4]",
+                    "missions[id=level].latest.deliverables.list[5]",
+                    "missions[id=level].latest.deliverables.list[6]"
+                  ],
+                  "path": "applications[4].cells[1].documents.args.count",
+                  "src": "level:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 3,
+            "id": "floor",
+            "reading": "complete",
+            "readingWord": {
+              "key": "/reading/complete",
+              "text": "Documents complete",
+              "from": "missions[id=level].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "1 / 1 documents",
+              "args": {
+                "count": {
+                  "text": "1 / 1",
+                  "n": 1,
+                  "N": 1,
+                  "list": [
+                    "floor.md"
+                  ],
+                  "at": [
+                    "missions[id=level].latest.deliverables.list[7]"
+                  ],
+                  "path": "applications[4].cells[2].documents.args.count",
+                  "src": "level:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 4,
+            "id": "iterate",
+            "reading": "not-asked",
+            "readingWord": {
+              "key": "/reading/not-asked",
+              "text": "Not asked by the gate",
+              "from": "missions[id=level].latest.deliverables.list"
+            },
+            "documents": null,
+            "refusals": null
+          },
+          {
+            "step": 5,
+            "id": "govern",
+            "reading": "complete",
+            "readingWord": {
+              "key": "/reading/complete",
+              "text": "Documents complete",
+              "from": "missions[id=level].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "3 / 3 documents",
+              "args": {
+                "count": {
+                  "text": "3 / 3",
+                  "n": 3,
+                  "N": 3,
+                  "list": [
+                    "governance/threat-model.md",
+                    "governance/evaluation-rubric.md",
+                    "governance/observability-schema.md"
+                  ],
+                  "at": [
+                    "missions[id=level].latest.deliverables.list[8]",
+                    "missions[id=level].latest.deliverables.list[9]",
+                    "missions[id=level].latest.deliverables.list[10]"
+                  ],
+                  "path": "applications[4].cells[4].documents.args.count",
+                  "src": "level:check"
+                }
+              }
+            },
+            "refusals": null
+          },
+          {
+            "step": 6,
+            "id": "handover",
+            "reading": "complete",
+            "readingWord": {
+              "key": "/reading/complete",
+              "text": "Documents complete",
+              "from": "missions[id=level].latest.verdict"
+            },
+            "documents": {
+              "key": "/portfolio/documents",
+              "text": "2 / 2 documents",
+              "args": {
+                "count": {
+                  "text": "2 / 2",
+                  "n": 2,
+                  "N": 2,
+                  "list": [
+                    "runbook.md",
+                    "handover.md"
+                  ],
+                  "at": [
+                    "missions[id=level].latest.deliverables.list[11]",
+                    "missions[id=level].latest.deliverables.list[12]"
+                  ],
+                  "path": "applications[4].cells[5].documents.args.count",
+                  "src": "level:check"
+                }
+              }
+            },
+            "refusals": null
+          }
+        ]
+      },
+      {
+        "id": "silent",
+        "path": "missions[id=silent]",
+        "name": {
+          "text": "example · declared, nothing received",
+          "path": "missions[id=silent].name",
+          "verbatim": true
+        },
+        "state": "not-observed",
+        "stateWord": {
+          "key": "/decision/state/not-observed",
+          "text": "No check received",
+          "from": "missions[id=silent].latest"
+        },
+        "qualifier": null,
+        "date": null,
+        "reason": {
+          "key": "/decision/reason/not-observed",
+          "text": "No check has been received for this application.",
+          "from": "missions[id=silent].latest"
+        },
+        "cells": null
+      },
+      {
+        "id": "digest",
+        "path": "missions[id=digest]",
+        "name": {
+          "text": "example · fingerprints only",
+          "path": "missions[id=digest].name",
+          "verbatim": true
+        },
+        "state": "not-available",
+        "stateWord": {
+          "key": "/decision/state/not-available",
+          "text": "Content not shared",
+          "from": "missions[id=digest].latest"
+        },
+        "qualifier": null,
+        "date": {
+          "key": "/decision/date/fingerprints",
+          "text": "Last fingerprints received: 2026-11-09",
+          "from": "sources[id=digest:check]",
+          "args": {
+            "date": {
+              "text": "2026-11-09",
+              "path": "sources[id=digest:check].at",
+              "verbatim": true
+            }
+          }
+        },
+        "reason": {
+          "key": "/decision/reason/not-available",
+          "text": "Only fingerprints are sent for this application: its content is not shared.",
+          "from": "missions[id=digest].latest"
+        },
+        "cells": null
+      }
+    ]
+  },
+  "paths": {
+    "demo-renamed": {
+      "format": "runward-fleet-path/0",
+      "lang": "en",
+      "index": {
+        "format": "runward-fleet-index/0",
+        "builtBy": {
+          "name": "runward-fleet",
+          "version": "test"
+        }
+      },
+      "title": {
+        "key": "/path/title",
+        "text": "The six steps"
+      },
+      "application": {
+        "id": "demo-renamed",
+        "path": "missions[id=demo-renamed]",
+        "name": {
+          "text": "runward-demo-renaming · a name changed in the code",
+          "path": "missions[id=demo-renamed].name",
+          "verbatim": true
+        },
+        "state": "gaps",
+        "stateWord": {
+          "key": "/decision/state/gaps",
+          "text": "Refused by the check",
+          "from": "missions[id=demo-renamed].latest.verdict"
+        },
+        "qualifier": null,
+        "date": {
+          "key": "/decision/date/received",
+          "text": "Last check received: 2026-11-10",
+          "from": "sources[id=demo-renamed:check]",
+          "args": {
+            "date": {
+              "text": "2026-11-10",
+              "path": "sources[id=demo-renamed:check].at",
+              "verbatim": true
+            }
+          }
+        }
+      },
+      "observed": true,
+      "reason": null,
+      "position": {
+        "key": "/path/position",
+        "text": "Where the check places it, as it writes it: deliverables filled, gate red at Floor, Govern",
+        "from": "missions[id=demo-renamed].latest.currentGate",
+        "args": {
+          "gate": {
+            "text": "deliverables filled, gate red at Floor, Govern",
+            "path": "missions[id=demo-renamed].latest.currentGate",
+            "verbatim": true
+          }
+        }
+      },
+      "note": null,
+      "current": null,
+      "steps": [
+        {
+          "step": 1,
+          "id": "frame",
+          "path": "steps[0]",
+          "number": {
+            "key": "/number",
+            "text": "Step 1",
+            "args": {
+              "step": {
+                "text": "1"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/frame",
+            "text": "Frame"
+          },
+          "reading": "crossed",
+          "readingWord": {
+            "key": "/reading/crossed",
+            "text": "Crossed",
+            "from": "missions[id=demo-renamed].latest.verdict"
+          },
+          "why": {
+            "key": "/why/crossed",
+            "text": "Its documents are filled in and the check received refuses nothing at this step.",
+            "from": "missions[id=demo-renamed].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "2 / 2 documents filled in",
+            "args": {
+              "count": {
+                "text": "2 / 2",
+                "n": 2,
+                "N": 2,
+                "list": [
+                  "framing.md",
+                  "mission-contract.md"
+                ],
+                "at": [
+                  "missions[id=demo-renamed].latest.deliverables.list[0]",
+                  "missions[id=demo-renamed].latest.deliverables.list[1]"
+                ],
+                "path": "steps[0].documents.args.count",
+                "src": "demo-renamed:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 2,
+          "id": "architect",
+          "path": "steps[1]",
+          "number": {
+            "key": "/number",
+            "text": "Step 2",
+            "args": {
+              "step": {
+                "text": "2"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/architect",
+            "text": "Architect"
+          },
+          "reading": "crossed",
+          "readingWord": {
+            "key": "/reading/crossed",
+            "text": "Crossed",
+            "from": "missions[id=demo-renamed].latest.verdict"
+          },
+          "why": {
+            "key": "/why/crossed",
+            "text": "Its documents are filled in and the check received refuses nothing at this step.",
+            "from": "missions[id=demo-renamed].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "5 / 5 documents filled in",
+            "args": {
+              "count": {
+                "text": "5 / 5",
+                "n": 5,
+                "N": 5,
+                "list": [
+                  "architecture.md",
+                  "execution-topology.md",
+                  "decision-matrix.md",
+                  "adr",
+                  "contracts"
+                ],
+                "at": [
+                  "missions[id=demo-renamed].latest.deliverables.list[2]",
+                  "missions[id=demo-renamed].latest.deliverables.list[3]",
+                  "missions[id=demo-renamed].latest.deliverables.list[4]",
+                  "missions[id=demo-renamed].latest.deliverables.list[5]",
+                  "missions[id=demo-renamed].latest.deliverables.list[6]"
+                ],
+                "path": "steps[1].documents.args.count",
+                "src": "demo-renamed:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 3,
+          "id": "floor",
+          "path": "steps[2]",
+          "number": {
+            "key": "/number",
+            "text": "Step 3",
+            "args": {
+              "step": {
+                "text": "3"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/floor",
+            "text": "Floor"
+          },
+          "reading": "refused",
+          "readingWord": {
+            "key": "/reading/refused",
+            "text": "Refused at this step",
+            "from": "missions[id=demo-renamed].latest.conformance"
+          },
+          "why": {
+            "key": "/why/refused",
+            "text": "Its documents are filled in, and the check refuses answers at this step.",
+            "from": "missions[id=demo-renamed].latest.conformance"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "1 / 1 documents filled in",
+            "args": {
+              "count": {
+                "text": "1 / 1",
+                "n": 1,
+                "N": 1,
+                "list": [
+                  "floor.md"
+                ],
+                "at": [
+                  "missions[id=demo-renamed].latest.deliverables.list[7]"
+                ],
+                "path": "steps[2].documents.args.count",
+                "src": "demo-renamed:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": {
+            "key": "/path/refusals",
+            "text": "1 / 2 refusals of the check at this step",
+            "args": {
+              "count": {
+                "text": "1 / 2",
+                "n": 1,
+                "N": 2,
+                "list": [
+                  "Floor · frontier-deterministic-boundary"
+                ],
+                "at": [
+                  "missions[id=demo-renamed].latest.conformance[0]"
+                ],
+                "path": "steps[2].refusals.args.count",
+                "src": "demo-renamed:check"
+              }
+            }
+          },
+          "kinds": [
+            {
+              "kind": "evidence-refused",
+              "line": {
+                "key": "/decision/problems/byKind",
+                "text": "1 / 1 refusals of this kind: a cited piece of evidence is refused by the check.",
+                "from": "missions[id=demo-renamed].latest.conformance[0].kind",
+                "args": {
+                  "reason": {
+                    "text": "a cited piece of evidence is refused by the check.",
+                    "sentence": {
+                      "key": "/decision/kind/evidence-refused",
+                      "text": "a cited piece of evidence is refused by the check.",
+                      "from": "missions[id=demo-renamed].latest.conformance[0].kind"
+                    }
+                  },
+                  "count": {
+                    "text": "1 / 1",
+                    "n": 1,
+                    "N": 1,
+                    "list": [
+                      "Floor · frontier-deterministic-boundary"
+                    ],
+                    "at": [
+                      "missions[id=demo-renamed].latest.conformance[0]"
+                    ],
+                    "path": "steps[2].kinds[0].line.args.count",
+                    "src": "demo-renamed:check"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "step": 4,
+          "id": "iterate",
+          "path": "steps[3]",
+          "number": {
+            "key": "/number",
+            "text": "Step 4",
+            "args": {
+              "step": {
+                "text": "4"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/iterate",
+            "text": "Iterate"
+          },
+          "reading": "not-asked",
+          "readingWord": {
+            "key": "/reading/not-asked",
+            "text": "Not asked by the gate",
+            "from": "missions[id=demo-renamed].latest.deliverables.list"
+          },
+          "why": {
+            "key": "/why/not-asked",
+            "text": "The gate asks for no document at this step: it is never said crossed.",
+            "from": "missions[id=demo-renamed].latest.deliverables.list"
+          },
+          "documents": null,
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 5,
+          "id": "govern",
+          "path": "steps[4]",
+          "number": {
+            "key": "/number",
+            "text": "Step 5",
+            "args": {
+              "step": {
+                "text": "5"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/govern",
+            "text": "Govern"
+          },
+          "reading": "refused",
+          "readingWord": {
+            "key": "/reading/refused",
+            "text": "Refused at this step",
+            "from": "missions[id=demo-renamed].latest.conformance"
+          },
+          "why": {
+            "key": "/why/refused",
+            "text": "Its documents are filled in, and the check refuses answers at this step.",
+            "from": "missions[id=demo-renamed].latest.conformance"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "3 / 3 documents filled in",
+            "args": {
+              "count": {
+                "text": "3 / 3",
+                "n": 3,
+                "N": 3,
+                "list": [
+                  "governance/threat-model.md",
+                  "governance/evaluation-rubric.md",
+                  "governance/observability-schema.md"
+                ],
+                "at": [
+                  "missions[id=demo-renamed].latest.deliverables.list[8]",
+                  "missions[id=demo-renamed].latest.deliverables.list[9]",
+                  "missions[id=demo-renamed].latest.deliverables.list[10]"
+                ],
+                "path": "steps[4].documents.args.count",
+                "src": "demo-renamed:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": {
+            "key": "/path/refusals",
+            "text": "1 / 2 refusals of the check at this step",
+            "args": {
+              "count": {
+                "text": "1 / 2",
+                "n": 1,
+                "N": 2,
+                "list": [
+                  "Govern · security-prompt-injection"
+                ],
+                "at": [
+                  "missions[id=demo-renamed].latest.conformance[1]"
+                ],
+                "path": "steps[4].refusals.args.count",
+                "src": "demo-renamed:check"
+              }
+            }
+          },
+          "kinds": [
+            {
+              "kind": "evidence-refused",
+              "line": {
+                "key": "/decision/problems/byKind",
+                "text": "1 / 1 refusals of this kind: a cited piece of evidence is refused by the check.",
+                "from": "missions[id=demo-renamed].latest.conformance[1].kind",
+                "args": {
+                  "reason": {
+                    "text": "a cited piece of evidence is refused by the check.",
+                    "sentence": {
+                      "key": "/decision/kind/evidence-refused",
+                      "text": "a cited piece of evidence is refused by the check.",
+                      "from": "missions[id=demo-renamed].latest.conformance[1].kind"
+                    }
+                  },
+                  "count": {
+                    "text": "1 / 1",
+                    "n": 1,
+                    "N": 1,
+                    "list": [
+                      "Govern · security-prompt-injection"
+                    ],
+                    "at": [
+                      "missions[id=demo-renamed].latest.conformance[1]"
+                    ],
+                    "path": "steps[4].kinds[0].line.args.count",
+                    "src": "demo-renamed:check"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "step": 6,
+          "id": "handover",
+          "path": "steps[5]",
+          "number": {
+            "key": "/number",
+            "text": "Step 6",
+            "args": {
+              "step": {
+                "text": "6"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/handover",
+            "text": "Hand over"
+          },
+          "reading": "crossed",
+          "readingWord": {
+            "key": "/reading/crossed",
+            "text": "Crossed",
+            "from": "missions[id=demo-renamed].latest.verdict"
+          },
+          "why": {
+            "key": "/why/crossed",
+            "text": "Its documents are filled in and the check received refuses nothing at this step.",
+            "from": "missions[id=demo-renamed].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "2 / 2 documents filled in",
+            "args": {
+              "count": {
+                "text": "2 / 2",
+                "n": 2,
+                "N": 2,
+                "list": [
+                  "runbook.md",
+                  "handover.md"
+                ],
+                "at": [
+                  "missions[id=demo-renamed].latest.deliverables.list[11]",
+                  "missions[id=demo-renamed].latest.deliverables.list[12]"
+                ],
+                "path": "steps[5].documents.args.count",
+                "src": "demo-renamed:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        }
+      ],
+      "outside": null,
+      "unplaced": []
+    },
+    "demo-repaired": {
+      "format": "runward-fleet-path/0",
+      "lang": "en",
+      "index": {
+        "format": "runward-fleet-index/0",
+        "builtBy": {
+          "name": "runward-fleet",
+          "version": "test"
+        }
+      },
+      "title": {
+        "key": "/path/title",
+        "text": "The six steps"
+      },
+      "application": {
+        "id": "demo-repaired",
+        "path": "missions[id=demo-repaired]",
+        "name": {
+          "text": "runward-demo-renaming · the record follows the new name",
+          "path": "missions[id=demo-repaired].name",
+          "verbatim": true
+        },
+        "state": "clean",
+        "stateWord": {
+          "key": "/decision/state/clean",
+          "text": "Nothing is blocking",
+          "from": "missions[id=demo-repaired].latest.verdict"
+        },
+        "qualifier": {
+          "key": "/decision/qualifier/clean",
+          "text": "according to the team's requirements",
+          "from": "missions[id=demo-repaired].latest.verdict"
+        },
+        "date": {
+          "key": "/decision/date/received",
+          "text": "Last check received: 2026-11-10",
+          "from": "sources[id=demo-repaired:check]",
+          "args": {
+            "date": {
+              "text": "2026-11-10",
+              "path": "sources[id=demo-repaired:check].at",
+              "verbatim": true
+            }
+          }
+        }
+      },
+      "observed": true,
+      "reason": null,
+      "position": {
+        "key": "/path/position",
+        "text": "Where the check places it, as it writes it: all gates passed",
+        "from": "missions[id=demo-repaired].latest.currentGate",
+        "args": {
+          "gate": {
+            "text": "all gates passed",
+            "path": "missions[id=demo-repaired].latest.currentGate",
+            "verbatim": true
+          }
+        }
+      },
+      "note": null,
+      "current": null,
+      "steps": [
+        {
+          "step": 1,
+          "id": "frame",
+          "path": "steps[0]",
+          "number": {
+            "key": "/number",
+            "text": "Step 1",
+            "args": {
+              "step": {
+                "text": "1"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/frame",
+            "text": "Frame"
+          },
+          "reading": "crossed",
+          "readingWord": {
+            "key": "/reading/crossed",
+            "text": "Crossed",
+            "from": "missions[id=demo-repaired].latest.verdict"
+          },
+          "why": {
+            "key": "/why/crossed",
+            "text": "Its documents are filled in and the check received refuses nothing at this step.",
+            "from": "missions[id=demo-repaired].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "2 / 2 documents filled in",
+            "args": {
+              "count": {
+                "text": "2 / 2",
+                "n": 2,
+                "N": 2,
+                "list": [
+                  "framing.md",
+                  "mission-contract.md"
+                ],
+                "at": [
+                  "missions[id=demo-repaired].latest.deliverables.list[0]",
+                  "missions[id=demo-repaired].latest.deliverables.list[1]"
+                ],
+                "path": "steps[0].documents.args.count",
+                "src": "demo-repaired:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 2,
+          "id": "architect",
+          "path": "steps[1]",
+          "number": {
+            "key": "/number",
+            "text": "Step 2",
+            "args": {
+              "step": {
+                "text": "2"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/architect",
+            "text": "Architect"
+          },
+          "reading": "crossed",
+          "readingWord": {
+            "key": "/reading/crossed",
+            "text": "Crossed",
+            "from": "missions[id=demo-repaired].latest.verdict"
+          },
+          "why": {
+            "key": "/why/crossed",
+            "text": "Its documents are filled in and the check received refuses nothing at this step.",
+            "from": "missions[id=demo-repaired].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "5 / 5 documents filled in",
+            "args": {
+              "count": {
+                "text": "5 / 5",
+                "n": 5,
+                "N": 5,
+                "list": [
+                  "architecture.md",
+                  "execution-topology.md",
+                  "decision-matrix.md",
+                  "adr",
+                  "contracts"
+                ],
+                "at": [
+                  "missions[id=demo-repaired].latest.deliverables.list[2]",
+                  "missions[id=demo-repaired].latest.deliverables.list[3]",
+                  "missions[id=demo-repaired].latest.deliverables.list[4]",
+                  "missions[id=demo-repaired].latest.deliverables.list[5]",
+                  "missions[id=demo-repaired].latest.deliverables.list[6]"
+                ],
+                "path": "steps[1].documents.args.count",
+                "src": "demo-repaired:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 3,
+          "id": "floor",
+          "path": "steps[2]",
+          "number": {
+            "key": "/number",
+            "text": "Step 3",
+            "args": {
+              "step": {
+                "text": "3"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/floor",
+            "text": "Floor"
+          },
+          "reading": "crossed",
+          "readingWord": {
+            "key": "/reading/crossed",
+            "text": "Crossed",
+            "from": "missions[id=demo-repaired].latest.verdict"
+          },
+          "why": {
+            "key": "/why/crossed",
+            "text": "Its documents are filled in and the check received refuses nothing at this step.",
+            "from": "missions[id=demo-repaired].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "1 / 1 documents filled in",
+            "args": {
+              "count": {
+                "text": "1 / 1",
+                "n": 1,
+                "N": 1,
+                "list": [
+                  "floor.md"
+                ],
+                "at": [
+                  "missions[id=demo-repaired].latest.deliverables.list[7]"
+                ],
+                "path": "steps[2].documents.args.count",
+                "src": "demo-repaired:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 4,
+          "id": "iterate",
+          "path": "steps[3]",
+          "number": {
+            "key": "/number",
+            "text": "Step 4",
+            "args": {
+              "step": {
+                "text": "4"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/iterate",
+            "text": "Iterate"
+          },
+          "reading": "not-asked",
+          "readingWord": {
+            "key": "/reading/not-asked",
+            "text": "Not asked by the gate",
+            "from": "missions[id=demo-repaired].latest.deliverables.list"
+          },
+          "why": {
+            "key": "/why/not-asked",
+            "text": "The gate asks for no document at this step: it is never said crossed.",
+            "from": "missions[id=demo-repaired].latest.deliverables.list"
+          },
+          "documents": null,
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 5,
+          "id": "govern",
+          "path": "steps[4]",
+          "number": {
+            "key": "/number",
+            "text": "Step 5",
+            "args": {
+              "step": {
+                "text": "5"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/govern",
+            "text": "Govern"
+          },
+          "reading": "crossed",
+          "readingWord": {
+            "key": "/reading/crossed",
+            "text": "Crossed",
+            "from": "missions[id=demo-repaired].latest.verdict"
+          },
+          "why": {
+            "key": "/why/crossed",
+            "text": "Its documents are filled in and the check received refuses nothing at this step.",
+            "from": "missions[id=demo-repaired].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "3 / 3 documents filled in",
+            "args": {
+              "count": {
+                "text": "3 / 3",
+                "n": 3,
+                "N": 3,
+                "list": [
+                  "governance/threat-model.md",
+                  "governance/evaluation-rubric.md",
+                  "governance/observability-schema.md"
+                ],
+                "at": [
+                  "missions[id=demo-repaired].latest.deliverables.list[8]",
+                  "missions[id=demo-repaired].latest.deliverables.list[9]",
+                  "missions[id=demo-repaired].latest.deliverables.list[10]"
+                ],
+                "path": "steps[4].documents.args.count",
+                "src": "demo-repaired:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 6,
+          "id": "handover",
+          "path": "steps[5]",
+          "number": {
+            "key": "/number",
+            "text": "Step 6",
+            "args": {
+              "step": {
+                "text": "6"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/handover",
+            "text": "Hand over"
+          },
+          "reading": "crossed",
+          "readingWord": {
+            "key": "/reading/crossed",
+            "text": "Crossed",
+            "from": "missions[id=demo-repaired].latest.verdict"
+          },
+          "why": {
+            "key": "/why/crossed",
+            "text": "Its documents are filled in and the check received refuses nothing at this step.",
+            "from": "missions[id=demo-repaired].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "2 / 2 documents filled in",
+            "args": {
+              "count": {
+                "text": "2 / 2",
+                "n": 2,
+                "N": 2,
+                "list": [
+                  "runbook.md",
+                  "handover.md"
+                ],
+                "at": [
+                  "missions[id=demo-repaired].latest.deliverables.list[11]",
+                  "missions[id=demo-repaired].latest.deliverables.list[12]"
+                ],
+                "path": "steps[5].documents.args.count",
+                "src": "demo-repaired:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        }
+      ],
+      "outside": null,
+      "unplaced": []
+    },
+    "hosted": {
+      "format": "runward-fleet-path/0",
+      "lang": "en",
+      "index": {
+        "format": "runward-fleet-index/0",
+        "builtBy": {
+          "name": "runward-fleet",
+          "version": "test"
+        }
+      },
+      "title": {
+        "key": "/path/title",
+        "text": "The six steps"
+      },
+      "application": {
+        "id": "hosted",
+        "path": "missions[id=hosted]",
+        "name": {
+          "text": "runward-hosted",
+          "path": "missions[id=hosted].name",
+          "verbatim": true
+        },
+        "state": "gaps",
+        "stateWord": {
+          "key": "/decision/state/gaps",
+          "text": "Refused by the check",
+          "from": "missions[id=hosted].latest.verdict"
+        },
+        "qualifier": null,
+        "date": {
+          "key": "/decision/date/received",
+          "text": "Last check received: date not declared",
+          "from": "sources[id=hosted:check]",
+          "args": {
+            "date": {
+              "text": "date not declared"
+            }
+          }
+        }
+      },
+      "observed": true,
+      "reason": null,
+      "position": {
+        "key": "/path/position",
+        "text": "Where the check places it, as it writes it: 6 · Hand over",
+        "from": "missions[id=hosted].latest.currentGate",
+        "args": {
+          "gate": {
+            "text": "6 · Hand over",
+            "path": "missions[id=hosted].latest.currentGate",
+            "verbatim": true
+          }
+        }
+      },
+      "note": null,
+      "current": 6,
+      "steps": [
+        {
+          "step": 1,
+          "id": "frame",
+          "path": "steps[0]",
+          "number": {
+            "key": "/number",
+            "text": "Step 1",
+            "args": {
+              "step": {
+                "text": "1"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/frame",
+            "text": "Frame"
+          },
+          "reading": "crossed",
+          "readingWord": {
+            "key": "/reading/crossed",
+            "text": "Crossed",
+            "from": "missions[id=hosted].latest.verdict"
+          },
+          "why": {
+            "key": "/why/crossed",
+            "text": "Its documents are filled in and the check received refuses nothing at this step.",
+            "from": "missions[id=hosted].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "2 / 2 documents filled in",
+            "args": {
+              "count": {
+                "text": "2 / 2",
+                "n": 2,
+                "N": 2,
+                "list": [
+                  "framing.md",
+                  "mission-contract.md"
+                ],
+                "at": [
+                  "missions[id=hosted].latest.deliverables.list[0]",
+                  "missions[id=hosted].latest.deliverables.list[1]"
+                ],
+                "path": "steps[0].documents.args.count",
+                "src": "hosted:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 2,
+          "id": "architect",
+          "path": "steps[1]",
+          "number": {
+            "key": "/number",
+            "text": "Step 2",
+            "args": {
+              "step": {
+                "text": "2"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/architect",
+            "text": "Architect"
+          },
+          "reading": "refused",
+          "readingWord": {
+            "key": "/reading/refused",
+            "text": "Refused at this step",
+            "from": "missions[id=hosted].latest.conformance"
+          },
+          "why": {
+            "key": "/why/refused",
+            "text": "Its documents are filled in, and the check refuses answers at this step.",
+            "from": "missions[id=hosted].latest.conformance"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "5 / 5 documents filled in",
+            "args": {
+              "count": {
+                "text": "5 / 5",
+                "n": 5,
+                "N": 5,
+                "list": [
+                  "architecture.md",
+                  "execution-topology.md",
+                  "decision-matrix.md",
+                  "adr",
+                  "contracts"
+                ],
+                "at": [
+                  "missions[id=hosted].latest.deliverables.list[2]",
+                  "missions[id=hosted].latest.deliverables.list[3]",
+                  "missions[id=hosted].latest.deliverables.list[4]",
+                  "missions[id=hosted].latest.deliverables.list[5]",
+                  "missions[id=hosted].latest.deliverables.list[6]"
+                ],
+                "path": "steps[1].documents.args.count",
+                "src": "hosted:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": {
+            "key": "/path/refusals",
+            "text": "10 / 46 refusals of the check at this step",
+            "args": {
+              "count": {
+                "text": "10 / 46",
+                "n": 10,
+                "N": 46,
+                "list": [
+                  "Architect · contracts-governance",
+                  "Architect · hexa-adapter-pattern",
+                  "Architect · hexa-architecture",
+                  "Architect · hexa-typescript-native",
+                  "Architect · process-adr-and-journal",
+                  "Architect · security-mcp-server-pinning",
+                  "Topology · topology-port-placement-mapped",
+                  "Topology · topology-sovereignty-by-data-class",
+                  "Topology · topology-trace-export-decision",
+                  "Topology · topology-usage-registry-present"
+                ],
+                "at": [
+                  "missions[id=hosted].latest.conformance[0]",
+                  "missions[id=hosted].latest.conformance[1]",
+                  "missions[id=hosted].latest.conformance[2]",
+                  "missions[id=hosted].latest.conformance[3]",
+                  "missions[id=hosted].latest.conformance[4]",
+                  "missions[id=hosted].latest.conformance[5]",
+                  "missions[id=hosted].latest.conformance[6]",
+                  "missions[id=hosted].latest.conformance[7]",
+                  "missions[id=hosted].latest.conformance[8]",
+                  "missions[id=hosted].latest.conformance[9]"
+                ],
+                "path": "steps[1].refusals.args.count",
+                "src": "hosted:check"
+              }
+            }
+          },
+          "kinds": [
+            {
+              "kind": "proposed",
+              "line": {
+                "key": "/decision/problems/byKind",
+                "text": "10 / 10 refusals of this kind: a proposed answer is not yet endorsed.",
+                "from": "missions[id=hosted].latest.conformance[0].kind",
+                "args": {
+                  "reason": {
+                    "text": "a proposed answer is not yet endorsed.",
+                    "sentence": {
+                      "key": "/decision/kind/proposed",
+                      "text": "a proposed answer is not yet endorsed.",
+                      "from": "missions[id=hosted].latest.conformance[0].kind"
+                    }
+                  },
+                  "count": {
+                    "text": "10 / 10",
+                    "n": 10,
+                    "N": 10,
+                    "list": [
+                      "Architect · contracts-governance",
+                      "Architect · hexa-adapter-pattern",
+                      "Architect · hexa-architecture",
+                      "Architect · hexa-typescript-native",
+                      "Architect · process-adr-and-journal",
+                      "Architect · security-mcp-server-pinning",
+                      "Topology · topology-port-placement-mapped",
+                      "Topology · topology-sovereignty-by-data-class",
+                      "Topology · topology-trace-export-decision",
+                      "Topology · topology-usage-registry-present"
+                    ],
+                    "at": [
+                      "missions[id=hosted].latest.conformance[0]",
+                      "missions[id=hosted].latest.conformance[1]",
+                      "missions[id=hosted].latest.conformance[2]",
+                      "missions[id=hosted].latest.conformance[3]",
+                      "missions[id=hosted].latest.conformance[4]",
+                      "missions[id=hosted].latest.conformance[5]",
+                      "missions[id=hosted].latest.conformance[6]",
+                      "missions[id=hosted].latest.conformance[7]",
+                      "missions[id=hosted].latest.conformance[8]",
+                      "missions[id=hosted].latest.conformance[9]"
+                    ],
+                    "path": "steps[1].kinds[0].line.args.count",
+                    "src": "hosted:check"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "step": 3,
+          "id": "floor",
+          "path": "steps[2]",
+          "number": {
+            "key": "/number",
+            "text": "Step 3",
+            "args": {
+              "step": {
+                "text": "3"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/floor",
+            "text": "Floor"
+          },
+          "reading": "refused",
+          "readingWord": {
+            "key": "/reading/refused",
+            "text": "Refused at this step",
+            "from": "missions[id=hosted].latest.conformance"
+          },
+          "why": {
+            "key": "/why/refused",
+            "text": "Its documents are filled in, and the check refuses answers at this step.",
+            "from": "missions[id=hosted].latest.conformance"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "1 / 1 documents filled in",
+            "args": {
+              "count": {
+                "text": "1 / 1",
+                "n": 1,
+                "N": 1,
+                "list": [
+                  "floor.md"
+                ],
+                "at": [
+                  "missions[id=hosted].latest.deliverables.list[7]"
+                ],
+                "path": "steps[2].documents.args.count",
+                "src": "hosted:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": {
+            "key": "/path/refusals",
+            "text": "15 / 46 refusals of the check at this step",
+            "args": {
+              "count": {
+                "text": "15 / 46",
+                "n": 15,
+                "N": 46,
+                "list": [
+                  "Floor · async-post-turn-pipeline",
+                  "Floor · checklist-day-zero-project",
+                  "Floor · config-secrets-boundary",
+                  "Floor · data-migrations-forward-only",
+                  "Floor · frontier-deterministic-boundary",
+                  "Floor · hexa-adapter-pattern",
+                  "Floor · hexa-architecture",
+                  "Floor · hexa-move-deterministic-out",
+                  "Floor · provider-llm-auto-detection",
+                  "Floor · provider-no-crash-missing-env",
+                  "Floor · scaling-state-externalization",
+                  "Floor · security-prompt-injection",
+                  "Floor · state-event-sourcing",
+                  "Floor · tools-registry-pattern",
+                  "Floor · tools-scope-atomicity"
+                ],
+                "at": [
+                  "missions[id=hosted].latest.conformance[10]",
+                  "missions[id=hosted].latest.conformance[11]",
+                  "missions[id=hosted].latest.conformance[12]",
+                  "missions[id=hosted].latest.conformance[13]",
+                  "missions[id=hosted].latest.conformance[14]",
+                  "missions[id=hosted].latest.conformance[15]",
+                  "missions[id=hosted].latest.conformance[16]",
+                  "missions[id=hosted].latest.conformance[17]",
+                  "missions[id=hosted].latest.conformance[18]",
+                  "missions[id=hosted].latest.conformance[19]",
+                  "missions[id=hosted].latest.conformance[20]",
+                  "missions[id=hosted].latest.conformance[21]",
+                  "missions[id=hosted].latest.conformance[22]",
+                  "missions[id=hosted].latest.conformance[23]",
+                  "missions[id=hosted].latest.conformance[24]"
+                ],
+                "path": "steps[2].refusals.args.count",
+                "src": "hosted:check"
+              }
+            }
+          },
+          "kinds": [
+            {
+              "kind": "proposed",
+              "line": {
+                "key": "/decision/problems/byKind",
+                "text": "15 / 15 refusals of this kind: a proposed answer is not yet endorsed.",
+                "from": "missions[id=hosted].latest.conformance[10].kind",
+                "args": {
+                  "reason": {
+                    "text": "a proposed answer is not yet endorsed.",
+                    "sentence": {
+                      "key": "/decision/kind/proposed",
+                      "text": "a proposed answer is not yet endorsed.",
+                      "from": "missions[id=hosted].latest.conformance[10].kind"
+                    }
+                  },
+                  "count": {
+                    "text": "15 / 15",
+                    "n": 15,
+                    "N": 15,
+                    "list": [
+                      "Floor · async-post-turn-pipeline",
+                      "Floor · checklist-day-zero-project",
+                      "Floor · config-secrets-boundary",
+                      "Floor · data-migrations-forward-only",
+                      "Floor · frontier-deterministic-boundary",
+                      "Floor · hexa-adapter-pattern",
+                      "Floor · hexa-architecture",
+                      "Floor · hexa-move-deterministic-out",
+                      "Floor · provider-llm-auto-detection",
+                      "Floor · provider-no-crash-missing-env",
+                      "Floor · scaling-state-externalization",
+                      "Floor · security-prompt-injection",
+                      "Floor · state-event-sourcing",
+                      "Floor · tools-registry-pattern",
+                      "Floor · tools-scope-atomicity"
+                    ],
+                    "at": [
+                      "missions[id=hosted].latest.conformance[10]",
+                      "missions[id=hosted].latest.conformance[11]",
+                      "missions[id=hosted].latest.conformance[12]",
+                      "missions[id=hosted].latest.conformance[13]",
+                      "missions[id=hosted].latest.conformance[14]",
+                      "missions[id=hosted].latest.conformance[15]",
+                      "missions[id=hosted].latest.conformance[16]",
+                      "missions[id=hosted].latest.conformance[17]",
+                      "missions[id=hosted].latest.conformance[18]",
+                      "missions[id=hosted].latest.conformance[19]",
+                      "missions[id=hosted].latest.conformance[20]",
+                      "missions[id=hosted].latest.conformance[21]",
+                      "missions[id=hosted].latest.conformance[22]",
+                      "missions[id=hosted].latest.conformance[23]",
+                      "missions[id=hosted].latest.conformance[24]"
+                    ],
+                    "path": "steps[2].kinds[0].line.args.count",
+                    "src": "hosted:check"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "step": 4,
+          "id": "iterate",
+          "path": "steps[3]",
+          "number": {
+            "key": "/number",
+            "text": "Step 4",
+            "args": {
+              "step": {
+                "text": "4"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/iterate",
+            "text": "Iterate"
+          },
+          "reading": "not-asked",
+          "readingWord": {
+            "key": "/reading/not-asked",
+            "text": "Not asked by the gate",
+            "from": "missions[id=hosted].latest.deliverables.list"
+          },
+          "why": {
+            "key": "/why/not-asked",
+            "text": "The gate asks for no document at this step: it is never said crossed.",
+            "from": "missions[id=hosted].latest.deliverables.list"
+          },
+          "documents": null,
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 5,
+          "id": "govern",
+          "path": "steps[4]",
+          "number": {
+            "key": "/number",
+            "text": "Step 5",
+            "args": {
+              "step": {
+                "text": "5"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/govern",
+            "text": "Govern"
+          },
+          "reading": "refused",
+          "readingWord": {
+            "key": "/reading/refused",
+            "text": "Refused at this step",
+            "from": "missions[id=hosted].latest.conformance"
+          },
+          "why": {
+            "key": "/why/refused",
+            "text": "Its documents are filled in, and the check refuses answers at this step.",
+            "from": "missions[id=hosted].latest.conformance"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "3 / 3 documents filled in",
+            "args": {
+              "count": {
+                "text": "3 / 3",
+                "n": 3,
+                "N": 3,
+                "list": [
+                  "governance/threat-model.md",
+                  "governance/evaluation-rubric.md",
+                  "governance/observability-schema.md"
+                ],
+                "at": [
+                  "missions[id=hosted].latest.deliverables.list[8]",
+                  "missions[id=hosted].latest.deliverables.list[9]",
+                  "missions[id=hosted].latest.deliverables.list[10]"
+                ],
+                "path": "steps[4].documents.args.count",
+                "src": "hosted:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": {
+            "key": "/path/refusals",
+            "text": "17 / 46 refusals of the check at this step",
+            "args": {
+              "count": {
+                "text": "17 / 46",
+                "n": 17,
+                "N": 46,
+                "list": [
+                  "Govern · async-job-guardrails",
+                  "Govern · checklist-pre-production-observability",
+                  "Govern · checklist-pre-production-performance",
+                  "Govern · checklist-pre-production-resilience",
+                  "Govern · checklist-pre-production-security",
+                  "Govern · config-secrets-boundary",
+                  "Govern · data-memory-provenance",
+                  "Govern · eval-loop",
+                  "Govern · resilience-fail-open",
+                  "Govern · resilience-multi-provider-fallback",
+                  "Govern · resilience-retry-backoff",
+                  "Govern · routing-confidence-upgrade",
+                  "Govern · security-code-execution-sandbox",
+                  "Govern · security-human-agent-trust",
+                  "Govern · security-mcp-server-pinning",
+                  "Govern · security-prompt-injection",
+                  "Govern · security-tool-change-reapproval"
+                ],
+                "at": [
+                  "missions[id=hosted].latest.conformance[25]",
+                  "missions[id=hosted].latest.conformance[26]",
+                  "missions[id=hosted].latest.conformance[27]",
+                  "missions[id=hosted].latest.conformance[28]",
+                  "missions[id=hosted].latest.conformance[29]",
+                  "missions[id=hosted].latest.conformance[30]",
+                  "missions[id=hosted].latest.conformance[31]",
+                  "missions[id=hosted].latest.conformance[32]",
+                  "missions[id=hosted].latest.conformance[33]",
+                  "missions[id=hosted].latest.conformance[34]",
+                  "missions[id=hosted].latest.conformance[35]",
+                  "missions[id=hosted].latest.conformance[36]",
+                  "missions[id=hosted].latest.conformance[37]",
+                  "missions[id=hosted].latest.conformance[38]",
+                  "missions[id=hosted].latest.conformance[39]",
+                  "missions[id=hosted].latest.conformance[40]",
+                  "missions[id=hosted].latest.conformance[41]"
+                ],
+                "path": "steps[4].refusals.args.count",
+                "src": "hosted:check"
+              }
+            }
+          },
+          "kinds": [
+            {
+              "kind": "proposed",
+              "line": {
+                "key": "/decision/problems/byKind",
+                "text": "17 / 17 refusals of this kind: a proposed answer is not yet endorsed.",
+                "from": "missions[id=hosted].latest.conformance[25].kind",
+                "args": {
+                  "reason": {
+                    "text": "a proposed answer is not yet endorsed.",
+                    "sentence": {
+                      "key": "/decision/kind/proposed",
+                      "text": "a proposed answer is not yet endorsed.",
+                      "from": "missions[id=hosted].latest.conformance[25].kind"
+                    }
+                  },
+                  "count": {
+                    "text": "17 / 17",
+                    "n": 17,
+                    "N": 17,
+                    "list": [
+                      "Govern · async-job-guardrails",
+                      "Govern · checklist-pre-production-observability",
+                      "Govern · checklist-pre-production-performance",
+                      "Govern · checklist-pre-production-resilience",
+                      "Govern · checklist-pre-production-security",
+                      "Govern · config-secrets-boundary",
+                      "Govern · data-memory-provenance",
+                      "Govern · eval-loop",
+                      "Govern · resilience-fail-open",
+                      "Govern · resilience-multi-provider-fallback",
+                      "Govern · resilience-retry-backoff",
+                      "Govern · routing-confidence-upgrade",
+                      "Govern · security-code-execution-sandbox",
+                      "Govern · security-human-agent-trust",
+                      "Govern · security-mcp-server-pinning",
+                      "Govern · security-prompt-injection",
+                      "Govern · security-tool-change-reapproval"
+                    ],
+                    "at": [
+                      "missions[id=hosted].latest.conformance[25]",
+                      "missions[id=hosted].latest.conformance[26]",
+                      "missions[id=hosted].latest.conformance[27]",
+                      "missions[id=hosted].latest.conformance[28]",
+                      "missions[id=hosted].latest.conformance[29]",
+                      "missions[id=hosted].latest.conformance[30]",
+                      "missions[id=hosted].latest.conformance[31]",
+                      "missions[id=hosted].latest.conformance[32]",
+                      "missions[id=hosted].latest.conformance[33]",
+                      "missions[id=hosted].latest.conformance[34]",
+                      "missions[id=hosted].latest.conformance[35]",
+                      "missions[id=hosted].latest.conformance[36]",
+                      "missions[id=hosted].latest.conformance[37]",
+                      "missions[id=hosted].latest.conformance[38]",
+                      "missions[id=hosted].latest.conformance[39]",
+                      "missions[id=hosted].latest.conformance[40]",
+                      "missions[id=hosted].latest.conformance[41]"
+                    ],
+                    "path": "steps[4].kinds[0].line.args.count",
+                    "src": "hosted:check"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "step": 6,
+          "id": "handover",
+          "path": "steps[5]",
+          "number": {
+            "key": "/number",
+            "text": "Step 6",
+            "args": {
+              "step": {
+                "text": "6"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/handover",
+            "text": "Hand over"
+          },
+          "reading": "current",
+          "readingWord": {
+            "key": "/reading/current",
+            "text": "Current step",
+            "from": "missions[id=hosted].latest.deliverables.list"
+          },
+          "why": {
+            "key": "/why/current",
+            "text": "The first step whose documents are not all filled in: this is where the application stands.",
+            "from": "missions[id=hosted].latest.deliverables.list"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "1 / 2 documents filled in",
+            "args": {
+              "count": {
+                "text": "1 / 2",
+                "n": 1,
+                "N": 2,
+                "list": [
+                  "runbook.md"
+                ],
+                "at": [
+                  "missions[id=hosted].latest.deliverables.list[11]"
+                ],
+                "path": "steps[5].documents.args.count",
+                "src": "hosted:check"
+              }
+            }
+          },
+          "missing": [
+            {
+              "relPath": "handover.md",
+              "state": "untouched",
+              "cause": null,
+              "at": "missions[id=hosted].latest.deliverables.list[12]",
+              "line": {
+                "key": "/decision/pieces/item",
+                "text": "Handover note: missing document",
+                "from": "missions[id=hosted].latest.deliverables.list[12]",
+                "args": {
+                  "piece": {
+                    "text": "Handover note",
+                    "sentence": {
+                      "key": "/decision/pieces/piece/handover.md",
+                      "text": "Handover note",
+                      "from": "missions[id=hosted].latest.deliverables.list[12].relPath"
+                    }
+                  },
+                  "state": {
+                    "text": "missing document",
+                    "sentence": {
+                      "key": "/decision/pieces/state/untouched",
+                      "text": "missing document",
+                      "from": "missions[id=hosted].latest.deliverables.list[12].state"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "refusals": {
+            "key": "/path/refusals",
+            "text": "4 / 46 refusals of the check at this step",
+            "args": {
+              "count": {
+                "text": "4 / 46",
+                "n": 4,
+                "N": 46,
+                "list": [
+                  "Handover · handover-agents-charter-final",
+                  "Handover · handover-redone-task-proof",
+                  "Handover · handover-runbook-executable",
+                  "Handover · handover-succession-named"
+                ],
+                "at": [
+                  "missions[id=hosted].latest.conformance[42]",
+                  "missions[id=hosted].latest.conformance[43]",
+                  "missions[id=hosted].latest.conformance[44]",
+                  "missions[id=hosted].latest.conformance[45]"
+                ],
+                "path": "steps[5].refusals.args.count",
+                "src": "hosted:check"
+              }
+            }
+          },
+          "kinds": [
+            {
+              "kind": "missing-row",
+              "line": {
+                "key": "/decision/problems/byKind",
+                "text": "4 / 4 refusals of this kind: a requirement of the team has no answer in the record.",
+                "from": "missions[id=hosted].latest.conformance[42].kind",
+                "args": {
+                  "reason": {
+                    "text": "a requirement of the team has no answer in the record.",
+                    "sentence": {
+                      "key": "/decision/kind/missing-row",
+                      "text": "a requirement of the team has no answer in the record.",
+                      "from": "missions[id=hosted].latest.conformance[42].kind"
+                    }
+                  },
+                  "count": {
+                    "text": "4 / 4",
+                    "n": 4,
+                    "N": 4,
+                    "list": [
+                      "Handover · handover-agents-charter-final",
+                      "Handover · handover-redone-task-proof",
+                      "Handover · handover-runbook-executable",
+                      "Handover · handover-succession-named"
+                    ],
+                    "at": [
+                      "missions[id=hosted].latest.conformance[42]",
+                      "missions[id=hosted].latest.conformance[43]",
+                      "missions[id=hosted].latest.conformance[44]",
+                      "missions[id=hosted].latest.conformance[45]"
+                    ],
+                    "path": "steps[5].kinds[0].line.args.count",
+                    "src": "hosted:check"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "outside": null,
+      "unplaced": []
+    },
+    "agent": {
+      "format": "runward-fleet-path/0",
+      "lang": "en",
+      "index": {
+        "format": "runward-fleet-index/0",
+        "builtBy": {
+          "name": "runward-fleet",
+          "version": "test"
+        }
+      },
+      "title": {
+        "key": "/path/title",
+        "text": "The six steps"
+      },
+      "application": {
+        "id": "agent",
+        "path": "missions[id=agent]",
+        "name": {
+          "text": "example · two rows endorsed by an agent",
+          "path": "missions[id=agent].name",
+          "verbatim": true
+        },
+        "state": "clean",
+        "stateWord": {
+          "key": "/decision/state/clean",
+          "text": "Nothing is blocking",
+          "from": "missions[id=agent].latest.verdict"
+        },
+        "qualifier": {
+          "key": "/decision/qualifier/clean",
+          "text": "according to the team's requirements",
+          "from": "missions[id=agent].latest.verdict"
+        },
+        "date": {
+          "key": "/decision/date/received",
+          "text": "Last check received: 2026-11-10",
+          "from": "sources[id=agent:check]",
+          "args": {
+            "date": {
+              "text": "2026-11-10",
+              "path": "sources[id=agent:check].at",
+              "verbatim": true
+            }
+          }
+        }
+      },
+      "observed": true,
+      "reason": null,
+      "position": {
+        "key": "/path/position",
+        "text": "Where the check places it, as it writes it: all gates passed",
+        "from": "missions[id=agent].latest.currentGate",
+        "args": {
+          "gate": {
+            "text": "all gates passed",
+            "path": "missions[id=agent].latest.currentGate",
+            "verbatim": true
+          }
+        }
+      },
+      "note": null,
+      "current": null,
+      "steps": [
+        {
+          "step": 1,
+          "id": "frame",
+          "path": "steps[0]",
+          "number": {
+            "key": "/number",
+            "text": "Step 1",
+            "args": {
+              "step": {
+                "text": "1"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/frame",
+            "text": "Frame"
+          },
+          "reading": "crossed",
+          "readingWord": {
+            "key": "/reading/crossed",
+            "text": "Crossed",
+            "from": "missions[id=agent].latest.verdict"
+          },
+          "why": {
+            "key": "/why/crossed",
+            "text": "Its documents are filled in and the check received refuses nothing at this step.",
+            "from": "missions[id=agent].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "2 / 2 documents filled in",
+            "args": {
+              "count": {
+                "text": "2 / 2",
+                "n": 2,
+                "N": 2,
+                "list": [
+                  "framing.md",
+                  "mission-contract.md"
+                ],
+                "at": [
+                  "missions[id=agent].latest.deliverables.list[0]",
+                  "missions[id=agent].latest.deliverables.list[1]"
+                ],
+                "path": "steps[0].documents.args.count",
+                "src": "agent:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 2,
+          "id": "architect",
+          "path": "steps[1]",
+          "number": {
+            "key": "/number",
+            "text": "Step 2",
+            "args": {
+              "step": {
+                "text": "2"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/architect",
+            "text": "Architect"
+          },
+          "reading": "crossed",
+          "readingWord": {
+            "key": "/reading/crossed",
+            "text": "Crossed",
+            "from": "missions[id=agent].latest.verdict"
+          },
+          "why": {
+            "key": "/why/crossed",
+            "text": "Its documents are filled in and the check received refuses nothing at this step.",
+            "from": "missions[id=agent].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "5 / 5 documents filled in",
+            "args": {
+              "count": {
+                "text": "5 / 5",
+                "n": 5,
+                "N": 5,
+                "list": [
+                  "architecture.md",
+                  "execution-topology.md",
+                  "decision-matrix.md",
+                  "adr",
+                  "contracts"
+                ],
+                "at": [
+                  "missions[id=agent].latest.deliverables.list[2]",
+                  "missions[id=agent].latest.deliverables.list[3]",
+                  "missions[id=agent].latest.deliverables.list[4]",
+                  "missions[id=agent].latest.deliverables.list[5]",
+                  "missions[id=agent].latest.deliverables.list[6]"
+                ],
+                "path": "steps[1].documents.args.count",
+                "src": "agent:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 3,
+          "id": "floor",
+          "path": "steps[2]",
+          "number": {
+            "key": "/number",
+            "text": "Step 3",
+            "args": {
+              "step": {
+                "text": "3"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/floor",
+            "text": "Floor"
+          },
+          "reading": "crossed",
+          "readingWord": {
+            "key": "/reading/crossed",
+            "text": "Crossed",
+            "from": "missions[id=agent].latest.verdict"
+          },
+          "why": {
+            "key": "/why/crossed",
+            "text": "Its documents are filled in and the check received refuses nothing at this step.",
+            "from": "missions[id=agent].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "1 / 1 documents filled in",
+            "args": {
+              "count": {
+                "text": "1 / 1",
+                "n": 1,
+                "N": 1,
+                "list": [
+                  "floor.md"
+                ],
+                "at": [
+                  "missions[id=agent].latest.deliverables.list[7]"
+                ],
+                "path": "steps[2].documents.args.count",
+                "src": "agent:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 4,
+          "id": "iterate",
+          "path": "steps[3]",
+          "number": {
+            "key": "/number",
+            "text": "Step 4",
+            "args": {
+              "step": {
+                "text": "4"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/iterate",
+            "text": "Iterate"
+          },
+          "reading": "not-asked",
+          "readingWord": {
+            "key": "/reading/not-asked",
+            "text": "Not asked by the gate",
+            "from": "missions[id=agent].latest.deliverables.list"
+          },
+          "why": {
+            "key": "/why/not-asked",
+            "text": "The gate asks for no document at this step: it is never said crossed.",
+            "from": "missions[id=agent].latest.deliverables.list"
+          },
+          "documents": null,
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 5,
+          "id": "govern",
+          "path": "steps[4]",
+          "number": {
+            "key": "/number",
+            "text": "Step 5",
+            "args": {
+              "step": {
+                "text": "5"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/govern",
+            "text": "Govern"
+          },
+          "reading": "crossed",
+          "readingWord": {
+            "key": "/reading/crossed",
+            "text": "Crossed",
+            "from": "missions[id=agent].latest.verdict"
+          },
+          "why": {
+            "key": "/why/crossed",
+            "text": "Its documents are filled in and the check received refuses nothing at this step.",
+            "from": "missions[id=agent].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "3 / 3 documents filled in",
+            "args": {
+              "count": {
+                "text": "3 / 3",
+                "n": 3,
+                "N": 3,
+                "list": [
+                  "governance/threat-model.md",
+                  "governance/evaluation-rubric.md",
+                  "governance/observability-schema.md"
+                ],
+                "at": [
+                  "missions[id=agent].latest.deliverables.list[8]",
+                  "missions[id=agent].latest.deliverables.list[9]",
+                  "missions[id=agent].latest.deliverables.list[10]"
+                ],
+                "path": "steps[4].documents.args.count",
+                "src": "agent:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 6,
+          "id": "handover",
+          "path": "steps[5]",
+          "number": {
+            "key": "/number",
+            "text": "Step 6",
+            "args": {
+              "step": {
+                "text": "6"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/handover",
+            "text": "Hand over"
+          },
+          "reading": "crossed",
+          "readingWord": {
+            "key": "/reading/crossed",
+            "text": "Crossed",
+            "from": "missions[id=agent].latest.verdict"
+          },
+          "why": {
+            "key": "/why/crossed",
+            "text": "Its documents are filled in and the check received refuses nothing at this step.",
+            "from": "missions[id=agent].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "2 / 2 documents filled in",
+            "args": {
+              "count": {
+                "text": "2 / 2",
+                "n": 2,
+                "N": 2,
+                "list": [
+                  "runbook.md",
+                  "handover.md"
+                ],
+                "at": [
+                  "missions[id=agent].latest.deliverables.list[11]",
+                  "missions[id=agent].latest.deliverables.list[12]"
+                ],
+                "path": "steps[5].documents.args.count",
+                "src": "agent:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        }
+      ],
+      "outside": null,
+      "unplaced": []
+    },
+    "level": {
+      "format": "runward-fleet-path/0",
+      "lang": "en",
+      "index": {
+        "format": "runward-fleet-index/0",
+        "builtBy": {
+          "name": "runward-fleet",
+          "version": "test"
+        }
+      },
+      "title": {
+        "key": "/path/title",
+        "text": "The six steps"
+      },
+      "application": {
+        "id": "level",
+        "path": "missions[id=level]",
+        "name": {
+          "text": "example · a level required and not met",
+          "path": "missions[id=level].name",
+          "verbatim": true
+        },
+        "state": "level-not-met",
+        "stateWord": {
+          "key": "/decision/state/level-not-met",
+          "text": "Required level not met",
+          "from": "missions[id=level].latest.verdict"
+        },
+        "qualifier": null,
+        "date": {
+          "key": "/decision/date/received",
+          "text": "Last check received: 2026-11-10",
+          "from": "sources[id=level:check]",
+          "args": {
+            "date": {
+              "text": "2026-11-10",
+              "path": "sources[id=level:check].at",
+              "verbatim": true
+            }
+          }
+        }
+      },
+      "observed": true,
+      "reason": null,
+      "position": {
+        "key": "/path/position",
+        "text": "Where the check places it, as it writes it: deliverables filled, below the level of proof the run required (attested)",
+        "from": "missions[id=level].latest.currentGate",
+        "args": {
+          "gate": {
+            "text": "deliverables filled, below the level of proof the run required (attested)",
+            "path": "missions[id=level].latest.currentGate",
+            "verbatim": true
+          }
+        }
+      },
+      "note": null,
+      "current": null,
+      "steps": [
+        {
+          "step": 1,
+          "id": "frame",
+          "path": "steps[0]",
+          "number": {
+            "key": "/number",
+            "text": "Step 1",
+            "args": {
+              "step": {
+                "text": "1"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/frame",
+            "text": "Frame"
+          },
+          "reading": "complete",
+          "readingWord": {
+            "key": "/reading/complete",
+            "text": "Documents complete",
+            "from": "missions[id=level].latest.verdict"
+          },
+          "why": {
+            "key": "/why/complete/level-not-met",
+            "text": "Its documents are filled in and nothing is refused at this step, but the evidence does not reach the level the team requires: it is not said crossed.",
+            "from": "missions[id=level].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "2 / 2 documents filled in",
+            "args": {
+              "count": {
+                "text": "2 / 2",
+                "n": 2,
+                "N": 2,
+                "list": [
+                  "framing.md",
+                  "mission-contract.md"
+                ],
+                "at": [
+                  "missions[id=level].latest.deliverables.list[0]",
+                  "missions[id=level].latest.deliverables.list[1]"
+                ],
+                "path": "steps[0].documents.args.count",
+                "src": "level:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 2,
+          "id": "architect",
+          "path": "steps[1]",
+          "number": {
+            "key": "/number",
+            "text": "Step 2",
+            "args": {
+              "step": {
+                "text": "2"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/architect",
+            "text": "Architect"
+          },
+          "reading": "complete",
+          "readingWord": {
+            "key": "/reading/complete",
+            "text": "Documents complete",
+            "from": "missions[id=level].latest.verdict"
+          },
+          "why": {
+            "key": "/why/complete/level-not-met",
+            "text": "Its documents are filled in and nothing is refused at this step, but the evidence does not reach the level the team requires: it is not said crossed.",
+            "from": "missions[id=level].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "5 / 5 documents filled in",
+            "args": {
+              "count": {
+                "text": "5 / 5",
+                "n": 5,
+                "N": 5,
+                "list": [
+                  "architecture.md",
+                  "execution-topology.md",
+                  "decision-matrix.md",
+                  "adr",
+                  "contracts"
+                ],
+                "at": [
+                  "missions[id=level].latest.deliverables.list[2]",
+                  "missions[id=level].latest.deliverables.list[3]",
+                  "missions[id=level].latest.deliverables.list[4]",
+                  "missions[id=level].latest.deliverables.list[5]",
+                  "missions[id=level].latest.deliverables.list[6]"
+                ],
+                "path": "steps[1].documents.args.count",
+                "src": "level:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 3,
+          "id": "floor",
+          "path": "steps[2]",
+          "number": {
+            "key": "/number",
+            "text": "Step 3",
+            "args": {
+              "step": {
+                "text": "3"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/floor",
+            "text": "Floor"
+          },
+          "reading": "complete",
+          "readingWord": {
+            "key": "/reading/complete",
+            "text": "Documents complete",
+            "from": "missions[id=level].latest.verdict"
+          },
+          "why": {
+            "key": "/why/complete/level-not-met",
+            "text": "Its documents are filled in and nothing is refused at this step, but the evidence does not reach the level the team requires: it is not said crossed.",
+            "from": "missions[id=level].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "1 / 1 documents filled in",
+            "args": {
+              "count": {
+                "text": "1 / 1",
+                "n": 1,
+                "N": 1,
+                "list": [
+                  "floor.md"
+                ],
+                "at": [
+                  "missions[id=level].latest.deliverables.list[7]"
+                ],
+                "path": "steps[2].documents.args.count",
+                "src": "level:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 4,
+          "id": "iterate",
+          "path": "steps[3]",
+          "number": {
+            "key": "/number",
+            "text": "Step 4",
+            "args": {
+              "step": {
+                "text": "4"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/iterate",
+            "text": "Iterate"
+          },
+          "reading": "not-asked",
+          "readingWord": {
+            "key": "/reading/not-asked",
+            "text": "Not asked by the gate",
+            "from": "missions[id=level].latest.deliverables.list"
+          },
+          "why": {
+            "key": "/why/not-asked",
+            "text": "The gate asks for no document at this step: it is never said crossed.",
+            "from": "missions[id=level].latest.deliverables.list"
+          },
+          "documents": null,
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 5,
+          "id": "govern",
+          "path": "steps[4]",
+          "number": {
+            "key": "/number",
+            "text": "Step 5",
+            "args": {
+              "step": {
+                "text": "5"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/govern",
+            "text": "Govern"
+          },
+          "reading": "complete",
+          "readingWord": {
+            "key": "/reading/complete",
+            "text": "Documents complete",
+            "from": "missions[id=level].latest.verdict"
+          },
+          "why": {
+            "key": "/why/complete/level-not-met",
+            "text": "Its documents are filled in and nothing is refused at this step, but the evidence does not reach the level the team requires: it is not said crossed.",
+            "from": "missions[id=level].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "3 / 3 documents filled in",
+            "args": {
+              "count": {
+                "text": "3 / 3",
+                "n": 3,
+                "N": 3,
+                "list": [
+                  "governance/threat-model.md",
+                  "governance/evaluation-rubric.md",
+                  "governance/observability-schema.md"
+                ],
+                "at": [
+                  "missions[id=level].latest.deliverables.list[8]",
+                  "missions[id=level].latest.deliverables.list[9]",
+                  "missions[id=level].latest.deliverables.list[10]"
+                ],
+                "path": "steps[4].documents.args.count",
+                "src": "level:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        },
+        {
+          "step": 6,
+          "id": "handover",
+          "path": "steps[5]",
+          "number": {
+            "key": "/number",
+            "text": "Step 6",
+            "args": {
+              "step": {
+                "text": "6"
+              }
+            }
+          },
+          "name": {
+            "key": "/step/handover",
+            "text": "Hand over"
+          },
+          "reading": "complete",
+          "readingWord": {
+            "key": "/reading/complete",
+            "text": "Documents complete",
+            "from": "missions[id=level].latest.verdict"
+          },
+          "why": {
+            "key": "/why/complete/level-not-met",
+            "text": "Its documents are filled in and nothing is refused at this step, but the evidence does not reach the level the team requires: it is not said crossed.",
+            "from": "missions[id=level].latest.verdict"
+          },
+          "documents": {
+            "key": "/path/documents",
+            "text": "2 / 2 documents filled in",
+            "args": {
+              "count": {
+                "text": "2 / 2",
+                "n": 2,
+                "N": 2,
+                "list": [
+                  "runbook.md",
+                  "handover.md"
+                ],
+                "at": [
+                  "missions[id=level].latest.deliverables.list[11]",
+                  "missions[id=level].latest.deliverables.list[12]"
+                ],
+                "path": "steps[5].documents.args.count",
+                "src": "level:check"
+              }
+            }
+          },
+          "missing": [],
+          "refusals": null,
+          "kinds": []
+        }
+      ],
+      "outside": null,
+      "unplaced": []
+    },
+    "silent": {
+      "format": "runward-fleet-path/0",
+      "lang": "en",
+      "index": {
+        "format": "runward-fleet-index/0",
+        "builtBy": {
+          "name": "runward-fleet",
+          "version": "test"
+        }
+      },
+      "title": {
+        "key": "/path/title",
+        "text": "The six steps"
+      },
+      "application": {
+        "id": "silent",
+        "path": "missions[id=silent]",
+        "name": {
+          "text": "example · declared, nothing received",
+          "path": "missions[id=silent].name",
+          "verbatim": true
+        },
+        "state": "not-observed",
+        "stateWord": {
+          "key": "/decision/state/not-observed",
+          "text": "No check received",
+          "from": "missions[id=silent].latest"
+        },
+        "qualifier": null,
+        "date": null
+      },
+      "observed": false,
+      "reason": {
+        "key": "/decision/reason/not-observed",
+        "text": "No check has been received for this application.",
+        "from": "missions[id=silent].latest"
+      },
+      "position": null,
+      "note": null,
+      "current": null,
+      "steps": [],
+      "outside": null,
+      "unplaced": []
+    },
+    "digest": {
+      "format": "runward-fleet-path/0",
+      "lang": "en",
+      "index": {
+        "format": "runward-fleet-index/0",
+        "builtBy": {
+          "name": "runward-fleet",
+          "version": "test"
+        }
+      },
+      "title": {
+        "key": "/path/title",
+        "text": "The six steps"
+      },
+      "application": {
+        "id": "digest",
+        "path": "missions[id=digest]",
+        "name": {
+          "text": "example · fingerprints only",
+          "path": "missions[id=digest].name",
+          "verbatim": true
+        },
+        "state": "not-available",
+        "stateWord": {
+          "key": "/decision/state/not-available",
+          "text": "Content not shared",
+          "from": "missions[id=digest].latest"
+        },
+        "qualifier": null,
+        "date": {
+          "key": "/decision/date/fingerprints",
+          "text": "Last fingerprints received: 2026-11-09",
+          "from": "sources[id=digest:check]",
+          "args": {
+            "date": {
+              "text": "2026-11-09",
+              "path": "sources[id=digest:check].at",
+              "verbatim": true
+            }
+          }
+        }
+      },
+      "observed": false,
+      "reason": {
+        "key": "/decision/reason/not-available",
+        "text": "Only fingerprints are sent for this application: its content is not shared.",
+        "from": "missions[id=digest].latest"
+      },
+      "position": null,
+      "note": null,
+      "current": null,
+      "steps": [],
+      "outside": null,
+      "unplaced": []
+    }
+  },
+  "point": {
+    "format": "runward-fleet-point/0",
+    "lang": "en",
+    "index": {
+      "format": "runward-fleet-index/0",
+      "builtBy": {
+        "name": "runward-fleet",
+        "version": "test"
+      }
+    },
+    "asOf": "2026-11-06",
+    "missions": [
+      {
+        "id": "demo-renamed",
+        "name": "runward-demo-renaming · a name changed in the code",
+        "state": "gaps",
+        "runward": "0.46.0",
+        "commit": null,
+        "gate": "deliverables filled, gate red at Floor, Govern",
+        "exitCode": 1,
+        "gaps": {
+          "deliverables": 0,
+          "conformance": 2
+        },
+        "check": "8036e3f463af98bb509336470cc29a6df974024a7673635881bf3b88e323a1a9",
+        "steps": [
+          "crossed",
+          "crossed",
+          "refused",
+          "not-asked",
+          "refused",
+          "crossed"
+        ]
+      },
+      {
+        "id": "demo-repaired",
+        "name": "runward-demo-renaming · the record follows the new name",
+        "state": "clean",
+        "runward": "0.46.0",
+        "commit": null,
+        "gate": "all gates passed",
+        "exitCode": 0,
+        "gaps": {
+          "deliverables": 0,
+          "conformance": 0
+        },
+        "check": "a56c8dd45c040d205456d8aa6046a30ce32a3a63a3fbb6f94e9ca9071b1885b7",
+        "steps": [
+          "crossed",
+          "crossed",
+          "crossed",
+          "not-asked",
+          "crossed",
+          "crossed"
+        ]
+      },
+      {
+        "id": "hosted",
+        "name": "runward-hosted",
+        "state": "gaps",
+        "runward": "0.46.0",
+        "commit": null,
+        "gate": "6 · Hand over",
+        "exitCode": 1,
+        "gaps": {
+          "deliverables": 1,
+          "conformance": 46
+        },
+        "check": "08145734001183a40231d8bf2af86870b7a3ddbe720554e3d0a4f1fdbbdbf300",
+        "steps": [
+          "crossed",
+          "refused",
+          "refused",
+          "not-asked",
+          "refused",
+          "current"
+        ]
+      },
+      {
+        "id": "agent",
+        "name": "example · two rows endorsed by an agent",
+        "state": "clean",
+        "runward": "0.46.0",
+        "commit": null,
+        "gate": "all gates passed",
+        "exitCode": 0,
+        "gaps": {
+          "deliverables": 0,
+          "conformance": 0
+        },
+        "check": "af8381f9ce01606728396d3be0d12db942a65d0415177122cce68737535d5c9a",
+        "steps": [
+          "crossed",
+          "crossed",
+          "crossed",
+          "not-asked",
+          "crossed",
+          "crossed"
+        ]
+      },
+      {
+        "id": "level",
+        "name": "example · a level required and not met",
+        "state": "level-not-met",
+        "runward": "0.46.0",
+        "commit": null,
+        "gate": "deliverables filled, below the level of proof the run required (attested)",
+        "exitCode": 5,
+        "gaps": {
+          "deliverables": 0,
+          "conformance": 0
+        },
+        "check": "e5febad3d24fad33b4d77ad3ddfbc76b208abd03815aaa58770589ec2eb2fcba",
+        "steps": [
+          "complete",
+          "complete",
+          "complete",
+          "not-asked",
+          "complete",
+          "complete"
+        ]
+      },
+      {
+        "id": "silent",
+        "name": "example · declared, nothing received",
+        "state": "not-observed",
+        "runward": null,
+        "commit": null,
+        "gate": null,
+        "exitCode": null,
+        "gaps": null,
+        "check": null,
+        "steps": null
+      },
+      {
+        "id": "digest",
+        "name": "example · fingerprints only",
+        "state": "not-available",
+        "runward": null,
+        "commit": null,
+        "gate": null,
+        "exitCode": null,
+        "gaps": null,
+        "check": "8036e3f463af98bb509336470cc29a6df974024a7673635881bf3b88e323a1a9",
+        "steps": null
+      }
+    ]
+  },
+  "series": {
+    "format": "runward-fleet-series/0",
+    "lang": "en",
+    "origin": "received",
+    "size": 4,
+    "series": [
+      {
+        "id": "demo",
+        "name": "example/demo",
+        "judgedBy": [
+          "0.46.0"
+        ],
+        "points": [
+          {
+            "version": 11,
+            "seq": 1,
+            "at": "2026-11-08",
+            "state": "gaps",
+            "runward": "0.46.0",
+            "commit": null,
+            "gate": "deliverables filled, gate red at Floor, Govern",
+            "gaps": {
+              "deliverables": 0,
+              "conformance": 2
+            },
+            "steps": [
+              "crossed",
+              "crossed",
+              "refused",
+              "not-asked",
+              "refused",
+              "crossed"
+            ],
+            "check": "8036e3f463af98bb509336470cc29a6df974024a7673635881bf3b88e323a1a9",
+            "judgeChanged": false,
+            "stateWord": {
+              "key": "/decision/group/gaps",
+              "text": "Refused by the check",
+              "from": "series[0].points[0].state"
+            }
+          },
+          {
+            "version": 12,
+            "seq": 2,
+            "at": "2026-11-09",
+            "state": "erased",
+            "hole": true,
+            "stateWord": {
+              "key": "/series/state/erased",
+              "text": "Content erased",
+              "from": "series[0].points[1].state"
+            }
+          },
+          {
+            "version": 13,
+            "seq": 3,
+            "at": "2026-11-10",
+            "state": "clean",
+            "runward": "0.46.0",
+            "commit": null,
+            "gate": "all gates passed",
+            "gaps": {
+              "deliverables": 0,
+              "conformance": 0
+            },
+            "steps": [
+              "crossed",
+              "crossed",
+              "crossed",
+              "not-asked",
+              "crossed",
+              "crossed"
+            ],
+            "check": "a56c8dd45c040d205456d8aa6046a30ce32a3a63a3fbb6f94e9ca9071b1885b7",
+            "judgeChanged": false,
+            "stateWord": {
+              "key": "/decision/group/clean",
+              "text": "Nothing is blocking, according to the team's requirements",
+              "from": "series[0].points[2].state"
+            }
+          },
+          {
+            "version": 14,
+            "seq": 4,
+            "at": "2026-11-11",
+            "state": "clean",
+            "runward": "0.46.0",
+            "commit": null,
+            "gate": "all gates passed",
+            "gaps": {
+              "deliverables": 0,
+              "conformance": 0
+            },
+            "steps": [
+              "crossed",
+              "crossed",
+              "crossed",
+              "not-asked",
+              "crossed",
+              "crossed"
+            ],
+            "check": "a56c8dd45c040d205456d8aa6046a30ce32a3a63a3fbb6f94e9ca9071b1885b7",
+            "judgeChanged": false,
+            "stateWord": {
+              "key": "/decision/group/clean",
+              "text": "Nothing is blocking, according to the team's requirements",
+              "from": "series[0].points[3].state"
+            }
+          }
+        ],
+        "since": {
+          "version": 13,
+          "seq": 3,
+          "at": "2026-11-10",
+          "state": "clean",
+          "gate": "all gates passed"
+        },
+        "sinceLine": {
+          "key": "/series/since",
+          "text": "The same state and the same position since version 13, received 2026-11-10",
+          "from": "series[0].since",
+          "args": {
+            "version": {
+              "text": "13",
+              "path": "series[0].since.version",
+              "verbatim": true
+            },
+            "at": {
+              "text": "2026-11-10",
+              "path": "series[0].since.at",
+              "verbatim": true
+            }
+          }
+        },
+        "byState": [
+          {
+            "state": "clean",
+            "line": {
+              "key": "/series/group",
+              "text": "Nothing is blocking, according to the team's requirements: 2 / 4",
+              "args": {
+                "state": {
+                  "text": "Nothing is blocking, according to the team's requirements",
+                  "sentence": {
+                    "key": "/decision/group/clean",
+                    "text": "Nothing is blocking, according to the team's requirements",
+                    "from": "series[0].byState[0].state"
+                  }
+                },
+                "count": {
+                  "text": "2 / 4",
+                  "n": 2,
+                  "N": 4,
+                  "list": [
+                    "13",
+                    "14"
+                  ],
+                  "at": [
+                    "series[0].points[2]",
+                    "series[0].points[3]"
+                  ],
+                  "path": "series[0].byState[0].line.args.count",
+                  "src": "received"
+                }
+              }
+            }
+          },
+          {
+            "state": "gaps",
+            "line": {
+              "key": "/series/group",
+              "text": "Refused by the check: 1 / 4",
+              "args": {
+                "state": {
+                  "text": "Refused by the check",
+                  "sentence": {
+                    "key": "/decision/group/gaps",
+                    "text": "Refused by the check",
+                    "from": "series[0].byState[1].state"
+                  }
+                },
+                "count": {
+                  "text": "1 / 4",
+                  "n": 1,
+                  "N": 4,
+                  "list": [
+                    "11"
+                  ],
+                  "at": [
+                    "series[0].points[0]"
+                  ],
+                  "path": "series[0].byState[1].line.args.count",
+                  "src": "received"
+                }
+              }
+            }
+          },
+          {
+            "state": "erased",
+            "line": {
+              "key": "/series/group",
+              "text": "Content erased: 1 / 4",
+              "args": {
+                "state": {
+                  "text": "Content erased",
+                  "sentence": {
+                    "key": "/series/state/erased",
+                    "text": "Content erased",
+                    "from": "series[0].byState[2].state"
+                  }
+                },
+                "count": {
+                  "text": "1 / 4",
+                  "n": 1,
+                  "N": 4,
+                  "list": [
+                    "12"
+                  ],
+                  "at": [
+                    "series[0].points[1]"
+                  ],
+                  "path": "series[0].byState[2].line.args.count",
+                  "src": "received"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "hosted",
+        "name": "example/hosted",
+        "judgedBy": [
+          "0.46.0"
+        ],
+        "points": [
+          {
+            "version": 11,
+            "seq": 1,
+            "at": "2026-11-08",
+            "state": "gaps",
+            "runward": "0.46.0",
+            "commit": null,
+            "gate": "6 · Hand over",
+            "gaps": {
+              "deliverables": 1,
+              "conformance": 46
+            },
+            "steps": [
+              "crossed",
+              "refused",
+              "refused",
+              "not-asked",
+              "refused",
+              "current"
+            ],
+            "check": "08145734001183a40231d8bf2af86870b7a3ddbe720554e3d0a4f1fdbbdbf300",
+            "judgeChanged": false,
+            "stateWord": {
+              "key": "/decision/group/gaps",
+              "text": "Refused by the check",
+              "from": "series[1].points[0].state"
+            }
+          },
+          {
+            "version": 12,
+            "seq": 2,
+            "at": "2026-11-09",
+            "state": "erased",
+            "hole": true,
+            "stateWord": {
+              "key": "/series/state/erased",
+              "text": "Content erased",
+              "from": "series[1].points[1].state"
+            }
+          },
+          {
+            "version": 13,
+            "seq": 3,
+            "at": "2026-11-10",
+            "state": "gaps",
+            "runward": "0.46.0",
+            "commit": null,
+            "gate": "6 · Hand over",
+            "gaps": {
+              "deliverables": 1,
+              "conformance": 46
+            },
+            "steps": [
+              "crossed",
+              "refused",
+              "refused",
+              "not-asked",
+              "refused",
+              "current"
+            ],
+            "check": "08145734001183a40231d8bf2af86870b7a3ddbe720554e3d0a4f1fdbbdbf300",
+            "judgeChanged": false,
+            "stateWord": {
+              "key": "/decision/group/gaps",
+              "text": "Refused by the check",
+              "from": "series[1].points[2].state"
+            }
+          },
+          {
+            "version": 14,
+            "seq": 4,
+            "at": "2026-11-11",
+            "state": "gaps",
+            "runward": "0.46.0",
+            "commit": null,
+            "gate": "6 · Hand over",
+            "gaps": {
+              "deliverables": 1,
+              "conformance": 46
+            },
+            "steps": [
+              "crossed",
+              "refused",
+              "refused",
+              "not-asked",
+              "refused",
+              "current"
+            ],
+            "check": "08145734001183a40231d8bf2af86870b7a3ddbe720554e3d0a4f1fdbbdbf300",
+            "judgeChanged": false,
+            "stateWord": {
+              "key": "/decision/group/gaps",
+              "text": "Refused by the check",
+              "from": "series[1].points[3].state"
+            }
+          }
+        ],
+        "since": {
+          "version": 13,
+          "seq": 3,
+          "at": "2026-11-10",
+          "state": "gaps",
+          "gate": "6 · Hand over"
+        },
+        "sinceLine": {
+          "key": "/series/since",
+          "text": "The same state and the same position since version 13, received 2026-11-10",
+          "from": "series[1].since",
+          "args": {
+            "version": {
+              "text": "13",
+              "path": "series[1].since.version",
+              "verbatim": true
+            },
+            "at": {
+              "text": "2026-11-10",
+              "path": "series[1].since.at",
+              "verbatim": true
+            }
+          }
+        },
+        "byState": [
+          {
+            "state": "gaps",
+            "line": {
+              "key": "/series/group",
+              "text": "Refused by the check: 3 / 4",
+              "args": {
+                "state": {
+                  "text": "Refused by the check",
+                  "sentence": {
+                    "key": "/decision/group/gaps",
+                    "text": "Refused by the check",
+                    "from": "series[1].byState[0].state"
+                  }
+                },
+                "count": {
+                  "text": "3 / 4",
+                  "n": 3,
+                  "N": 4,
+                  "list": [
+                    "11",
+                    "13",
+                    "14"
+                  ],
+                  "at": [
+                    "series[1].points[0]",
+                    "series[1].points[2]",
+                    "series[1].points[3]"
+                  ],
+                  "path": "series[1].byState[0].line.args.count",
+                  "src": "received"
+                }
+              }
+            }
+          },
+          {
+            "state": "erased",
+            "line": {
+              "key": "/series/group",
+              "text": "Content erased: 1 / 4",
+              "args": {
+                "state": {
+                  "text": "Content erased",
+                  "sentence": {
+                    "key": "/series/state/erased",
+                    "text": "Content erased",
+                    "from": "series[1].byState[1].state"
+                  }
+                },
+                "count": {
+                  "text": "1 / 4",
+                  "n": 1,
+                  "N": 4,
+                  "list": [
+                    "12"
+                  ],
+                  "at": [
+                    "series[1].points[1]"
+                  ],
+                  "path": "series[1].byState[1].line.args.count",
+                  "src": "received"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "level",
+        "name": "example/level",
+        "judgedBy": [
+          "0.46.0"
+        ],
+        "points": [
+          {
+            "version": 12,
+            "seq": 2,
+            "at": "2026-11-09",
+            "state": "erased",
+            "hole": true,
+            "stateWord": {
+              "key": "/series/state/erased",
+              "text": "Content erased",
+              "from": "series[2].points[0].state"
+            }
+          },
+          {
+            "version": 14,
+            "seq": 4,
+            "at": "2026-11-11",
+            "state": "level-not-met",
+            "runward": "0.46.0",
+            "commit": null,
+            "gate": "deliverables filled, below the level of proof the run required (attested)",
+            "gaps": {
+              "deliverables": 0,
+              "conformance": 0
+            },
+            "steps": [
+              "complete",
+              "complete",
+              "complete",
+              "not-asked",
+              "complete",
+              "complete"
+            ],
+            "check": "e5febad3d24fad33b4d77ad3ddfbc76b208abd03815aaa58770589ec2eb2fcba",
+            "judgeChanged": false,
+            "stateWord": {
+              "key": "/decision/group/level-not-met",
+              "text": "Required level not met",
+              "from": "series[2].points[1].state"
+            }
+          }
+        ],
+        "since": {
+          "version": 14,
+          "seq": 4,
+          "at": "2026-11-11",
+          "state": "level-not-met",
+          "gate": "deliverables filled, below the level of proof the run required (attested)"
+        },
+        "sinceLine": {
+          "key": "/series/since",
+          "text": "The same state and the same position since version 14, received 2026-11-11",
+          "from": "series[2].since",
+          "args": {
+            "version": {
+              "text": "14",
+              "path": "series[2].since.version",
+              "verbatim": true
+            },
+            "at": {
+              "text": "2026-11-11",
+              "path": "series[2].since.at",
+              "verbatim": true
+            }
+          }
+        },
+        "byState": [
+          {
+            "state": "level-not-met",
+            "line": {
+              "key": "/series/group",
+              "text": "Required level not met: 1 / 2",
+              "args": {
+                "state": {
+                  "text": "Required level not met",
+                  "sentence": {
+                    "key": "/decision/group/level-not-met",
+                    "text": "Required level not met",
+                    "from": "series[2].byState[0].state"
+                  }
+                },
+                "count": {
+                  "text": "1 / 2",
+                  "n": 1,
+                  "N": 2,
+                  "list": [
+                    "14"
+                  ],
+                  "at": [
+                    "series[2].points[1]"
+                  ],
+                  "path": "series[2].byState[0].line.args.count",
+                  "src": "received"
+                }
+              }
+            }
+          },
+          {
+            "state": "erased",
+            "line": {
+              "key": "/series/group",
+              "text": "Content erased: 1 / 2",
+              "args": {
+                "state": {
+                  "text": "Content erased",
+                  "sentence": {
+                    "key": "/series/state/erased",
+                    "text": "Content erased",
+                    "from": "series[2].byState[1].state"
+                  }
+                },
+                "count": {
+                  "text": "1 / 2",
+                  "n": 1,
+                  "N": 2,
+                  "list": [
+                    "12"
+                  ],
+                  "at": [
+                    "series[2].points[0]"
+                  ],
+                  "path": "series[2].byState[1].line.args.count",
+                  "src": "received"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "silent",
+        "name": "example/silent",
+        "judgedBy": [],
+        "points": [
+          {
+            "version": 11,
+            "seq": 1,
+            "at": "2026-11-08",
+            "state": "not-observed",
+            "runward": null,
+            "commit": null,
+            "gate": null,
+            "gaps": null,
+            "steps": null,
+            "check": null,
+            "judgeChanged": false,
+            "stateWord": {
+              "key": "/decision/group/not-observed",
+              "text": "No check received",
+              "from": "series[3].points[0].state"
+            }
+          },
+          {
+            "version": 12,
+            "seq": 2,
+            "at": "2026-11-09",
+            "state": "erased",
+            "hole": true,
+            "stateWord": {
+              "key": "/series/state/erased",
+              "text": "Content erased",
+              "from": "series[3].points[1].state"
+            }
+          },
+          {
+            "version": 13,
+            "seq": 3,
+            "at": "2026-11-10",
+            "state": "not-observed",
+            "runward": null,
+            "commit": null,
+            "gate": null,
+            "gaps": null,
+            "steps": null,
+            "check": null,
+            "judgeChanged": false,
+            "stateWord": {
+              "key": "/decision/group/not-observed",
+              "text": "No check received",
+              "from": "series[3].points[2].state"
+            }
+          },
+          {
+            "version": 14,
+            "seq": 4,
+            "at": "2026-11-11",
+            "state": "not-observed",
+            "runward": null,
+            "commit": null,
+            "gate": null,
+            "gaps": null,
+            "steps": null,
+            "check": null,
+            "judgeChanged": false,
+            "stateWord": {
+              "key": "/decision/group/not-observed",
+              "text": "No check received",
+              "from": "series[3].points[3].state"
+            }
+          }
+        ],
+        "since": {
+          "version": 13,
+          "seq": 3,
+          "at": "2026-11-10",
+          "state": "not-observed",
+          "gate": null
+        },
+        "sinceLine": {
+          "key": "/series/since",
+          "text": "The same state and the same position since version 13, received 2026-11-10",
+          "from": "series[3].since",
+          "args": {
+            "version": {
+              "text": "13",
+              "path": "series[3].since.version",
+              "verbatim": true
+            },
+            "at": {
+              "text": "2026-11-10",
+              "path": "series[3].since.at",
+              "verbatim": true
+            }
+          }
+        },
+        "byState": [
+          {
+            "state": "not-observed",
+            "line": {
+              "key": "/series/group",
+              "text": "No check received: 3 / 4",
+              "args": {
+                "state": {
+                  "text": "No check received",
+                  "sentence": {
+                    "key": "/decision/group/not-observed",
+                    "text": "No check received",
+                    "from": "series[3].byState[0].state"
+                  }
+                },
+                "count": {
+                  "text": "3 / 4",
+                  "n": 3,
+                  "N": 4,
+                  "list": [
+                    "11",
+                    "13",
+                    "14"
+                  ],
+                  "at": [
+                    "series[3].points[0]",
+                    "series[3].points[2]",
+                    "series[3].points[3]"
+                  ],
+                  "path": "series[3].byState[0].line.args.count",
+                  "src": "received"
+                }
+              }
+            }
+          },
+          {
+            "state": "erased",
+            "line": {
+              "key": "/series/group",
+              "text": "Content erased: 1 / 4",
+              "args": {
+                "state": {
+                  "text": "Content erased",
+                  "sentence": {
+                    "key": "/series/state/erased",
+                    "text": "Content erased",
+                    "from": "series[3].byState[1].state"
+                  }
+                },
+                "count": {
+                  "text": "1 / 4",
+                  "n": 1,
+                  "N": 4,
+                  "list": [
+                    "12"
+                  ],
+                  "at": [
+                    "series[3].points[1]"
+                  ],
+                  "path": "series[3].byState[1].line.args.count",
+                  "src": "received"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
