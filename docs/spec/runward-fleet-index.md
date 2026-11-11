@@ -208,7 +208,10 @@ Eight views read the index: the decision reading (the page opens on it, ADR-0125
 [runward-fleet-decision.md](runward-fleet-decision.md)), the fleet, a mission, its history, the proof
 (re-derive without us), the signatures, the PR summary, the sources. Each is a pure function of the index (`ui/views.js`), the same
 in the static page and in a hosted deployment. Every number carries its source, its path in that
-source and its path in the index. The eighteen rules of ADR-0093 decision 11:
+source and its path in the index. Beside them, the mission projections (the six steps of each
+application, the portfolio by step, a version's point and the series of the versions received,
+ADR-0126, [runward-fleet-mission.md](runward-fleet-mission.md)) read the index as it is and add nothing
+to it. The eighteen rules of ADR-0093 decision 11:
 
 | # | Rule | Held by |
 |---|---|---|
