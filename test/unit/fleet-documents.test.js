@@ -556,13 +556,19 @@ const PATHOLOGICAL = {
 // The bound is relative to the machine that runs the test: ten times the CPU time the same module takes on
 // a plain document of the same size (PLAIN, a sound input), and never under 200 ms. A fixed 200 ms failed on
 // a slower CI runner (Windows, 2026-11-11: "headings" in 203 ms, 55 ms on macOS). Measured on macOS the same
-// day: the worst pathological input takes about 3 times PLAIN, a planted quadratic scan 26 to 50 times; ten
-// leaves room on both sides. Under the coverage run (`npm run coverage`, node --experimental-test-coverage,
+// day: the worst pathological input takes about 3 times PLAIN. This bound guards the sound inputs only: a
+// planted quadratic copy stayed under it on a Linux runner, so the controls below use the growth instead. Under the coverage run (`npm run coverage`, node --experimental-test-coverage,
 // which sets NODE_V8_COVERAGE in the test process) the floor doubles; PLAIN slows down with the code.
 const PLAIN = Array.from({ length: 1_700 }, (_, k) => `Paragraph ${k} with **bold**, a [link](docs/a.md) and \`code\`.\n`).join("\n");
 const FLOOR_MS = process.env.NODE_V8_COVERAGE ? 400 : 200;
 const RATIO = 10;
 let BOUND_MS = FLOOR_MS; // set from PLAIN at the start of the time bound's test
+const GROWTH_SOUND = 10; // linear is about 4 from 50 KB to 200 KB (4.3 to 4.8 at rest); 8.1 was seen under load
+const GROWTH_QUADRATIC = 12; // quadratic is about 16 (16.9 to 19.9 measured); 12 stays above the sound module's worst
+/** Best elapsed time of `n` calls, in milliseconds, on the high-resolution clock. Not CPU time: on Windows
+ *  process.cpuUsage() ticks in steps of about 15 ms, so a short render read 0 and a growth read 124 times
+ *  (CI, 2026-11-11). The best of several runs removes the load's noise. */
+function wallBest(f, n) { let ms = Infinity; for (let k = 0; k < n; k++) { const t0 = performance.now(); f(); ms = Math.min(ms, performance.now() - t0); } return ms; }
 const BOUND_GROWTH = 20; // an output is at most this many times its source: the widest is a heading of one character
 /** CPU time of a call, in milliseconds, the best of five: a measure that the load of the machine does not stretch. */
 function best(f) {
@@ -586,19 +592,37 @@ test("time bound: 100 KB of each pathological input renders in under ten times a
     assert.ok(check < BOUND_MS, `${name}: checked in ${check.toFixed(0)} ms of CPU, bound ${BOUND_MS.toFixed(0)} ms (PLAIN ${plain.toFixed(0)} ms)`);
     assert.equal(c.ok, true, name);
   }
-  // Control: the index of backtick runs read again from its start at each run, a quadratic scan, is seen by the same bound.
+  // Controls: a quadratic scan is told apart by how its cost GROWS, not by an absolute time. On 2026-11-11 a
+  // planted quadratic copy stayed under ten times PLAIN on a Linux runner (Node 24: under 404 ms), so a time
+  // bound alone is machine-dependent for the controls. Each shape below is rendered at 50 KB and at 200 KB,
+  // after a warm-up: a linear module grows about 4 times, a quadratic one about 16. Measured on macOS the same
+  // day: the sound module 3.1 to 5.2 times, the planted copies 16.9 to 19.9 times (25 KB to 100 KB was too
+  // noisy: 1.7 to 7.3 for the sound module; the best of 7 runs at 50 KB and of 5 at 200 KB then gave 4.3 to
+  // 4.8 for the sound module over 8 rounds). The sound module must grow at most GROWTH_SOUND times on these
+  // shapes, each planted copy at least GROWTH_QUADRATIC times. The ratio depends far less on the machine than an
+  // absolute time, not at all: load still moves it (8.1 once), so the sound module's growth is the best of up
+  // to three rounds. Only these four shapes are checked for growth; the other inputs have the time bound alone.
   const slow = await planted([`while (e.next < e.at.length && e.at[e.next] < from) e.next++;`, `e.next = 0; while (e.next < e.at.length && e.at[e.next] < from) e.next++;`]);
-  const t0 = process.cpuUsage();
-  slow.renderDocument(PATHOLOGICAL["backticks that never close"], CONTEXT);
-  const t = process.cpuUsage(t0);
-  assert.ok((t.user + t.system) / 1000 >= BOUND_MS, `the bound does not see a quadratic scan (bound ${BOUND_MS.toFixed(0)} ms)`);
-  // Control: emphasis nested without a limit joins the whole inner string again at each closing mark.
   const deep = await planted([`const over = frames.length > MAX_DEPTH;`, `const over = false;`]);
-  for (const name of ["nested stars that close", "nested double stars that close", "nested underscores that close"]) {
-    const d0 = process.cpuUsage();
-    deep.renderDocument(PATHOLOGICAL[name], CONTEXT);
-    const d = process.cpuUsage(d0);
-    assert.ok((d.user + d.system) / 1000 >= BOUND_MS, `the bound does not see emphasis joined again at each closing mark: ${name}`);
+  for (const [label, mod, shape] of [
+    ["backtick runs read again from the start at each run", slow, (n) => "`a ".repeat(n)],
+    ["emphasis joined again at each closing mark (stars)", deep, (n) => "*a ".repeat(n) + "a* ".repeat(n)],
+    ["emphasis joined again at each closing mark (double stars)", deep, (n) => "**a ".repeat(n) + "a** ".repeat(n)],
+    ["emphasis joined again at each closing mark (underscores)", deep, (n) => "_a ".repeat(n) + "a_ ".repeat(n)],
+  ]) {
+    const full = Math.round(200_000 / shape(1).length);
+    const quarter = Math.round(full / 4);
+    const growthOf = (m, fullRuns) => {
+      m.renderDocument(shape(quarter), CONTEXT); // warm-up: the first call compiles
+      const small = wallBest(() => m.renderDocument(shape(quarter), CONTEXT), 7);
+      assert.ok(small >= 0.5, `${label}: the 50 KB render took ${small.toFixed(2)} ms, too short to time`);
+      return wallBest(() => m.renderDocument(shape(full), CONTEXT), fullRuns) / small;
+    };
+    let sound = Infinity;
+    for (let round = 0; round < 3 && sound > GROWTH_SOUND; round++) sound = Math.min(sound, growthOf(documents, 5));
+    assert.ok(sound <= GROWTH_SOUND, `${label}: the sound module grows ${sound.toFixed(1)} times from a quarter to the full size`);
+    const plantedGrowth = growthOf(mod, 2);
+    assert.ok(plantedGrowth >= GROWTH_QUADRATIC, `the growth does not see a quadratic scan: ${label} grows ${plantedGrowth.toFixed(1)} times`);
   }
   // Control: short rows filled to the header's width, two characters writing 64 cells, are seen by the bound on growth.
   const filled = await planted([`cells(lines[i++]).slice(0, head.length).map((c) => el("td", inline(c, ctx)))`, `((c) => head.map((_, k) => el("td", inline(c[k] ?? "", ctx))))(cells(lines[i++]))`]);
