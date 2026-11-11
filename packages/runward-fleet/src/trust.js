@@ -20,6 +20,7 @@ import { isDeepStrictEqual } from "node:util";
 import { readTrustedRoot, verifyBundle } from "./sigstore.js";
 import { MANIFEST_FORMATS, readEd25519Key, readSignedManifest, readSigningKey } from "./ed25519.js";
 import { BuildError } from "./errors.js";
+import { REPOSITORY_SEGMENTS, REPOSITORY_SHAPE, canonRepository, foreignRepository, normRepo, repositoryParts, repositoryProblem, repositoryUrl } from "./repository.js";
 
 export const POLICY_FORMAT = "runward-fleet-trust-policy/0";
 export const PROTECTED_REF = "refs/heads/main";
@@ -30,16 +31,9 @@ export const PROTECTED_REF = "refs/heads/main";
 export const KEY_SIGNATURES_RAISE = true;
 
 const sha256hex = (b) => createHash("sha256").update(b).digest("hex");
-const REPO = /^[a-z0-9.-]+\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
-// A repository as the policy and a signature name it: no scheme, no `.git`, no trailing slash, lower
-// case. The trailing slashes come off from the end, one at a time: `/\/+$/` restarted from every
-// slash of a run and took 7.8 s on a run of 100,000 (RWD-2026-0206).
-export const normRepo = (s) => {
-  const t = String(s ?? "").replace(/^https?:\/\//, "").replace(/\.git$/, "");
-  let end = t.length;
-  while (end > 0 && t[end - 1] === "/") end--;
-  return t.slice(0, end).toLowerCase();
-};
+// A repository as the policy and the inventory declare it, and as a signature names it: one grammar
+// for every forge, in repository.js (ADR-0130). Equality is decided on canonical identities only.
+export { REPOSITORY_SEGMENTS, canonRepository, foreignRepository, normRepo, repositoryParts, repositoryProblem, repositoryUrl };
 
 function fail(msg) { throw new BuildError(`trust-policy.json: ${msg}`); }
 
@@ -69,10 +63,12 @@ export function readPolicy(doc, read) {
     if (!s || typeof s.id !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(s.id)) fail(`${where}: id must be a plain identifier`);
     if (ids.has(s.id)) fail(`${where}: id ${s.id} is used twice`);
     ids.add(s.id);
-    if (!Array.isArray(s.repositories) || s.repositories.length === 0 || !s.repositories.every((r) => typeof r === "string" && REPO.test(r))) {
-      fail(`${where}: repositories must list host/owner/repo identities (e.g. github.com/org/app)`);
-    }
-    const entry = { id: s.id, kind: s.kind, repositories: s.repositories.map(normRepo), ref: typeof s.ref === "string" ? s.ref : null, unpinned: [] };
+    if (!Array.isArray(s.repositories) || s.repositories.length === 0) fail(`${where}: repositories must list identities that read ${REPOSITORY_SHAPE}`);
+    s.repositories.forEach((r, j) => {
+      const refused = repositoryProblem(r);
+      if (refused) fail(`${where}: repositories[${j}] must read ${REPOSITORY_SHAPE}: ${refused}`);
+    });
+    const entry = { id: s.id, kind: s.kind, repositories: s.repositories.map(canonRepository), ref: typeof s.ref === "string" ? s.ref : null, unpinned: [] };
     if (entry.ref !== PROTECTED_REF) entry.unpinned.push("ref");
     if (s.kind === "sigstore") {
       for (const k of ["issuer", "workflow"]) if (typeof s[k] !== "string" || !s[k]) fail(`${where}: a sigstore signer names its ${k}`);
@@ -160,7 +156,7 @@ export function evaluateSignature(decl, ctx) {
   const r = { kind: decl.kind, covers: decl.covers, state: "not-verifiable", raised: false, via: null, signer: null, identity: null, checks: [], binds: null, reasons: [] };
   const reason = (code, params = {}) => r.reasons.push({ code, ...params });
   const exp = ctx.exports[decl.covers] ?? null;
-  const repo = normRepo(ctx.mission.repository);
+  const repo = canonRepository(ctx.mission.repository);
 
   if (decl.kind === "sigstore-bundle") {
     r.via = "sigstore";
@@ -197,9 +193,9 @@ export function evaluateSignature(decl, ctx) {
     }
     r.state = "verified";
     r.signer = entry.id;
-    const signedRepo = normRepo(id.sourceRepositoryURI);
+    const signedRepo = foreignRepository(id.sourceRepositoryURI);
     if (!entry.pinned) for (const u of entry.unpinned) reason(u === "ref" ? "policy-unpinned-ref" : "policy-unpinned-workflow-digest", { signer: entry.id });
-    if (signedRepo !== repo) reason("signed-for-another-repository", { signed: signedRepo, mission: repo });
+    if (repo === null || signedRepo !== repo) reason("signed-for-another-repository", { signed: signedRepo ?? normRepo(id.sourceRepositoryURI), mission: repo });
     if (id.sourceRepositoryRef !== PROTECTED_REF) reason("signed-on-another-ref", { signed: id.sourceRepositoryRef ?? null, pinned: PROTECTED_REF });
     if (entry.runnerEnvironment && id.runnerEnvironment !== entry.runnerEnvironment) reason("runner-not-pinned", { signed: id.runnerEnvironment ?? null, pinned: entry.runnerEnvironment });
     commitReasons(id.sourceRepositoryDigest, ctx, reason);
@@ -236,7 +232,8 @@ export function evaluateSignature(decl, ctx) {
     r.signer = entry.id;
     if (!KEY_SIGNATURES_RAISE) reason("key-signatures-do-not-raise");
     if (!entry.pinned) reason("policy-unpinned-ref", { signer: entry.id });
-    if (normRepo(m.claims.repository) !== repo) reason("signed-for-another-repository", { signed: normRepo(m.claims.repository), mission: repo });
+    const claimedRepo = foreignRepository(m.claims.repository);
+    if (repo === null || claimedRepo !== repo) reason("signed-for-another-repository", { signed: claimedRepo ?? normRepo(m.claims.repository), mission: repo });
     if (m.claims.ref !== PROTECTED_REF) reason("signed-on-another-ref", { signed: m.claims.ref, pinned: PROTECTED_REF });
     commitReasons(m.claims.commit, ctx, reason);
     const hit = exp ? m.claims.files.find((f) => f.sha256 === exp.sha256) : null;

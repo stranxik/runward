@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // runward-run run --policy <run-policy.json> --tree <checkout> --check <check.json> --out <dir>
-//                 [--runtime docker|podman|<path>] [--scratch <dir>] [--repository <host/owner/repo>] [--commit <sha>] [--ref <ref>]
+//                 [--runtime docker|podman|<path>] [--scratch <dir>] [--repository <host/path>] [--commit <sha>] [--ref <ref>]
 //
 // Executes the legs of the run policy on a copy of the checkout, in a container pinned by digest with
 // the network cut, and writes into <dir> the normalised reports at their project-relative paths, the
@@ -16,7 +16,7 @@ import { realpathSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { RunRefused, RunUsage, runPolicy, version } from "./run.js";
 
-const USAGE = "usage: runward-run run --policy <run-policy.json> --tree <dir> --check <check.json> --out <dir> [--runtime <bin>] [--scratch <dir>] [--repository <host/owner/repo>] [--commit <sha>] [--ref <ref>]";
+const USAGE = "usage: runward-run run --policy <run-policy.json> --tree <dir> --check <check.json> --out <dir> [--runtime <bin>] [--scratch <dir>] [--repository <host/path>] [--commit <sha>] [--ref <ref>]";
 const FLAGS = { "--policy": "policyPath", "--tree": "tree", "--check": "checkPath", "--out": "out", "--runtime": "runtimeBin", "--scratch": "scratchDir", "--repository": "repository", "--commit": "commit", "--ref": "ref" };
 
 export function main(argv, out = console) {

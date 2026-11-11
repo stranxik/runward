@@ -110,6 +110,14 @@ would still carry such a name in another field.
 `report` and `history`; `expects` may also name `signature`. A mission may add `commitSource`, a short
 label of where `commit` was read from; the index carries it as written, and nothing checks it.
 
+`repository` is the identity of the mission's repository, for any forge (ADR-0130): a host and a path of
+two to eight segments, `github.com/org/app`, `gitlab.example.com/group/subgroup/project`,
+`dev.azure.com/org/project/_git/repo`. Letters, digits, `_`, `.` and `-` only in a segment, nothing
+decoded, no empty or dot segment, no scheme and no port; the index carries it in lower case, without
+`.git`. The build stops on anything else and says which rule it breaks. The trust policy's `repositories`
+and `verify-run --repository` read the same grammar
+([the specification](../../docs/spec/runward-fleet-index.md), §1.1).
+
 ## In a hosted deployment
 
 A hosted deployment imports this package, pinned, and copies none of its files: `buildIndex` from
