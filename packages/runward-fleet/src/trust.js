@@ -32,7 +32,7 @@ export const KEY_SIGNATURES_RAISE = true;
 
 const sha256hex = (b) => createHash("sha256").update(b).digest("hex");
 // A repository as the policy and the inventory declare it, and as a signature names it: one grammar
-// for every forge, in repository.js (ADR-0130). Equality is decided on canonical identities only.
+// for GitHub, GitLab and Azure DevOps, in repository.js (ADR-0130). Equality is decided on canonical identities only.
 export { REPOSITORY_SEGMENTS, canonRepository, foreignRepository, normRepo, repositoryParts, repositoryProblem, repositoryUrl };
 
 function fail(msg) { throw new BuildError(`trust-policy.json: ${msg}`); }
@@ -195,7 +195,7 @@ export function evaluateSignature(decl, ctx) {
     r.signer = entry.id;
     const signedRepo = foreignRepository(id.sourceRepositoryURI);
     if (!entry.pinned) for (const u of entry.unpinned) reason(u === "ref" ? "policy-unpinned-ref" : "policy-unpinned-workflow-digest", { signer: entry.id });
-    if (repo === null || signedRepo !== repo) reason("signed-for-another-repository", { signed: signedRepo ?? normRepo(id.sourceRepositoryURI), mission: repo });
+    if (signedRepo !== repo) reason("signed-for-another-repository", { signed: signedRepo ?? normRepo(id.sourceRepositoryURI), mission: repo });
     if (id.sourceRepositoryRef !== PROTECTED_REF) reason("signed-on-another-ref", { signed: id.sourceRepositoryRef ?? null, pinned: PROTECTED_REF });
     if (entry.runnerEnvironment && id.runnerEnvironment !== entry.runnerEnvironment) reason("runner-not-pinned", { signed: id.runnerEnvironment ?? null, pinned: entry.runnerEnvironment });
     commitReasons(id.sourceRepositoryDigest, ctx, reason);
@@ -233,7 +233,7 @@ export function evaluateSignature(decl, ctx) {
     if (!KEY_SIGNATURES_RAISE) reason("key-signatures-do-not-raise");
     if (!entry.pinned) reason("policy-unpinned-ref", { signer: entry.id });
     const claimedRepo = foreignRepository(m.claims.repository);
-    if (repo === null || claimedRepo !== repo) reason("signed-for-another-repository", { signed: claimedRepo ?? normRepo(m.claims.repository), mission: repo });
+    if (claimedRepo !== repo) reason("signed-for-another-repository", { signed: claimedRepo ?? normRepo(m.claims.repository), mission: repo });
     if (m.claims.ref !== PROTECTED_REF) reason("signed-on-another-ref", { signed: m.claims.ref, pinned: PROTECTED_REF });
     commitReasons(m.claims.commit, ctx, reason);
     const hit = exp ? m.claims.files.find((f) => f.sha256 === exp.sha256) : null;

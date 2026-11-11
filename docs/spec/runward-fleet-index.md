@@ -48,8 +48,11 @@ predicate, which carries the same fields.
 
 ### 1.1 The repository identity
 
-One grammar for every forge ([ADR-0130](../adr/ADR-0130-a-repository-identity-is-a-host-and-a-path-of-two-to-eight-segments-read-by-one-closed-grammar-for-every-forge.md), `src/repository.js`), read in the inventory, in the trust
-policy, in what a signature names and in `verify-run --repository`:
+One grammar for GitHub, GitLab and Azure DevOps ([ADR-0130](../adr/ADR-0130-a-repository-identity-is-a-host-and-a-path-of-two-to-eight-segments-read-by-one-closed-grammar-for-github-gitlab-and-azure-devops.md), `src/repository.js`), read in the inventory, in the trust
+policy, in what a signature names and in `verify-run --repository`. **Scope**: these three forges resolve a
+path without regard to case, which is what justifies the lower-case canonical form; a forge that tells two
+repositories apart by case alone (Gerrit with nested projects, gitolite or cgit on a case-sensitive
+filesystem) must not be declared, because two of its repositories would read as one identity.
 
 - **host**: a DNS name in ASCII, labels of letters, digits and inner hyphens (63 characters at most each,
   253 in all), the last label starting with a letter. No scheme, no credentials, no address
@@ -68,13 +71,23 @@ The **canonical form** is the lower-case spelling, folded in ASCII only after th
 DevOps resolve a path without regard to case, so two spellings that differ by case are one repository. The
 index carries the canonical form; it reads back as itself and needs no encoding in a URL
 (`repositoryUrl(id)` is `https://` followed by it). An identity outside the grammar stops the build and
-the message says which rule it breaks. A name a signature carries is read by the same grammar once one
-`https://` or `http://` in front and the slashes at the end are taken off; a name that is not an identity
-is equal to no repository. A three-segment identity (`host/owner/repo`) reads as it did before ADR-0130,
+the message says which rule it breaks: the inventory and the policy are read as written, without a scheme
+and without a trailing slash. A name a signature carries, and what `verify-run --repository` is given, are
+read by the same grammar once one `https://` or `http://` in front and the slashes at the end are taken
+off; a name that is not an identity is equal to no repository, and `verify-run` stops on one (exit 2). The
+scheme is dropped, never read, and only `:443` is removed: `http://host:80/a/b` is `host:80/a/b`, another
+identity than `host/a/b`. A three-segment identity (`host/owner/repo`) reads as it did before ADR-0130,
 so an inventory, a policy and an index written before it are unchanged.
 
 Not representable, and refused: an Azure DevOps project or repository whose name holds a space or another
-character outside the set, an internationalised host.
+character outside the set; a host that is an IP address (`10.0.0.1/group/project`, which the pattern before
+ADR-0130 accepted: an instance declared by address is declared by a name); an internationalised host.
+
+Azure DevOps: the identity is the host and path of the clone address **without its `org@`**
+(`dev.azure.com/org/project/_git/repo`; `https://org@dev.azure.com/…` carries credentials and is refused).
+`org.visualstudio.com/project/_git/repo`, with or without `DefaultCollection`, and
+`dev.azure.com/org/_git/repo` (a project's default repository) are other identities, not spellings of the
+first: the inventory, the policy and what a signature names must use the same one.
 
 ## 2. `runward-fleet-trust-policy/0`: `trust-policy.json`
 
@@ -183,7 +196,7 @@ Unknown values read `not-observed`. A grouping is always `{ state, n, N, list }`
 | `sources[]` | every file read: `{ id, path, sha256, bytes, kind, producedBy, at, origin, declaredIn }`; an export declared by its digest only is a source too, `{ …, path: null, bytes: null, origin: "declared", content: "digest-only" }`, its `sha256` the one `fleet.json` declares, never computed |
 
 A mission carries `id`, `name`, `role`, `repository` (the canonical identity of §1.1, a text of the same
-shape for every forge: `runward-fleet-index/0` did not change), `path`, `commit` (`{ value, source }` or `null`;
+shape whatever the forge: `runward-fleet-index/0` did not change), `path`, `commit` (`{ value, source }` or `null`;
 `source` is `fleet.json (declared)`, and `commitSource` is added, as written in the inventory, only when
 the inventory names one),
 `expects`, `findings[]` (`{ what, state, why, ... }`, `why` one of `declared-file-absent`,

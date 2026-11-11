@@ -1,4 +1,4 @@
-# ADR-0130: A repository identity is a host and a path of two to eight segments, read by one closed grammar for every forge
+# ADR-0130: A repository identity is a host and a path of two to eight segments, read by one closed grammar, for GitHub, GitLab and Azure DevOps
 
 **Date**: 2026-11-11
 **Status**: proposed. It records the first step of a plan the maintainer approved on 2026-11-11 for the hosted
@@ -53,7 +53,7 @@ puts it in addresses. It has to be one text per repository, readable back, and s
 
 ## Decision
 
-1. **One grammar, for every forge, in one module** (`packages/runward-fleet/src/repository.js`). An identity
+1. **One grammar for GitHub, GitLab and Azure DevOps, in one module** (`packages/runward-fleet/src/repository.js`). An identity
    is `host/segment/segment…`:
    - the **host** is a DNS name in ASCII: labels of letters, digits and inner hyphens, 63 characters at most
      each and 253 in all, the last label starting with a letter. No scheme, no credentials. Not an
@@ -75,22 +75,36 @@ puts it in addresses. It has to be one text per repository, readable back, and s
 2. **Case: one repository, one spelling.** The canonical form is lower case. DNS is case-insensitive, and
    GitHub, GitLab and Azure DevOps each resolve an owner, a group, a project and a repository without regard
    to case (as this session knows them, see Method); two spellings that differ by case are
-   therefore one repository on every forge this record names. The fold is ASCII, applied after the identity
-   was read against the grammar, never before: a character that Unicode would fold into a letter is refused,
-   not folded.
+   therefore one repository on each of these three, and the fold is justified for these three only. **A
+   forge that tells two repositories apart by case alone must not be declared**: Gerrit with nested
+   projects, or gitolite and cgit on a case-sensitive filesystem, would give two repositories one identity,
+   and one could then sign for the other. The grammar cannot see which forge a host is, so the limit is the
+   operator's to hold; it is said in the module, the specification and the README. The fold is ASCII,
+   applied after the identity was read against the grammar, never before: a character that Unicode would
+   fold into a letter is refused, not folded.
 3. **Two to eight segments.** Two is GitHub (`owner/repo`) and the smallest GitLab project. Azure DevOps
    Services writes four (`org/project/_git/repo`), its former host three (`org.visualstudio.com/project/_git/repo`).
    GitLab nests groups far deeper than that; eight covers a group and six levels of subgroups, a bound
    chosen so an identity stays readable in a table cell and a policy stays reviewable. A ninth segment is
    refused, and the message says so.
-4. **The Azure DevOps identity is the clone address's path**, `_git` included: it is what the forge writes,
-   it is unambiguous, and no rule about a forge is needed to read it. The grammar knows no forge.
-5. **Equality is decided on canonical identities only.** The inventory, the policy and
-   `verify-run --repository` are read by the grammar and stop on anything else, with the rule broken in the
-   message. A name carried by a signature (a certificate's source repository, a Statement's mission, a
-   signed manifest) is read by the same grammar once one `https://` or `http://` in front and the slashes at
-   the end are taken off (`foreignRepository`); a name that is not an identity is equal to no repository,
-   and is shown as written (`normRepo`, now an ASCII fold, display only) in the reason
+4. **The Azure DevOps identity is the host and path of the clone address, without its `org@`**, `_git`
+   included: `dev.azure.com/org/project/_git/repo`. No rule about a forge is needed to read it; the grammar
+   knows no forge. The clone address Azure DevOps shows carries the organisation as userinfo
+   (`https://org@dev.azure.com/org/project/_git/repo`): credentials are outside the grammar, so that
+   spelling is refused where it is declared and equal to no repository where a signature carries it, and
+   the identity is written without it. Stripping userinfo would need its own record. The other addresses
+   of one repository are other identities, not spellings: `org.visualstudio.com/project/_git/repo` (with
+   or without `DefaultCollection`) and `dev.azure.com/org/_git/repo` (the form for a project's default
+   repository). The inventory, the policy and what the forge's token or signature names must use one.
+5. **Equality is decided on canonical identities only.** The inventory and the policy are read by the
+   grammar as written (no scheme, no trailing slash) and stop the build on anything else, with the rule
+   broken in the message. A name carried by a signature (a certificate's source repository, a Statement's
+   mission, a signed manifest) and what `verify-run --repository` is given are read by the same grammar
+   once one `https://` or `http://` in front and the slashes at the end are taken off
+   (`foreignRepository`): `verify-run` accepts a forge address, and stops (exit 2) on anything that is not
+   an identity after that. The scheme is dropped, not read: only `:443` is removed, so `http://host:80/a/b`
+   is `host:80/a/b`, another identity than `host/a/b`. A name that is not an identity is equal to no
+   repository, and is shown as written (`normRepo`, now an ASCII fold, display only) in the reason
    `signed-for-another-repository`. A parent group, a child path, a sibling by prefix are other
    repositories: equality is of the whole text.
 6. **An address is the identity, unencoded.** `repositoryUrl(id)` is `https://` followed by the canonical
@@ -109,7 +123,11 @@ puts it in addresses. It has to be one text per repository, readable back, and s
 
 Nothing, for a name a forge can carry. Compared over 4,860 identities the former pattern accepted (fifteen
 hosts, eighteen owner and repository names of every shape): those built from a well-formed host and names
-read the same. What the former pattern accepted and is now refused: a dot segment, a host that is not a DNS
+read the same. **One refusal is a breaking change for a real declaration: a host that is an address.** The
+former pattern accepted `10.0.0.1/group/project`; a self-managed instance declared by its IP address is now
+refused, and must be declared by a name. It is assumed here (an address has no stable spelling for a URL
+parser, `0x7f.1` being `127.0.0.1`), and whether dotted-decimal IPv4 should be admitted is an open question
+below, not decided in this record. What the former pattern accepted and is now refused besides: a dot segment, a host that is not a DNS
 name (`..`, `-x.com`, `a..b`), a host that is an address or an internationalised label, the clone suffix
 alone, a name ending in `.git.git`. One reading moved: `App.GIT` reads `app` where it read `app.git`.
 
@@ -133,8 +151,8 @@ alone, a name ending in `.git.git`. One reading moved: `App.GIT` reads `app` whe
   equal to the text, and a `forge` value the build cannot observe (it reads no network, ADR-0093). Rejected
   as larger than the need: the text is already unambiguous. If a consumer needs the forge kind, it is an
   additive field for a later record, declared in the inventory.
-- **Case-sensitive identities.** Then `Org/App` and `org/app`, one repository on every forge named here,
-  are two missions, and a policy pinned in one case does not match a certificate in the other. Rejected.
+- **Case-sensitive identities.** Then `Org/App` and `org/app`, one repository on each of the three forges
+  named here, are two missions, and a policy pinned in one case does not match a certificate in the other. Rejected.
 - **Percent-decoding, to admit an Azure DevOps name with a space.** Decoding is where a second slash or a
   dot segment comes back. Rejected; the limit is stated below.
 - **Dropping `_git` from Azure DevOps identities.** It needs a rule per forge and makes the identity differ
@@ -144,13 +162,19 @@ alone, a name ending in `.git.git`. One reading moved: `App.GIT` reads `app` whe
 
 ## Consequences
 
+- **Scope**: GitHub, GitLab (gitlab.com and self-managed) and Azure DevOps Services. A forge that
+  distinguishes case must not be declared (decision 2).
 - A GitLab project in nested groups and an Azure DevOps Services repository can be declared, pinned,
   verified and shown. The hosted product re-pins the package to get it (its own record).
 - Refused, and said so in the message: an identity with a dot or empty segment, an encoded character, a
   ninth segment, a non-ASCII character, a port outside 1 to 65535, an address or an internationalised label.
 - **Not representable**: an Azure DevOps project or repository whose name holds a space or another character
-  outside the set (Azure DevOps allows them; its address then carries `%20`); an internationalised host. Each
-  is refused, never approximated.
+  outside the set (Azure DevOps allows them; its address then carries `%20`); the Azure DevOps clone address
+  with its `org@` (written without it, decision 4); a host that is an IP address (a breaking change for an
+  instance declared by address, see above); an internationalised host. Each is refused, never approximated.
+- `runward-run --repository` writes what it is given into the Statement's `mission` without reading it by
+  the grammar: out of scope here. A name outside the grammar written there is refused later, by
+  `verify-run`, as `signed-for-another-repository`.
 - `repositoryUrl` writes `https://` whatever the instance serves: an instance reached in clear on its port
   is the deployment's to know, the identity names no scheme.
 - **Documents on Azure DevOps**: `ui/documents.js` (rule D3) keeps a forge address only when it ends with
@@ -173,12 +197,17 @@ alone, a name ending in `.git.git`. One reading moved: `App.GIT` reads `app` whe
 - A project deeper than eight segments asked for by a user.
 - The self-managed witness on its port built into an index with the identity its token names.
 - A forge named here shown to tell two repositories apart by case alone: decision 2 is then wrong for it.
+- Whether Azure DevOps lets a repository be named `foo.git`: if it does, `_git/foo.git` and `_git/foo` are
+  two repositories that read as one identity, and the clone suffix must not be dropped after `_git`.
+- A self-managed instance that can only be declared by its IP address: then dotted-decimal IPv4 is admitted
+  by an amendment with its own planted controls (octal, hexadecimal and short forms refused), or stays out.
 
 ## Reevaluation trigger (mandatory, dated)
 
 Reopen on 2026-12-11, or earlier when: a forge named here stops resolving paths without regard to case; a
-user's repository is refused by the grammar (a space, a ninth segment, an internationalised host); a
-fourth forge is added whose addresses do not fit a host and a path; `runward-fleet-index/0` changes in a
+case-sensitive forge (Gerrit, gitolite, cgit) is asked for or found declared; a user's repository is refused
+by the grammar (a space, a ninth segment, an address for a host, an internationalised host); a fourth forge
+is added whose addresses do not fit a host and a path; `runward-fleet-index/0` changes in a
 non-additive way.
 
 **Trigger set on**: 2026-11-11 · **Watched via**: `test/unit/fleet-repository.test.js` (the planted controls

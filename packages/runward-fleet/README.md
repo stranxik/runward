@@ -110,7 +110,8 @@ would still carry such a name in another field.
 `report` and `history`; `expects` may also name `signature`. A mission may add `commitSource`, a short
 label of where `commit` was read from; the index carries it as written, and nothing checks it.
 
-`repository` is the identity of the mission's repository, for any forge (ADR-0130): a host and a path of
+`repository` is the identity of the mission's repository on GitHub, GitLab or Azure DevOps (ADR-0130; a
+forge that tells two repositories apart by case alone must not be declared): a host and a path of
 two to eight segments, `github.com/org/app`, `gitlab.example.com/group/subgroup/project`,
 `dev.azure.com/org/project/_git/repo`. Letters, digits, `_`, `.` and `-` only in a segment, nothing
 decoded, no empty or dot segment, no scheme; a self-managed instance on a port is written `host:port`

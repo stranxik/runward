@@ -1,8 +1,9 @@
-// The identity of a repository, for any forge (ADR-0130): a host and a path of two to eight segments.
+// The identity of a repository on GitHub, GitLab or Azure DevOps (ADR-0130): a host and a path of two
+// to eight segments.
 //
 //   github.com/org/app                          GitHub: owner, repository
 //   gitlab.example.com/group/subgroup/project   GitLab: nested groups, then the project
-//   dev.azure.com/org/project/_git/repo         Azure DevOps Services: as its clone address writes it
+//   dev.azure.com/org/project/_git/repo         Azure DevOps Services: its clone address, without `org@`
 //   gitlab.internal:8929/group/project          a self-managed instance that answers on a port
 //
 // One grammar, closed, read before anything is folded:
@@ -21,7 +22,9 @@
 // The canonical form is the lower-case spelling: DNS, GitHub, GitLab and Azure DevOps all resolve a
 // path without regard to case, so two spellings that differ by case are one repository, and the fold
 // is ASCII only (U+212A, the Kelvin sign, lower-cases to `k` under Unicode rules: it is refused before
-// the fold, never folded into a letter). A canonical identity needs no encoding in a URL: every
+// the fold, never folded into a letter). The fold holds for these three forges only: a forge that tells
+// two repositories apart by case alone (Gerrit, gitolite or cgit on a case-sensitive filesystem) must
+// not be declared, its repositories would share an identity. A canonical identity needs no encoding in a URL: every
 // character is unreserved (RFC 3986) and no segment is a dot segment.
 //
 // Linear in the length of what it reads, which is bounded first (RWD-2026-0206).

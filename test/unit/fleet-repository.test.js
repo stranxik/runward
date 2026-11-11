@@ -1,4 +1,5 @@
-// ADR-0130: the identity of a repository is a host and a path of two to eight segments, for any forge,
+// ADR-0130: the identity of a repository is a host and a path of two to eight segments, for GitHub,
+// GitLab and Azure DevOps (a forge that distinguishes case must not be declared),
 // read by one closed grammar before anything is folded, with one canonical form.
 //
 //   - GitHub (`host/owner/repo`), GitLab with nested groups, Azure DevOps Services and a self-managed
@@ -17,7 +18,7 @@ import { createHash, generateKeyPairSync, sign } from "node:crypto";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { PKG, allRendered, build, documents, fixture, indexFrom, manifestOf, missionWith, pageFor, realCheck, sigstore, trust } from "../support/fleet.js";
-import { makeBundle, makeSigstore } from "../support/fleet-sigstore.js";
+import { makeBundle, makeSigstore, statementOver } from "../support/fleet-sigstore.js";
 
 const repo = await import(pathToFileURL(join(PKG, "src", "repository.js")).href);
 const runSig = await import(pathToFileURL(join(PKG, "src", "run-signature.js")).href);
@@ -55,6 +56,7 @@ const PLANTED = [
   ["a query", "github.com/org/app?x=1", /outside letters/, "github.com/org/app"],
   ["a fragment", "github.com/org/app#x", /outside letters/, "github.com/org/app"],
   ["credentials", "user@github.com/org/app", /not a DNS name/, "github.com/org/app"],
+  ["the Azure DevOps clone address with its org@", "org@dev.azure.com/org/project/_git/repo", /not a DNS name/, AZURE],
   ["credentials with a password", "user:pass@github.com/org/app", /its port/, "github.com/org/app"],
   ["port 0", "gitlab-temoin.local:0/temoin/demo", /its port is not a number from 1 to 65535/, "gitlab-temoin.local:1/temoin/demo"],
   ["port 65536", "gitlab-temoin.local:65536/temoin/demo", /its port is not a number from 1 to 65535/, "gitlab-temoin.local:65535/temoin/demo"],
@@ -103,6 +105,18 @@ test("the grammar accepts GitHub, GitLab nested groups and Azure DevOps, and giv
   assert.equal(repo.canonRepository("dev.azure.com/Org/Project/_git/Repo"), AZURE);
   assert.equal(repo.canonRepository("github.com/org/App.GIT"), GITHUB);
   assert.deepEqual(repo.REPOSITORY_SEGMENTS, { min: 2, max: 8 });
+  // Azure DevOps: the clone address the forge shows carries `org@`, which is credentials: it names no
+  // repository, and the identity is written without it. The other addresses are other identities.
+  assert.equal(repo.foreignRepository("https://org@dev.azure.com/org/project/_git/repo"), null);
+  assert.equal(repo.foreignRepository("https://dev.azure.com/org/project/_git/repo"), AZURE);
+  for (const other of [AZURE_LEGACY, "org.visualstudio.com/DefaultCollection/project/_git/repo", "dev.azure.com/org/_git/repo"]) {
+    assert.ok(repo.canonRepository(other), other);
+    assert.notEqual(repo.canonRepository(other), AZURE, `${other} is another identity, not a spelling`);
+  }
+  // The scheme is dropped, never read, and only :443 is removed.
+  assert.equal(repo.foreignRepository("http://gitlab.internal:80/group/project"), "gitlab.internal:80/group/project");
+  assert.equal(repo.foreignRepository("https://gitlab.internal:443/group/project"), "gitlab.internal/group/project");
+  assert.notEqual(repo.foreignRepository("http://gitlab.internal:80/group/project"), repo.foreignRepository("http://gitlab.internal/group/project"));
 });
 
 test("each planted control is refused, says why, and its accepted neighbour is read", () => {
@@ -275,7 +289,7 @@ test("verify-run: a sibling, a parent group, a prefix or a planted name is anoth
 test("verify-run, keyless on GitLab: a runner project and a mission in nested groups; the mission's own pipeline is still refused", () => {
   const ss = makeSigstore();
   const WF = "d1ce57".padEnd(40, "0");
-  const runnerRepo = "gitlab.example.com/platform/ci/runners/runward";
+  const runnerRepo = "gitlab.example.com/tools/ci/runners/runward";
   const runner = `https://${runnerRepo}//.gitlab-ci.yml@refs/heads/main`;
   const gl = { san: runner, claims: { 8: "https://gitlab.example.com", 9: runner, 10: WF, 11: "self-hosted", 12: `https://${runnerRepo}`, 13: WF, 14: "refs/heads/main", 18: runner, 19: WF, 20: "pipeline", 21: `https://${runnerRepo}/-/pipelines/9`, 22: "private" } };
   const statement = { _type: "https://in-toto.io/Statement/v1", subject: [{ name: "reports/junit.xml", digest: { sha256: "5".repeat(64) } }], predicateType: runSig.RUN_PREDICATE_TYPE, predicate: { network: "none", mission: { repository: GITLAB, commit: COMMIT, ref: "refs/heads/main" } } };
@@ -305,6 +319,83 @@ test("verify-run, keyless on GitLab: a runner project and a mission in nested gr
   assert.ok(codes(mine).includes("signed-from-the-mission-workflow"));
 });
 
+/** What a GitLab pipeline of `source` signs with: the workflow `signer`, the commit, the protected ref. */
+const WF = "d1ce57".padEnd(40, "0");
+const gitlabIdentity = (signer, source, commit = COMMIT) => ({ san: signer, claims: { 8: "https://gitlab.example.com", 9: signer, 10: WF, 11: "self-hosted", 12: source, 13: commit, 14: "refs/heads/main", 18: signer, 19: WF, 20: "push", 21: `${source}/-/pipelines/9`, 22: "private" } });
+
+test("the build, keyless: a certificate for a nested GitLab project raises its mission; a sibling, a parent or a name that is no identity raises nothing", () => {
+  const signer = "https://gitlab.example.com/tools/ci/signer//.gitlab-ci.yml@refs/heads/main";
+  const fleet = (source) => {
+    const ss = makeSigstore();
+    const check = realCheck();
+    const files = {
+      "trust-policy.json": { format: "runward-fleet-trust-policy/0", trustedRoots: ["root.json"], signers: [{ id: "gl-ci", kind: "sigstore", repositories: [GITLAB], issuer: "https://gitlab.example.com", workflow: signer, workflowDigests: [WF], ref: "refs/heads/main" }] },
+      "root.json": ss.trustedRoot, "check.json": check, "check.sigstore.json": makeBundle(ss, gitlabIdentity(signer, source), statementOver("check.json", check)),
+    };
+    const m = { id: "app", name: "group/subgroup/project", repository: GITLAB, commit: COMMIT, exports: { check: { file: "check.json" } }, signatures: [{ covers: "check", kind: "sigstore-bundle", file: "check.sigstore.json" }] };
+    const index = indexFrom(manifestOf([m], { trustPolicy: "trust-policy.json" }), files);
+    return { m: index.missions[0], s: index.missions[0].signatures[0] };
+  };
+  for (const source of [`https://${GITLAB}`, "https://GitLab.example.com/Group/SubGroup/Project", `https://${GITLAB}.git`, `https://${GITLAB}/`]) {
+    const ok = fleet(source);
+    assert.deepEqual(ok.s.reasons.map((r) => r.code), [], source);
+    assert.equal(ok.s.raised, true, source);
+    assert.equal(ok.m.latest.implemented, "machine-established");
+  }
+  const others = [
+    "https://gitlab.example.com/group/subgroup/project2", // a sibling by prefix
+    "https://gitlab.example.com/group/subgroup", // the parent group
+    "https://gitlab.example.com/group/other/project", // a sibling group
+    "https://gitlab.example.com/group/subgroup/project/extra",
+    "https://gitlab.example.com:8929/group/subgroup/project", // the same path on another port
+    `https://${GITLAB}/.git`, // the display form reads this as the mission
+    "https://gitlab.example.com/group/subgroup/../subgroup/project",
+    "https://gitlab.example.com/group%2Fsubgroup/project",
+    "https://ci@gitlab.example.com/group/subgroup/project", // credentials
+  ];
+  for (const source of others) {
+    const no = fleet(source);
+    assert.deepEqual(no.s.reasons.map((r) => [r.code, r.mission]), [["signed-for-another-repository", GITLAB]], source);
+    assert.equal(no.s.raised, false, source);
+    assert.equal(no.m.latest.implemented, "ci-declared", source);
+  }
+});
+
+test("verify-run, keyless: the certificate's repository is compared as an identity, and one that is none never hands the mission to the Statement", () => {
+  const ss = makeSigstore();
+  const signerRepo = "gitlab.example.com/tools/ci/signer";
+  const signer = `https://${signerRepo}//.gitlab-ci.yml@refs/heads/main`;
+  const policy = trust.readPolicy({ format: "runward-fleet-trust-policy/0", trustedRoots: ["root.json"], signers: [{ id: "gl-ci", kind: "sigstore", repositories: [GITLAB], issuer: "https://gitlab.example.com", workflow: signer, workflowDigests: [WF], ref: "refs/heads/main" }] },
+    () => Buffer.from(JSON.stringify(ss.trustedRoot)));
+  const statement = (said) => ({ _type: "https://in-toto.io/Statement/v1", subject: [{ name: "reports/junit.xml", digest: { sha256: "5".repeat(64) } }], predicateType: runSig.RUN_PREDICATE_TYPE, predicate: { network: "none", mission: said } });
+  const run = (source, said = { repository: GITLAB, commit: COMMIT, ref: "refs/heads/main" }) => runSig.verifyRunSignature({ document: makeBundle(ss, gitlabIdentity(signer, source), statement(said)), policy, expect: { repository: GITLAB, commit: COMMIT } });
+  // The certificate names the mission: accepted, and the commit is the certificate's.
+  const ok = run("https://GitLab.example.com/Group/SubGroup/Project");
+  assert.deepEqual(codes(ok), []);
+  assert.deepEqual(ok.vouched, { repository: GITLAB, commit: COMMIT, ref: "refs/heads/main", from: "certificate" });
+  // A sibling, and the same path on a port: another repository.
+  for (const source of ["https://gitlab.example.com/group/subgroup/project2", "https://gitlab.example.com:8929/group/subgroup/project"]) {
+    assert.deepEqual(codes(run(source)), ["statement-names-another-repository", "signed-for-another-repository"], source);
+    assert.deepEqual(codes(run(source, null)), ["signed-for-another-repository"], `${source}, the Statement naming no mission`);
+  }
+  // The pipeline ran in the signer's own project: the Statement names the mission (ADR-0120).
+  const own = run(`https://${signerRepo}`);
+  assert.deepEqual(codes(own), []);
+  assert.equal(own.vouched.from, "statement");
+  // A source the display form reads as the signer's project, and that is no identity: the certificate
+  // names no repository, so nothing is vouched for by the Statement and nothing is accepted.
+  const planted = run(`https://${signerRepo}/.git`);
+  assert.equal(repo.normRepo(`https://${signerRepo}/.git`), signerRepo, "the control is planted: the display form would take it for the signer's project");
+  assert.equal(planted.accepted, false);
+  assert.equal(planted.vouched.from, "certificate");
+  assert.deepEqual(codes(planted), ["statement-names-another-repository", "signed-for-another-repository"]);
+  // A Statement that names another repository than its certificate, or one that is no identity.
+  for (const repository of ["gitlab.example.com/group/subgroup/project2", `${GITLAB}/.git`, "gitlab.example.com/group/../group/subgroup/project"]) {
+    assert.deepEqual(codes(run(`https://${GITLAB}`, { repository, commit: COMMIT })), ["statement-names-another-repository"], repository);
+  }
+  assert.deepEqual(codes(run(`https://${GITLAB}`, { repository: "https://GitLab.example.com/group/subgroup/project/", commit: COMMIT })), [], "the same repository in another spelling");
+});
+
 test("the build: an Ed25519 manifest whose repository folds into the mission's under Unicode rules raises nothing", () => {
   const fleet = (depot, mission) => {
     const ci = generateKeyPairSync("ed25519");
@@ -325,6 +416,11 @@ test("the build: an Ed25519 manifest whose repository folds into the mission's u
   assert.equal(planted.s.raised, false);
   assert.deepEqual(planted.s.reasons.map((r) => [r.code, r.mission]), [["signed-for-another-repository", "github.com/org/kapp"]]);
   assert.notEqual(planted.s.reasons[0].signed, "github.com/org/kapp", "what is shown is what was signed, never folded into the mission");
+  // A name the display form reads as the mission (`…/kapp/.git`) is not an identity: equal to none.
+  const suffix = fleet("org/kapp/.git", "github.com/org/kapp");
+  assert.equal(repo.normRepo("github.com/org/kapp/.git"), "github.com/org/kapp", "the control is planted: the display form would make them equal");
+  assert.equal(suffix.s.raised, false);
+  assert.deepEqual(suffix.s.reasons.map((r) => r.code), ["signed-for-another-repository"]);
 });
 
 // ------------------------------------------------------------------ what is shown
