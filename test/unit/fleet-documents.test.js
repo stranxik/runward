@@ -16,7 +16,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { documents, FIX, PKG, ROOT, rules } from "../support/fleet.js";
-import { CONTEXT, HOSTILE, VECTORS } from "../support/fleet-documents-corpus.js";
+import { CONTEXT, ELSEWHERE, HOSTILE, RAW, VECTORS } from "../support/fleet-documents-corpus.js";
 
 const SRC = readFileSync(join(PKG, "ui", "documents.js"), "utf8");
 const UPDATE = process.env.UPDATE_GOLDEN === "1";
@@ -99,7 +99,7 @@ function read(html) {
   return { problems, tags, hrefs, ids, text };
 }
 
-const contextOf = (x) => (x.ctx === "none" ? undefined : x.ctx === "hostile" ? HOSTILE : CONTEXT);
+const contextOf = (x) => (x.ctx === "none" ? undefined : x.ctx === "hostile" ? HOSTILE : x.ctx === "raw" ? RAW : x.ctx === "elsewhere" ? ELSEWHERE : CONTEXT);
 
 /** Run the corpus on a module: the vectors that fail, each with its reason. */
 function failures(mod, vectors = VECTORS) {
@@ -177,11 +177,13 @@ test("the closed subset: headings, paragraphs, lists, quotes, tables, code, bold
   const r = read(html);
   assert.deepEqual(r.problems, []);
   assert.deepEqual(r.tags, ["h1", "code", "b", "p", "i", "i", "b", "b", "i", "h2", "ul", "li", "li", "ul", "li", "b", "li", "li", "ol", "li", "li",
-    "blockquote", "p", "blockquote", "p", "table", "tr", "th", "th", "tr", "td", "code", "td", "a", "tr", "td", "td", "pre", "code", "hr", "p", "a", "a", "a", "h4", "h4"]);
+    "blockquote", "p", "blockquote", "p", "table", "tr", "th", "th", "tr", "td", "code", "td", "a", "tr", "td", "pre", "code", "hr", "p", "a", "a", "a", "h4", "h4"]);
   assert.deepEqual(r.hrefs, ["#/m/demo/doc/runward%2Farchitecture.md", "https://forge.example/x", "https://a.example/y", "https://a.example/z"]);
   assert.deepEqual(r.ids, ["doc-title-with-code-and-bold", "doc-lists", "doc-level-five", "doc-level-six"]);
   assert.ok(r.text.includes("snake_case_name and 2 * 3 * 4.") && r.text.includes("const a = '<b>';"));
   assert.ok(html.includes("<pre><code>const a = &#39;&lt;b&gt;&#39;;</code></pre>"), "a fence keeps its text, escaped, and drops its info string");
+  assert.ok(html.includes("<tr><td>b</td></tr></table>"), "a short row is left short");
+  assert.equal(documents.renderDocument("| a | b |\n|---|---|\n| 1 | 2 | 3 |\n|\n||"), "<table><tr><th>a</th><th>b</th></tr><tr><td>1</td><td>2</td></tr><tr></tr><tr><td></td></tr></table>", "a row is cut to the header's width and never filled");
   assert.deepEqual(documents.checkRendered(html), { ok: true, refusals: [] });
   assert.equal(documents.renderDocument(""), "");
   assert.equal(documents.renderDocument(null), "");
@@ -285,7 +287,13 @@ const LOOSENED = [
   { name: "a fragment is copied instead of made a slug", net: true, edits: [["return s ? { href: `#doc-${s}`, external: false } : null;", "return { href: raw, external: false };"]] },
   { name: "an absolute link loses its rel and target", net: true, edits: [[`to.external ? [["href", to.href], ["rel", EXTERNAL_REL], ["target", EXTERNAL_TARGET]] : [["href", to.href]]`, `[["href", to.href]]`]] },
   { name: "a link may hold a link", net: true, edits: [[`toks.push(anchor(href, inline(s.slice(at + 1, to), ctx, false)));`, `toks.push(anchor(href, inline(s.slice(at + 1, to), ctx, true)));`]] },
-  { name: "a heading's id loses its prefix", net: true, edits: [["[[\"id\", `doc-${seen ? `${base}-${seen + 1}` : base}`]]", "[[\"id\", `${seen ? `${base}-${seen + 1}` : base}`]]"]] },
+  { name: "a heading's id loses its prefix", net: true, edits: [["[[\"id\", `doc-${id}`]]", "[[\"id\", id]]"]] },
+  { name: "a heading is given a suffix another heading wrote", net: false, edits: [["while (ctx.used.has(`${base}-${k}`)) k++;", ""]] },
+  { name: "a slug is cut through a surrogate pair", net: true, edits: [[`.slice(0, 80).replace(/[\\ud800-\\udbff]$/, "");`, `.slice(0, 80);`]] },
+  { name: "tag characters are kept", net: true, edits: [[`const HIDDEN = /\\udb40[\\udc00-\\udc7f]|[`, `const HIDDEN = /[`]] },
+  { name: "a decoded segment may hold a percent sign, a question mark or a hash", net: false, edits: [[`if (/[%?#]/.test(d)) return null;`, ``]] },
+  { name: "the forge's address is not compared with the path asked", net: false, edits: [[`return href && endsWithPath(href, path) ?`, `return href ?`]] },
+  { name: "emphasis nests without a limit", net: true, edits: [[`const over = frames.length > MAX_DEPTH;`, `const over = false;`]] },
   { name: "hidden characters are kept", net: true, edits: [[`.replace(HIDDEN, "\\ufffd");`, `;`]] },
   { name: "a refused link is dropped instead of shown", net: false, edits: [[`else toks.push(text(s.slice(i, d.end)));`, `else toks.push(text(""));`]] },
   { name: "an image is loaded", net: true, edits: [
@@ -423,6 +431,33 @@ const REFUSED = [
   ["nesting", "<tr><td>a</td></tr>"],
   ["nesting", "<table><td>a</td></table>"],
   ["nesting", "<ul><li>a</ul>"],
+  // what a browser's parser would move or close: the tree must be the one the string writes
+  ["nesting", "<table>x<tr><td>a</td></tr></table>"],
+  ["nesting", "<table><tr>x<td>a</td></tr></table>"],
+  ["nesting", "<table><tr><td>a</td></tr>\n</table>"],
+  ["nesting", "<table><p>a</p><tr><td>a</td></tr></table>"],
+  ["nesting", "<table><b>a</b></table>"],
+  ["nesting", "<table><tr><td>a</td><p>x</p></tr></table>"],
+  ["nesting", "<table><tr><td><table><tr><td>a</td></tr></table></td></tr></table>"],
+  ["nesting", "<table><tr><th><p>a</p></th></tr></table>"],
+  ["nesting", "<p>a<p>b</p></p>"],
+  ["nesting", "<p><ul><li>a</li></ul></p>"],
+  ["nesting", "<p>a<hr></p>"],
+  ["nesting", "<p><pre><code>a</code></pre></p>"],
+  ["nesting", "<p><b><blockquote><p>a</p></blockquote></b></p>"],
+  ["nesting", "<p><i><table><tr><td>a</td></tr></table></i></p>"],
+  ["nesting", '<p><a href="#/x"><p>a</p></a></p>'],
+  ["nesting", '<h1 id="doc-a">a<h2 id="doc-b">b</h2></h1>'],
+  ["nesting", '<h2 id="doc-a"><p>a</p></h2>'],
+  ["nesting", "<ul>x<li>a</li></ul>"],
+  ["nesting", "<ol><p>a</p></ol>"],
+  ["nesting", "<pre>\n<code>a</code></pre>"],
+  ["nesting", "<pre><b>a</b></pre>"],
+  ["nesting", "<code><b>a</b></code>"],
+  ["nesting", `${"<b>".repeat(65)}a${"</b>".repeat(65)}`],
+  ["nesting", `${"<blockquote>".repeat(70)}${"</blockquote>".repeat(70)}`],
+  ["hidden", "<p>a󠁁b</p>"],
+  ["hidden", `<h1 id="doc-${"a".repeat(79)}\ud840">a</h1>`],
 ];
 const ACCEPTED = [
   "",
@@ -432,6 +467,9 @@ const ACCEPTED = [
   '<p><a href="#/m/demo/doc/runward%2Fx.md">a</a> <a href="#doc-a">b</a> <a href="https://a.example/?a=1&amp;b=&#39;" rel="noopener noreferrer nofollow" target="_blank">c</a></p>',
   "<ul><li>a\n<ol><li><b><i>b</i></b></li></ol></li></ul><hr><blockquote><p>q</p></blockquote>",
   "<table><tr><th>a</th></tr><tr><td><code>b</code></td></tr></table><pre><code>c\n\td</code></pre>",
+  "<table><tr><th>a</th><th>b</th></tr><tr><td>1</td></tr><tr></tr></table>",
+  `${"<b>".repeat(60)}a${"</b>".repeat(60)}`,
+  '<blockquote><ul><li><p>a <a href="#/x"><b><i><code>b</code></i></b></a></p>\n<table><tr><td><i>c</i></td></tr></table></li></ul>\ntext</blockquote>',
 ];
 
 test("the check on the way out refuses each output outside the closed lists, with its reason, and accepts the renderer's", () => {
@@ -464,6 +502,11 @@ const CHECK_LOOSENED = [
   { name: "a tag never closed is accepted", edits: [[`if (gt === -1) { refuse(lt, "tag", html.slice(lt)); break; }`, `if (gt === -1) break;`]] },
   { name: "a heading's id is not read", edits: [["if (names !== \"id\" || !SLUG.test(`#${attrs[0][1]}`)) refuse(lt, \"attribute\", tag);", ""]] },
   { name: "an attribute's value may hold a bare ampersand or a <", edits: [[`if (value.includes("<") || BARE_AMPERSAND.test(value)) return null;`, ``]] },
+  { name: "an element may hold any element", edits: [[`else if (HOLDS[holder] && !HOLDS[holder].includes(name)) refuse(lt, "nesting", tag);`, ``]] },
+  { name: "a paragraph may hold a block", edits: [[`pre: ["code"], code: [], p: INLINE,`, `pre: ["code"], code: [],`]] },
+  { name: "a table may hold text between its rows", edits: [[`if (TEXTLESS.has(stack[stack.length - 1])) refuse(i, "nesting", t);`, ``]] },
+  { name: "any depth is accepted", edits: [[`if (stack.length >= MAX_NESTING) refuse(lt, "nesting", tag);`, ``]] },
+  { name: "tag characters are not looked for", edits: [[`const HIDDEN = /\\udb40[\\udc00-\\udc7f]|[`, `const HIDDEN = /[`]] },
 ];
 
 test("planted controls: each rule of the check, loosened alone, accepts an output it must refuse", async () => {
@@ -482,6 +525,11 @@ const PATHOLOGICAL = {
   "open links in angle brackets": "[a](<".repeat(20_000),
   "open images": "![".repeat(50_000),
   "stars that never close": "*a ".repeat(33_334),
+  "nested stars that close": "*a ".repeat(16_667) + "a* ".repeat(16_667),
+  "nested double stars that close": "**a ".repeat(12_500) + "a** ".repeat(12_500),
+  "nested underscores that close": "_a ".repeat(16_667) + "a_ ".repeat(16_667),
+  "a table of 64 columns and short rows": `${"|a".repeat(64)}\n${"|-".repeat(64)}\n${"|\n".repeat(49_870)}`,
+  "a table of 64 columns and rows of bars": `${"|a".repeat(64)}\n${"|-".repeat(64)}\n${`${"|".repeat(65)}\n`.repeat(1_511)}`,
   "underscores": "_a_".repeat(33_334),
   "alternating emphasis": "*_".repeat(50_000),
   "backticks that never close": "`a ".repeat(33_334),
@@ -505,6 +553,7 @@ const PATHOLOGICAL = {
   "hidden characters": "\u202e\u0000".repeat(50_000),
 };
 const BOUND_MS = 200;
+const BOUND_GROWTH = 20; // an output is at most this many times its source: the widest is a heading of one character
 /** CPU time of a call, in milliseconds, the best of five: a measure that the load of the machine does not stretch. */
 function best(f) {
   let ms = Infinity;
@@ -513,11 +562,12 @@ function best(f) {
   return [ms, out];
 }
 
-test("time bound: 100 KB of each pathological input renders in under 200 ms of CPU and is checked in under 200 ms; a planted quadratic scan is caught", async () => {
+test("time bound: 100 KB of each pathological input renders in under 200 ms of CPU, grows at most 20 times and is checked in under 200 ms; planted quadratic scans and a planted filling of rows are caught", async () => {
   for (const [name, src] of Object.entries(PATHOLOGICAL)) {
     assert.ok(src.length >= 96_000 && src.length <= 102_000, `${name}: ${src.length} characters`);
     const [render, html] = best(() => documents.renderDocument(src, CONTEXT));
     assert.ok(render < BOUND_MS, `${name}: rendered in ${render.toFixed(0)} ms of CPU`);
+    assert.ok(html.length <= BOUND_GROWTH * src.length, `${name}: ${src.length} characters became ${html.length}`);
     const [check, c] = best(() => documents.checkRendered(html));
     assert.ok(check < BOUND_MS, `${name}: checked in ${check.toFixed(0)} ms of CPU`);
     assert.equal(c.ok, true, name);
@@ -528,6 +578,20 @@ test("time bound: 100 KB of each pathological input renders in under 200 ms of C
   slow.renderDocument(PATHOLOGICAL["backticks that never close"], CONTEXT);
   const t = process.cpuUsage(t0);
   assert.ok((t.user + t.system) / 1000 >= BOUND_MS, "the bound does not see a quadratic scan");
+  // Control: emphasis nested without a limit joins the whole inner string again at each closing mark.
+  const deep = await planted([`const over = frames.length > MAX_DEPTH;`, `const over = false;`]);
+  for (const name of ["nested stars that close", "nested double stars that close", "nested underscores that close"]) {
+    const d0 = process.cpuUsage();
+    deep.renderDocument(PATHOLOGICAL[name], CONTEXT);
+    const d = process.cpuUsage(d0);
+    assert.ok((d.user + d.system) / 1000 >= BOUND_MS, `the bound does not see emphasis joined again at each closing mark: ${name}`);
+  }
+  // Control: short rows filled to the header's width, two characters writing 64 cells, are seen by the bound on growth.
+  const filled = await planted([`cells(lines[i++]).slice(0, head.length).map((c) => el("td", inline(c, ctx)))`, `((c) => head.map((_, k) => el("td", inline(c[k] ?? "", ctx))))(cells(lines[i++]))`]);
+  const src = PATHOLOGICAL["a table of 64 columns and short rows"];
+  const wide = filled.renderDocument(src, CONTEXT);
+  assert.ok(wide.length > 200 * src.length, `the planted filling grows the source ${Math.round(wide.length / src.length)} times`);
+  assert.ok(documents.renderDocument(src, CONTEXT).length < 5 * src.length);
 });
 
 // ------------------------------------------------------------------ real documents
@@ -642,7 +706,7 @@ test("the register says nothing a file does not: a field not found is null, an u
     ["0002", "ADR-0002-b.md", null, null, null],
     ["0003", "ADR-0003-c.md", null, "rejected by the team", null],
     ["0004", "ADR-0004-d.md", "superseded", "superseded", null],
-    ["0005", "ADR-0005-e.md", "deprecated", "deprecated; superseded by ADR-0001", null],
+    ["0005", "ADR-0005-e.md", null, "deprecated; superseded by ADR-0001", null],
   ]);
   const [first, again, untitled, third, fourth, fifth] = reg.adrs;
   assert.equal(first.title, "First <script>alert(1)</script>", "a title is the file's text: the view escapes it");
@@ -655,10 +719,10 @@ test("the register says nothing a file does not: a field not found is null, an u
   assert.deepEqual([untitled.title, untitled.titleNumber, untitled.reopening, untitled.references, untitled.deciders], [null, null, null, null, null]);
   assert.equal(third.dateWritten, "soon");
   assert.deepEqual([fourth.title, fourth.supersededBy], [null, null], "superseded without a record named: none is guessed");
-  assert.equal(fifth.supersededBy, null, "superseded by is read on a status that starts with it");
+  assert.deepEqual([fifth.status, fifth.supersededBy], [null, null], "two statuses on a line: neither is chosen, and superseded by is read on a status that starts with it");
   assert.deepEqual(reg.duplicates, ["0002"]);
   assert.deepEqual(reg.byStatus.map((g) => [g.status, g.n, g.of, g.numbers]), [
-    ["proposed", 0, 6, []], ["accepted", 1, 6, ["0001"]], ["superseded", 1, 6, ["0004"]], ["deprecated", 1, 6, ["0005"]], ["as-written", 2, 6, ["0002", "0003"]], ["not-observed", 1, 6, ["0002"]],
+    ["proposed", 0, 6, []], ["accepted", 1, 6, ["0001"]], ["superseded", 1, 6, ["0004"]], ["deprecated", 0, 6, []], ["as-written", 3, 6, ["0002", "0003", "0005"]], ["not-observed", 1, 6, ["0002"]],
   ]);
   assert.equal(reg.byStatus.reduce((n, g) => n + g.n, 0), reg.count, "each record is in one group");
   assert.deepEqual(reg.unread, [
@@ -681,6 +745,73 @@ test("planted controls on the register: a status guessed, a template counted, a 
     const synthetic = mod.register([{ path: "adr/ADR-0001-a.md", text: "# ADR-0001: A\n\n**Status**: rejected, not accepted\n\n## Context\n\n**Date**: 2026-01-01\n" }]);
     const same = JSON.stringify(mod.register(hostedFiles())) === JSON.stringify(real) && synthetic.adrs[0].status === null && synthetic.adrs[0].date === null;
     assert.ok(!same, `the register is unchanged when ${name}`);
+  }
+});
+
+// What a line says beyond its first word, and what a reader of the record does not see as a field.
+const rec = (n, header) => ({ path: `runward/adr/ADR-${n}-x.md`, text: `# ADR-${n}: A record\n\n${header}\n\n## Context\n\nText.\n` });
+const SAID = [
+  // [number, the header, status, supersededBy, statusWritten when it is not the header's only line]
+  ["0031", "**Status**: accepted, then superseded by ADR-0030 (2026-11-10)", null, null],
+  ["0032", "**Status**: accepted; deprecated on 2026-11-10", null, null],
+  ["0033", "**Status**: accepted: no, rejected by the author", null, null],
+  ["0034", "**Status**: Superseded by [ADR-0030](ADR-0030-x.md)", "superseded", "0030"],
+  ["0035", "**Status**: superseded by ADR-00301", "superseded", null],
+  ["0036", "**Status**: superseded by ADR-0019 (2026-11-10); accepted (2026-11-08), ratified by the author", "superseded", "0019"],
+  ["0037", "**Status**: superseded by ADR-0019 (2026-11-10); withdrawn", null, null],
+  ["0038", "**Status**: accepted (accepted by the author, 2026-11-10)", "accepted", null],
+  ["0039", "**Status**: proposed (acceptance is the author's)", "proposed", null],
+  ["0040", "**Status**: accepted, then withdrawn", null, null],
+  ["0041", "**Status**: proposed, not accepted", null, null],
+  ["0042", "**Status**: superseded by [ADR-0030: its title](../adr/ADR-0030-x.md); accepted (2026-11-08)", "superseded", "0030"],
+  ["0043", "**Status**: superseded by [ADR-00301](x.md)", "superseded", null],
+  ["0044", "**Status**: deprecated (superseded in practice)", null, null],
+  ["0045", "<!-- **Status**: accepted -->\n**Status**: rejected", null, null, "rejected"],
+  ["0046", "<!--\n**Status**: accepted\n**Date**: 2026-01-01\n-->\n**Status**: proposed", "proposed", null, "proposed"],
+  ["0047", "```\n**Date**: 2026-01-01\n**Status**: accepted\n```\n**Date**: 2026-02-02", null, null, null],
+  ["0048", "~~~~\n<!--\n```\n~~~~\n**Status**: accepted", "accepted", null, "accepted"],
+  ["0049", "**Status**: accepted <!-- superseded by ADR-0030 -->", null, null],
+  ["0050", "**Date**: 2026-03-03 <!--\n**Status**: accepted\n--> **Status**: accepted\n**Deciders**: the author", null, null, null],
+  ["0051", "<!-- a --> <!-- b\n**Status**: accepted\n-->\n**Status**: deprecated", "deprecated", null, "deprecated"],
+];
+
+test("the register reads a status only where the line says one: a second status word, a comment or a fence leaves it as written or not observed", () => {
+  const reg = documents.register(SAID.map(([n, header]) => rec(n, header)));
+  for (const [k, [n, header, status, by, written]] of SAID.entries()) {
+    const a = reg.adrs[k];
+    const expected = SAID[k].length === 5 ? written : header.slice("**Status**: ".length);
+    assert.deepEqual([a.number, a.status, a.supersededBy, a.statusWritten], [n, status, by, expected], `ADR-${n}: ${header}`);
+  }
+  const by = Object.fromEntries(reg.adrs.map((a) => [a.number, a]));
+  assert.equal(by["0046"].date, null, "a date in a comment is not read");
+  assert.equal(by["0047"].date, "2026-02-02", "a date in a fence is not read, the one after it is");
+  assert.deepEqual([by["0050"].date, by["0050"].deciders], ["2026-03-03", "the author"], "a field is read before a comment opens and after it closes");
+  assert.deepEqual(reg.byStatus.map((g) => [g.status, g.n]), [["proposed", 2], ["accepted", 2], ["superseded", 5], ["deprecated", 1], ["as-written", 9], ["not-observed", 2]]);
+  assert.equal(reg.byStatus.reduce((n, g) => n + g.n, 0), reg.count, "each record is in one group");
+
+  const rel = documents.register([
+    rec("0060", "**Supersedes**: [ADR-0007](ADR-0007-x.md) (the reason), [ADR-0008: its title](x.md) and ADR-00091, ADR-0010\n**Refines**: ADR-00021"),
+    rec("0061", "**Supersedes**: ADR-0007, [ADR-0008 never closed\n**Refines**: [ ADR-0002](x.md), ADR-0003 (why) and [ADR-0004](y.md"),
+  ]).adrs;
+  assert.deepEqual([rel[0].supersedes, rel[0].refines], [["0007", "0008"], []], "a linked record is read; a number that goes on with a digit is not a record");
+  assert.deepEqual([rel[1].supersedes, rel[1].refines], [["0007"], ["0002", "0003"]], "a link that does not close names no record");
+});
+
+test("planted controls on the reading of a status: each rule, loosened alone, changes what the register says of exactly the lines it holds", async () => {
+  const files = [...SAID.map(([n, header]) => rec(n, header)), rec("0060", "**Supersedes**: [ADR-0007](ADR-0007-x.md), ADR-00091\n**Status**: superseded by ADR-00301")];
+  const said = JSON.stringify(documents.register(files));
+  const same = (mod, numbers) => { const a = JSON.parse(said).adrs; const b = mod.register(files).adrs; return a.filter((x, k) => JSON.stringify(x) !== JSON.stringify(b[k])).map((x) => x.number).join(" ") === numbers; };
+  for (const [name, changed, ...edits] of [
+    ["a second status word is not looked for", "0031 0032 0033 0037 0040 0041 0044 0049", [`contradicted(status, starts, by !== null) ? null : starts`, `false ? null : starts`]],
+    ["any word may follow superseded by a record", "0037", [`(history && REGISTER_STATUSES.includes(w))`, `history`]],
+    ["a status of the template may follow any first word", "0031 0032 0041 0044 0049", [`(history && REGISTER_STATUSES.includes(w))`, `REGISTER_STATUSES.includes(w)`]],
+    ["a commented line is a field", "0046 0050 0051", [`if (commented) continue; // a field is a line a reader of the record sees as one`, ``]],
+    ["a fenced line is a field", "0047 0048", [`if (f) { fence = f[1]; continue; }`, ``]],
+    ["a record's number may go on with a digit", "0035 0043 0060", [`const SUPERSEDED_BY = /^superseded +by +(?:\\[ *)?ADR-([0-9]{4})(?![0-9])/i;`, `const SUPERSEDED_BY = /^superseded +by +(?:\\[ *)?ADR-([0-9]{4})/i;`], [`const ADR_ID = /^(?:\\[ *)?ADR-([0-9]{4})(?![0-9])/;`, `const ADR_ID = /^(?:\\[ *)?ADR-([0-9]{4})/;`]],
+    ["a linked record is not read", "0034 0042 0060", [`const SUPERSEDED_BY = /^superseded +by +(?:\\[ *)?ADR-`, `const SUPERSEDED_BY = /^superseded +by +ADR-`], [`const ADR_ID = /^(?:\\[ *)?ADR-`, `const ADR_ID = /^ADR-`]],
+  ]) {
+    const mod = await planted(...edits);
+    assert.ok(same(mod, changed), `${name}: the records read otherwise are ${JSON.parse(said).adrs.filter((x, k) => JSON.stringify(x) !== JSON.stringify(mod.register(files).adrs[k])).map((x) => x.number).join(" ")}`);
   }
 });
 

@@ -7,7 +7,9 @@
 //   text    strings the reader must see as text, character for character (the source shown, not run)
 //   absent  strings that must not be in the text the reader sees
 //   has     elements the output must hold
-//   ctx     "none" (no context), "hostile" (a context whose functions answer forbidden addresses)
+//   ctx     "none" (no context), "hostile" (a context whose functions answer forbidden addresses),
+//           "raw" (a context that concatenates the path without encoding it), "elsewhere" (a context
+//           whose forge address is not the file asked)
 // Whatever the expectation, every output must hold only elements and attributes of the closed lists.
 
 export const CONTEXT = {
@@ -18,7 +20,18 @@ export const CONTEXT = {
 export const HOSTILE = {
   path: "runward/adr/ADR-0001-example.md",
   route: () => "javascript:alert(1)",
-  source: () => "http://forge.example/x",
+  source: (p) => `http://forge.example/${p}`,
+};
+/** A deployment that concatenates: what the renderer hands it must be safe as it is, and what it answers is compared with what was asked. */
+export const RAW = {
+  path: "runward/adr/ADR-0001-example.md",
+  route: (p) => (p.startsWith("runward/") && p.endsWith(".md") ? `#/m/demo/doc/${p}` : null),
+  source: (p) => `https://forge.example/o/r/blob/0123abc/${p}`,
+};
+export const ELSEWHERE = {
+  path: "runward/adr/ADR-0001-example.md",
+  route: () => null,
+  source: () => "https://forge.example/o/r/blob/0123abc/README.md",
 };
 
 const J = "javascript:alert(1)";
@@ -169,6 +182,13 @@ export const VECTORS = [
   ["relative", "a segment with a quote and a tag", `[a](../"><script>.md)`, { hrefs: ["#/m/demo/doc/runward%2F%22%3E%3Cscript%3E.md"] }],
   ["relative", "a relative link without a context is text", "[a](../architecture.md)", { ctx: "none", text: ["[a](../architecture.md)"] }],
   ["relative", "a context that answers forbidden addresses is not believed", "[a](../architecture.md) [b](../../src/x.js)", { ctx: "hostile", text: ["[a](../architecture.md)", "[b](../../src/x.js)"] }],
+  ["relative", "dots encoded twice, handed to a context that concatenates", "[a](%252e%252e/%252e%252e/%252e%252e/%252e%252e/x.js) [b](%252e%252e/%252e%252e/secret.md)", { ctx: "raw", text: ["[a](%252e%252e/%252e%252e/%252e%252e/%252e%252e/x.js)", "[b](%252e%252e/%252e%252e/secret.md)"] }],
+  ["relative", "a question mark or a hash encoded in a segment, handed to a context that concatenates", "[a](a%3Fb=c) [b](a%23frag) [c](a%3Fb=c.md) [d](a%23frag.md)", { ctx: "raw", text: ["[a](a%3Fb=c)", "[d](a%23frag.md)"] }],
+  ["relative", "a decoded segment that holds a percent sign, a question mark or a hash", "[a](100%25.md) [b](%252e%252e/x.md) [c](a%3Fb.md) [d](a%23b.md) [e](../../src/%2541.js)", { text: ["[a](100%25.md)", "[e](../../src/%2541.js)"] }],
+  ["relative", "a context that concatenates still names the file asked", "[a](ADR-0002-other.md) [b](../../src/main.js)", { ctx: "raw", hrefs: ["#/m/demo/doc/runward/adr/ADR-0002-other.md", "https://forge.example/o/r/blob/0123abc/src/main.js"] }],
+  ["relative", "a segment the parser of addresses does not write as it was asked", "[a](../../src/a%5Bb%5D.js)", { ctx: "raw", text: ["[a](../../src/a%5Bb%5D.js)"] }],
+  ["relative", "the same segment, encoded by the context", "[a](../../src/a%5Bb%5D.js)", { hrefs: ["https://forge.example/o/r/blob/0123abc/src/a%5Bb%5D.js"] }],
+  ["relative", "a forge address that is not the file asked is not believed", "[a](../../src/main.js)", { ctx: "elsewhere", text: ["[a](../../src/main.js)"] }],
   ["relative", "a query alone is text, a dot alone is the folder", "[a](?x=1) [b](.) [c](./)", { hrefs: [FORGE, FORGE], text: ["[a](?x=1)"] }],
 
   // ---------------------------------------------------------------- slugs
@@ -178,6 +198,9 @@ export const VECTORS = [
   ["slug", "a heading without a letter", "## <>\n\n#\n\n## ***", { ids: ["doc-section", "doc-section-2", "doc-section-3"] }],
   ["slug", "a heading named like a property of the page", "# constructor\n\n# __proto__\n\n# location", { ids: ["doc-constructor", "doc-proto", "doc-location"] }],
   ["slug", "a heading in another script", "# D\u00e9cision \u6c7a\u5b9a", { ids: ["doc-d\u00e9cision-\u6c7a\u5b9a"] }],
+  ["slug", "a heading that writes the suffix another would be given", "# a\n\n# a\n\n# a 2", { ids: ["doc-a", "doc-a-2", "doc-a-2-2"] }],
+  ["slug", "a heading is never given the suffix another one wrote", "# a\n\n# a 2\n\n# a\n\n# a 3\n\n# a\n\n# a 2", { ids: ["doc-a", "doc-a-2", "doc-a-3", "doc-a-3-2", "doc-a-4", "doc-a-2-2"] }],
+  ["slug", "a slug is never cut through a surrogate pair", `# ${"a".repeat(79)}𠀀b\n\n[x](#${"a".repeat(79)}𠀀b)`, { ids: [`doc-${"a".repeat(79)}`], hrefs: [`#doc-${"a".repeat(79)}`] }],
   ["slug", "an empty fragment", "[a](#) [b](#%20) [c](#---)", {}],
 
   // ---------------------------------------------------------------- structures left open or nested
@@ -216,6 +239,8 @@ export const VECTORS = [
   ["unicode", "control characters", "a\u0001\u0008\u000b\u000c\u001b[31m\u007f\u0085\u009b b", { absent: ["\u0001", "\u001b", "\u007f", "\u0085", "\u009b"] }],
   ["unicode", "half a surrogate pair", "a\ud800b \udc00c \ud83d<script>", { absent: ["\ud800", "\udc00"], text: ["<script>"] }],
   ["unicode", "a whole pair is kept", "ok \ud83d\ude00 <b>", { text: ["\ud83d\ude00 <b>"] }],
+  ["unicode", "tag characters", "safe󠀁󠁨󠁩󠁿 text <b>", { absent: ["\udb40", "\udc68"], text: ["safe���� text <b>"] }],
+  ["unicode", "invisible characters a script may need are shown in text and refused in an address", "a​b‎c­d⁠e [x](https://a.example/​) [y](https://a­.example/) https://a.example/⁠ <https://a.example/͏> [z](؜.md)\n\n# a​b­c", { text: ["a​b‎c­d⁠e", "[y](https://a­.example/)"], ids: ["doc-a-b-c"] }],
   ["unicode", "line and paragraph separators end a line", "a\u2028# not hidden\u2029<script>", { absent: ["\u2028", "\u2029"], has: ["h1"], text: ["<script>"] }],
   ["unicode", "a byte order mark inside a tag name", "<scr\ufeffipt>alert(1)</scr\ufeffipt>", { text: ["ipt>alert(1)"] }],
   ["unicode", "letters that look like a scheme are a file name", "[x](\u0458avascript:alert(1)) [y](j\u0430vascript:alert(1))", { hrefs: [`${FORGE}/%D1%98avascript%3Aalert(1)`, `${FORGE}/j%D0%B0vascript%3Aalert(1)`] }],
@@ -229,6 +254,9 @@ export const VECTORS = [
   ["long", "one line of a hundred kilobytes", big("<img src=x onerror=alert(1)> ", 100_000), { text: ["<img src=x onerror=alert(1)>"] }],
   ["long", "a hundred kilobytes of links to a script", big(`[x](${J}) `, 100_000), {}],
   ["long", "a document over the limit is one block of plain text", big(`# h\n[x](${EXT}) <script>alert(1)</script>\n`, (1 << 20) + 100), { text: ["<script>alert(1)</script>", `[x](${EXT})`], has: ["pre", "code"], absentTags: ["h1", "a", "p"] }],
+  ["long", "a table of 64 columns and ten thousand short rows", `${"|a".repeat(64)}\n${"|-".repeat(64)}\n${"|\n".repeat(10_000)}|<b>`, { has: ["table"], text: ["<b>"] }],
+  ["structure", "emphasis nested deeper than the limit keeps its marks as text", `${"*a ".repeat(80)}<b>${" a*".repeat(80)}`, { has: ["i"], absentTags: ["b"], text: [`${"*a ".repeat(72)}<b>${" a*".repeat(72)}`] }],
+  ["structure", "bold nested deeper than the limit, around a link", `${"**a ".repeat(70)}[x](${J})${" a**".repeat(70)}`, { has: ["b"], text: [`${"**a ".repeat(62)}[x](${J})${" a**".repeat(62)}`] }],
   ["long", "a table of five thousand columns", `${"|a".repeat(5000)}|\n${"|-".repeat(5000)}|\n${"|<b>".repeat(5000)}|`, { has: ["table"], text: ["<b>"] }],
   ["long", "ten thousand headings of the same text", big("# <x>\n", 60_000), { has: ["h1"], text: ["<x>"] }],
   ["long", "a title that never ends", `[x](${EXT} "${"t".repeat(5000)}`, { hrefs: [EXT] }],

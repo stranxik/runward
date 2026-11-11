@@ -10,8 +10,9 @@
 //   - a link is rewritten, never copied: a fragment becomes a slug of this renderer, a relative path is
 //     normalised inside the repository and handed to the caller's `route` or `source`, an absolute
 //     address is kept only when it is https without credentials. Anything else is shown as text;
-//   - `checkRendered` reads the output as tokens and refuses whatever is outside the same closed lists.
-//     A page inserts a document only when it passes; otherwise it shows the source as plain text.
+//   - `checkRendered` reads the output as tokens and refuses whatever is outside the same closed lists,
+//     and whatever an element of the list may not hold (a block in a paragraph, anything but rows in a
+//     table). A page inserts a document only when it passes; otherwise it shows the source as plain text.
 //
 // Pure ES module: no import, no clock, no network, no DOM. The same code runs in a browser, at
 // ingestion and in the tests. The elements carry no class and no style: a deployment styles them by
@@ -39,7 +40,8 @@ export const DOCUMENT_RULES = [
 ];
 
 const ELEMENTS = new Set(DOCUMENT_ELEMENTS);
-const MAX_DEPTH = 8; // nested quotes and lists beyond it are shown flat
+const MAX_DEPTH = 8; // nested quotes and lists beyond it are shown flat; nested emphasis beyond it keeps its marks as text
+const MAX_NESTING = 64; // the deepest the check accepts: the renderer stays under 40 (nine levels of lists, a cell, emphasis around and inside a link)
 const MAX_HREF = 1024;
 const MAX_TITLE = 256; // a link's title is read to find where the link ends, and dropped
 const MAX_COLUMNS = 64;
@@ -71,20 +73,22 @@ function el(tag, inner, attrs = []) {
 }
 
 // ------------------------------------------------------------------ the source, made plain
-// Line ends are one kind; a control character, a bidirectional override or isolate, and half a
-// surrogate pair are replaced by U+FFFD, so none can hide or reorder what the reader sees.
-const HIDDEN = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069\ufffe\uffff]|[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/g;
+// Line ends are one kind; a control character, a bidirectional override or isolate, a tag character
+// (U+E0000 to U+E007F) and half a surrogate pair are replaced by U+FFFD, so none can hide or reorder
+// what the reader sees. Left as written, because text in some scripts needs them: U+200B to U+200F,
+// U+061C, U+00AD, U+2060 and U+034F (refused in an address, shown in text, never in a heading's id).
+const HIDDEN = /\udb40[\udc00-\udc7f]|[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069\ufffe\uffff]|[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/g;
 const plain = (src) => String(src ?? "").replace(/\r\n?|[\u2028\u2029]/g, "\n").replace(/\t/g, "    ").replace(HIDDEN, "\ufffd");
 
 // ------------------------------------------------------------------ links
 /** What an address may not hold, as written: a space of any kind, a control or invisible character, a backslash. */
-const UNSAFE = /[\u0000-\u0020\u007f-\u00a0\u1680\u2000-\u200f\u2028-\u202f\u205f-\u206f\u3000\ufeff\ufffd\\]/;
+const UNSAFE = /[\u0000-\u0020\u007f-\u00a0\u00ad\u034f\u061c\u1680\u2000-\u200f\u2028-\u202f\u205f-\u206f\u3000\ufeff\ufffd\\]/;
 const SCHEME = /^[a-zA-Z][a-zA-Z0-9+.-]*:/;
 const ROUTE = /^#\/[A-Za-z0-9._~%/-]*$/;
 const HOST = /^(?:[a-z0-9_-]+(?:\.[a-z0-9_-]+)*\.?|\[[0-9a-f:.]+\])$/; // a name as the parser writes it, or an address in brackets
 const SLUG = /^#doc-[\p{L}\p{N}-]*$/u;
 
-const slug = (s) => s === "" ? "" : String(s).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-/, "").replace(/-$/, "").slice(0, 80);
+const slug = (s) => s === "" ? "" : String(s).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-/, "").replace(/-$/, "").slice(0, 80).replace(/[\ud800-\udbff]$/, ""); // cut at 80 units, never through a pair
 
 /** An absolute address, kept only when it is https, names a host and carries no credentials. */
 function external(raw) {
@@ -112,6 +116,7 @@ function insideRepository(raw, from) {
     if (d === "" || d === ".") continue;
     if (d === "..") { if (at.length === 0) return null; at.pop(); continue; }
     if (/[\u0000-\u001f\u007f/\\]/.test(d)) return null;
+    if (/[%?#]/.test(d)) return null; // what a second decoding, or a parser of addresses, would read as structure
     at.push(d);
   }
   return at.length ? at.join("/") : null;
@@ -136,7 +141,14 @@ function resolve(raw, ctx) {
   const route = typeof ctx.route === "function" ? ctx.route(path) : null;
   if (typeof route === "string" && route.length <= MAX_HREF && ROUTE.test(route)) return { href: route, external: false };
   const href = typeof ctx.source === "function" ? external(ctx.source(path)) : null;
-  return href ? { href, external: true } : null;
+  return href && endsWithPath(href, path) ? { href, external: true } : null;
+}
+
+/** Whether the path of an address ends with `path`, each segment encoded: the forge's address names the file asked, and no other. */
+function endsWithPath(href, path) {
+  let u;
+  try { u = new URL(href); } catch { return false; }
+  return u.pathname.endsWith(`/${path.split("/").map(encodeURIComponent).join("/")}`);
 }
 
 const anchor = (to, inner) => el("a", inner, to.external ? [["href", to.href], ["rel", EXTERNAL_REL], ["target", EXTERNAL_TARGET]] : [["href", to.href]]);
@@ -331,11 +343,16 @@ function inline(s, ctx, links = true) {
       for (const other of Object.values(stacks)) while (other.length && other[other.length - 1] > o) other.pop();
     } else if (d.open) mine.push(k);
   }
+  // Pairs nest; beyond MAX_DEPTH a pair keeps its marks as text, so no piece is joined more than MAX_DEPTH times.
   const frames = [[]];
+  const flat = []; // for each pair open, whether it is beyond the depth
   for (const d of toks) {
     if (d instanceof Built) frames[frames.length - 1].push(d);
-    else if (d.role === "open") frames.push([]);
-    else if (d.role === "close") { const inner = join(frames.pop()); frames[frames.length - 1].push(el(d.n === 2 ? "b" : "i", inner)); }
+    else if (d.role === "open") {
+      const over = frames.length > MAX_DEPTH;
+      flat.push(over);
+      if (over) frames[frames.length - 1].push(text(d.ch.repeat(d.n))); else frames.push([]);
+    } else if (d.role === "close" && !flat.pop()) { const inner = join(frames.pop()); frames[frames.length - 1].push(el(d.n === 2 ? "b" : "i", inner)); }
     else frames[frames.length - 1].push(text(d.ch.repeat(d.n)));
   }
   return join(frames[0]);
@@ -399,9 +416,15 @@ function blocks(lines, ctx, depth) {
       while (e > 0 && body[e - 1] === "#") e--;
       if (e < body.length && (e === 0 || body[e - 1] === " ")) body = body.slice(0, e).trim(); // a closing run of #
       const base = slug(body) || "section";
-      const seen = ctx.ids.get(base) ?? 0;
-      ctx.ids.set(base, seen + 1);
-      out.push({ built: el(`h${level}`, inline(body, ctx), [["id", `doc-${seen ? `${base}-${seen + 1}` : base}`]]) });
+      let id = base;
+      if (ctx.used.has(id)) { // the next suffix no heading of this document carries, written or given
+        let k = ctx.ids.get(base) ?? 2;
+        while (ctx.used.has(`${base}-${k}`)) k++;
+        ctx.ids.set(base, k + 1);
+        id = `${base}-${k}`;
+      }
+      ctx.used.add(id);
+      out.push({ built: el(`h${level}`, inline(body, ctx), [["id", `doc-${id}`]]) });
       i++;
       continue;
     }
@@ -417,8 +440,7 @@ function blocks(lines, ctx, depth) {
       const rows = [el("tr", join(head.map((c) => el("th", inline(c, ctx)))))];
       i += 2;
       while (i < n && ROW.test(lines[i])) {
-        const c = cells(lines[i++]);
-        rows.push(el("tr", join(head.map((_, k) => el("td", inline(c[k] ?? "", ctx))))));
+        rows.push(el("tr", join(cells(lines[i++]).slice(0, head.length).map((c) => el("td", inline(c, ctx)))))); // a short row is left short: filling it lets two characters write 64 cells
       }
       out.push({ built: el("table", join(rows)) });
       continue;
@@ -479,7 +501,7 @@ function blocks(lines, ctx, depth) {
 export function renderDocument(markdown, context = {}) {
   const src = plain(markdown);
   if (src.length > MAX_DOCUMENT_LENGTH) return el("pre", el("code", text(src))).html;
-  const ctx = { path: context?.path, route: context?.route, source: context?.source, ids: new Map() };
+  const ctx = { path: context?.path, route: context?.route, source: context?.source, ids: new Map(), used: new Set() };
   return join(blocks(src.split("\n"), ctx, 0).map((b) => b.built), "\n").html;
 }
 
@@ -488,6 +510,11 @@ const BARE_AMPERSAND = /&(?!(?:amp|lt|gt|quot|#39);)/;
 const TEXT_REFUSED = /[>]|&(?!(?:amp|lt|gt|quot|#39);)/;
 const HIDDEN_ONCE = new RegExp(`\\r|${HIDDEN.source}`);
 const PARENT = { li: ["ul", "ol"], tr: ["table"], th: ["tr"], td: ["tr"] };
+// What an element may hold, where a browser's parser would otherwise move or close something: the tree
+// a page gets is the one the string writes. The document itself, a quote and an item hold anything.
+const INLINE = ["a", "b", "i", "code"];
+const HOLDS = { ul: ["li"], ol: ["li"], table: ["tr"], tr: ["th", "td"], pre: ["code"], code: [], p: INLINE, h1: INLINE, h2: INLINE, h3: INLINE, h4: INLINE, th: INLINE, td: INLINE, a: INLINE, b: INLINE, i: INLINE };
+const TEXTLESS = new Set(["ul", "ol", "table", "tr", "pre"]);
 const decode = (s) => s.replace(/&(amp|lt|gt|quot|#39);/g, (_, e) => ({ amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" }[e]));
 
 const AUTHORITY = /^(?:[a-z0-9_-]+(?:\.[a-z0-9_-]+)*\.?|\[[0-9a-f:.]+\])(?::[0-9]{1,5})?$/;
@@ -522,7 +549,8 @@ function attributes(s) {
 /**
  * The second net: read a rendered document as tokens and refuse whatever the closed lists do not hold.
  * Returns `{ ok, refusals: [{ at, why, found }] }`; `why` is one of `not-a-string`, `hidden`, `text`, `tag`,
- * `element`, `attribute`, `href`, `nesting`. At most twenty refusals are listed.
+ * `element`, `attribute`, `href`, `nesting`. At most twenty refusals are listed. `nesting` covers what an
+ * element may hold: an output it accepts is read by a browser as the tree the string writes.
  */
 export function checkRendered(html) {
   const refusals = [];
@@ -541,6 +569,7 @@ export function checkRendered(html) {
       const t = html.slice(i, end);
       const bad = TEXT_REFUSED.exec(t);
       if (bad) refuse(i + bad.index, "text", t.slice(bad.index));
+      if (TEXTLESS.has(stack[stack.length - 1])) refuse(i, "nesting", t);
     }
     if (lt === -1) break;
     const gt = html.indexOf(">", lt);
@@ -573,7 +602,10 @@ export function checkRendered(html) {
       if (names !== "id" || !SLUG.test(`#${attrs[0][1]}`)) refuse(lt, "attribute", tag);
     }
     if (name === "a" && anchors > 0) refuse(lt, "nesting", tag);
-    if (PARENT[name] && !PARENT[name].includes(stack[stack.length - 1])) refuse(lt, "nesting", tag);
+    const holder = stack[stack.length - 1];
+    if (PARENT[name] && !PARENT[name].includes(holder)) refuse(lt, "nesting", tag);
+    else if (HOLDS[holder] && !HOLDS[holder].includes(name)) refuse(lt, "nesting", tag);
+    if (stack.length >= MAX_NESTING) refuse(lt, "nesting", tag);
     if (name === "a") anchors++;
     if (name !== "hr") stack.push(name);
   }
@@ -584,8 +616,11 @@ export function checkRendered(html) {
 // ------------------------------------------------------------------ the register of decision records
 /** The statuses the record template declares. Another first word is shown as written: `word` is then null. */
 export const REGISTER_STATUSES = ["proposed", "accepted", "superseded", "deprecated"];
+/** Words that are not the template's and still say a status: after the first word, either makes the line read as written. */
+const STATUS_WORDS = /(?<![a-z-])(proposed|accepted|superseded|deprecated|rejected|withdrawn)(?![a-z-])/gi;
+const SUPERSEDED_BY = /^superseded +by +(?:\[ *)?ADR-([0-9]{4})(?![0-9])/i;
 const ADR_FILE = /(?:^|\/)adr\/ADR-([0-9]{4})-[^/]*\.md$/;
-const ADR_ID = /^ADR-([0-9]{4})/;
+const ADR_ID = /^(?:\[ *)?ADR-([0-9]{4})(?![0-9])/; // a record, or a link whose text starts with one
 const FIELD = /^\*\*([A-Za-z][A-Za-z -]*)\*\* *: *(.*)$/;
 const DAY = /^([0-9]{4}-[0-9]{2}-[0-9]{2})(?![0-9])/;
 
@@ -596,8 +631,16 @@ function named(value) {
   for (;;) {
     const m = ADR_ID.exec(s);
     if (!m) break;
+    const linked = s.startsWith("[");
+    s = s.slice(m[0].length);
+    if (linked) { // the rest of the link's text, then its address
+      const k = s.indexOf("]");
+      if (k === -1) break;
+      s = s.slice(k + 1);
+      if (s.startsWith("(")) { const end = s.indexOf(")"); if (end === -1) break; s = s.slice(end + 1); }
+    }
     out.push(m[1]);
-    s = s.slice(m[0].length).trimStart();
+    s = s.trimStart();
     if (s.startsWith("(")) { const k = s.indexOf(")"); if (k === -1) break; s = s.slice(k + 1).trimStart(); }
     const sep = /^(?:, and |,|and )\s*/.exec(s);
     if (!sep) break;
@@ -616,19 +659,53 @@ function section(lines, title) {
 }
 const body = (ls) => (ls === null ? null : ls.join("\n").trim() || null);
 
+/**
+ * Whether a status line says something other than the word it starts with: another status word after
+ * it. One form is read: a line that starts with `superseded by` a record may go on with the template's
+ * statuses the record had before (`superseded by ADR-0019 (…); accepted (…)`).
+ */
+function contradicted(status, first, history) {
+  for (const m of status.slice(first.length).matchAll(STATUS_WORDS)) {
+    const w = m[1].toLowerCase();
+    if (w === first || (history && REGISTER_STATUSES.includes(w))) continue;
+    return true;
+  }
+  return false;
+}
+/** Whether an HTML comment is open at the end of a line, given whether one was at its start. */
+function commentOpenAfter(line, open) {
+  for (let k = 0; ;) {
+    const j = line.indexOf(open ? "-->" : "<!--", k);
+    if (j === -1) return open;
+    k = j + (open ? 3 : 4);
+    open = !open;
+  }
+}
+
 function record(path, number, src) {
   const lines = plain(src).split("\n");
   const first = lines.findIndex((l) => l.trim() !== "");
   const head = first === -1 ? null : /^# +(ADR-[0-9]{4}) *: *(.*)$/.exec(lines[first].trim());
   const fields = new Map();
+  let fence = null; // the mark of the fenced block a line is in
+  let comment = false; // whether a line starts inside an HTML comment
   for (let i = first + 1; i > 0 && i < lines.length && !lines[i].startsWith("## "); i++) {
-    const m = FIELD.exec(lines[i].trim());
+    const l = lines[i];
+    const t = l.trim();
+    if (fence !== null) { if (t.length >= fence.length && t === fence[0].repeat(t.length)) fence = null; continue; }
+    const f = comment ? null : FENCE.exec(l);
+    if (f) { fence = f[1]; continue; }
+    const commented = comment || t.startsWith("<!--");
+    comment = commentOpenAfter(l, comment);
+    if (commented) continue; // a field is a line a reader of the record sees as one
+    const m = FIELD.exec(t);
     if (m && !fields.has(m[1].toLowerCase())) fields.set(m[1].toLowerCase(), m[2].trim());
   }
   const field = (k) => fields.get(k) || null;
   const status = field("status");
-  const word = status === null ? null : REGISTER_STATUSES.find((w) => new RegExp(`^${w}(?![a-z-])`, "i").test(status)) ?? null;
-  const by = word === "superseded" ? /^superseded +by +ADR-([0-9]{4})/i.exec(status) : null;
+  const starts = status === null ? null : REGISTER_STATUSES.find((w) => new RegExp(`^${w}(?![a-z-])`, "i").test(status)) ?? null;
+  const by = starts === "superseded" ? SUPERSEDED_BY.exec(status) : null;
+  const word = starts !== null && contradicted(status, starts, by !== null) ? null : starts;
   const date = field("date");
   const trigger = section(lines, "reevaluation trigger");
   const mark = trigger?.findIndex((l) => l.trim().startsWith("**Trigger set on**")) ?? -1;
@@ -643,7 +720,7 @@ function record(path, number, src) {
     dateWritten: date,
     status: word,
     statusWritten: status,
-    supersededBy: by ? by[1] : null,
+    supersededBy: by && word ? by[1] : null,
     supersedes: named(field("supersedes") ?? ""),
     refines: named(field("refines") ?? ""),
     deciders: field("deciders"),
@@ -664,7 +741,8 @@ function record(path, number, src) {
  * `**Date**`, `**Status**`, `**Supersedes**`, `**Refines**`, `**Deciders**`, `**Method**`), its
  * reevaluation trigger, what would settle it and its references. Nothing is inferred: a field the file
  * does not carry is null (it reads "not observed"), a status whose first word is outside
- * `REGISTER_STATUSES` has `status: null` and is shown as written (`statusWritten`), and a relation is
+ * `REGISTER_STATUSES`, or that goes on with another status word, has `status: null` and is shown as
+ * written (`statusWritten`), a header line in a fence or an HTML comment is not a field, and a relation is
  * listed on the record that writes it, never mirrored onto the record it names. Every value is the
  * file's text: a view escapes it or renders it with `renderDocument`.
  */
