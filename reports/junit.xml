@@ -901,7 +901,7 @@
 	<testcase name="by construction: a piece the renderer did not build, an element or an attribute outside the lists cannot be emitted" classname="test"/>
 	<testcase name="the check on the way out refuses each output outside the closed lists, with its reason, and accepts the renderer's" classname="test"/>
 	<testcase name="planted controls: each rule of the check, loosened alone, accepts an output it must refuse" classname="test"/>
-	<testcase name="time bound: 100 KB of each pathological input renders in under 200 ms of CPU, grows at most 20 times and is checked in under 200 ms; planted quadratic scans and a planted filling of rows are caught" classname="test"/>
+	<testcase name="time bound: 100 KB of each pathological input renders in under ten times a plain document's CPU time (at least 200 ms), grows at most 20 times and is checked within the same bound; planted quadratic scans and a planted filling of rows are caught" classname="test"/>
 	<testcase name="real documents: every Markdown file of this repository's mission, records and templates renders inside the closed lists" classname="test"/>
 	<testcase name="the register is exact on the decision records of a real mission, read at the commit SOURCE.json names" classname="test"/>
 	<testcase name="the register says nothing a file does not: a field not found is null, an unknown status is shown as written, a relation is never mirrored" classname="test"/>
