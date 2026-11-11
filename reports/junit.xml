@@ -879,6 +879,9 @@
 	<testcase name="nothing is blocking is never shown without the team's requirements and the date of the last check; taken out, it reddens" classname="test"/>
 	<testcase name="the refused state of the renaming demonstration: every sentence from closed fields, the check's text shown as written and never read" classname="test"/>
 	<testcase name="the line of each refusal is the export's, projected into the index and tied to it on the page; a planted line reddens" classname="test"/>
+	<testcase name="grouped, no refusal is hidden: every refusal of the real exports is listed once, under its own text, with the index's n / N; one dropped from the page or from a group reddens, and the build refuses it" classname="test"/>
+	<testcase name="the applications are listed refused first, then level not met, then the others, in the order of the index's groupings; every state keeps its tile, 0 / N included" classname="test"/>
+	<testcase name="the check's detail is labelled as the validated screens label it, without naming its language; its text keeps lang=&quot;en&quot;" classname="test"/>
 	<testcase name="how rows were endorsed: groups n / N from the index, partitioning the decided rows; no view computes a denominator" classname="test"/>
 	<testcase name="a row endorsed by an agent is worded as an agent's, under the person declared, never as a person's mode; a planted one is caught" classname="test"/>
 	<testcase name="names can be left out of an index: no declared person reaches it, the agent's line says the name is not published; a name left in a text is refused" classname="test"/>
@@ -2296,9 +2299,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2292 -->
+	<!-- tests 2295 -->
 	<!-- suites 0 -->
-	<!-- pass 2291 -->
+	<!-- pass 2294 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->
