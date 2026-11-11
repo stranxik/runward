@@ -48,6 +48,17 @@ style roles. The specification, the lexicon and the closed lists are
 [docs/spec/runward-fleet-decision.md](https://github.com/stranxik/runward/blob/main/docs/spec/runward-fleet-decision.md)
 and [docs/spec/runward-closed-values.json](https://github.com/stranxik/runward/blob/main/docs/spec/runward-closed-values.json).
 
+## A mission's documents
+
+`runward-fleet/documents` is for a deployment that shows a mission's own Markdown documents, which are
+untrusted text (ADR-0127). `renderDocument(markdown, context?)` renders a closed subset of Markdown into a
+closed list of elements: raw HTML is shown as text, a link is rewritten (a slug, a route of the
+application, or an https address without credentials) and anything else stays text; there is no class, no
+style and no image. `checkRendered(html)` is the check a page asks before inserting an output.
+`register(files)` reads the register of the decision records from each record's header, and
+`topology(markdown)` the port placement table. The module has no import and no DOM. The specification is
+[docs/spec/runward-fleet-documents.md](https://github.com/stranxik/runward/blob/main/docs/spec/runward-fleet-documents.md).
+
 ## The mission projections
 
 `runward-fleet/mission` (ADR-0126) says where each application stands in the six steps of the method (Frame,

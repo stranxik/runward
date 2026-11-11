@@ -18,6 +18,7 @@
     "./rules": "./src/rules.js",
     "./site": "./src/site.js",
     "./views": "./ui/views.js",
+    "./documents": "./ui/documents.js",
     "./mission": "./ui/mission.js"
   },
   "bin": {

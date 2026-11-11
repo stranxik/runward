@@ -2,6 +2,44 @@
 
 ## Unreleased
 
+### runward-fleet renders a mission's documents from a closed subset of Markdown, and reads the register of its decision records (ADR-0127)
+
+A new module, `runward-fleet/documents` (`ui/documents.js`), for a deployment that shows a mission's own
+documents. They are written in a repository the package does not hold, so they are untrusted text.
+`renderDocument(markdown, context?)` renders a closed subset of Markdown (headings, paragraphs, lists,
+quotes, tables, fenced code, rules, code spans, bold, italic, links) into a closed list of elements, with
+no class, no style, no image and no event attribute. No character of the source is copied: raw HTML is
+shown as text. A link is rewritten: a fragment becomes a slug, a relative path must stay inside the
+repository and goes to the application's route or to the file in the forge, an absolute address is kept
+only when it is https without credentials, and anything else (`javascript:`, `data:`, `http:`, `//host`)
+is shown as the text the document wrote. `checkRendered(html)` is the second net a page asks before
+inserting an output: it refuses whatever is outside the same closed lists and says why.
+
+`register(files)` reads the register of a mission's decision records from the header of each
+`adr/ADR-NNNN-*.md`: number, title, date, status, what it supersedes and refines, the reevaluation
+trigger, what would settle it, the references. Nothing is inferred: a field a file does not carry is
+`null`, a status outside the template's words is shown as written, and the groups by status arrive with
+their n / N. `topology(markdown)` gives the port placement table of a topology note as data.
+
+Held by a corpus of 201 attack vectors, a seeded property test over 10,000 strings, planted copies of the
+module with one rule loosened each, a bound on time and on growth over 100,000 characters of pathological
+input, and the register of a real mission's 21 records.
+
+An adversarial review before the merge found nine things, all closed here with the review's inputs as
+vectors and a planted control each. Emphasis nested and closed rendered in quadratic time (100 KB in
+789 ms, now 88 ms): beyond eight pairs the marks are text. A table of 64 columns grew a source of short
+rows 292 times: a short row is no longer filled. A segment encoded twice (`%252e%252e`), or holding an
+encoded `?` or `#`, could leave the repository's prefix when a deployment's `source` or `route`
+concatenates: such a segment is refused, a forge address must end with the path asked, and the
+specification states that both functions are handed decoded text they must encode. The register read
+`accepted` on `accepted, then superseded by …`, on `accepted: no, rejected`, and on a status inside an
+HTML comment or a fence: a line that says a second status is shown as written, comments and fences are
+skipped, a record number is four digits and no more, and a linked record is read. Two headings can no
+longer share an id, a slug is never cut through a surrogate pair, tag characters (U+E0000 to U+E007F)
+are replaced, and `checkRendered` refuses what a browser's parser would move or close (a block in a
+paragraph, anything but rows in a table, nesting deeper than 64). The specification is `docs/spec/runward-fleet-documents.md`.
+Nothing changes in the index, the views or the CLI.
+
 ### runward-fleet places each application on the six steps of the method, side by side and over time (ADR-0126, proposed)
 
 `runward-fleet/mission` is a new module of `runward-fleet`, with its views and a closed lexicon in English and
