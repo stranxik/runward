@@ -890,6 +890,26 @@
 	<testcase name="the reading shows no history of states: the index holds the last check only, and nothing of a replay reaches it" classname="test"/>
 	<testcase name="the decision readings of the real exports are golden, in both languages, and the same through the package's exports" classname="test"/>
 	<testcase name="the page opens on the decision reading, holds its rules and lexicon before it is written, and lists them on the sources view" classname="test"/>
+	<testcase name="the corpus: at least 120 attack vectors in ten families, each asserted on the parsed tokens of the output" classname="test"/>
+	<testcase name="the corpus: every output passes the module's own check, and no vector yields more anchors than it declares" classname="test"/>
+	<testcase name="the reader of this test is not blind: it names an element, an attribute, an address and a hidden character outside the lists" classname="test"/>
+	<testcase name="the closed subset: headings, paragraphs, lists, quotes, tables, code, bold, italic, rules and links, and nothing else" classname="test"/>
+	<testcase name="the closed lists are the design's, and the module holds no import, no clock, no DOM, no sink" classname="test"/>
+	<testcase name="property: 10,000 strings drawn from a dangerous alphabet never yield anything outside the closed lists (seed 20261111)" classname="test"/>
+	<testcase name="property: whatever the check accepts, the reader of this test accepts too, over 5,000 outputs with one random change each" classname="test"/>
+	<testcase name="planted controls: each rule of the renderer, loosened alone, turns the corpus red" classname="test"/>
+	<testcase name="by construction: a piece the renderer did not build, an element or an attribute outside the lists cannot be emitted" classname="test"/>
+	<testcase name="the check on the way out refuses each output outside the closed lists, with its reason, and accepts the renderer's" classname="test"/>
+	<testcase name="planted controls: each rule of the check, loosened alone, accepts an output it must refuse" classname="test"/>
+	<testcase name="time bound: 100 KB of each pathological input renders in under 200 ms of CPU, grows at most 20 times and is checked in under 200 ms; planted quadratic scans and a planted filling of rows are caught" classname="test"/>
+	<testcase name="real documents: every Markdown file of this repository's mission, records and templates renders inside the closed lists" classname="test"/>
+	<testcase name="the register is exact on the decision records of a real mission, read at the commit SOURCE.json names" classname="test"/>
+	<testcase name="the register says nothing a file does not: a field not found is null, an unknown status is shown as written, a relation is never mirrored" classname="test"/>
+	<testcase name="planted controls on the register: a status guessed, a template counted, a relation read from the whole line, each is caught on the real mission" classname="test"/>
+	<testcase name="the register reads a status only where the line says one: a second status word, a comment or a fence leaves it as written or not observed" classname="test"/>
+	<testcase name="planted controls on the reading of a status: each rule, loosened alone, changes what the register says of exactly the lines it holds" classname="test"/>
+	<testcase name="topology: the port placement table of a real mission, its cells as written, its ports grouped by location family with n / N" classname="test"/>
+	<testcase name="topology: the template's rows are marked as examples, a note without the table is not found, and a cell is never interpreted" classname="test"/>
 	<testcase name="ownText: the verbatim blocks and the tags come out as the former patterns took them out" classname="test"/>
 	<testcase name="resolvePath: the same value as the former pattern for every generated path, on one index" classname="test"/>
 	<testcase name="the numbers of a view and the paths it names: the former pattern's matches, and its substring test" classname="test"/>
@@ -2313,9 +2333,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2309 -->
+	<!-- tests 2329 -->
 	<!-- suites 0 -->
-	<!-- pass 2308 -->
+	<!-- pass 2328 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->
