@@ -48,6 +48,21 @@ export function group(items, keyOf, idOf, order = []) {
   return [...buckets.entries()].map(([state, list]) => ({ state, n: list.length, N, list }));
 }
 
+/**
+ * The refusals by kind (ADR-0125), each with its refusals by text (ADR-0127): within a kind, one group
+ * per `problem` as written, compared character for character, in the order the export lists them, N
+ * being the kind's n and the list the positions of its refusals in `conformance`. The text groups of a
+ * kind partition its refusals, so no refusal is in two groups or in none.
+ */
+function byKindAndText(conformance) {
+  const kindOf = (c) => c.kind ?? "not-observed";
+  const at = conformance.map((c, i) => ({ c, i }));
+  return group(conformance, kindOf, (c) => `${c.scope} · ${c.rule}`).map((g) => ({
+    ...g,
+    byText: group(at.filter(({ c }) => kindOf(c) === g.state), ({ c }) => c.problem, ({ i }) => i),
+  }));
+}
+
 /** Validate fleet.json. A manifest this version cannot read stops the build. */
 export function readManifest(doc) {
   if (!doc || doc.format !== MANIFEST_FORMAT) fail(`fleet.json: format must be "${MANIFEST_FORMAT}" (found ${JSON.stringify(doc?.format)})`);
@@ -174,8 +189,10 @@ export function projectVerdict(d, { omitNames = false } = {}) {
     // the export does not carry them (a CLI before 0.42.3) or the refusal has no row.
     conformance,
     // ADR-0125: the refusals by kind, in the order the export lists them, each n of N with the rows it
-    // counts; a refusal whose export writes no kind is grouped as `not-observed`.
-    conformanceByKind: group(conformance, (c) => c.kind ?? "not-observed", (c) => `${c.scope} · ${c.rule}`),
+    // counts; a refusal whose export writes no kind is grouped as `not-observed`. ADR-0127, additive:
+    // each kind's refusals by their text as written (`byText`), so the reading shows a text once with
+    // every refusal it stands for, and counts nothing itself.
+    conformanceByKind: byKindAndText(conformance),
     evidence: {
       rows: num(d.evidence?.rows), applied: num(d.evidence?.applied), deviated: num(d.evidence?.deviated), na: num(d.evidence?.na),
       typed: num(d.evidence?.typed), prose: num(d.evidence?.prose), signed: num(d.evidence?.signed),

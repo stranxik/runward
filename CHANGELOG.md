@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+### The decision reading groups the refusals by kind and by text, and lists the refused applications first (ADR-0127, proposed)
+
+An application's page of the decision reading said every refusal with its text in full: the 46 refusals of a
+public repository whose rows are all proposed carry four texts, so the same paragraph was shown 22 times, and
+the page was 10,555 px tall at 1440 px and 19,118 px on a phone where the hosted product shows it. It now says,
+for each kind, its sentence with n / N; for each text of that kind, the text once, as written, behind a
+`<details>` labelled "Check detail, as written (the same for n / N)" ("Détail du contrôle, tel quel (le même
+pour n / N)"), the first of the page open; and where each refusal is ("{document}: {file}, line {line},
+requirement {rule}"), behind a second disclosure when there are several. No script: every refusal stays in the
+HTML. The same page is now 1,483 px tall at 1440 px and 3,656 px on a phone. A label no longer announces the
+text's language; the text keeps `lang="en"`.
+
+The portfolio lists the applications refused first, then those whose required level is not met, then the
+others, each state in the inventory's order, read from the lists of `fleet.byVerdict`, and says so; it shows a
+tile for every state, `0 / N` included. `decide()` keeps `applications[]` in the inventory's order and adds
+`listing`, the order of the page.
+
+`runward-fleet-index/0` grows, additively: each group of `conformanceByKind` carries `byText`, its refusals by
+text as written, each n / N of the kind with the positions of its refusals in `conformance`, so the reading
+counts nothing. A sixth rule of the reading, held by the build (`checkIndex`, and `checkRefusals` of
+`runward-fleet/rules` on each application's page): the text groups partition each kind's refusals, and a page
+lists every refusal exactly once. An index built before carries no `byText`; the reading then lists each
+refusal alone. The golden readings and the page's digest move (`test/fixtures/golden/fleet/decision.*`,
+`page.sha256`): the decision documents gain `listing`, `kinds[].path`, `kinds[].texts`, `problems[].entry` and
+`ungrouped`, and lose nothing. A hosted deployment re-pins and styles the new roles (`refusal-kinds`,
+`refusal-kind`, `refusal-text`, `where`, `where-label`, `refusals`).
+
 ### runward-fleet reads the index in plain words, from a closed lexicon in English and French (ADR-0125)
 
 The page `runward-fleet build` writes now opens on a decision reading: for the people who answer for what

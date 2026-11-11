@@ -31,10 +31,15 @@ const sha = (s) => createHash("sha256").update(s).digest("hex");
 const ENTITY = { "#39": "'", quot: '"', lt: "<", gt: ">", amp: "&" };
 /** Tags are removed until none is left, then each entity is decoded once, in one pass: the result is text for an assertion, never HTML. */
 const decoded = (html) => {
-  let s = String(html).replace(/<\/(li|p|h[1-3])>/g, "\n");
+  let s = String(html).replace(/<\/(li|p|h[1-3]|summary)>/g, "\n");
   for (let prev = null; prev !== s;) { prev = s; s = s.replace(/<[^>]+>/g, ""); }
   return s.replace(/&(#39|quot|lt|gt|amp);/g, (_, e) => ENTITY[e]).replace(/[ \t]+/g, " ").split("\n").map((l) => l.trim()).filter(Boolean).join("\n");
 };
+
+/** The check's texts a view shows, decoded, in order. */
+const verbatims = (html) => [...String(html).matchAll(/<p data-role="verbatim" lang="en">([^<]*)<\/p>/g)].map((m) => m[1].replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"));
+/** The index path of every refusal a view lists, in order. */
+const refusalPaths = (html) => [...String(html).matchAll(/data-role="problem" data-kind="[^"]*" data-index="([^"]*)"/g)].map((m) => m[1].replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"));
 
 /** The decision portfolio of the golden inventory: four real exports, a silent mission, one received as a digest only. */
 function goldenFleet(lang = "fr", extra = {}) {
@@ -213,8 +218,8 @@ test("every closed value has its sentence, in both languages; a sentence taken o
 
 test("the specification shows the lexicon as it ships, in both languages; a sentence changed in the code and not in the specification reddens", () => {
   const spec = readFileSync(join(ROOT, "docs", "spec", "runward-fleet-decision.md"), "utf8");
-  const shown = (lexicon) => [["state"], ["reason"], ["kind"], ["scope"], ["origin"], ["unknown"], ["pieces", "piece"], ["pieces", "nature"], ["pieces", "state"], ["pieces", "cause"], ["endorsement", "mode"]]
-    .flatMap((path) => ["en", "fr"].flatMap((lang) => Object.values(path.reduce((o, k) => o[k], lexicon[lang]))))
+  const shown = (lexicon) => [["state"], ["reason"], ["kind"], ["scope"], ["origin"], ["unknown"], ["pieces", "piece"], ["pieces", "nature"], ["pieces", "state"], ["pieces", "cause"], ["endorsement", "mode"], ["problems"], ["orderByState"]]
+    .flatMap((path) => ["en", "fr"].flatMap((lang) => { const v = path.reduce((o, k) => o[k], lexicon[lang]); return typeof v === "string" ? [v] : Object.values(v); }))
     .filter((t) => !spec.includes(t.replace(/\u00a0/g, " ").replace(/\\/g, "\\\\").replace(/\|/g, "\\|")));
   assert.deepEqual(shown(views.LEXICON), [], "docs/spec/runward-fleet-decision.md section 3 holds every sentence");
   const changed = structuredClone(views.LEXICON);
@@ -307,11 +312,14 @@ test("the refused state of the renaming demonstration: every sentence from close
     assert.match(reason.from, /\.conformance\[\d\]\.kind$/, "the sentence comes from the refusal's kind");
   }
   const check = JSON.parse(fx("demo-renamed.check.json").toString("utf8"));
-  // Shown character for character: the escaped text in the page decodes to the export's own.
+  // Shown character for character: the escaped text in the page decodes to the export's own. The two
+  // refusals carry the same text: it is shown once, for both (ADR-0127), and each refusal is listed.
   const html = views.renderView(idx, "decision", "demo-renamed");
-  const shown = [...html.matchAll(/<p data-role="verbatim" lang="en">([^<]*)<\/p>/g)].map((m) => m[1].replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"));
-  assert.deepEqual(shown, check.conformance.map((c) => c.problem));
+  const shown = verbatims(html);
+  assert.deepEqual(shown, [...new Set(check.conformance.map((c) => c.problem))]);
+  assert.equal(shown.length, 1);
   assert.equal(shown[0], 'typed pointer file:code/src/core/domain/guard.ts#guardFields — symbol "guardFields" not found in the file (moved or renamed? update the pointer)');
+  assert.deepEqual(refusalPaths(html), ["missions[id=demo-renamed].latest.conformance[0]", "missions[id=demo-renamed].latest.conformance[1]"]);
   // Never read: another wording of the same refusal changes the detail and no sentence.
   const reworded = structuredClone(idx);
   reworded.missions.find((m) => m.id === "demo-renamed").latest.conformance.forEach((c) => { c.problem = "the CLI wrote this another way"; });
@@ -334,6 +342,146 @@ test("the line of each refusal is the export's, projected into the index and tie
   old.conformance = [{ scope: "Floor", rule: "x", problem: "y" }];
   const o = indexFrom(manifestOf([missionWith("a")]), { "exports/a/check.json": old });
   assert.deepEqual(o.missions[0].latest.conformance[0], { scope: "Floor", rule: "x", kind: null, problem: "y", file: null, line: null, phaseId: null });
+});
+
+// ------------------------------------------------------------------ the refusals grouped, the order, the tiles (ADR-0127)
+/**
+ * What one application's page and its index must hold once the refusals are grouped: every refusal of the
+ * index listed exactly once, under a block whose shown text is its own `problem`, character for character;
+ * and each kind's text groups partitioning its refusals, each n / N of the kind. Returns what breaks.
+ */
+function hidden(html, L, mission) {
+  const out = [];
+  const base = `missions[id=${mission}].latest.conformance`;
+  const listed = refusalPaths(html);
+  const missing = (L.conformance ?? []).map((_, i) => `${base}[${i}]`).filter((p) => !listed.includes(p));
+  const twice = listed.filter((p, i) => listed.indexOf(p) !== i);
+  if (missing.length) out.push(`not listed: ${missing.join(", ")}`);
+  if (twice.length) out.push(`listed twice: ${[...new Set(twice)].join(", ")}`);
+  for (const block of String(html).split('<div data-role="refusal-text">').slice(1).map((b) => b.split("</div>")[0])) {
+    const texts = verbatims(block);
+    if (texts.length !== 1) { out.push(`a block shows ${texts.length} texts`); continue; }
+    for (const p of refusalPaths(block)) {
+      const i = Number(/\[(\d+)\]$/.exec(p)?.[1]);
+      if (L.conformance[i]?.problem !== texts[0]) out.push(`${p} is listed under another text`);
+    }
+  }
+  for (const [k, g] of (L.conformanceByKind ?? []).entries()) {
+    const of = L.conformance.map((c, i) => [c, i]).filter(([c]) => (c.kind ?? "not-observed") === g.state).map(([, i]) => i);
+    const grouped = (g.byText ?? []).flatMap((t) => t.list).sort((a, b) => a - b);
+    if (JSON.stringify(grouped) !== JSON.stringify(of)) out.push(`conformanceByKind[${k}]: its text groups do not partition its refusals`);
+    for (const t of g.byText ?? []) {
+      if (t.N !== g.n || t.n !== t.list.length) out.push(`conformanceByKind[${k}]: a text group is not n / N of its kind`);
+      for (const i of t.list) if (L.conformance[i]?.problem !== t.state) out.push(`conformanceByKind[${k}]: refusal ${i} is grouped under another text`);
+    }
+  }
+  return out;
+}
+
+test("grouped, no refusal is hidden: every refusal of the real exports is listed once, under its own text, with the index's n / N; one dropped from the page or from a group reddens, and the build refuses it", async () => {
+  for (const lang of ["fr", "en"]) {
+    const idx = goldenFleet(lang);
+    assert.deepEqual(rules.checkIndex(idx), []);
+    for (const m of idx.missions.filter((x) => typeof x.latest === "object")) {
+      const html = views.renderView(idx, "decision", m.id);
+      assert.deepEqual(hidden(html, m.latest, m.id), [], `${lang} ${m.id}`);
+      assert.deepEqual(rules.checkRefusals(html, idx, m.id, `${lang} ${m.id}`), []);
+      assert.deepEqual(rules.checkView(html, idx, `${lang} ${m.id}`), []);
+      assert.deepEqual(views.decide(idx).applications.find((a) => a.id === m.id).ungrouped, [], `${lang} ${m.id}: every refusal is in a text group`);
+    }
+  }
+  // runward-hosted's own export: 46 refusals, 42 of one kind; four texts, each shown once, folded.
+  const idx = goldenFleet("fr");
+  const L = idx.missions.find((m) => m.id === "hosted").latest;
+  assert.deepEqual(L.conformanceByKind.map((g) => [g.state, g.n, g.N, g.byText.map((t) => [t.n, t.N])]), [["proposed", 42, 46, [[22, 42], [19, 42], [1, 42]]], ["missing-row", 4, 46, [[4, 4]]]]);
+  const html = views.renderView(idx, "decision", "hosted");
+  assert.equal(refusalPaths(html).length, 46);
+  assert.deepEqual(verbatims(html), L.conformanceByKind.flatMap((g) => g.byText.map((t) => t.state)), "each text once, in the export's order");
+  assert.equal((html.match(/<details data-role="detail"/g) ?? []).length, 4);
+  assert.equal((html.match(/<details data-role="detail" open>/g) ?? []).length, 1, "the first text of the page is open, the others folded");
+  assert.match(decoded(html), /Détail du contrôle, tel quel \(le même pour 22 \/ 42\)/);
+  assert.match(decoded(html), /^Note d'architecture : runward\/architecture\.md, ligne 46, exigence contracts-governance$/m);
+  // Planted on the page: a refusal taken out of its list; a refusal listed under another text.
+  const dropped = html.replace(/<li data-role="problem" data-kind="proposed" data-index="missions\[id=hosted\]\.latest\.conformance\[38\]">[\s\S]*?<\/li>/, "");
+  assert.notEqual(dropped, html, "the plant applies");
+  assert.deepEqual(hidden(dropped, L, "hosted"), ["not listed: missions[id=hosted].latest.conformance[38]"]);
+  assert.deepEqual(rules.checkRefusals(dropped, idx, "hosted", "planted"), ["planted: the refusal missions[id=hosted].latest.conformance[38] is listed 0 times, once expected"]);
+  const moved = html.replace('data-index="missions[id=hosted].latest.conformance[0]"', 'data-index="missions[id=hosted].latest.conformance[3]"');
+  assert.deepEqual(hidden(moved, L, "hosted"), ["not listed: missions[id=hosted].latest.conformance[0]", "listed twice: missions[id=hosted].latest.conformance[3]", "missions[id=hosted].latest.conformance[3] is listed under another text"]);
+  assert.deepEqual(rules.checkRefusals(moved, idx, "hosted", "planted"), ["planted: the refusal missions[id=hosted].latest.conformance[0] is listed 0 times, once expected", "planted: the refusal missions[id=hosted].latest.conformance[3] is listed 2 times, once expected"]);
+  // Planted in the index: a refusal taken out of its text group. The partition reddens, and the page still
+  // lists it, alone, with its own sentence and its text.
+  const cut = structuredClone(idx);
+  const C = cut.missions.find((m) => m.id === "hosted").latest;
+  const g0 = C.conformanceByKind[0].byText[0];
+  g0.list = g0.list.filter((i) => i !== 38);
+  g0.n = g0.list.length;
+  const cutHtml = views.renderView(cut, "decision", "hosted");
+  assert.deepEqual(hidden(cutHtml, C, "hosted"), ["conformanceByKind[0]: its text groups do not partition its refusals"]);
+  assert.deepEqual(views.decide(cut).applications.find((a) => a.id === "hosted").ungrouped, [38]);
+  assert.deepEqual(rules.checkView(cutHtml, cut, "cut"), []);
+  assert.deepEqual(rules.checkRefusals(cutHtml, cut, "hosted", "cut"), [], "the page lists it all the same");
+  assert.deepEqual(rules.checkIndex(cut), ["missions[id=hosted].latest.conformanceByKind[0]: its text groups do not partition its refusals"]);
+  assert.throws(() => pageFor(cut), (e) => e instanceof build.BuildError && /its text groups do not partition its refusals/.test(e.message), "the build refuses the index");
+  // Planted in the view's own code: a text group that lists one refusal fewer. The build refuses the page.
+  const SRC = readFileSync(join(PKG, "ui", "views.js"), "utf8");
+  const from = "const items = t.refusals.map((i) => a.problems[i]).filter(Boolean);";
+  assert.ok(SRC.includes(from), "the plant applies");
+  const tmp = mkdtempSync(join(tmpdir(), "rw-fleet-r6-"));
+  try {
+    writeFileSync(join(tmp, "views.mjs"), SRC.replace(from, "const items = t.refusals.slice(1).map((i) => a.problems[i]).filter(Boolean);"));
+    const plantedViews = await import(pathToFileURL(join(tmp, "views.mjs")).href);
+    const template = readFileSync(join(PKG, "ui", "template.html"), "utf8");
+    assert.throws(() => site.renderSite(idx, { template, views: SRC, api: plantedViews, fonts: [] }), (e) => e instanceof build.BuildError && /#\/decision\/hosted: the refusal missions\[id=hosted\]\.latest\.conformance\[0\] is listed 0 times/.test(e.message));
+    assert.doesNotThrow(() => site.renderSite(idx, { template, views: SRC, api: views, fonts: [] }), "control: the shipped reading passes");
+  } finally { rmSync(tmp, { recursive: true, force: true }); }
+  // An index built before ADR-0127 carries no text group: every refusal is listed alone, with its text.
+  const before = structuredClone(idx);
+  for (const g of before.missions.find((m) => m.id === "hosted").latest.conformanceByKind) delete g.byText;
+  const old = views.renderView(before, "decision", "hosted");
+  assert.equal(refusalPaths(old).length, 46);
+  assert.deepEqual(verbatims(old), L.conformance.map((c) => c.problem));
+  assert.deepEqual(rules.checkView(old, before, "before"), []);
+});
+
+test("the applications are listed refused first, then level not met, then the others, in the order of the index's groupings; every state keeps its tile, 0 / N included", () => {
+  for (const lang of ["fr", "en"]) {
+    const idx = goldenFleet(lang);
+    const html = views.renderView(idx, "decision");
+    assert.deepEqual([...html.matchAll(/<li data-role="application" data-state="([^"]*)" data-mission="([^"]*)"/g)].map((m) => [m[2], m[1]]),
+      [["demo-renamed", "gaps"], ["hosted", "gaps"], ["level", "level-not-met"], ["demo-repaired", "clean"], ["agent", "clean"], ["silent", "not-observed"], ["digest", "not-available"]]);
+    assert.deepEqual([...html.matchAll(/<li data-role="group" data-state="([^"]*)"/g)].map((m) => m[1]), ["gaps", "level-not-met", "clean", "not-observed", "not-available"]);
+    assert.ok(own(html).includes(views.LEXICON[lang].orderByState.replace(/\s+/g, " ")), `${lang}: the page says how it is sorted`);
+    assert.deepEqual(views.decide(idx).applications.map((a) => a.id), ["demo-renamed", "demo-repaired", "hosted", "agent", "level", "silent", "digest"], "the document keeps the inventory's order");
+    assert.deepEqual(rules.checkReading(html, lang), []);
+  }
+  // The order is the index's own: a grouping planted with the repaired demonstration as refused lists it first.
+  const planted = structuredClone(goldenFleet("en"));
+  const gaps = planted.fleet.byVerdict.find((g) => g.state === "gaps"), clean = planted.fleet.byVerdict.find((g) => g.state === "clean");
+  gaps.list = ["demo-repaired", ...gaps.list]; gaps.n = gaps.list.length;
+  clean.list = clean.list.filter((x) => x !== "demo-repaired"); clean.n = clean.list.length;
+  assert.deepEqual(views.decide(planted).listing.ids.slice(0, 3), ["demo-repaired", "demo-renamed", "hosted"]);
+  // An application no grouping names is listed all the same, after the others: never dropped.
+  const lost = structuredClone(goldenFleet("en"));
+  const g2 = lost.fleet.byVerdict.find((g) => g.state === "gaps");
+  g2.list = g2.list.filter((x) => x !== "hosted"); g2.n = g2.list.length;
+  assert.deepEqual(views.decide(lost).listing.ids, ["demo-renamed", "level", "demo-repaired", "agent", "silent", "digest", "hosted"]);
+  // A fleet where nothing is refused and one application sent nothing: the five tiles, each n / N.
+  const calm = indexFrom(manifestOf([missionWith("a"), missionWith("b", { exports: { check: { file: "missing.json" } } })], { lang: "fr" }), { "exports/a/check.json": fx("demo-repaired.check.json") });
+  const tiles = views.renderView(calm, "decision");
+  assert.deepEqual([...tiles.matchAll(/<li data-role="group" data-state="([^"]*)">[\s\S]*?<\/li>/g)].map((m) => [m[1], decoded(m[0]).match(/(\d+ \/ \d+)$/)?.[1]]),
+    [["gaps", "0 / 2"], ["level-not-met", "0 / 2"], ["clean", "1 / 2"], ["not-observed", "1 / 2"], ["not-available", "0 / 2"]]);
+  assert.deepEqual(rules.checkView(tiles, calm, "calm"), []);
+  assert.deepEqual(rules.checkReading(tiles, "calm"), []);
+});
+
+test("the check's detail is labelled as the validated screens label it, without naming its language; its text keeps lang=\"en\"", () => {
+  assert.equal(views.LEXICON.fr.problems.detail, "Détail du contrôle, tel quel");
+  assert.equal(views.LEXICON.en.problems.detail, "Check detail, as written");
+  assert.deepEqual([...JSON.stringify(views.LEXICON).matchAll(/en anglais|in English/gi)].map((m) => m[0]), [], "no sentence of the reading announces a language");
+  const html = views.renderView(goldenFleet("fr"), "decision", "demo-renamed");
+  assert.match(html, /<details data-role="detail" open><summary data-role="detail-label">Détail du contrôle, tel quel \(le même pour <span class="frac"/);
+  assert.match(html, /<p data-role="verbatim" lang="en">typed pointer/);
 });
 
 // ------------------------------------------------------------------ how the rows were endorsed (ADR-0125 fact 5)

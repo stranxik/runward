@@ -743,6 +743,7 @@ export const LEXICON = {
     nav: "In plain words",
     lede: "What the team's own check says about each application. The decision stays yours.",
     order: "Applications are listed in the order of the inventory.",
+    orderByState: "Sorted by state: refused by the check first, then required level not met, then the others; within a state, in the order of the inventory.",
     read: "Read the detail",
     technical: "Technical detail",
     back: "All applications",
@@ -780,8 +781,9 @@ export const LEXICON = {
       },
     },
     problems: {
-      title: "What the check refuses", byKind: "{count} refusals of this kind: {reason}", items: "The detail, refusal by refusal", line: "{subject}: {reason}",
-      detail: "The check's detail, as written", where: "{file}, line {line}, requirement {rule}", whereFile: "{file}, requirement {rule}", whereRule: "requirement {rule}",
+      title: "What the check refuses", byKind: "{count} refusals of this kind: {reason}", items: "Where, refusal by refusal", line: "{subject}: {reason}",
+      detail: "Check detail, as written", same: "Check detail, as written (the same for {count})", entry: "{subject}: {where}",
+      where: "{file}, line {line}, requirement {rule}", whereFile: "{file}, requirement {rule}", whereRule: "requirement {rule}",
     },
     kind: {
       proposed: "a proposed answer is not yet endorsed.",
@@ -874,6 +876,7 @@ export const LEXICON = {
     nav: "En clair",
     lede: "Ce que le contrôle de l'équipe dit de chaque application. La décision reste la vôtre.",
     order: "Les applications sont listées dans l'ordre de l'inventaire.",
+    orderByState: `Triées par état${NB}: refusées par le contrôle d'abord, puis niveau exigé non atteint, puis les autres ; dans un même état, dans l'ordre de l'inventaire.`,
     read: "Lire le détail",
     technical: "Détail technique",
     back: "Toutes les applications",
@@ -911,8 +914,9 @@ export const LEXICON = {
       },
     },
     problems: {
-      title: "Ce que le contrôle refuse", byKind: `{count} refus de ce genre${NB}: {reason}`, items: "Le détail, refus par refus", line: `{subject}${NB}: {reason}`,
-      detail: "Détail du contrôle, tel quel (en anglais)", where: "{file}, ligne {line}, exigence {rule}", whereFile: "{file}, exigence {rule}", whereRule: "exigence {rule}",
+      title: "Ce que le contrôle refuse", byKind: `{count} refus de ce genre${NB}: {reason}`, items: "Où, refus par refus", line: `{subject}${NB}: {reason}`,
+      detail: "Détail du contrôle, tel quel", same: "Détail du contrôle, tel quel (le même pour {count})", entry: `{subject}${NB}: {where}`,
+      where: "{file}, ligne {line}, exigence {rule}", whereFile: "{file}, exigence {rule}", whereRule: "exigence {rule}",
     },
     kind: {
       proposed: "un point proposé n'est pas encore validé.",
@@ -981,7 +985,7 @@ export const LEXICON = {
       noneRecorded: "Aucune validation enregistrée.",
       notDetailed: "Mode de validation non détaillé.",
       declared: `Ces noms et ces modes sont déclarés par l'équipe${NB}: le contrôle ne vérifie pas qui a répondu.`,
-      disclosure: `Ce que le contrôle écrit à ce sujet (en anglais)${NB}:`,
+      disclosure: `Ce que le contrôle écrit à ce sujet${NB}:`,
     },
     origin: {
       "ci-declared": `D'où vient cette lecture${NB}: calculée par la chaîne de livraison de l'équipe.`,
@@ -1009,6 +1013,7 @@ export const DECISION_RULES = [
   { id: "R3", held: "build", en: "No state reads as a decision taken (go, no-go, ready, blocked); the reader's decision is named in a title only.", fr: "Aucun état ne se lit comme une décision prise (go, no-go, prêt, bloqué) ; la décision du lecteur n'est nommée que dans un titre." },
   { id: "R4", held: "build", en: "Nothing is blocking is always followed by the team's requirements, and, for an application, by the date of the last check received.", fr: "Rien ne bloque est toujours suivi des exigences de l'équipe et, pour une application, de la date du dernier contrôle reçu." },
   { id: "R5", held: "test", en: "A row endorsed by an agent is never worded as a person's endorsement; a refusal's text is shown as written and never read.", fr: "Une ligne validée par un agent ne se dit jamais validée par une personne ; le texte d'un refus s'affiche tel quel et n'est jamais lu." },
+  { id: "R6", held: "build", en: "Grouped, no refusal is hidden: within a kind, its texts share out its refusals, and an application's page lists each refusal once.", fr: "Regroupés, aucun refus n'est caché : dans un genre, ses textes se partagent ses refus, et la page d'une application liste chaque refus une fois." },
 ];
 
 const AGENT_ENDORSEMENTS = new Set(["agent", "agent (single accountable)"]);
@@ -1087,13 +1092,65 @@ function kindSentence(lang, kind, from) {
   return sentence(lang, ["kind", kind], {}, from) ?? sentence(lang, ["unknown", "kind"], { value: datum(kind, from) }, from);
 }
 
-/** The refusals by kind, each with its n / N from the index: what a reader takes in first. */
+/**
+ * The refusals by kind, each with its n / N from the index: what a reader takes in first. Within a kind,
+ * its refusals by their text as written (ADR-0127, `byText`): the text once, the label of its detail with
+ * the n / N of the refusals it stands for when there are several, and their positions in `conformance`.
+ */
 function kindsOf(lang, L, b) {
+  const known = Array.isArray(L.conformance) ? L.conformance.length : 0;
   return (Array.isArray(L.conformanceByKind) ? L.conformanceByKind : []).map((g, i) => {
     const gpath = `${b}.conformanceByKind[${i}]`;
     const reason = kindSentence(lang, g.state, `${gpath}.state`);
-    return { kind: g.state, line: sentence(lang, ["problems", "byKind"], { count: count(g, gpath, L.src), reason: { text: reason.text, sentence: reason } }, `${gpath}.state`) };
+    const texts = (Array.isArray(g.byText) ? g.byText : []).map((t, j) => {
+      const tpath = `${gpath}.byText[${j}]`;
+      const refusals = (Array.isArray(t.list) ? t.list : []).filter((x) => Number.isInteger(x) && x >= 0 && x < known);
+      // The list a reader hovers names each refusal as the kind's list does (`scope · rule`); the index's
+      // own list holds their positions, which `refusals` keeps.
+      const named = { ...t, list: refusals.map((x) => `${L.conformance[x].scope} · ${L.conformance[x].rule}`) };
+      // The text shown is the first listed refusal's own `problem`, as written; the group's key is the same
+      // text, by construction of the index.
+      return {
+        path: tpath,
+        problem: refusals.length ? datum(L.conformance[refusals[0]].problem, `${b}.conformance[${refusals[0]}].problem`) : datum(t.state, `${tpath}.state`),
+        label: t.n > 1 ? sentence(lang, ["problems", "same"], { count: count(named, tpath, L.src) }, tpath) : sentence(lang, ["problems", "detail"], {}, tpath),
+        refusals,
+      };
+    });
+    return { kind: g.state, path: gpath, line: sentence(lang, ["problems", "byKind"], { count: count(g, gpath, L.src), reason: { text: reason.text, sentence: reason } }, `${gpath}.state`), texts };
   });
+}
+
+/**
+ * The positions of the refusals no text group names, in the export's order: none for an index this
+ * version builds; every refusal of an index built before ADR-0127, which carries no `byText`. Each is
+ * then shown alone, with its own sentence and its detail: grouping never hides a refusal.
+ */
+function ungroupedOf(L, kinds) {
+  const named = new Set(kinds.flatMap((k) => k.texts.flatMap((t) => t.refusals)));
+  return (Array.isArray(L.conformance) ? L.conformance : []).map((_, i) => i).filter((i) => !named.has(i));
+}
+
+/** The states the reading lists first (ADR-0127): what the check refuses, then the level not met. */
+const FIRST = ["gaps", "level-not-met"];
+/** The groupings of a list of `{ state }`, those of FIRST first, the others after them in their order. */
+const ranked = (groups) => [...FIRST.flatMap((s) => groups.filter((g) => g.state === s)), ...groups.filter((g) => !FIRST.includes(g.state))];
+
+/**
+ * The order the reading lists the applications in (ADR-0127), read from `fleet.byVerdict`: the lists of
+ * its groups, refused first, then level not met, then the others in the index's order, each list in the
+ * inventory's order. An application no list names is listed after them, in the inventory's order: never
+ * dropped.
+ */
+function listingOf(lang, idx) {
+  const ids = (idx.missions ?? []).map((m) => m.id);
+  const declared = new Set(ids);
+  const out = [];
+  const seen = new Set();
+  const add = (id) => { if (declared.has(id) && !seen.has(id)) { seen.add(id); out.push(id); } };
+  for (const g of ranked(Array.isArray(idx.fleet?.byVerdict) ? idx.fleet.byVerdict : [])) for (const id of Array.isArray(g.list) ? g.list : []) add(id);
+  ids.forEach(add);
+  return { note: sentence(lang, ["orderByState"], {}, "fleet.byVerdict"), ids: out };
 }
 
 function problemsOf(lang, L, b) {
@@ -1113,6 +1170,7 @@ function problemsOf(lang, L, b) {
       path: p, kind: c.kind, known: reason.key.startsWith("/kind/"),
       line: sentence(lang, ["problems", "line"], { subject: { text: subject.text, sentence: subject }, reason: { text: reason.text, sentence: reason } }, p),
       where,
+      entry: sentence(lang, ["problems", "entry"], { subject: { text: subject.text, sentence: subject }, where: { text: where.text, sentence: where } }, p),
       problem: datum(c.problem, `${p}.problem`),
     };
   });
@@ -1151,10 +1209,12 @@ function endorsementOf(lang, idx, L, b) {
 
 /**
  * The decision reading of an index, `runward-fleet-decision/0`: for the fleet, the groupings n / N by
- * state with their lists; for each application, its state (the index's own, renamed, never recomputed),
- * the sentence that follows it, the date of the last check received, the reason, the missing pieces by
- * their nature, each refusal with its sentence and its detail as written, how the decided rows were
- * endorsed, and where the reading comes from. Every value carries its index path.
+ * state with their lists, and the order the reading lists the applications in (`listing`, read from
+ * those groupings, ADR-0127); for each application, in the inventory's order, its state (the index's
+ * own, renamed, never recomputed), the sentence that follows it, the date of the last check received,
+ * the reason, the missing pieces by their nature, the refusals by kind and, within a kind, by their text
+ * as written, each refusal with its sentence and where it is, how the decided rows were endorsed, and
+ * where the reading comes from. Every value carries its index path.
  */
 export function decide(idx) {
   const lang = idx?.lang === "fr" ? "fr" : "en";
@@ -1165,6 +1225,7 @@ export function decide(idx) {
     index: { format: idx.format ?? null, builtBy: idx.builtBy ?? null },
     names: idx.names?.state === "omitted" ? "omitted" : "shown",
     title: sentence(lang, ["title"]),
+    listing: listingOf(lang, idx),
     fleet: {
       declared: number(idx.fleet.declared, "fleet.declared", s0),
       groups: (idx.fleet.byVerdict ?? []).map((g, i) => {
@@ -1181,6 +1242,7 @@ export function decide(idx) {
       // the reading says what happened, never that nothing was received.
       const unwritten = L !== null && (typeof L.verdict !== "string" || L.verdict === "not-observed");
       const known = !unwritten && lexiconAt(lang, ptr("state", state)) !== undefined;
+      const kinds = L ? kindsOf(lang, L, b) : [];
       return {
         id: m.id,
         path: `missions[id=${m.id}]`,
@@ -1191,9 +1253,10 @@ export function decide(idx) {
         date: lastCheck(lang, idx, m, state),
         reason: unwritten ? sentence(lang, ["received", "reason"], {}, from) : known ? sentence(lang, ["reason", state], {}, from) : null,
         pieces: L ? piecesOf(lang, L, b) : [],
-        kinds: L ? kindsOf(lang, L, b) : [],
+        kinds,
         pieceCounts: L ? pieceCountsOf(lang, L, b) : [],
         problems: L ? problemsOf(lang, L, b) : [],
+        ungrouped: L ? ungroupedOf(L, kinds) : [],
         endorsement: L ? endorsementOf(lang, idx, L, b) : null,
         origin: L ? sentence(lang, ["origin", L.implemented], {}, `${b}.implemented`) ?? sentence(lang, ["unknown", "origin"], { value: datum(L.implemented, `${b}.implemented`) }, `${b}.implemented`) : null,
         version: L?.runward ? sentence(lang, ["origin", "version"], { version: datum(L.runward, `${b}.runward`) }, `${b}.runward`) : null,
@@ -1229,17 +1292,25 @@ function stateBlock(lang, app) {
       ${app.qualifier ? role("qualifier", say(lang, app.qualifier)) : ""}${app.date ? role("date", say(lang, app.date)) : ""}`;
 }
 
-/** The refusals by kind and the documents not filled in, each with its n / N: why, in a few lines. */
-function why(lang, a) {
-  const lines = [...a.kinds.map((k) => `<li data-role="kind" data-kind="${esc(k.kind)}">${say(lang, k.line)}</li>`), ...a.pieceCounts.map((c) => `<li data-role="piece-count">${say(lang, c)}</li>`)];
+/** The refusals by kind and the documents not filled in, each with its n / N: why, in a few lines. An
+ *  application's page says the refusals by kind in its section of refusals, and only the documents here. */
+function why(lang, a, { kinds = true } = {}) {
+  const lines = [...(kinds ? a.kinds : []).map((k) => `<li data-role="kind" data-kind="${esc(k.kind)}">${say(lang, k.line)}</li>`), ...a.pieceCounts.map((c) => `<li data-role="piece-count">${say(lang, c)}</li>`)];
   return lines.length ? `<ul data-role="kinds">${lines.join("")}</ul>` : "";
+}
+
+/** The applications of the reading, in the order it lists them (`listing`, ADR-0127). */
+function listed(doc) {
+  const byId = new Map(doc.applications.map((a) => [a.id, a]));
+  return (doc.listing?.ids ?? doc.applications.map((a) => a.id)).map((id) => byId.get(id)).filter(Boolean);
 }
 
 function decisionPortfolio(doc) {
   const X = LEXICON[doc.lang], lang = doc.lang;
-  const groups = doc.fleet.groups.filter((g) => g.count.n > 0).map((g) =>
+  // Every state, with its n / N, 0 / N included (ADR-0127): a state with no application is a fact too.
+  const groups = ranked(doc.fleet.groups).map((g) =>
     `<li data-role="group" data-state="${esc(g.state)}"><span data-role="mark" aria-hidden="true"></span><span data-role="group-label">${say(lang, g.label)}</span> ${arg(lang, g.count)}</li>`).join("");
-  const apps = doc.applications.map((a) => `<li data-role="application" data-state="${esc(a.state)}" data-mission="${esc(a.id)}">
+  const apps = listed(doc).map((a) => `<li data-role="application" data-state="${esc(a.state)}" data-mission="${esc(a.id)}">
       <h2 data-role="name">${verb(a.name.text)}</h2>
       ${stateBlock(lang, a)}
       ${a.reason ? role("reason", say(lang, a.reason)) : ""}
@@ -1250,17 +1321,39 @@ function decisionPortfolio(doc) {
     <h1 data-role="title">${say(lang, doc.title)}</h1>
     ${role("lede", esc(X.lede))}
     <ul data-role="groups">${groups}</ul>
-    ${role("note", esc(X.order))}
+    ${role("note", doc.listing ? say(lang, doc.listing.note) : esc(X.order))}
     <ol data-role="applications">${apps}</ol>
   </section>`;
 }
 
+/** The check's text, once, behind a disclosure whose label carries the n / N of the refusals it stands for. */
+const detailOf = (lang, label, text, open) => `<details data-role="detail"${open ? " open" : ""}><summary data-role="detail-label">${label}</summary><!--verbatim:start--><p data-role="verbatim" lang="en">${esc(text)}</p><!--verbatim:end--></details>`;
+/** One refusal: its document and where it is (file, line, requirement), as the index names them. */
+const refusalOf = (lang, p, tag) => `<${tag} data-role="problem" data-kind="${esc(p.kind ?? "")}" data-index="${esc(p.path)}">${say(lang, p.entry)}</${tag}>`;
+
+/**
+ * What the check refuses (ADR-0127): for each kind, its sentence with n / N; for each text the check wrote
+ * for that kind, the text once, folded (the first of the page open), and every refusal it stands for,
+ * listed behind a second disclosure when there are several. A refusal no text group names is shown alone,
+ * with its own sentence: no refusal is ever hidden by a grouping. No script: `<details>` folds.
+ */
+function refusalsOf(lang, X, a) {
+  let first = true;
+  const once = () => { const o = first; first = false; return o; };
+  const kinds = a.kinds.map((k) => `<li data-role="refusal-kind" data-kind="${esc(k.kind)}">${role("sentence", say(lang, k.line))}${k.texts.map((t) => {
+    const items = t.refusals.map((i) => a.problems[i]).filter(Boolean);
+    const where = items.length === 0 ? "" : items.length === 1 ? refusalOf(lang, items[0], "p")
+      : `<details data-role="where"><summary data-role="where-label">${esc(X.problems.items)}</summary><ol data-role="refusals">${items.map((p) => refusalOf(lang, p, "li")).join("")}</ol></details>`;
+    return `<div data-role="refusal-text">${detailOf(lang, say(lang, t.label), t.problem.text, once())}${where}</div>`;
+  }).join("")}</li>`);
+  const alone = a.ungrouped.map((i) => a.problems[i]).filter(Boolean).map((p) => `<li data-role="refusal-kind" data-kind="${esc(p.kind ?? "")}">${role("sentence", say(lang, p.line))}<div data-role="refusal-text">${detailOf(lang, esc(X.problems.detail), p.problem.text, once())}${refusalOf(lang, p, "p")}</div></li>`);
+  const all = [...kinds, ...alone];
+  return all.length ? `<section data-role="problems"><h2>${esc(X.problems.title)}</h2><ol data-role="refusal-kinds">${all.join("")}</ol></section>` : "";
+}
+
 function decisionApplication(doc, a) {
   const X = LEXICON[doc.lang], lang = doc.lang;
-  const problems = a.problems.length ? `<section data-role="problems"><h2>${esc(X.problems.title)}</h2><h3>${esc(X.problems.items)}</h3><ol>${a.problems.map((p) => `<li data-role="problem" data-kind="${esc(p.kind ?? "")}">
-        ${role("sentence", say(lang, p.line))}
-        <div data-role="detail"><p data-role="detail-label">${esc(X.problems.detail)}</p>${role("location", say(lang, p.where))}<!--verbatim:start--><p data-role="verbatim" lang="en">${esc(p.problem.text)}</p><!--verbatim:end--></div>
-      </li>`).join("")}</ol></section>` : "";
+  const problems = refusalsOf(lang, X, a);
   const pieces = a.pieces.length ? `<section data-role="pieces"><h2>${esc(X.pieces.title)}</h2>${role("legend", esc(X.pieces.legend))}${a.pieces.map((g) => `<div data-role="nature"><h3>${say(lang, g.label)}</h3><ul>${g.items.map((it) => `<li data-role="piece" data-state="${esc(it.state)}">${say(lang, it.line)}</li>`).join("")}</ul></div>`).join("")}</section>` : "";
   const E = a.endorsement;
   const endorsement = E ? `<section data-role="endorsement"><h2>${esc(X.endorsement.title)}</h2><ul>${E.lines.filter(Boolean).map((s) => `<li>${say(lang, s)}</li>`).join("")}</ul>
@@ -1271,7 +1364,7 @@ function decisionApplication(doc, a) {
     <h1 data-role="name">${verb(a.name.text)}</h1>
     ${stateBlock(lang, a)}
     ${a.reason ? role("reason", say(lang, a.reason)) : ""}
-    ${why(lang, a)}
+    ${why(lang, a, { kinds: false })}
     ${problems}${pieces}${endorsement}
     ${a.origin ? role("origin", say(lang, a.origin)) : ""}${a.version ? role("version", say(lang, a.version)) : ""}
     <p data-role="links"><a href="#/mission/${esc(a.id)}">${esc(X.technical)}</a></p>

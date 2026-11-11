@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BuildError } from "./build.js";
-import { checkIndex, checkLexicon, checkPage, checkReading, checkView } from "./rules.js";
+import { checkIndex, checkLexicon, checkPage, checkReading, checkRefusals, checkView } from "./rules.js";
 import * as api from "../ui/views.js";
 
 const UI = join(dirname(fileURLToPath(import.meta.url)), "..", "ui");
@@ -58,7 +58,7 @@ export function renderSite(index, { template, views, api, fonts }) {
     let html;
     try { html = api.renderView(index, route, arg ?? undefined, { strict: true }); } catch (e) { problems.push(`${where}: the view cannot be built from this index (${e.message})`); continue; }
     problems.push(...checkView(html, index, where));
-    if (route === "decision") problems.push(...checkReading(html, where));
+    if (route === "decision") problems.push(...checkReading(html, where), ...(arg ? checkRefusals(html, index, arg, where) : []));
   }
   if (/<\/script/i.test(views)) problems.push("ui/views.js holds a closing script tag");
   const fontCss = fonts.map((f) => `@font-face{font-family:"${f.family}";font-style:normal;font-weight:${f.weight};font-display:swap;src:url(data:font/woff2;base64,${f.bytes.toString("base64")}) format("woff2")}`).join("\n");
