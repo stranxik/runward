@@ -37,9 +37,10 @@ const CROSSINGS = /^(node:)?(https?|http2|net|tls|dgram|dns|dns\/promises|undici
 //    was never the accurate description, and `hooks-claim.test.js` now guards the public wording.
 //
 // 2. The closure stops at PACKAGE boundaries. It follows relative imports only, so a dependency's
-//    own imports are never opened — `commander` already imports `child_process` for executable
-//    subcommands. What this file proves is that RUNWARD'S OWN modules on the verdict path carry no
-//    crossing; the dependency surface is the SBOM's and the network-cut CI run's job, not this one's.
+//    own imports would never be opened. Since ADR-0129 runward has no runtime dependency, so its
+//    own modules are the whole of what runs (test/unit/zero-runtime-dependencies.test.js refuses an
+//    import of anything else); should one come back, its surface is the SBOM's and the network-cut
+//    CI run's job, not this file's.
 /** Transitive import closure of a dist ESM module — every relative import followed, breadth-first. */
 function importClosure(entry) {
   const seen = new Set();

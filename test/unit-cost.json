@@ -11,6 +11,7 @@
   "totalSeconds": 854.5,
   "slowSeconds": 792.9,
   "slow": [
+    "test/unit/prompt.test.js",
     "test/unit/cli-usage-golden.test.js",
     "test/unit/fleet-documents.test.js",
     "test/unit/run-mutation.test.js",
@@ -1469,6 +1470,26 @@
     {
       "file": "test/unit/cli-usage-golden.test.js",
       "seconds": 31.64,
+      "passed": true
+    },
+    {
+      "file": "test/unit/prompt.test.js",
+      "seconds": 2.29,
+      "passed": true
+    },
+    {
+      "file": "test/unit/styles-color.test.js",
+      "seconds": 1.35,
+      "passed": true
+    },
+    {
+      "file": "test/unit/cli-args.test.js",
+      "seconds": 0.44,
+      "passed": true
+    },
+    {
+      "file": "test/unit/zero-runtime-dependencies.test.js",
+      "seconds": 0.43,
       "passed": true
     }
   ]

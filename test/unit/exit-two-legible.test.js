@@ -86,6 +86,9 @@ test("exit 2 legible: no-mission, additive beside the verdict/reason each docume
   } finally { clean(empty); }
 });
 
+// The name still says "Commander": the requirements register cites it (TOR-119) and the committed
+// JUnit report records it, and that report is written by CI alone (ADR-0112). The parser is
+// src/lib/cli-args.ts since ADR-0129; the case is renamed with the report that records the new name.
 test("exit 2 legible: usage, from Commander and from each command's own refusals", () => {
   const empty = tmp("rw-exit2-usage-");
   try {

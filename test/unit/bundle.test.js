@@ -81,7 +81,7 @@ test("obj 7: NEGATIVE CONTROL — a missing artifact fails bundle re-verificatio
 test("obj 7: misuse — no artifact named, or a missing file, exits 2", () => {
   const f = fixture();
   const run = (args) => { try { execFileSync(process.execPath, [CLI, "bundle", ...args], { cwd: f.dir, stdio: "pipe" }); return 0; } catch (e) { return e.status; } };
-  assert.equal(run([]), 2, "commander requires at least one artifact");
+  assert.equal(run([]), 2, "at least one artifact is required");
   assert.equal(run(["does-not-exist.json"]), 2, "a named file that is not there is misuse");
   f.drop();
 });

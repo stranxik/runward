@@ -1,6 +1,6 @@
 import { join, resolve } from "node:path";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { checkbox, input, select } from "@inquirer/prompts";
+import { openPrompter } from "../lib/prompt.js";
 import { existingSkillDirs, skillsForDir } from "../lib/tools.js";
 import { TEMPLATES, EXAMPLE_MISSION, EXAMPLE_CODE, MISSION_LAYOUT, VERSION } from "../lib/paths.js";
 import { TOOL_PROFILES, TOOL_IDS, PACKAGED_WITHOUT_PROFILE, baselineSkills } from "../lib/tools.js";
@@ -45,45 +45,53 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   const dryRun = process.env.RUNWARD_DRY_RUN === "1";
 
   // ── Gather answers (wizard, or defaults with --yes) ──────────────
-  const dir = opts.path
-    ?? (yes ? "." : await input({ message: "Project directory", default: "." }));
+  // The questions are asked only of a person at a terminal (`isNonInteractive`), on one reader
+  // closed before anything is written: Ctrl-C at a question leaves the directory untouched.
+  const wizard = yes ? undefined : openPrompter();
+  let dir: string, idea: string, tools: string[], entryMode: string, tier: string;
+  try {
+    dir = opts.path
+      ?? (wizard ? await wizard.input({ message: "Project directory", default: "." }) : ".");
 
-  // The idea seeds the framing note: you arrive with a project, not with paperwork.
-  // In example mode the framing is already filled from the reference, so we skip it.
-  const idea = (yes || example) ? "" : await input({
-    message: "What are you building? (one line — it seeds your framing note)",
-    default: "",
-  });
+    // The idea seeds the framing note: you arrive with a project, not with paperwork.
+    // In example mode the framing is already filled from the reference, so we skip it.
+    idea = (!wizard || example) ? "" : await wizard.input({
+      message: "What are you building? (one line — it seeds your framing note)",
+      default: "",
+    });
 
-  // Vendor-neutral by default (ADR-0030): with no explicit --tools, write only the neutral
-  // baseline (AGENTS.md + .agents/skills). No harness is privileged — under --yes the profile
-  // list is empty, and the wizard pre-checks nothing. A per-harness channel is an opt-in the
-  // operator adds afterward (the agent may recommend one for the detected harness, on approval).
-  const tools = opts.tools !== undefined
-    ? opts.tools.split(",").map((s) => s.trim()).filter(Boolean)
-    : yes
-      ? []
-      : await checkbox({
-          message: "Tool profiles (optional — AGENTS.md + .agents/skills are always written)",
-          choices: TOOL_PROFILES.map((t) => ({ value: t.id, name: t.label, checked: false })),
-        });
+    // Vendor-neutral by default (ADR-0030): with no explicit --tools, write only the neutral
+    // baseline (AGENTS.md + .agents/skills). No harness is privileged — under --yes the profile
+    // list is empty, and the wizard pre-checks nothing. A per-harness channel is an opt-in the
+    // operator adds afterward (the agent may recommend one for the detected harness, on approval).
+    tools = opts.tools !== undefined
+      ? opts.tools.split(",").map((s) => s.trim()).filter(Boolean)
+      : !wizard
+        ? []
+        : await wizard.checkbox({
+            message: "Tool profiles (optional — AGENTS.md + .agents/skills are always written)",
+            choices: TOOL_PROFILES.map((t) => ({ value: t.id, name: t.label })),
+          });
 
-  const entryMode = (yes || example) ? "greenfield" : await select({
-    message: "Entry mode",
-    choices: [
-      { value: "greenfield", name: "Greenfield — new system, run the chain from the top" },
-      { value: "brownfield", name: "Brownfield — existing system, characterize before touching" },
-    ],
-  });
+    entryMode = (!wizard || example) ? "greenfield" : await wizard.select({
+      message: "Entry mode",
+      choices: [
+        { value: "greenfield", name: "Greenfield — new system, run the chain from the top" },
+        { value: "brownfield", name: "Brownfield — existing system, characterize before touching" },
+      ],
+    });
 
-  const tier = (yes || example) ? "floor" : await select({
-    message: "Stopping tier (the sponsor's choice — can be revised)",
-    choices: [
-      { value: "framing", name: "Framing only" },
-      { value: "floor", name: "Executable floor, proven on real traffic" },
-      { value: "full chain", name: "Full chain through handover" },
-    ],
-  });
+    tier = (!wizard || example) ? "floor" : await wizard.select({
+      message: "Stopping tier (the sponsor's choice — can be revised)",
+      choices: [
+        { value: "framing", name: "Framing only" },
+        { value: "floor", name: "Executable floor, proven on real traffic" },
+        { value: "full chain", name: "Full chain through handover" },
+      ],
+    });
+  } finally {
+    wizard?.close();
+  }
 
   const unknown = tools.filter((t) => !TOOL_IDS.includes(t));
   for (const t of unknown) {

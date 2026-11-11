@@ -19,6 +19,7 @@ import { fileURLToPath } from "node:url";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { writeTgz } from "../../scripts/build-qualification-kit.mjs";
+import { readTgz } from "../../scripts/tgz.mjs";
 import { packageSbom, render, runtimeTree, uuidV5, npmPurl, licensesOf, resolveFrom, sha512OfIntegrity, authorName, InputError, SPEC_VERSION } from "../../scripts/package-sbom.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -211,9 +212,14 @@ function packTree() {
   return { work, file: join(work, name) };
 }
 
+// Since ADR-0129 that tree is empty: runward has no runtime dependency, so the tarball bundles nothing
+// and the SBOM is the package alone. The comparison stays what it was (the bundle is the lockfile's
+// runtime tree, package for package), so a dependency that came back unbundled, or a bundle the
+// lockfile does not explain, is refused as before; test/unit/zero-runtime-dependencies.test.js is
+// the test that refuses the dependency itself.
 test("ADR-0116: the tarball this tree packs bundles the lockfile's runtime tree, at the lockfile's versions", () => {
   const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
-  assert.deepEqual([...pkg.bundleDependencies].sort(), Object.keys(pkg.dependencies).sort(),
+  assert.deepEqual([...(pkg.bundleDependencies ?? [])].sort(), Object.keys(pkg.dependencies ?? {}).sort(),
     "every runtime dependency is bundled: one left out would be resolved from the registry at install");
   const lock = JSON.parse(readFileSync(join(ROOT, "package-lock.json"), "utf8"));
   const { work, file } = packTree();
@@ -223,7 +229,10 @@ test("ADR-0116: the tarball this tree packs bundles the lockfile's runtime tree,
     valid(bom);
     assert.equal(`${bom.metadata.component.name}@${bom.metadata.component.version}`, `runward@${pkg.version}`);
     const tree = runtimeTree(lock);
-    assert.ok(tree.size >= 3, `the lockfile's runtime tree was read (${tree.size} packages)`);
+    assert.ok(Object.keys(lock.packages).length > 50, "the lockfile was read (it lists the development tree)");
+    assert.equal(tree.size, Object.keys(lock.packages).filter((p) => p !== "" && !lock.packages[p].dev && !lock.packages[p].devOptional).length,
+      "the runtime tree is every package of the lockfile that is not a development one");
+    assert.equal(readTgz(readFileSync(file)).filter((f) => f.path.startsWith("package/node_modules/")).length, 0, "ADR-0129: the tarball carries no package but runward");
     assert.equal(bom.components.length, tree.size, "one component per package of the runtime tree, no more");
     for (const c of bom.components) {
       assert.equal(c.version, tree.get(c["bom-ref"]).version, c["bom-ref"]);
@@ -243,16 +252,19 @@ test("ADR-0116: the command writes the document, refuses a lockfile the bundle d
     const lock = JSON.parse(readFileSync(lockPath, "utf8"));
     assert.equal(readFileSync(out, "utf8"), render(packageSbom({ tarball: readFileSync(file), lock, timestamp: "2026-11-05T00:00:00Z" }).bom),
       "the file the release attaches is the module's rendering");
-    // One runtime package at another version in the lockfile: refused, and nothing written.
-    const [path] = runtimeTree(lock).keys();
+    // A lockfile that says another runtime tree than the tarball carries: refused, and nothing
+    // written. The tree is empty since ADR-0129, so the difference planted is a runtime package the
+    // lockfile names and the tarball does not bundle (the synthetic cases above plant the others).
+    assert.equal(runtimeTree(lock).size, 0);
+    const path = "node_modules/planted-runtime-dependency";
     const tampered = structuredClone(lock);
-    tampered.packages[path].version = "0.0.0-not-this";
+    tampered.packages[path] = { version: "1.0.0", resolved: "https://registry.npmjs.org/planted-runtime-dependency/-/planted-runtime-dependency-1.0.0.tgz", integrity: "sha512-AAAA", license: "MIT" };
     const tamperedPath = join(work, "tampered-lock.json");
     writeFileSync(tamperedPath, JSON.stringify(tampered));
     const out2 = join(work, "refused.cdx.json");
     const refused = spawnSync(process.execPath, [SCRIPT, "--tarball", file, "--lock", tamperedPath, "--out", out2], { encoding: "utf8" });
     assert.equal(refused.status, 1, refused.stderr);
-    assert.match(refused.stderr, new RegExp(`${path.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}: bundled at `));
+    assert.match(refused.stderr, /node_modules\/planted-runtime-dependency: in the lockfile's runtime tree \(1\.0\.0\), and not bundled/);
     assert.ok(!existsSync(out2), "a refused bundle leaves no SBOM behind");
     const usage = spawnSync(process.execPath, [SCRIPT, "--tarball", file], { encoding: "utf8" });
     assert.equal(usage.status, 2, "a missing input is exit 2, never a pass");
