@@ -957,6 +957,8 @@
 	<testcase name="verify-run: a key pinned for an Azure DevOps or a nested GitLab repository is accepted for it, in any spelling a forge writes" classname="test"/>
 	<testcase name="verify-run: a sibling, a parent group, a prefix or a planted name is another repository, and an expectation outside the grammar is not asked" classname="test"/>
 	<testcase name="verify-run, keyless on GitLab: a runner project and a mission in nested groups; the mission's own pipeline is still refused" classname="test"/>
+	<testcase name="the build, keyless: a certificate for a nested GitLab project raises its mission; a sibling, a parent or a name that is no identity raises nothing" classname="test"/>
+	<testcase name="verify-run, keyless: the certificate's repository is compared as an identity, and one that is none never hands the mission to the Statement" classname="test"/>
 	<testcase name="the build: an Ed25519 manifest whose repository folds into the mission's under Unicode rules raises nothing" classname="test"/>
 	<testcase name="every view of a fleet of GitLab and Azure DevOps repositories builds, the page passes its rules, and the identities are shown as declared" classname="test"/>
 	<testcase name="documents: a deployment's `source` built on repositoryUrl links a file of a nested GitLab project; an address that does not end with the path stays text" classname="test"/>
@@ -2346,9 +2348,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2342 -->
+	<!-- tests 2344 -->
 	<!-- suites 0 -->
-	<!-- pass 2341 -->
+	<!-- pass 2343 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->
