@@ -76,16 +76,6 @@
     "test:reports": "npm run build && node scripts/reports-fresh.mjs",
     "test:security": "npm run build && node scripts/security-scans.mjs"
   },
-  "dependencies": {
-    "@inquirer/prompts": "^8.7.2",
-    "chalk": "^6.0.0",
-    "commander": "^15.0.0"
-  },
-  "bundleDependencies": [
-    "@inquirer/prompts",
-    "chalk",
-    "commander"
-  ],
   "devDependencies": {
     "@secretlint/secretlint-formatter-sarif": "^13.0.6",
     "@secretlint/secretlint-rule-preset-recommend": "^13.0.6",

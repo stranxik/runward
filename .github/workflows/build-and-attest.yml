@@ -106,8 +106,8 @@ jobs:
       - name: Verify
         run: npm test
 
-      # The tarball carries its runtime dependencies (`bundleDependencies`, ADR-0116 decision 1): npm
-      # packs them from the tree `npm ci` installed from the lockfile, the tree the suite just ran on.
+      # The tarball carries the runtime tree the suite just ran on (ADR-0116 decision 1). Since
+      # ADR-0129 that tree is the package alone: runward has no runtime dependency, nothing is bundled.
       - name: Pack the tarball
         id: pack
         run: echo "tarball=$(npm pack --silent)" >> "$GITHUB_OUTPUT"

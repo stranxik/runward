@@ -28,7 +28,7 @@ async function readStdin(): Promise<string> {
  * when a mission is reachable (RWD-2026-0137). Exit 2 here was a block under Claude and Junie,
  * raised before the re-entry guards were read, so a typo trapped the session on every turn and the
  * model received a configuration error dressed as the gate's refusal. Also called from cli.ts for
- * Commander's own parse errors (missing --harness, unknown option), which never reach the action.
+ * the argument parser's own errors (missing --harness, unknown option), which never reach the action.
  */
 export function gateHookMisconfigured(detail: string, path?: string): never {
   console.error(`runward gate-hook: misconfigured (${detail}). Failing open: the gate was NOT evaluated. Fix the hook command.`);

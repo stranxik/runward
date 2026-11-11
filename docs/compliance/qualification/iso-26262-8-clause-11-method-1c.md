@@ -37,7 +37,7 @@
 | Licence | MIT |
 | Distribution | npm package `runward`; source at github.com/stranxik/runward, tag `vX.Y.Z` |
 | Integrity of the installed package | verified as [verifying-a-release.md](../../verifying-a-release.md) describes, before any other step |
-| Runtime | Node.js (the version range in the package's `engines` field); three runtime dependencies (`@inquirer/prompts`, `chalk`, `commander`); `git` for some commands |
+| Runtime | Node.js (the version range in the package's `engines` field); no runtime dependency from the first release after ADR-0129 (three until then: `@inquirer/prompts`, `chalk`, `commander`); `git` for some commands |
 | What it is not | It does not generate, compile or modify the item's code. Its declared non-scope is printed in every compliance pack it emits and readable through `runward rules --json` (`GATE_NON_SCOPE`). |
 
 ### A.2 Use cases

@@ -43,7 +43,7 @@ The generic matrix above describes the systems runward gates. The rows below are
 | Decision | Position held | Switch when |
 |---|---|---|
 | Core language | TypeScript strict, ESM, Node ≥ 20 — the ecosystem the target users (agent-assisted repos) already run | a capability genuinely requires another runtime; none identified |
-| Runtime dependencies | three only (commander, chalk, inquirer); everything else is owned code | a dependency goes unmaintained or opens a vulnerability window → replace or vendor |
+| Runtime dependencies | none (ADR-0129); parsing, color and prompts are owned code on Node.js built-ins, like everything else | a need the owned modules do not cover and a dependency would → an ADR that supersedes ADR-0129 |
 | Rule set and templates | markdown + JSON data versioned inside the package; no runtime fetch | the curated set outgrows the package → a versioned data package, still no fetch (never a live endpoint) |
 | Topology | single-process CLI monolith; no daemon, no service | none foreseen — a hosted gate would be a separate product behind the same process contract |
 | Model use | none, anywhere — the verdict is deterministic (docs/adr/ADR-0001); LLM judgment stays advisory and harness-side (docs/adr/ADR-0007) | never for the verdict; that row has no trigger by design |

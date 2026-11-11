@@ -24,7 +24,7 @@ import { PHASES, type GapReport } from "./mission.js";
 import { analysisPayload } from "./analyze.js";
 import { levelsPayload } from "./evidence-levels.js";
 
-/** Everything `check` accepts, exactly as commander hands it over. */
+/** Everything `check` accepts, exactly as the argument parser hands it over. */
 export interface CheckOptions {
   path?: string;
   strict?: boolean;

@@ -9,7 +9,7 @@ runward is a deterministic CLI that traces and verifies delivery decisions for a
 ## 2. Boundaries
 
 - **The gate is a port.** runward's primary port is a process contract, not an API: argv in; exit code out (0 green, 1 gaps, 2 no mission or CLI misuse, 5 a strict verdict below its required level of proof, ADR-0114); human-readable report on stdout. Anything that can run a process and read an exit code — GitHub Actions, GitLab CI, a pre-commit hook, an agent harness — is an adapter of this port (ADR-0012). The adapters shipped in `templates/adapters/` are inert samples the operator copies and wires; runward never installs them, never writes into `.git/` or a CI config.
-- **Commands are adapters; the logic is a library.** `src/commands/` holds thin commander action handlers (parse options, format output, set the exit code). `src/lib/` holds the pure logic: manifest parsing, rule reading, evidence resolution, compliance rendering. Dependencies point inward — `commands` imports `lib`, never the reverse — so every check is testable without a terminal.
+- **Commands are adapters; the logic is a library.** `src/commands/` holds thin action handlers (read the parsed options, format output, set the exit code); `src/cli.ts` declares the command line and `src/lib/cli-args.ts` parses it. `src/lib/` holds the pure logic: manifest parsing, rule reading, evidence resolution, compliance rendering. Dependencies point inward — `commands` imports `lib`, never the reverse — so every check is testable without a terminal.
 - **The rule set is versioned data, not code.** `templates/rules/*.md` carries the rules (impact, phases, OWASP ASI mapping, optional evidence signature) as markdown with frontmatter; `templates/mission/` and `templates/workflows/` carry the scaffolds. Changing the gate's demands is a data change under maintainer review, with renames tracked as migrations (ADR-0006).
 
 ## 3. Ports
@@ -32,7 +32,7 @@ There is deliberately no model port and no network port: the verdict must stay d
 |---|---|---|
 | Single-process CLI monolith | a gate audit is a short, local, read-mostly computation; distribution would add failure modes for nothing | none foreseen — a hosted service would be a separate product behind the same contracts |
 | TypeScript strict, ESM, Node ≥ 20 | one typed language for the whole tool; the ecosystem the target users already run | a capability that genuinely needs another runtime — none identified |
-| Three runtime dependencies (commander, chalk, inquirer) | every dependency is attack surface for a security tool; parsing, color, prompts are the only things not worth owning | a dependency becomes unmaintained or a vulnerability window opens — replace or vendor |
+| No runtime dependency (ADR-0129; three through 0.47.0: commander, chalk, inquirer) | every dependency runs in the process that prints the verdict and is somebody else's account to lose; parsing, color and prompts are small enough to own on Node.js built-ins | a need the owned modules do not cover and a dependency would — an ADR that supersedes ADR-0129 |
 | Rules and templates as in-package data | reviewable diffs, versioned with the code, no fetch at runtime | rule sets grow past what a package should carry — a versioned data package, still no runtime fetch |
 
 ## Rule conformance

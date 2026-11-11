@@ -8,8 +8,8 @@
 // guide instructing version 0.6.0 gestures against a 0.37.x binary.
 //
 // The inventory comes from src/cli.ts SOURCE, not from `--help` and not from importing dist/cli.js
-// (its module top level calls program.parseAsync(): importing it RUNS the CLI). Commander
-// registrations in this repository are fully declarative — `.command("name")` then `.option("…")`
+// (its module top level reads the arguments: importing it RUNS the CLI). The command
+// declarations in this repository are fully declarative — `.command("name")` then `.option("…")`
 // lines — so a sequential scan is exact, and the test asserts its own extraction floor so an empty
 // sweep can never pass as a clean one (a zero without a positive control does not distinguish
 // "nothing" from "blind").

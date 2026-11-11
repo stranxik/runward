@@ -5,7 +5,7 @@
  * update, characterize, compliance (evidence pack), manifest (table plumbing),
  * rules / explain (rule-set surface).
  */
-import { Command, Option } from "commander";
+import { defineProgram, formatHelp, parseCli, type CommandSpec, type Outcome } from "./lib/cli-args.js";
 import { VERSION } from "./lib/paths.js";
 import { THROUGH_PHASE_IDS } from "./lib/mission.js";
 import { REQUIRED_LEVELS } from "./lib/verdict.js";
@@ -35,8 +35,7 @@ import { emitJson, errorPayload } from "./lib/machine-output.js";
 
 // Exit codes: 0 = success · 1 = gaps/warnings · 2 = missing prerequisite or CLI misuse (typo, unknown flag)
 
-process.on("uncaughtException", (err: Error & { name?: string }) => {
-  if (err.name === "ExitPromptError") process.exit(130); // Ctrl+C in a prompt
+process.on("uncaughtException", (err: Error) => {
   console.error("\n  " + c.error("✗") + " Unexpected error: " + err.message);
   if (process.env.VERBOSE) console.error(err.stack);
   process.exit(1);
@@ -47,23 +46,14 @@ process.on("unhandledRejection", (reason: any) => {
   process.exit(1);
 });
 
-const program = new Command();
-
-program
-  .name("runward")
-  .description("After the spec: ship and run. Delivery framework for agentic systems.")
-  .version(VERSION)
+// The command line is declared here and read by src/lib/cli-args.ts (ADR-0129): no dependency
+// parses the arguments or writes the help. The program's own options are recognised before and
+// after the command name.
+const program = defineProgram("runward", "After the spec: ship and run. Delivery framework for agentic systems.")
   .option("--no-color", "disable colored output")
   .option("--verbose", "detailed logs")
   .option("--yes", "non-interactive: accept all defaults (CI)")
-  .option("--dry-run", "print planned actions without writing")
-  .hook("preAction", (cmd) => {
-    const opts = cmd.opts();
-    if (opts.color === false) process.env.NO_COLOR = "1";
-    if (opts.verbose) process.env.VERBOSE = "1";
-    if (opts.yes) process.env.RUNWARD_YES = "1";
-    if (opts.dryRun) process.env.RUNWARD_DRY_RUN = "1";
-  });
+  .option("--dry-run", "print planned actions without writing");
 
 program
   .command("init")
@@ -82,13 +72,13 @@ program
   .option("--freeze", "seal a green strict gate: hash the evidence into runward/evidence-lock.json (implies --strict)")
   .option("--hooks", "run operator hooks from runward/hooks.json around the audit (opt-in)")
   .option("--coverage", "advisory: report deliverable + decision-ratification coverage (does not gate)")
-  // ADR-0053: a declared construction horizon. `choices()` rejects an unknown id as
-  // `commander.invalidArgument` → exit 2 (misuse). The `--through`+`--freeze` conflict is guarded
+  // ADR-0053: a declared construction horizon. `choices` rejects an unknown id as
+  // a usage error → exit 2 (misuse). The `--through`+`--freeze` conflict is guarded
   // in checkCommand (a seal is taken on a complete crossing, never on a prefix).
-  .addOption(new Option("--through <phase-id>", `construction gate: judge only the phases up to and including <phase-id> (${THROUGH_PHASE_IDS.join(" | ")}), a prefix of the arc — a progress signal, never the sole release gate (ADR-0053)`).choices([...THROUGH_PHASE_IDS]))
-  // ADR-0114: the level of proof the strict verdict demands. `choices()` makes an unknown level a
+  .option("--through <phase-id>", `construction gate: judge only the phases up to and including <phase-id> (${THROUGH_PHASE_IDS.join(" | ")}), a prefix of the arc — a progress signal, never the sole release gate (ADR-0053)`, { choices: THROUGH_PHASE_IDS })
+  // ADR-0114: the level of proof the strict verdict demands. `choices` makes an unknown level a
   // misuse (exit 2); without --strict the flag is refused in checkCommand (optionFault).
-  .addOption(new Option("--require <level>", "with --strict: the level of proof the verdict demands of its rows — mechanical (the default: at least one applied row carries a pointer the gate opened and checked, else exit 5) or traced (a green that rests on judgment alone, accepted by name); a --through prefix requires traced unless told otherwise (ADR-0114). Above them (ADR-0119): re-derived (no applied row rests on a declaration, and the declared territory is analysed) and attested (also, every report a row cites is bound to this tree by a signed run Statement of runward-run, ADR-0120; the binding is re-derived by this command, the signature is verified outside it); below the level asked, exit 5. It lifts no gap: a row refused as requires-unmet, citing another kind of evidence than its rule requires, stays exit 1 under --require traced; its ways out are a report of that kind, a deviated row, or the nature declared uncarriable in an accepted ADR (ADR-0115)").choices([...REQUIRED_LEVELS]))
+  .option("--require <level>", "with --strict: the level of proof the verdict demands of its rows — mechanical (the default: at least one applied row carries a pointer the gate opened and checked, else exit 5) or traced (a green that rests on judgment alone, accepted by name); a --through prefix requires traced unless told otherwise (ADR-0114). Above them (ADR-0119): re-derived (no applied row rests on a declaration, and the declared territory is analysed) and attested (also, every report a row cites is bound to this tree by a signed run Statement of runward-run, ADR-0120; the binding is re-derived by this command, the signature is verified outside it); below the level asked, exit 5. It lifts no gap: a row refused as requires-unmet, citing another kind of evidence than its rule requires, stays exit 1 under --require traced; its ways out are a report of that kind, a deviated row, or the nature declared uncarriable in an accepted ADR (ADR-0115)", { choices: REQUIRED_LEVELS })
   .option("--json", "machine output: verdict, current gate, deliverable states, conformance gaps, next step (stable contract, for agent-driven runs; gaps.proposed and gaps.unboundRows are already inside gaps.conformance, never added to it, and so is gaps.analysis)")
   // ADR-0055: emit the verdict as an UNSIGNED in-toto Statement (a Statement wrapping --json, whose
   // subject binds it to this mission tree). The operator signs it under their own key (never runward's).
@@ -276,46 +266,66 @@ program
   .option("-o, --out <dir>", "write the pack to this directory instead of runward/compliance/ (relative to the current directory, or absolute): for a CI artifact that is not committed")
   .action(complianceCommand);
 
-// exitOverride lets us map Commander's own errors onto runward's exit-code contract:
-// a parse error (unknown command/option, missing/excess argument) is operator misuse → 2,
-// so CI can tell a typo from a legitimate gate failure (exit 1). Help/version exit 0.
-// Applied to the root AND every subcommand — it does not propagate on its own.
-const MISUSE = new Set([
-  "commander.unknownCommand", "commander.unknownOption", "commander.invalidArgument",
-  "commander.missingArgument", "commander.excessArguments",
-  "commander.missingMandatoryOptionValue", "commander.optionMissingArgument",
-]);
-const onCommanderExit = (err: { code?: string; exitCode?: number; message?: string }, cmd?: Command): never => {
-  const code = err?.code ?? "";
-  if (code === "commander.helpDisplayed" || code === "commander.version" || code === "commander.help") process.exit(0);
-  // ADR-0083: a machine run of a command that has a `--json` form gets its usage error as the
-  // document it asked for (`error: "usage"`); Commander has already written the sentence to stderr.
-  // Only `--json` owns a JSON document: beside --sarif/--vsa/--attest, stdout stays empty.
-  if (MISUSE.has(code) && cmd && machineRun(cmd)) emitJson(errorPayload(VERSION, "usage", (err?.message ?? code).replace(/^error:\s*/, "")));
-  process.exit(MISUSE.has(code) ? 2 : (err?.exitCode ?? 1)); // Commander already wrote the message
-};
-/** The run asked for `--json` from a command whose machine form it is (`ratify`: only with `--list`). */
-const machineRun = (cmd: Command): boolean => {
-  const argv = process.argv.slice(2);
-  if (!argv.includes("--json") || !cmd.options.some((o) => o.long === "--json")) return false;
-  if (["--sarif", "--vsa", "--attest"].some((f) => argv.includes(f))) return false;
-  return cmd.name() !== "ratify" || argv.includes("--list");
-};
-program.exitOverride((err) => onCommanderExit(err));
-program.commands.forEach((cmd) => cmd.exitOverride((err) => onCommanderExit(err, cmd)));
-// gate-hook runs INSIDE a harness, where exit 2 means "block the agent": a parse error there is
-// the hook's configuration, not operator misuse at a terminal, and it fails open like every other
-// infrastructure fault of that seam (ADR-0065; RWD-2026-0137). Commander already wrote the cause.
-program.commands.find((cmd) => cmd.name() === "gate-hook")?.exitOverride((err: { code?: string; exitCode?: number; message?: string }) => {
-  const code = err?.code ?? "";
-  if (!MISUSE.has(code)) return onCommanderExit(err);
-  const argv = process.argv;
-  const i = argv.findIndex((a) => a === "-p" || a === "--path");
-  gateHookMisconfigured((err?.message ?? code).replace(/^error:\s*/, ""), i >= 0 ? argv[i + 1] : undefined);
-});
+// The exit-code contract of the command line itself: a usage error (unknown command or option, a
+// missing or excess argument, a value outside its choices) is operator misuse → 2, so CI can tell a
+// typo from a legitimate gate failure (exit 1). Help and version exit 0, the help nobody asked for
+// (no command given) included, on stderr.
+const argv = process.argv.slice(2);
 
-program.parseAsync().catch((err: { message?: string; stack?: string }) => {
-  // An error escaping an async action — Commander's own exits are handled above.
+/** The run asked for `--json` from a command whose machine form it is (`ratify`: only with `--list`). */
+const machineRun = (cmd: CommandSpec): boolean => {
+  if (!argv.includes("--json") || !cmd.options.some((o) => o.flags === "--json")) return false;
+  if (["--sarif", "--vsa", "--attest"].some((f) => argv.includes(f))) return false;
+  return cmd.name !== "ratify" || argv.includes("--list");
+};
+
+/** The help follows the terminal's width; a stream that is not a terminal gets 80 columns. */
+const helpWidth = (stream: NodeJS.WriteStream): number => (stream.isTTY ? stream.columns : undefined) ?? 80;
+
+async function main(outcome: Outcome): Promise<void> {
+  switch (outcome.kind) {
+    case "version":
+      process.stdout.write(`${VERSION}\n`);
+      process.exit(0);
+      break;
+    case "help": {
+      const stream = outcome.error ? process.stderr : process.stdout;
+      stream.write(formatHelp(program, outcome.command, helpWidth(stream)));
+      process.exit(0);
+      break;
+    }
+    case "usage": {
+      process.stderr.write(`${outcome.message}\n`);
+      const sentence = outcome.message.replace(/^error:\s*/, "");
+      // gate-hook runs INSIDE a harness, where exit 2 means "block the agent": a parse error there is
+      // the hook's configuration, not operator misuse at a terminal, and it fails open like every other
+      // infrastructure fault of that seam (ADR-0065; RWD-2026-0137). stderr already carries the cause.
+      if (outcome.command?.name === "gate-hook") {
+        const i = process.argv.findIndex((a) => a === "-p" || a === "--path");
+        gateHookMisconfigured(sentence, i >= 0 ? process.argv[i + 1] : undefined);
+      }
+      // ADR-0083: a machine run of a command that has a `--json` form gets its usage error as the
+      // document it asked for (`error: "usage"`); the sentence is already on stderr.
+      // Only `--json` owns a JSON document: beside --sarif/--vsa/--attest, stdout stays empty.
+      if (outcome.command && machineRun(outcome.command)) emitJson(errorPayload(VERSION, "usage", sentence));
+      process.exit(2);
+      break;
+    }
+    case "run": {
+      const g = outcome.globals;
+      if (g.color === false) process.env.NO_COLOR = "1";
+      if (g.verbose) process.env.VERBOSE = "1";
+      if (g.yes) process.env.RUNWARD_YES = "1";
+      if (g.dryRun) process.env.RUNWARD_DRY_RUN = "1";
+      await outcome.command.action(...outcome.args, outcome.options);
+    }
+  }
+}
+
+main(parseCli(program, argv)).catch((err: { message?: string; stack?: string }) => {
+  // An error escaping an async action — the command line's own exits are handled above. Ctrl-C at
+  // one of init's questions arrives here too (src/lib/prompt.ts): exit 1, as it was measured on
+  // 0.46.0, where the line that meant to exit 130 was never reached.
   console.error("\n  " + c.error("✗") + " " + (err?.message ?? String(err)));
   if (process.env.VERBOSE && err?.stack) console.error(err.stack);
   process.exit(1);

@@ -322,6 +322,15 @@
 	<testcase name="a cited path that cannot be read (a directory) never resolves a symbol" classname="test"/>
 	<testcase name="ADR-0050: `runward/claims` resolves and carries the rules, the screen, and the frozen citations" classname="test"/>
 	<testcase name="ADR-0050: deep paths stay importable — the exports map closes nothing that worked" classname="test"/>
+	<testcase name="options: long, short, attached and separate values, the last one wins, keys are camelCased" classname="test"/>
+	<testcase name="variadic options collect the operands that follow, and repeat" classname="test"/>
+	<testcase name="the program's options are read before and after the command, and never after `--`" classname="test"/>
+	<testcase name="arguments: in their declared order, the variadic one takes the rest, an absent optional one is empty" classname="test"/>
+	<testcase name="each usage error has its name and its sentence, and the first cause in this order is the one reported" classname="test"/>
+	<testcase name="help and version: asked for, or shown because nothing else can be done" classname="test"/>
+	<testcase name="suggestions: the closest names, only when close enough" classname="test"/>
+	<testcase name="the help: terms aligned, descriptions wrapped in their own column, to the width given" classname="test"/>
+	<testcase name="a declaration the parser cannot read fails when it is written, not when it is first used" classname="test"/>
 	<testcase name="RWD-2026-0129: a red run's Next line names the gate that said no, and that command stays red" classname="test"/>
 	<testcase name="RWD-2026-0130: status never calls the arc complete while check --strict refuses it, and check no longer sends there" classname="test"/>
 	<testcase name="RWD-2026-0131: Current gate never reads 'all gates passed' under a red verdict (terminal, JSON, report)" classname="test"/>
@@ -341,6 +350,7 @@
 	<testcase name="ratify --list: the proposer line has one parenthesis, and says it is declared" classname="test"/>
 	<testcase name="status, doctor, wire, gate-hook help: no internal labels" classname="test"/>
 	<testcase name="a dead typed pointer names the two ways out, never 'remove the row'" classname="test"/>
+	<testcase name="golden: every help screen, every usage error and its exit code, byte for byte" classname="test"/>
 	<testcase name="B: a row judged on a committed JUnit report is counted in the output and in --json, and the verdict does not move" classname="test"/>
 	<testcase name="B: with no row citing a committed JUnit report, the line and the field are absent, and the exit code is the same" classname="test"/>
 	<testcase name="B: a bare path at the report, with no case named, is not counted (no case was judged on it)" classname="test"/>
@@ -1421,6 +1431,15 @@
 	<testcase name="ADR template: every ADR carries the dated reevaluation trigger the template calls mandatory" classname="test"/>
 	<testcase name="positioning: the differentiator and the stage distinction cannot be diluted" classname="test"/>
 	<testcase name="positioning: the survival thesis stands verbatim — diluting or paraphrasing it reds CI" classname="test"/>
+	<testcase name="input: the answer, trimmed; Enter alone takes the default; the default is shown" classname="test"/>
+	<testcase name="select: numbered choices; a number picks, Enter alone takes the first, anything else is asked again" classname="test"/>
+	<testcase name="checkbox: several numbers, by spaces or commas, in the list's order; Enter alone takes none" classname="test"/>
+	<testcase name="lines typed ahead of their question are kept for it" classname="test"/>
+	<testcase name="Ctrl-C at a question ends it with PromptInterrupted, and every later question too" classname="test"/>
+	<testcase name="an input that closes before the answer ends the question with PromptInputClosed" classname="test"/>
+	<testcase name="close() gives the input back: no question keeps the process alive" classname="test"/>
+	<testcase name="without a terminal the standard streams are refused with a sentence, never left waiting" classname="test"/>
+	<testcase name="init without a terminal asks nothing and takes the defaults, as before (ADR-0030)" classname="test"/>
 	<testcase name="propose does not cite the untouched scaffolded AGENTS.md as evidence, and says why" classname="test"/>
 	<testcase name="propose still proposes once the operator has written the charter" classname="test"/>
 	<testcase name="a signature matching inside its territory becomes proposed:applied with the found pointer" classname="test"/>
@@ -1938,6 +1957,13 @@
 	<testcase name="every STRUCTURE entry is a deliberate hardening — the inventory is exact" classname="test"/>
 	<testcase name="under the opt-in, an ADR without its date, status or trigger is not a decision" classname="test"/>
 	<testcase name="under the opt-in, a one-byte contract edit is in-progress, never filled" classname="test"/>
+	<testcase name="colours off: NO_COLOR, --no-color, FORCE_COLOR=0, an output that is not a terminal" classname="test"/>
+	<testcase name="FORCE_COLOR: a number is the level, `true` or empty turns colours on where they would be off" classname="test"/>
+	<testcase name="the level a terminal declares: TERM, COLORTERM, the terminal program, a CI, Windows" classname="test"/>
+	<testcase name="the sequences of each level: 24-bit, the 256-colour palette, the 16 basic colours" classname="test"/>
+	<testcase name="colours off: every painter returns its text as it is, byte for byte" classname="test"/>
+	<testcase name="a painted text inside a painted text, a line break, an empty text" classname="test"/>
+	<testcase name="the real binary: no escape sequence in a pipe, the palette under FORCE_COLOR=3, none again with NO_COLOR or --no-color" classname="test"/>
 	<testcase name="ADR-0051: an identifier symbol matches at a boundary, never as a fragment of a larger name" classname="test"/>
 	<testcase name="ADR-0051: a non-identifier symbol keeps exact-substring semantics (a boundary is meaningless there)" classname="test"/>
 	<testcase name="the README's rename demo: the old name left in a comment no longer turns the gate green" classname="test"/>
@@ -2333,9 +2359,13 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2329 -->
+	<testcase name="ADR-0129: package.json declares no runtime dependency" classname="test"/>
+	<testcase name="ADR-0129: the lockfile's runtime tree is empty" classname="test"/>
+	<testcase name="ADR-0129: what the package runs imports only Node.js built-ins and its own files" classname="test"/>
+	<testcase name="planted controls: each reading refuses the dependency it is there to refuse" classname="test"/>
+	<!-- tests 2359 -->
 	<!-- suites 0 -->
-	<!-- pass 2328 -->
+	<!-- pass 2358 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->

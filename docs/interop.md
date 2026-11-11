@@ -298,7 +298,7 @@ could not read its input, and carries the whole document (`result`, `digest`, `v
 the two where it read it and cannot answer (`version-skew`, `not-re-derivable`), `spec-check` keeps
 `verdict` (`no-spec`, `no-criteria`). Every other exit 2 of a `--json` run prints
 `{ runward, error, message, exitCode: 2 }`; `message` is the sentence stderr also carries: read
-`error`, never parse `message`. Commander's own usage errors (`check --json --bogus`,
+`error`, never parse `message`. The argument parser's own usage errors (`check --json --bogus`,
 `spec-check --json` with no file) print the same document when the command has a `--json` form.
 
 Where no document is emitted, on purpose: a command without a `--json` form (its stderr is the only

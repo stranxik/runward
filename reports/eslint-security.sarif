@@ -621,6 +621,46 @@
             {
               "physicalLocation": {
                 "artifactLocation": {
+                  "uri": "src/lib/cli-args.ts"
+                },
+                "region": {
+                  "startLine": 77,
+                  "startColumn": 13
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/cli-args.ts"
+                },
+                "region": {
+                  "startLine": 90,
+                  "startColumn": 50
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
                   "uri": "src/lib/evidence.ts"
                 },
                 "region": {

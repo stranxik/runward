@@ -1396,7 +1396,7 @@ TOR-005 holds unchanged.
 
 ### TOR-119 — misuse is named `usage`
 
-**Requirement.** A Commander parse error, and each command's own refusal of its arguments, exits 2 with `error: "usage"` and a plain sentence.
+**Requirement.** An error of the argument parser (an unknown command or option, a missing or excess argument, a value outside its choices), and each command's own refusal of its arguments, exits 2 with `error: "usage"` and a plain sentence.
 
 **Verified by.** `test/unit/exit-two-legible.test.js` — "exit 2 legible: usage, from Commander and from each command's own refusals"
 

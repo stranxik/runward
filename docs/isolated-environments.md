@@ -81,7 +81,10 @@ reads, in a partial clone and a full one, with no run under the sandbox). Never 
 Measured once, and guarded by nothing: the 27 dependencies npm installed with runward on 2026-11-06,
 resolved from version ranges, so a later install can resolve others. A search of their 91 JavaScript
 files for network modules and `fetch` found none; the same search finds network code in
-`packages/runward-forge` (positive control).
+`packages/runward-forge` (positive control). From the first release after
+[ADR-0129](adr/ADR-0129-runward-has-no-runtime-dependency-the-argument-parser-the-terminal-colours-and-inits-questions-are-written-in-the-package-on-nodejs-built-ins.md)
+runward has no runtime dependency, so this paragraph has no object: what runs is the package's own
+modules, which the test below reads.
 
 ### What keeps it true between two measurements
 
@@ -91,7 +94,9 @@ files for network modules and `fetch` found none; the same search finds network 
   and planted imports of `http`, `https`, `dns`, `http2` and `undici`, must turn it red. It also walks the
   import closure of the verdict and finds none of these modules and no process spawner
   ([ADR-0054](adr/ADR-0054-the-runtime-boundary-is-explicit.md)); that walk follows runward's own modules
-  only, never a dependency (`commander` imports `child_process`). It passed, 12 tests of 12, with the
+  only, never a dependency (through 0.47.0 `commander`, a dependency then, imports `child_process`; since
+  ADR-0129 there is no dependency to follow, and `test/unit/zero-runtime-dependencies.test.js` fails if
+  a module of the build imports anything but a Node.js built-in or one of the package's own files). It passed, 12 tests of 12, with the
   network open and with it denied.
 - The CI job `core tests, network-isolated` (`.github/workflows/ci.yml`) runs on every push to `main`
   and every pull request. Its test step, and only that step, runs inside `sudo unshare -n`, with the
@@ -115,7 +120,7 @@ files for network modules and `fetch` found none; the same search finds network 
 
 | Step | What it reaches | Without a network |
 |---|---|---|
-| Installing, `npm install runward@X.Y.Z` | an npm registry, for runward and its dependencies: three direct (`@inquirer/prompts`, `chalk`, `commander`), 28 packages in all on 2026-11-06 | a mirror (not measured), or the tarball with an npm cache ([below](#installing-without-a-network)). The tarball alone is not enough: with an empty cache, its install failed on the dependencies (`ENOTFOUND registry.npmjs.org`) |
+| Installing, `npm install runward@X.Y.Z` | an npm registry, for runward and its dependencies: three direct (`@inquirer/prompts`, `chalk`, `commander`), 28 packages in all on 2026-11-06 | a mirror (not measured), or the tarball with an npm cache ([below](#installing-without-a-network)). The tarball alone is not enough: with an empty cache, its install failed on the dependencies (`ENOTFOUND registry.npmjs.org`). From the first release after ADR-0129 runward has no dependency and the tarball alone is enough: measured on 2026-11-11 on a tarball packed from that change, `npm install --offline` with an empty cache installed it, one package on disk |
 | `npx --yes runward@X.Y.Z`, which the agent hooks (`wire --install`), the CI templates and the samples of `runward/adapters/` use | the registry, whenever that version is not installed | install exactly that version: from inside the directory that holds it, `npx` ran it with no network and an empty cache, and with no install it failed (`ENOTFOUND`); [distribution.md](distribution.md) records the same on an earlier npm. The samples `init` writes are stamped with its version since 0.45.0; older ones run a bare `npx --yes runward`, whatever version the registry or a global install gives, until `runward update` re-pins them, as it did on this repository's own mission on 2026-11-06. `report` and `report --format md` print their replay command as `npx runward@X.Y.Z …`, without `--yes` |
 | The Action, `uses: stranxik/runward@<sha>` | GitHub, from which the runner fetches the Action; then the registry, through `npx`, for `version:`, which defaults to `latest` | a runner that reaches GitHub and a registry or a mirror; pin both the commit and `version:` (not measured) |
 | The GitLab template | through `include: remote:`, GitHub, from which the instance fetches the release asset `runward-gitlab-gate-X.Y.Z.yml` (its `version` pinned to X.Y.Z), so an instance that cannot reach GitHub cannot load it; the template itself, `templates/ci/gitlab/runward-gate.yml`, defaults `version` to `latest`; either way its job installs runward through `npx`, from the registry | a copy on your instance through `include: project:` ([gitlab.md](gitlab.md), option B), a pinned `version`, and a registry or a mirror the job reaches (not measured here) |
@@ -157,6 +162,11 @@ packages, and `npx --yes runward@0.46.0` then ran this install with no network. 
 `verify` with the network denied. The bench of [gitlab-bench.md](gitlab-bench.md) does the same every week
 in a CI pipeline that has no registry: a tarball, a packed npm cache, `npm install --offline`,
 `runward check --strict`.
+
+From the first release after ADR-0129 the cache is not needed: runward has no runtime dependency, so
+`npm install --offline ./runward-X.Y.Z.tgz` installs from the file alone (measured on 2026-11-11 on a
+tarball packed from that change, with an empty cache: one package on disk, `runward --version` answers),
+and the paragraph below has no third-party package left to speak of.
 
 What this route does not check: Step 3 verifies runward's tarball, and no step of it establishes where
 the 27 third-party packages the cache carries came from (online, `npm audit signatures`, Step 1 of the
