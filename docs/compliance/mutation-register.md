@@ -2857,99 +2857,6 @@ Holes: 73 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 | ---: | ------- | ------- | -------- | ---- |
 | 263 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
 
-## Module: verdict
-
-Survivors: 70
-
-Holes: 56 · Equivalent: 10 · Display-only: 2 · Defence-in-depth: 2
-
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `afe6d4026179…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
-
-### computeVerdict — 59 survivor(s): 54 hole · 5 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 211 | ConditionalExpression | `true` | equivalent | Invariant: throughIndex === -1 exists ONLY if opts.through is non-null (a null/undefined through gives throughIndex null, not -1) — the removed conjunct is implied by the other. Measured: 0 delta ove… |
-| 212 | StringLiteral | `""` | hole | The fail-loud remediation becomes unreadable. Measured on the real CLI: `runward verify` on an attestation whose predicate.through='bogus' (unsigned bytes, modifiable by construction): shipped "✗ unk… |
-| 221 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-| 221 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-| 221 | LogicalOperator | `charter === null && sample === null` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-| 229 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | ArrowFunction | `() => undefined` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | EqualityOperator | `x.status !== "passed"` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | EqualityOperator | `x.status !== "rejected"` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | EqualityOperator | `x.status !== "control-missed"` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | LogicalOperator | `[...sample.ledger.samples].reverse().find(x…` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | LogicalOperator | `(x.status === "passed" \|\| x.status === "rej…` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | LogicalOperator | `x.status === "passed" && x.status === "reje…` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | MethodExpression | `[...sample.ledger.samples]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 231 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 254 | ArithmeticOperator | `g.strictGaps + proposedHere` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 262 | ArithmeticOperator | `corpus.missing.length + corpus.edited.lengt…` | hole | Same class: measured on extra-only "1 rule-corpus divergence(s)" → "-1" (and edited+extra skewed), exit/JSON unchanged. The same absence of a corpus case in the sums test, and the summary — the sente… |
-| 278 | AssignmentOperator | `strictBreakdown.corpus -= 1` | hole | Lock removed: strictGaps does rise (+1, exit 1 kept) but the summary prints "-1 rule-corpus divergence(s)" instead of "1" — measured on the nolock fixture, the only delta in the battery. The unit tes… |
-| 287 | ConditionalExpression | `true` | equivalent | Invariant: every producer of present:false carries violations:[] — verifyEvidenceLock (file absent) and the --freeze placeholder — so the added += is always worth 0. Measured: 0 delta over 39 probes,… |
-| 308 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-| 308 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-| 308 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-| 308 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-| 308 | LogicalOperator | `charter !== null \|\| delegation !== null` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-| 308 | LogicalOperator | `charter !== null && delegation !== null \|\| …` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-| 321 | ConditionalExpression | `true` | equivalent | true && throughIndex!==null ≡ throughIndex!==null, equivalent by the same correlation (the left conjunct is implied by the right one after the throw). Measured 0 delta over 39 probes; sensitivity pro… |
-| 321 | ConditionalExpression | `true` | equivalent | opts.through!=null && true ≡ opts.through!=null, equivalent by the reverse correlation (the right conjunct is implied by the left one: a valid through always gives an ordinal). Measured 0 delta over … |
-| 321 | LogicalOperator | `opts.through != null \|\| throughIndex !== nu…` | equivalent | On this line the two conjuncts are perfectly correlated: null through ⇒ throughIndex null; non-null through ⇒ throughIndex ≥ 0 (the -1 is eliminated by the fail-loud throw upstream) — && and \|\| compu… |
-| 328 | ObjectLiteral | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 329 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 330 | ArrayDeclaration | `["Stryker was here"]` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 333 | ArrowFunction | `() => undefined` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061745… |
-| 333 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061745… |
-| 333 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061745… |
-| 333 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061745… |
-| 333 | EqualityOperator | `gatedOrdinal(phase) < throughIndex` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061745… |
-| 333 | EqualityOperator | `gatedOrdinal(phase) > throughIndex` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061745… |
-| 334 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061745… |
-| 334 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061745… |
-| 334 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061745… |
-| 339 | ArrayDeclaration | `["Stryker was here"]` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 339 | BooleanLiteral | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 340 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 343 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 353 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 353 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 353 | LogicalOperator | `!contract && contract.gate !== "strict"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 361 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 368 | ArithmeticOperator | `workflowContract.malformed.length + workflo…` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 291, the machine payload of `check --strict --json` on the `declencheur` probe mission DIFFERS from the pristine build — the observable… |
-| 368 | ArithmeticOperator | `workflowContract.malformed.length - workflo…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-### judgeGated — 9 survivor(s): 5 equivalent · 2 display-only · 2 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 135 | ConditionalExpression | `false` | display-only | A proposal's evidence problems are also appended to the text of ANOTHER violation of the same rule (measured: the duplicate-row violation of hexa-architecture in `props` gains the sentence `Its evide… |
-| 139 | StringLiteral | `""` | display-only | The separator between two evidence problems of one proposal disappears. 2 of 21 cases differ (security-code-execution-sandbox, two dead pointers), only in the `problem` field and the printed line. Be… |
-| 145 | BlockStatement | `{}` | equivalent | A dead branch, like its neighbours already instructed on the same line: EXPECTED_MAPPED pins a non-zero floor for each of the five gated phases, so `expected.length === 0` always comes with the mappi… |
-| 145 | ConditionalExpression | `false` | equivalent | Dead branch: EXPECTED_MAPPED (dist/lib/constants.js, owned by the package, out of the mission's reach) pins the five gated phases at 6/4/10/12/4, so expected.length===0 always entails the (mapping) v… |
-| 145 | ConditionalExpression | `true` | defence-in-depth | The skip swallows the (mapping) violation as soon as expected is empty. Measured: shipped corpus vendored through `runward update --corpus` with govern removed from every phases: → shipped exit 1 "on… |
-| 145 | EqualityOperator | `violations.length !== 0` | defence-in-depth | The condition becomes "expected empty AND violations present" — exactly the state the comment forbids skipping. The same false green measured: strippedgov exit 1 → 0 (json and text). LEG NAMED AND RE… |
-| 146 | ArrayDeclaration | `["Stryker was here"]` | equivalent | A literal in the dead branch, never evaluated in practice (the push is unreachable: EXPECTED_MAPPED forces the (mapping) violation when expected is empty). Measured 0 delta over 39 probes; skipped==0… |
-| 146 | BooleanLiteral | `false` | equivalent | Same dead branch, same demonstration (EXPECTED_MAPPED + 0 delta measured + skipped==0 on 16 fixtures) and same sensitivity control (neighbouring mutant detected exit 1→0). The flag cannot be observed… |
-| 146 | ObjectLiteral | `{}` | equivalent | In the dead branch: the push never runs (EXPECTED_MAPPED demonstration + skipped==0 measured everywhere, 0 delta over 39 probes). Sensitivity: the same control as above (the neighbouring if, mutated,… |
-
-### countGaps — 2 survivor(s): 2 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 98 | ConditionalExpression | `true` | hole | deferredGaps counts every deferred row, filled ones included: measured on a green mission + `--through frame --json`: gaps.deferred 0 → 11 on a fully filled arc (exit 0 for both) — a CI reading the r… |
-| 98 | StringLiteral | `""` | hole | state !== "" always true: measured behaviour identical to the previous one (gaps.deferred 0 → 11 on green --through frame, 5→5 on mid-construction, exits unchanged). Same recipe, same missing asserti… |
-
 ## Module: delegation-sample
 
 Survivors: 67
@@ -3327,6 +3234,147 @@ Holes: 11 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
 | 197 | ArrowFunction | `() => undefined` | equivalent | The mapped VALUES are never read: tomlStringList has exactly one call site (dist/lib/territory.js:300) which uses only `crons === null` and `crons.length`, and `.map` preserves length. Measured: five… |
 | 197 | LogicalOperator | `m[1] && m[2]` | equivalent | `m[1] && m[2]` changes each element's value but not the array's length, and the single call site reads only null-ness and length. Measured: the same five crafted cron fixtures and 1 200 fuzzed manife… |
 
+## Module: attestation
+
+Survivors: 35
+
+Holes: 23 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 0
+
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `afe6d4026179…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+
+### buildDigest — 12 survivor(s): 12 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 120 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 123 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 123 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 123 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 123 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 125 | BooleanLiteral | `existsSync(abs)` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 125 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 125 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 128 | StringLiteral | `ˋˋ` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 130 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 130 | MethodExpression | `Object.keys(files)` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 130 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+
+### hashTree — 7 survivor(s): 7 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 59 | ArrowFunction | `() => undefined` | equivalent | A comparator that returns undefined counts as 0 for Array.sort (ToNumber -> NaN -> 0): a no-op stable sort = readdir order = mutant 9. Same argument (canonicalisation re-sorts, content independent of… |
+| 59 | ConditionalExpression | `true` | equivalent | Inconsistent comparator = an arbitrary but deterministic permutation of the traversal; the content of the map does not depend on the order and missionStateDigest re-sorts the keys. Measured: bytes id… |
+| 59 | ConditionalExpression | `false` | equivalent | Same class as mutant 11: only the traversal order moves, the content is identical, canonicalisation re-sorts. Measured: bytes identical to shipped everywhere, digest and sensitivity unchanged. Positi… |
+| 59 | EqualityOperator | `a.name <= b.name` | equivalent | The names within one directory are unique (readdir): the equality case does not even exist, the mutated comparator is pointwise identical to shipped. Measured: identical bytes everywhere. Positive co… |
+| 59 | EqualityOperator | `a.name >= b.name` | equivalent | Reversed traversal: a pure permutation, identical map content, keys re-sorted at canonicalisation. Measured: bytes identical to shipped on M0 and the 9 altered trees, idempotent. Positive control: 8/… |
+| 59 | MethodExpression | `readdirSync(dir, { withFileTypes: true })` | equivalent | hashTree has only one consumer, missionStateDigest, which RE-SORTS every key at canonicalisation; the content of the map is independent of the traversal order (unique rel keys, no collision). Measure… |
+| 59 | UnaryOperator | `+1` | equivalent | Identical in effect to mutant 12 (constant comparator): traversal order permuted, content unchanged, canonicalisation re-sorts. Measured: bytes identical to shipped everywhere, identical digest, sens… |
+
+### buildBundleStatement — 5 survivor(s): 5 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 43 | ConditionalExpression | `true` | equivalent | The comparator becomes a\<b?-1:1: identical to shipped on distinct names, only differs on ties (1 instead of 0), unreachable (CLI deduplication). Measured: NO difference anywhere — including the equal… |
+| 43 | ConditionalExpression | `false` | equivalent | The comparator becomes a\<b?-1:0 ("less/not less" only). Measured on the CLI's real V8: zero divergence over 720 seeded permutations covering binary insertion AND TimSort merging (sizes 2,3,5,8,13,21,… |
+| 43 | EqualityOperator | `a.name <= b.name` | equivalent | Only differs on subjects with the SAME name (equality -> -1 instead of 0, the stable sort reorders the ties). Measured sensitivity control: the direct function probe with equal names/distinct digests… |
+| 43 | EqualityOperator | `a.name >= b.name` | equivalent | On distinct names, >= equals >: pointwise identical to shipped; only equality differs (1 instead of 0), unreachable (CLI deduplication, unique readdir names). Measured: no difference, including the e… |
+| 43 | EqualityOperator | `a.name <= b.name` | equivalent | On distinct names this reduces to a\<b?-1:0 — the same function as mutant 4; ties -> 1, unreachable. Measured: zero divergence (720 permutations up to 512, CLI bundles of 40/600, equal-names probe, by… |
+
+### missionStateScope — 4 survivor(s): 4 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 101 | MethodExpression | `Object.keys(files)` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 104 | MethodExpression | `keys` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 105 | MethodExpression | `keys` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 105 | MethodExpression | `k.endsWith(prefix)` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+
+### npmPurl — 3 survivor(s): 3 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 136 | MethodExpression | `name.endsWith("@")` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 136 | MethodExpression | `name` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 136 | StringLiteral | `ˋˋ` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+
+### deliveredTreeOf — 2 survivor(s): 2 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 207 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 207 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+
+### isRunwardStatement — 2 survivor(s): 2 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 165 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+| 171 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42858343… |
+
+## Module: verdict
+
+Survivors: 35
+
+Holes: 33 · Equivalent: 0 · Display-only: 2 · Defence-in-depth: 0
+
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `afe6d4026179…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+
+### computeVerdict — 25 survivor(s): 25 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 280 | StringLiteral | `""` | hole | The fail-loud remediation becomes unreadable. Measured on the real CLI: `runward verify` on an attestation whose predicate.through='bogus' (unsigned bytes, modifiable by construction): shipped "✗ unk… |
+| 297 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | ArrowFunction | `() => undefined` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | EqualityOperator | `x.status !== "passed"` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | EqualityOperator | `x.status !== "rejected"` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | EqualityOperator | `x.status !== "control-missed"` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | LogicalOperator | `[...sample.ledger.samples].reverse().find(x…` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | LogicalOperator | `(x.status === "passed" \|\| x.status === "rej…` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | LogicalOperator | `x.status === "passed" && x.status === "reje…` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | MethodExpression | `[...sample.ledger.samples]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 299 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
+| 347 | AssignmentOperator | `strictBreakdown.corpus -= 1` | hole | Lock removed: strictGaps does rise (+1, exit 1 kept) but the summary prints "-1 rule-corpus divergence(s)" instead of "1" — measured on the nolock fixture, the only delta in the battery. The unit tes… |
+| 404 | ObjectLiteral | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 410 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061745… |
+| 410 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061745… |
+| 410 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061745… |
+
+### withinHorizon — 6 survivor(s): 6 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 113 | ArrowFunction | `() => undefined` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42878769… |
+| 113 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42878769… |
+| 113 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42878769… |
+| 113 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42878769… |
+| 113 | EqualityOperator | `gatedOrdinal(phase) < throughIndex` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42878769… |
+| 113 | EqualityOperator | `gatedOrdinal(phase) > throughIndex` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42878769… |
+
+### countGaps — 2 survivor(s): 2 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 155 | ConditionalExpression | `true` | hole | deferredGaps counts every deferred row, filled ones included: measured on a green mission + `--through frame --json`: gaps.deferred 0 → 11 on a fully filled arc (exit 0 for both) — a CI reading the r… |
+| 155 | StringLiteral | `""` | hole | state !== "" always true: measured behaviour identical to the previous one (gaps.deferred 0 → 11 on green --through frame, 5→5 on mid-construction, exits unchanged). Same recipe, same missing asserti… |
+
+### judgeGated — 2 survivor(s): 2 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 201 | ConditionalExpression | `false` | display-only | A proposal's evidence problems are also appended to the text of ANOTHER violation of the same rule (measured: the duplicate-row violation of hexa-architecture in `props` gains the sentence `Its evide… |
+| 205 | StringLiteral | `""` | display-only | The separator between two evidence problems of one proposal disappears. 2 of 21 cases differ (security-code-execution-sandbox, two dead pointers), only in the `problem` field and the printed line. Be… |
+
 ## Module: ratify
 
 Survivors: 33
@@ -3702,42 +3750,6 @@ Holes: 5 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 | ---: | ------- | ------- | -------- | ---- |
 | 26 | MethodExpression | `s` | equivalent | TRIVIAL's only call site passes `why`, which is `rest.join(" \| ").trim()`, so its argument is already trimmed and String#trim is idempotent. Measured: 1008 padded values over twelve whitespace code p… |
 | 26 | MethodExpression | `s` | equivalent | Second occurrence of the same idempotence: TRIVIAL is called only with `why`, itself the result of `.trim()`, so `/^\[.*\]$/.test(s.trim())` and `.test(s)` receive the same string. Measured: 1008 pad… |
-
-## Module: attestation
-
-Survivors: 13
-
-Holes: 0 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
-
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `afe6d4026179…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
-
-### hashTree — 7 survivor(s): 7 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 54 | ArrowFunction | `() => undefined` | equivalent | A comparator that returns undefined counts as 0 for Array.sort (ToNumber -> NaN -> 0): a no-op stable sort = readdir order = mutant 9. Same argument (canonicalisation re-sorts, content independent of… |
-| 54 | ConditionalExpression | `true` | equivalent | Inconsistent comparator = an arbitrary but deterministic permutation of the traversal; the content of the map does not depend on the order and missionStateDigest re-sorts the keys. Measured: bytes id… |
-| 54 | ConditionalExpression | `false` | equivalent | Same class as mutant 11: only the traversal order moves, the content is identical, canonicalisation re-sorts. Measured: bytes identical to shipped everywhere, digest and sensitivity unchanged. Positi… |
-| 54 | EqualityOperator | `a.name <= b.name` | equivalent | The names within one directory are unique (readdir): the equality case does not even exist, the mutated comparator is pointwise identical to shipped. Measured: identical bytes everywhere. Positive co… |
-| 54 | EqualityOperator | `a.name >= b.name` | equivalent | Reversed traversal: a pure permutation, identical map content, keys re-sorted at canonicalisation. Measured: bytes identical to shipped on M0 and the 9 altered trees, idempotent. Positive control: 8/… |
-| 54 | MethodExpression | `readdirSync(dir, { withFileTypes: true })` | equivalent | hashTree has only one consumer, missionStateDigest, which RE-SORTS every key at canonicalisation; the content of the map is independent of the traversal order (unique rel keys, no collision). Measure… |
-| 54 | UnaryOperator | `+1` | equivalent | Identical in effect to mutant 12 (constant comparator): traversal order permuted, content unchanged, canonicalisation re-sorts. Measured: bytes identical to shipped everywhere, identical digest, sens… |
-
-### buildBundleStatement — 5 survivor(s): 5 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 38 | ConditionalExpression | `true` | equivalent | The comparator becomes a\<b?-1:1: identical to shipped on distinct names, only differs on ties (1 instead of 0), unreachable (CLI deduplication). Measured: NO difference anywhere — including the equal… |
-| 38 | ConditionalExpression | `false` | equivalent | The comparator becomes a\<b?-1:0 ("less/not less" only). Measured on the CLI's real V8: zero divergence over 720 seeded permutations covering binary insertion AND TimSort merging (sizes 2,3,5,8,13,21,… |
-| 38 | EqualityOperator | `a.name <= b.name` | equivalent | Only differs on subjects with the SAME name (equality -> -1 instead of 0, the stable sort reorders the ties). Measured sensitivity control: the direct function probe with equal names/distinct digests… |
-| 38 | EqualityOperator | `a.name >= b.name` | equivalent | On distinct names, >= equals >: pointwise identical to shipped; only equality differs (1 instead of 0), unreachable (CLI deduplication, unique readdir names). Measured: no difference, including the e… |
-| 38 | EqualityOperator | `a.name <= b.name` | equivalent | On distinct names this reduces to a\<b?-1:0 — the same function as mutant 4; ties -> 1, unreachable. Measured: zero divergence (720 permutations up to 512, CLI bundles of 40/600, equal-names probe, by… |
-
-### RUNWARD_PREDICATE_TYPE — 1 survivor(s): 1 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 27 | StringLiteral | `""` | defence-in-depth | Leg: intoto-schema — REPLAYED, exit 1, two red asserts: the vendored schema (predicateType minLength 1 + format uri) and the literal assert === "https://runward.dev/verdict/v1". The units survive str… |
 
 ## Module: rules
 

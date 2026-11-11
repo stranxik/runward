@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "38|50|38|65|EqualityOperator|a.name <= b.name",
-   "line": 38,
+   "key": "43|50|43|65|EqualityOperator|a.name <= b.name",
+   "line": 43,
    "mutator": "EqualityOperator",
    "filing": "equivalent",
    "evidence": "Only differs on subjects with the SAME name (equality -> -1 instead of 0, the stable sort reorders the ties). Measured sensitivity control: the direct function probe with equal names/distinct digests DETECTS the reordering (order sequences ≠ shipped on fixed seeds) — so the probe sees; but this case is unreachable: bundleCommand deduplicates by name (seen.has -> continue) and readdir never repeats a name. On distinct names, pointwise identical: 720 permutations (sizes 2..512), CLI bundles of 40 and 600 files, independence from argument order — bytes identical to shipped.",
@@ -12,8 +12,8 @@
    "stableKey": "attestation\u0001buildBundleStatement\u0001EqualityOperator\u0001a.name <= b.name\u0001a.name < b.name\u0001const sorted = [...subjects].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));"
   },
   {
-   "key": "38|73|38|88|ConditionalExpression|true",
-   "line": 38,
+   "key": "43|73|43|88|ConditionalExpression|true",
+   "line": 43,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "The comparator becomes a<b?-1:1: identical to shipped on distinct names, only differs on ties (1 instead of 0), unreachable (CLI deduplication). Measured: NO difference anywhere — including the equal-names probe (V8's insertion treats \"not less than\" the same for 0 and 1), 720 permutations, bundles of 40/600 files, identical bytes. Positive control: the same probe lights up under mutant 2.",
@@ -21,8 +21,8 @@
    "stableKey": "attestation\u0001buildBundleStatement\u0001ConditionalExpression\u0001true\u0001a.name > b.name\u0001const sorted = [...subjects].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));"
   },
   {
-   "key": "38|73|38|88|ConditionalExpression|false",
-   "line": 38,
+   "key": "43|73|43|88|ConditionalExpression|false",
+   "line": 43,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "The comparator becomes a<b?-1:0 (\"less/not less\" only). Measured on the CLI's real V8: zero divergence over 720 seeded permutations covering binary insertion AND TimSort merging (sizes 2,3,5,8,13,21,22,23,32,64,128,512), sorted reversed-64, CLI bundles of 40 and 600 artifacts sorted and independent of argument order, bytes identical to shipped; ties (0 instead of 1) are unreachable (deduplication). Positive control: harness sensitive (mutant 2).",
@@ -30,8 +30,8 @@
    "stableKey": "attestation\u0001buildBundleStatement\u0001ConditionalExpression\u0001false\u0001a.name > b.name\u0001const sorted = [...subjects].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));"
   },
   {
-   "key": "38|73|38|88|EqualityOperator|a.name >= b.name",
-   "line": 38,
+   "key": "43|73|43|88|EqualityOperator|a.name >= b.name",
+   "line": 43,
    "mutator": "EqualityOperator",
    "filing": "equivalent",
    "evidence": "On distinct names, >= equals >: pointwise identical to shipped; only equality differs (1 instead of 0), unreachable (CLI deduplication, unique readdir names). Measured: no difference, including the equal-names probe, 720 permutations, bundles of 40/600, identical bytes. Positive control: mutant 2 lights up the same probe.",
@@ -39,8 +39,8 @@
    "stableKey": "attestation\u0001buildBundleStatement\u0001EqualityOperator\u0001a.name >= b.name\u0001a.name > b.name\u0001const sorted = [...subjects].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));"
   },
   {
-   "key": "38|73|38|88|EqualityOperator|a.name <= b.name",
-   "line": 38,
+   "key": "43|73|43|88|EqualityOperator|a.name <= b.name",
+   "line": 43,
    "mutator": "EqualityOperator",
    "filing": "equivalent",
    "evidence": "On distinct names this reduces to a<b?-1:0 — the same function as mutant 4; ties -> 1, unreachable. Measured: zero divergence (720 permutations up to 512, CLI bundles of 40/600, equal-names probe, bytes identical to shipped). Positive control: harness validated on mutant 2.",

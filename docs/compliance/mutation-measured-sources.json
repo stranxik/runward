@@ -11,9 +11,9 @@
   "modules": [
     {
       "module": "attestation",
-      "sha256": "95435d1d1714e1dd253aeb67e329acdb2364146e8d822d260fc405658f77884a",
-      "run": "41823722757",
-      "measuredAt": "2026-11-04"
+      "sha256": "c826bd38d2cbbc317990de5ebfd03d3014a7a660bb340e2db5698ee23d8922d3",
+      "run": "42858343808",
+      "measuredAt": "2026-11-10"
     },
     {
       "module": "check-contract",
@@ -131,9 +131,9 @@
     },
     {
       "module": "verdict",
-      "sha256": "a7d59a4bf30d297b3231bb881cb5f9b0820eba582d1f9b4dc9889bd876135421",
-      "run": "40617452545",
-      "measuredAt": "2026-10-28"
+      "sha256": "a1ece978e6aa2a48c52b1496deffccc5afe86b0b8fc6d6befff5ac7a5b39d01a",
+      "run": "42878769502",
+      "measuredAt": "2026-11-10"
     },
     {
       "module": "verify-findings",
