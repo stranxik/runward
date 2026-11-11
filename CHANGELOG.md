@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+### runward-fleet places each application on the six steps of the method, side by side and over time (ADR-0126, proposed)
+
+`runward-fleet/mission` is a new module of `runward-fleet`, with its views and a closed lexicon in English and
+French. `path(index, id)` gives an application's six steps (Frame, Architect, Floor, Iterate, Govern, Hand over;
+in French Cadrer, Architecturer, Plancher, Itérer, Gouverner, Transmettre): each reads "Crossed", "Documents
+complete", "Refused at this step", "Current step", "Not reached yet" or "Not asked by the gate", with its
+documents filled and its refusals as n / N, the documents missing with their state and cause, and the refusals
+by kind; the refusals that belong to no step are listed apart. The current step is the CLI's own: the first
+whose documents are not all filled. A step is crossed only where its documents are filled, nothing is refused
+at it, and the check is strict with a verdict that judges the answers: below the level the team requires, under
+a presence-only check or a check that writes no state, it reads "Documents complete" and says why. Step 4 is
+never crossed. `portfolio(index)` maps applications by step, each step's readings counted over every application
+declared. `point(index)` is one version's compact summary for a history, and `series(entries)` the series of
+points over the versions a service received: in the order of `seq`, an erased version a hole that breaks a run,
+a change of the runward version that judged marked, and since when the last state and position hold.
+`renderPath`, `renderPortfolio` and `renderSeries` give their HTML, whose elements carry style roles.
+
+The projections read `runward-fleet-index/0` as it is and add nothing to it: every version a service already
+keeps has its path and its point, and an index written before refusals carried their phase reads the same steps
+(the gated scope names it). A document, a refusal and an application's state are named as the decision reading
+names them. Six rules, M1 to M6, are held by `test/unit/fleet-mission.test.js` with planted controls, among them
+the steps of the five real exports of the decision reading agreeing with the CLI's own words for them. The closed
+values gain a `mission` section (`docs/spec/runward-closed-values.json`), and the specification is
+`docs/spec/runward-fleet-mission.md`. The static page does not show these views yet. The satellite's boundary
+test now walks every module of `ui/`.
+
 ### The decision reading groups the refusals by kind and by text, and lists the refused applications first (ADR-0128, proposed)
 
 An application's page of the decision reading said every refusal with its text in full: the 46 refusals of a

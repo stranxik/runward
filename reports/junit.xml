@@ -879,9 +879,6 @@
 	<testcase name="nothing is blocking is never shown without the team's requirements and the date of the last check; taken out, it reddens" classname="test"/>
 	<testcase name="the refused state of the renaming demonstration: every sentence from closed fields, the check's text shown as written and never read" classname="test"/>
 	<testcase name="the line of each refusal is the export's, projected into the index and tied to it on the page; a planted line reddens" classname="test"/>
-	<testcase name="grouped, no refusal is hidden: every refusal of the real exports is listed once, under its own text, with the index's n / N; one dropped from the page or from a group reddens, and the build refuses it" classname="test"/>
-	<testcase name="the applications are listed refused first, then level not met, then the others, in the order of the index's groupings; every state keeps its tile, 0 / N included" classname="test"/>
-	<testcase name="the check's detail is labelled as the validated screens label it, without naming its language; its text keeps lang=&quot;en&quot;" classname="test"/>
 	<testcase name="how rows were endorsed: groups n / N from the index, partitioning the decided rows; no view computes a denominator" classname="test"/>
 	<testcase name="a row endorsed by an agent is worded as an agent's, under the person declared, never as a person's mode; a planted one is caught" classname="test"/>
 	<testcase name="names can be left out of an index: no declared person reaches it, the agent's line says the name is not published; a name left in a text is refused" classname="test"/>
@@ -908,6 +905,20 @@
 	<testcase name="checkPage, script tags that never end: 1,000,000 characters read in linear time" classname="test"/>
 	<testcase name="normRepo, a run of slashes (CodeQL; 7.8 s at 100,000 before): 1,000,000 characters read in linear time" classname="test"/>
 	<testcase name="md, comment openers that never close (CodeQL): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="the steps of the five real exports agree with the CLI's own words: the current step it names, the phases it says are red, nothing crossed below the level required" classname="test"/>
+	<testcase name="step 4 is never said crossed, and no step is crossed under a check that does not read the answers or below the level required; planted, both redden" classname="test"/>
+	<testcase name="every grouping is n / N with the index path of each item it counts, and the steps partition the documents and the refusals; a planted count reddens" classname="test"/>
+	<testcase name="every number a view shows is the projection's value at the path it names, in both languages, with its denominator; planted, a number and a bare count redden" classname="test"/>
+	<testcase name="the lexicon holds no word runward never says and names no reading as a decision taken, in both languages, which hold the same keys; each planted breach reddens" classname="test"/>
+	<testcase name="the specification shows the lexicon as it ships, in both languages; a sentence changed in the code and not in the specification reddens" classname="test"/>
+	<testcase name="the closed values of the projections are the module's, every phase the CLI writes is on exactly one step, and every value has its sentence in both languages; a phase without a step reddens" classname="test"/>
+	<testcase name="an index written before refusals carried their phase reads the same steps; an explicit null phase belongs to no step" classname="test"/>
+	<testcase name="a value the lexicon does not know is shown as written, escaped, never dropped and never guessed" classname="test"/>
+	<testcase name="an application without a check read has its own state and no step, and is listed and counted, never filtered" classname="test"/>
+	<testcase name="the point of a version is compact, a pure function of the index, and reads an index built before refusals carried their phase" classname="test"/>
+	<testcase name="the series: the versions received in the order of seq, since when from the last run, a hole breaking it, a change of judging version marked" classname="test"/>
+	<testcase name="the projections of real exports are golden, in both languages, and the same through the package's exports" classname="test"/>
+	<testcase name="the module imports the package's views and nothing else, and reads no clock" classname="test"/>
 	<testcase name="runward-fleet ships at runward's version, private to npm, with no dependency and no script" classname="test"/>
 	<testcase name="the runward-fleet tarball holds its modules, its page, its fonts with their licenses, README, package.json and LICENSE, nothing else" classname="test"/>
 	<testcase name="the fleet Action builds from this repository's package, passes its inputs through the environment, pins every action, reads no secret" classname="test"/>
@@ -2299,9 +2310,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2295 -->
+	<!-- tests 2306 -->
 	<!-- suites 0 -->
-	<!-- pass 2294 -->
+	<!-- pass 2305 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->
