@@ -28,7 +28,9 @@ asset only until its npm bootstrap (Step 9), and, from the first release that ca
 From the first release after [ADR-0116](adr/ADR-0116-what-a-user-installs-is-what-the-release-tested-the-tarball-bundles-its-dependencies-the-sbom-is-the-packages-and-no-signing-job-runs-the-build.md),
 the tarball carries its runtime dependencies at the versions of the tag's lockfile, and the SBOM is
 the package's own, which you derive again yourself (Step 10); until then it was a scan of the
-repository.
+repository. From the first release after [ADR-0129](adr/ADR-0129-runward-has-no-runtime-dependency-the-argument-parser-the-terminal-colours-and-inits-questions-are-written-in-the-package-on-nodejs-built-ins.md),
+runward has no runtime dependency: the tarball carries the package alone, and the SBOM lists no
+component beside it.
 
 Substitute the version you are verifying for `0.33.3` throughout.
 
@@ -388,6 +390,12 @@ writes nothing, when the tarball's bundle is not the lockfile's runtime tree (a 
 added, another path, version or declared licence), naming each difference. Releases up to v0.46.0
 attached a scan of the repository instead (Syft, `metadata.component` named `.`), which no derivation
 reproduces.
+From the first release after ADR-0129 runward has no runtime dependency: the lockfile's runtime tree
+is empty, the tarball holds no `node_modules`, and the SBOM's `components` list is empty. The same
+command re-derives it, and still refuses a tarball that bundles a package the lockfile does not explain.
+You can read the absence yourself: `tar -tzf runward-X.Y.Z.tgz | grep -c '^package/node_modules/'`
+prints `0`, and `npm ls --all` in a project that installed it shows `runward@X.Y.Z` alone.
+
 **Proves**: the SBOM that Steps 2 and 3 verify the attestation of describes this tarball, and the
 tarball bundles exactly the packages, at exactly the versions, that the release's tests ran on.
 **Does not prove**: that the bundled files are byte for byte the registry tarballs the SBOM hashes
@@ -411,7 +419,7 @@ signatures rest on a different one.
 The only verification in this list that is independent of that chain is rebuilding: check out the
 attested commit, `npm ci && npm run build && npm pack`, and compare digests. From the first release
 after ADR-0116 the tarball bundles its runtime dependencies from the tree `npm ci` installed, so the
-same commands rebuild those bytes too. Byte-for-byte identity
+same commands rebuild those bytes too; from the first release after ADR-0129 there is none to bundle. Byte-for-byte identity
 was established by hand, rebuilt on macOS against the tarball CI packed on Ubuntu, for two releases:
 0.33.0 on 2026-08-06 (`docs/compliance/regulated-adoption.md`, Reproducibility row) and 0.33.5 on
 2026-08-12 ([ADR-0049](adr/ADR-0049-the-build-is-isolated-from-the-publish.md), Consequences). From

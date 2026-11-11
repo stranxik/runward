@@ -8,7 +8,7 @@ The floor is the complete CLI at v0.18.1. The six generic floor components map o
 
 | Component | Status | Notes |
 |---|---|---|
-| Entry point (CLI, `commander`) | shipped | `init`, `check`, `status`, `doctor`, `update`, `characterize`, `manifest`, `rules`, `explain`, `compliance` — exit codes 0/1/2 as the machine contract |
+| Entry point (CLI, `src/cli.ts` on `src/lib/cli-args.ts`) | shipped | `init`, `check`, `status`, `doctor`, `update`, `characterize`, `manifest`, `rules`, `explain`, `compliance` — exit codes 0/1/2 as the machine contract |
 | Orchestration | shipped | thin command handlers in `src/commands/` compose pure functions from `src/lib/`; no business logic in the handlers |
 | Model port | none, by invariant | the verdict is zero-LLM (docs/adr/ADR-0001); there is deliberately no model anywhere in this system |
 | Persistence | shipped | the operator's own files under version control: `runward/` markdown, `evidence-lock.json` seals; runward holds no state of its own between runs |

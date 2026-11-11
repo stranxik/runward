@@ -2,6 +2,41 @@
 
 ## Unreleased
 
+### runward has no runtime dependency (ADR-0129, proposed)
+
+`npm install runward` now installs runward and nothing else. Up to 0.47.0 it came with three declared
+dependencies (`commander`, `chalk`, `@inquirer/prompts`) and 24 more behind them, 27 packages by other
+hands in the process that prints the verdict. Each was used in one file; the three are now written in
+the package, on Node.js built-ins: the argument parser and the help (`src/lib/cli-args.ts`, on
+`util.parseArgs`), the terminal colours (`src/lib/styles.ts`), and the questions of `runward init`
+(`src/lib/prompt.ts`, on `node:readline`). Development dependencies are unchanged: they run where
+runward is built and tested, not where it is installed.
+
+What does not change, compared with 0.46.0 before the change: the help of the program and of each
+command at every terminal width, each usage error's sentence, each exit code (193 recorded cases, byte
+for byte, now a test: `test/unit/cli-usage-golden.test.js`); what each command receives from its
+arguments (3,052 argument lists run through both versions, no difference); the colours and where they
+are switched off (`NO_COLOR`, `--no-color`, `FORCE_COLOR`, an output that is not a terminal; 86
+environments compared, no difference); `init --yes` and `init` without a terminal, byte for byte.
+
+What changes: at a terminal, `runward init` asks its questions as numbered lists answered by a number
+and Enter (several numbers for the tool profiles, Enter alone for the default), where it had menus
+moved with the arrow keys. The questions, their order, their defaults and what is written are the same.
+Ctrl-C at a question still exits 1 and writes nothing; its sentence is now runward's ("interrupted at a
+question (Ctrl-C): no answer was taken").
+
+The tarball carries no `node_modules` (845,804 bytes packed from this change; 1,227,496 with the bundle
+of ADR-0116), installs offline from the file with an empty npm cache, and its SBOM lists the package
+alone; `scripts/package-sbom.mjs` is unchanged and still refuses a bundle the lockfile does not explain.
+`test/unit/zero-runtime-dependencies.test.js` fails if `package.json` declares a runtime dependency, if
+the lockfile's runtime tree is not empty, or if a module of the build imports anything but a Node.js
+built-in or one of the package's own files.
+
+What this does not do: the build and the tests still run the development dependencies, and Node.js, npm
+and the operating system are still what runward runs on. The three modules (about 780 lines) are read
+by this repository's tests; they have had no outside review. The record is proposed: it becomes accepted
+with the maintainer's approval.
+
 ### runward-fleet renders a mission's documents from a closed subset of Markdown, and reads the register of its decision records (ADR-0127)
 
 A new module, `runward-fleet/documents` (`ui/documents.js`), for a deployment that shows a mission's own

@@ -5,7 +5,7 @@ The generic reference stack (model gateway, persistence tiers, identity, observa
 | Layer | Choice in use | Evolution trigger |
 |---|---|---|
 | Language & runtime | TypeScript strict, ESM, Node ≥ 20; plain `tsc` build, no bundler | a capability that genuinely needs another runtime — none identified; a bundler only if install size becomes a measured problem |
-| Runtime dependencies | exactly three: `commander` (CLI parsing), `chalk` (color), `inquirer` (init wizard prompts) | any of them unmaintained or with an open vulnerability window → replace or vendor; every addition is an ADR |
+| Runtime dependencies | none (ADR-0129): argument parsing (`src/lib/cli-args.ts`, on `util.parseArgs`), colour (`src/lib/styles.ts`) and the init wizard's questions (`src/lib/prompt.ts`, on `node:readline`) are owned code on Node.js built-ins | a need the three modules do not cover and a dependency would → an ADR that supersedes ADR-0129 and says why writing it here is worse |
 | Data | rules, templates, workflows and regime mappings as markdown + JSON, versioned in the package — no runtime fetch, ever | rule-set size outgrowing the npm package → a versioned data package, still no runtime fetch |
 | Tests | node:test unit suites, seeded fuzz, byte-identical golden OSCAL with negative controls, end-to-end smoke, NIST schema validation | new gate surface ⇒ new unit suite before it ships |
 | CI | GitHub Actions, all actions SHA-pinned; matrix on Node 20/22/24; grep guard + network-namespace-isolated core run; OSSF Scorecard; Dependabot | — |

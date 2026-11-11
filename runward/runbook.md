@@ -17,7 +17,7 @@ This runbook is written for the next maintainer: how to build, test, release, de
 
 | Dependency | Role | Criticality | Behavior on failure |
 |---|---|---|---|
-| commander / chalk / inquirer | CLI parsing, color, prompts | required at runtime | none degrade at runtime; a supply-chain concern, not an availability one — see the threat model |
+| Node.js (the `engines` range) | the runtime, and the built-ins the CLI parses, paints and asks with (`util.parseArgs`, `node:readline`, `node:tty`); runward has no runtime dependency (ADR-0129) | required at runtime | an older Node.js is refused by npm at install (`engines`); nothing is fetched or resolved at runtime |
 | GitHub Actions | CI, release publishing | critical for releasing, irrelevant for users | releases wait; installed CLIs are unaffected (no phone-home to fail) |
 | npm registry | distribution | critical for installs only | existing installs keep working forever — the CLI has no online dependency |
 
