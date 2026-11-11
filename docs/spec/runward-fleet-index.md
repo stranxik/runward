@@ -52,8 +52,11 @@ One grammar for every forge ([ADR-0130](../adr/ADR-0130-a-repository-identity-is
 policy, in what a signature names and in `verify-run --repository`:
 
 - **host**: a DNS name in ASCII, labels of letters, digits and inner hyphens (63 characters at most each,
-  253 in all), the last label starting with a letter. No scheme, no port, no credentials, no address
+  253 in all), the last label starting with a letter. No scheme, no credentials, no address
   (`10.0.0.1`), no internationalised label (`xn--`);
+- **port**, optional: `host:port`, 1 to 65535 in decimal digits without a leading zero
+  (`gitlab.internal:8929/group/project`). It is part of the identity: the same path on another port, or on
+  none, is another repository. `:443` is dropped, an https address having it without saying so;
 - **path**: 2 to 8 segments separated by `/`, each of letters, digits, `_`, `.` and `-` (255 characters at
   most). No segment is empty or made of dots alone (`.`, `..`). Nothing is decoded: `%`, `\`, `?`, `#`,
   `@`, `:` and a space are outside the set;
@@ -71,7 +74,7 @@ is equal to no repository. A three-segment identity (`host/owner/repo`) reads as
 so an inventory, a policy and an index written before it are unchanged.
 
 Not representable, and refused: an Azure DevOps project or repository whose name holds a space or another
-character outside the set, a host with a port, an internationalised host.
+character outside the set, an internationalised host.
 
 ## 2. `runward-fleet-trust-policy/0`: `trust-policy.json`
 

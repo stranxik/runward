@@ -113,7 +113,8 @@ label of where `commit` was read from; the index carries it as written, and noth
 `repository` is the identity of the mission's repository, for any forge (ADR-0130): a host and a path of
 two to eight segments, `github.com/org/app`, `gitlab.example.com/group/subgroup/project`,
 `dev.azure.com/org/project/_git/repo`. Letters, digits, `_`, `.` and `-` only in a segment, nothing
-decoded, no empty or dot segment, no scheme and no port; the index carries it in lower case, without
+decoded, no empty or dot segment, no scheme; a self-managed instance on a port is written `host:port`
+(`gitlab.internal:8929/group/project`, 1 to 65535); the index carries it in lower case, without
 `.git`. The build stops on anything else and says which rule it breaks. The trust policy's `repositories`
 and `verify-run --repository` read the same grammar
 ([the specification](https://github.com/stranxik/runward/blob/main/docs/spec/runward-fleet-index.md), §1.1).

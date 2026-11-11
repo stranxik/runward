@@ -1,7 +1,8 @@
 // ADR-0130: the identity of a repository is a host and a path of two to eight segments, for any forge,
 // read by one closed grammar before anything is folded, with one canonical form.
 //
-//   - GitHub (`host/owner/repo`), GitLab with nested groups and Azure DevOps Services are accepted, in
+//   - GitHub (`host/owner/repo`), GitLab with nested groups, Azure DevOps Services and a self-managed
+//     instance on a port (`host:port`, 1 to 65535) are accepted, in
 //     the inventory, in the trust policy, in a signature and in `verify-run`, and are shown;
 //   - the planted controls are each refused: a path traversal, an empty segment, a nine-segment path, a
 //     look-alike character (in the path, in the host, and one that lower-cases to a letter), an encoded
@@ -28,7 +29,8 @@ const GITLAB = "gitlab.example.com/group/subgroup/project";
 const GITLAB_DEEP = "gitlab.example.com/a/b/c/d/e/f/g/project"; // eight segments: the bound, inside
 const AZURE = "dev.azure.com/org/project/_git/repo";
 const AZURE_LEGACY = "org.visualstudio.com/project/_git/repo";
-const ACCEPTED = [GITHUB, GITLAB, GITLAB_DEEP, AZURE, AZURE_LEGACY, "github.com/org/.github", "gitlab/group/project", "github.com/o-r-g/a_b.c-d"];
+const PORTED = "gitlab-temoin.local:8929/temoin/demo"; // a self-managed instance on a port
+const ACCEPTED = [GITHUB, GITLAB, GITLAB_DEEP, AZURE, AZURE_LEGACY, PORTED, "gitlab.internal:1/group/project", "gitlab.internal:65535/a/b/c/d/e/f/g/h", "github.com/org/.github", "gitlab/group/project", "github.com/o-r-g/a_b.c-d"];
 
 // Each planted control, with the accepted neighbour it differs from by the one thing the rule refuses.
 const KELVIN = "K"; // lower-cases to "k" under Unicode rules
@@ -53,8 +55,25 @@ const PLANTED = [
   ["a query", "github.com/org/app?x=1", /outside letters/, "github.com/org/app"],
   ["a fragment", "github.com/org/app#x", /outside letters/, "github.com/org/app"],
   ["credentials", "user@github.com/org/app", /not a DNS name/, "github.com/org/app"],
-  ["a port", "gitlab.example.com:8443/group/project", /not a DNS name/, "gitlab.example.com/group/project"],
-  ["a scheme", "https://github.com/org/app", /not a DNS name/, "github.com/org/app"],
+  ["credentials with a password", "user:pass@github.com/org/app", /its port/, "github.com/org/app"],
+  ["port 0", "gitlab-temoin.local:0/temoin/demo", /its port is not a number from 1 to 65535/, "gitlab-temoin.local:1/temoin/demo"],
+  ["port 65536", "gitlab-temoin.local:65536/temoin/demo", /its port is not a number from 1 to 65535/, "gitlab-temoin.local:65535/temoin/demo"],
+  ["a six-digit port", "gitlab-temoin.local:100000/temoin/demo", /its port/, "gitlab-temoin.local:10000/temoin/demo"],
+  ["a non-numeric port", "gitlab-temoin.local:http/temoin/demo", /its port/, PORTED],
+  ["a port with a letter", "gitlab-temoin.local:8929a/temoin/demo", /its port/, PORTED],
+  ["a hexadecimal port", "gitlab-temoin.local:0x22e1/temoin/demo", /its port/, PORTED],
+  ["an empty port", "gitlab-temoin.local:/temoin/demo", /its port/, PORTED],
+  ["a port with a leading zero", "gitlab-temoin.local:08929/temoin/demo", /its port/, PORTED],
+  ["a signed port", "gitlab-temoin.local:+8929/temoin/demo", /its port/, PORTED],
+  ["a port in other digits", "gitlab-temoin.local:\u0668\u0669\u0662\u0669/temoin/demo", /its port/, PORTED],
+  ["two ports", "gitlab-temoin.local:8929:8929/temoin/demo", /its port/, PORTED],
+  ["a port and no host", ":8929/temoin/demo", /not a DNS name/, PORTED],
+  ["a port and an empty segment", "gitlab-temoin.local:8929/temoin//demo", /empty/, PORTED],
+  ["a port and a path traversal", "gitlab-temoin.local:8929/temoin/../demo", /dots alone/, PORTED],
+  ["a port and a nine-segment path", "gitlab-temoin.local:8929/a/b/c/d/e/f/g/h/i", /more than 8/, "gitlab-temoin.local:8929/a/b/c/d/e/f/g/h"],
+  ["a port on an address", "127.0.0.1:8929/temoin/demo", /an address/, PORTED],
+  ["a colon in the path", "gitlab-temoin.local/temoin:8929/demo", /outside letters/, "gitlab-temoin.local/temoin/demo"],
+  ["a scheme", "https://github.com/org/app", /its port/, "github.com/org/app"],
   ["an address for a host", "10.0.0.1/group/project", /an address/, "gitlab.internal/group/project"],
   ["an address a URL parser would rewrite", "0x7f.1/group/project", /an address/, "gitlab.internal/group/project"],
   ["an empty host label", "gitlab..com/group/project", /not a DNS name/, "gitlab.com/group/project"],
@@ -71,7 +90,13 @@ test("the grammar accepts GitHub, GitLab nested groups and Azure DevOps, and giv
     assert.equal(repo.repositoryProblem(id), null, id);
     assert.equal(repo.canonRepository(id), id, `${id} is already canonical`);
   }
-  assert.deepEqual(repo.repositoryParts(AZURE), { id: AZURE, host: "dev.azure.com", segments: ["org", "project", "_git", "repo"] });
+  assert.deepEqual(repo.repositoryParts(AZURE), { id: AZURE, host: "dev.azure.com", port: null, segments: ["org", "project", "_git", "repo"] });
+  assert.deepEqual(repo.repositoryParts(PORTED), { id: PORTED, host: "gitlab-temoin.local", port: 8929, segments: ["temoin", "demo"] });
+  assert.equal(repo.canonRepository("GitLab-Temoin.LOCAL:8929/Temoin/Demo.git"), PORTED);
+  // An https address has port 443 without saying so: one spelling. Any other port is another instance.
+  assert.equal(repo.canonRepository("gitlab.example.com:443/group/subgroup/project"), GITLAB);
+  assert.notEqual(repo.canonRepository("gitlab-temoin.local:8930/temoin/demo"), PORTED);
+  assert.notEqual(repo.canonRepository("gitlab-temoin.local/temoin/demo"), PORTED);
   assert.deepEqual(repo.repositoryParts(GITLAB).segments, ["group", "subgroup", "project"]);
   // Case: one repository, one spelling. The clone suffix is the forge's, not the name's.
   assert.equal(repo.canonRepository("GitLab.Example.COM/Group/SubGroup/Project.git"), GITLAB);
@@ -92,17 +117,17 @@ test("each planted control is refused, says why, and its accepted neighbour is r
 });
 
 test("the canonical form reads back as itself and needs no encoding in a URL", () => {
-  const spellings = [...ACCEPTED, ...PLANTED.map((p) => p[3]), "GitHub.com/Org/App.git", "A.B/C/D/E/F/G/H/I/J.GIT"];
+  const spellings = [...ACCEPTED, ...PLANTED.map((p) => p[3]), "GitHub.com/Org/App.git", "A.B/C/D/E/F/G/H/I/J.GIT", "a.b:443/c/d", "a.b:80/c/d"];
   for (const s of spellings) {
     const id = repo.canonRepository(s);
     assert.ok(id, s);
     assert.equal(repo.canonRepository(id), id, `${s}: canonical is a fixed point`);
     assert.equal(id, id.toLowerCase());
     assert.ok(!id.endsWith(".git"));
-    const { host, segments } = repo.repositoryParts(id);
+    const { host, port, segments } = repo.repositoryParts(id);
     const u = new URL(repo.repositoryUrl(s));
     assert.equal(u.href, `https://${id}`, `${s}: a URL parser changes nothing`);
-    assert.deepEqual([u.protocol, u.hostname, u.pathname, u.port, u.username, u.password, u.search, u.hash], ["https:", host, `/${segments.join("/")}`, "", "", "", "", ""]);
+    assert.deepEqual([u.protocol, u.hostname, u.pathname, u.port, u.username, u.password, u.search, u.hash], ["https:", host, `/${segments.join("/")}`, port === null ? "" : String(port), "", "", "", ""]);
   }
 });
 
@@ -130,7 +155,7 @@ test("a three-segment identity reads exactly as before; what the former pattern 
     "a segment of its path is made of dots alone",
     "its host holds an internationalised label (xn--), which this version does not read",
     "its host is an address, not a name",
-    "its host is not a DNS name (letters, digits and inner hyphens, no port, no scheme)",
+    "its host is not a DNS name (letters, digits and inner hyphens, no scheme, no credentials)",
     "its last segment still ends in .git once the clone suffix is dropped",
     "read as the name without its upper-case clone suffix",
   ]);
@@ -153,9 +178,10 @@ test("fleet.json: nested and Azure identities build an index; a planted identity
     { ...missionWith("gl"), repository: "gitlab.example.com/Group/SubGroup/Project.git" },
     { ...missionWith("az"), repository: AZURE },
     { ...missionWith("gh"), repository: GITHUB },
-  ]), files);
-  assert.deepEqual(idx.missions.map((m) => m.repository), [GITLAB, AZURE, GITHUB]);
-  assert.deepEqual(idx.missions.map((m) => m.latest.verdict), ["clean", "clean", "clean"], "the reading of the exports does not depend on the forge");
+    { ...missionWith("pt"), repository: "Gitlab-Temoin.local:8929/temoin/demo" },
+  ]), { ...files, "exports/pt/check.json": realCheck() });
+  assert.deepEqual(idx.missions.map((m) => m.repository), [GITLAB, AZURE, GITHUB, PORTED]);
+  assert.deepEqual(idx.missions.map((m) => m.latest.verdict), ["clean", "clean", "clean", "clean"], "the reading of the exports does not depend on the forge");
   for (const [what, planted, why] of PLANTED) {
     assert.throws(() => indexFrom(manifestOf([{ ...missionWith("a"), repository: planted }]), { "exports/a/check.json": realCheck() }),
       (e) => e instanceof build.BuildError && /missions\[0\]: repository must read host\/path with 2 to 8 path segments/.test(e.message) && why.test(e.message), what);
@@ -167,9 +193,9 @@ test("trust-policy.json: the same grammar; a planted identity among a signer's r
   const key = generateKeyPairSync("ed25519").publicKey;
   const signer = (repositories) => ({ format: "runward-fleet-trust-policy/0", signers: [{ id: "k", kind: "key", repositories, publicKey: "k.pem", keyDigest: `sha256:${sha(key.export({ type: "spki", format: "der" }))}`, ref: "refs/heads/main" }] });
   const read = () => Buffer.from(key.export({ type: "spki", format: "pem" }));
-  const p = trust.readPolicy(signer(["GitLab.example.com/Group/SubGroup/Project", AZURE, GITHUB]), read);
-  assert.deepEqual(p.signers[0].repositories, [GITLAB, AZURE, GITHUB]);
-  assert.deepEqual(trust.describePolicy(p).signers[0].repositories, [GITLAB, AZURE, GITHUB]);
+  const p = trust.readPolicy(signer(["GitLab.example.com/Group/SubGroup/Project", AZURE, GITHUB, PORTED]), read);
+  assert.deepEqual(p.signers[0].repositories, [GITLAB, AZURE, GITHUB, PORTED]);
+  assert.deepEqual(trust.describePolicy(p).signers[0].repositories, [GITLAB, AZURE, GITHUB, PORTED]);
   for (const [what, planted, why] of PLANTED) {
     assert.throws(() => trust.readPolicy(signer([GITHUB, planted]), read), (e) => /repositories\[1\] must read host\/path/.test(e.message) && why.test(e.message), what);
   }
@@ -192,7 +218,7 @@ function keySigned(said, { repositories }) {
 const codes = (r) => r.reasons.map((x) => x.code);
 
 test("verify-run: a key pinned for an Azure DevOps or a nested GitLab repository is accepted for it, in any spelling a forge writes", () => {
-  for (const mission of [AZURE, GITLAB, GITLAB_DEEP]) {
+  for (const mission of [AZURE, GITLAB, GITLAB_DEEP, PORTED]) {
     const { document, policy } = keySigned(mission, { repositories: [mission] });
     const r = runSig.verifyRunSignature({ document, policy, expect: { repository: mission, commit: COMMIT } });
     assert.deepEqual(codes(r), [], mission);
@@ -263,6 +289,17 @@ test("verify-run, keyless on GitLab: a runner project and a mission in nested gr
   assert.equal(runSig.workflowRepository("https://github.com/Org/CI/.github/workflows/x.yml@refs/heads/main"), "github.com/org/ci");
   assert.equal(runSig.workflowRepository("https://gitlab.example.com/group/../x//.gitlab-ci.yml@main"), null, "a workflow address that names no repository names none");
   assert.equal(runSig.workflowRepository("https://example.com/somewhere/else.yml@main"), null);
+  // The witness instance: what its token writes in ci_config_ref_uri, with and without a scheme.
+  assert.equal(runSig.workflowRepository("gitlab-temoin.local:8929/temoin/demo//.gitlab-ci.yml@refs/heads/main"), PORTED);
+  assert.equal(runSig.workflowRepository("https://gitlab-temoin.local:8929/temoin/demo//.gitlab-ci.yml@refs/heads/main"), PORTED);
+  assert.equal(runSig.workflowRepository("gitlab-temoin.local:0/temoin/demo//.gitlab-ci.yml@refs/heads/main"), null);
+  assert.equal(runSig.workflowRepository("gitlab-temoin.local:65536/temoin/demo//.gitlab-ci.yml@refs/heads/main"), null);
+  assert.equal(repo.foreignRepository("http://gitlab-temoin.local:8929/temoin/demo/"), PORTED);
+  // A signature for the same project on another port, or on none, is for another repository.
+  for (const said of ["gitlab-temoin.local:8930/temoin/demo", "gitlab-temoin.local/temoin/demo", "gitlab-temoin.local:08929/temoin/demo"]) {
+    const k = keySigned(said, { repositories: [PORTED] });
+    assert.deepEqual(codes(runSig.verifyRunSignature({ ...k, expect: { repository: PORTED, commit: COMMIT } })), ["signed-for-another-repository"], said);
+  }
   const own = `https://${GITLAB}//.gitlab-ci.yml@refs/heads/main`;
   const mine = runSig.verifyRunSignature({ document: makeBundle(ss, { san: own, claims: { ...gl.claims, 9: own, 12: `https://${GITLAB}`, 18: own } }, statement), policy, expect: { repository: GITLAB, commit: COMMIT } });
   assert.ok(codes(mine).includes("signed-from-the-mission-workflow"));
@@ -295,17 +332,18 @@ test("every view of a fleet of GitLab and Azure DevOps repositories builds, the 
   const key = generateKeyPairSync("ed25519").publicKey;
   const files = {
     "exports/gl/check.json": realCheck(), "exports/az/check.json": realCheck(),
-    "trust-policy.json": { format: "runward-fleet-trust-policy/0", signers: [{ id: "ops", kind: "key", repositories: [GITLAB, AZURE], publicKey: "k.pem", keyDigest: `sha256:${sha(key.export({ type: "spki", format: "der" }))}`, ref: "refs/heads/main" }] },
+    "exports/pt/check.json": realCheck(),
+    "trust-policy.json": { format: "runward-fleet-trust-policy/0", signers: [{ id: "ops", kind: "key", repositories: [GITLAB, AZURE, PORTED], publicKey: "k.pem", keyDigest: `sha256:${sha(key.export({ type: "spki", format: "der" }))}`, ref: "refs/heads/main" }] },
     "k.pem": key.export({ type: "spki", format: "pem" }),
   };
   for (const lang of ["en", "fr"]) {
-    const idx = indexFrom(manifestOf([{ ...missionWith("gl"), repository: GITLAB, commit: COMMIT }, { ...missionWith("az"), repository: AZURE, commit: COMMIT }], { trustPolicy: "trust-policy.json", lang }), files);
+    const idx = indexFrom(manifestOf([{ ...missionWith("gl"), repository: GITLAB, commit: COMMIT }, { ...missionWith("az"), repository: AZURE, commit: COMMIT }, { ...missionWith("pt"), repository: PORTED, commit: COMMIT }], { trustPolicy: "trust-policy.json", lang }), files);
     const rendered = allRendered(idx);
     assert.ok(rendered.length >= 8);
     const signatures = rendered.find(([where]) => where === "#/signatures")[1];
-    assert.ok(signatures.includes(`<code>${GITLAB}</code>`) && signatures.includes(`<code>${AZURE}</code>`), "the signers' table names both repositories");
+    assert.ok(signatures.includes(`<code>${GITLAB}</code>`) && signatures.includes(`<code>${AZURE}</code>`) && signatures.includes(`<code>${PORTED}</code>`), "the signers' table names each repository");
     const page = pageFor(idx); // renderSite refuses a page that breaks a rule
-    assert.ok(page.includes(GITLAB) && page.includes(AZURE));
+    assert.ok(page.includes(GITLAB) && page.includes(AZURE) && page.includes(PORTED));
     assert.ok(!/%2f|%2e/i.test(page.replace(/data:font[^)]*\)/g, "")), "no identity was encoded on its way to the page");
   }
 });
@@ -317,7 +355,9 @@ test("documents: a deployment's `source` built on repositoryUrl links a file of 
   assert.ok(gl.includes(`href="https://${GITLAB}/-/blob/${COMMIT}/runward/floor.md"`), gl);
   const gh = documents.renderDocument(md, { path: "runward/adr/ADR-0001-x.md", source: blob(GITHUB, "/blob/") });
   assert.ok(gh.includes(`href="https://${GITHUB}/blob/${COMMIT}/runward/floor.md"`));
-  assert.deepEqual([documents.checkRendered(gl).ok, documents.checkRendered(gh).ok], [true, true]);
+  const pt = documents.renderDocument(md, { path: "runward/adr/ADR-0001-x.md", source: blob(PORTED, "/-/blob/") });
+  assert.ok(pt.includes(`href="https://${PORTED}/-/blob/${COMMIT}/runward/floor.md"`), pt);
+  assert.deepEqual([documents.checkRendered(gl).ok, documents.checkRendered(gh).ok, documents.checkRendered(pt).ok], [true, true, true]);
   // Azure DevOps addresses a file in the query (`?path=/runward/floor.md`): rule D3 asks that a forge
   // address end with the path, so the link is shown as text. Said in ADR-0130, not changed here.
   const az = documents.renderDocument(md, { path: "runward/adr/ADR-0001-x.md", source: (p) => `${repo.repositoryUrl(AZURE)}?path=/${p}&version=GC${COMMIT}` });

@@ -56,9 +56,16 @@ puts it in addresses. It has to be one text per repository, readable back, and s
 1. **One grammar, for every forge, in one module** (`packages/runward-fleet/src/repository.js`). An identity
    is `host/segment/segment…`:
    - the **host** is a DNS name in ASCII: labels of letters, digits and inner hyphens, 63 characters at most
-     each and 253 in all, the last label starting with a letter. No scheme, no port, no credentials. Not an
+     each and 253 in all, the last label starting with a letter. No scheme, no credentials. Not an
      address (`10.0.0.1`, and `0x7f.1`, which a URL parser rewrites to `127.0.0.1`). Not an
      internationalised label (`xn--`): a look-alike host is refused in both of its spellings;
+   - the host **may be followed by a port**, `host:port`: 1 to 65535, in decimal digits, without a leading
+     zero (`gitlab.internal:8929/group/project`). A self-managed instance that answers on a port writes it
+     in its own addresses and in the claims of its tokens, and it is part of which instance is named: the
+     same path on another port, or on none, is another repository. `:443` is the port an https address has
+     without saying so and is dropped, so an instance has one spelling. Port 0, a port above 65535, a port
+     that is not digits, an empty port and a second colon are refused. (Added on 2026-11-11, in the same
+     pull request, when a self-managed witness instance on port 8929 was refused by the first draft.)
    - the **path** holds 2 to 8 segments, each of letters, digits, `_`, `.` and `-`, 255 characters at most.
      No segment is empty, none is made of dots alone. Nothing is decoded, and `%`, `\`, `?`, `#`, `@`, `:`
      and a space are outside the set: an encoded slash or an encoded dot segment has no way in;
@@ -88,7 +95,7 @@ puts it in addresses. It has to be one text per repository, readable back, and s
    repositories: equality is of the whole text.
 6. **An address is the identity, unencoded.** `repositoryUrl(id)` is `https://` followed by the canonical
    identity, or null. Every character of the grammar is unreserved (RFC 3986) and no segment is a dot
-   segment, so a URL parser reads back this host and this path and nothing else; the test holds that
+   segment, so a URL parser reads back this host, this port and this path and nothing else; the test holds that
    property for every accepted identity. `repositoryParts(id)` gives the host and the segments to a caller
    that needs them apart. Both are exported from `runward-fleet/trust` for a deployment's `source` function
    (ADR-0127).
@@ -140,10 +147,12 @@ alone, a name ending in `.git.git`. One reading moved: `App.GIT` reads `app` whe
 - A GitLab project in nested groups and an Azure DevOps Services repository can be declared, pinned,
   verified and shown. The hosted product re-pins the package to get it (its own record).
 - Refused, and said so in the message: an identity with a dot or empty segment, an encoded character, a
-  ninth segment, a non-ASCII character, a host with a port, an address or an internationalised label.
+  ninth segment, a non-ASCII character, a port outside 1 to 65535, an address or an internationalised label.
 - **Not representable**: an Azure DevOps project or repository whose name holds a space or another character
-  outside the set (Azure DevOps allows them; its address then carries `%20`); a self-managed instance
-  reached on a port; an internationalised host. Each is refused, never approximated.
+  outside the set (Azure DevOps allows them; its address then carries `%20`); an internationalised host. Each
+  is refused, never approximated.
+- `repositoryUrl` writes `https://` whatever the instance serves: an instance reached in clear on its port
+  is the deployment's to know, the identity names no scheme.
 - **Documents on Azure DevOps**: `ui/documents.js` (rule D3) keeps a forge address only when it ends with
   the path asked. Azure DevOps addresses a file in the query (`?path=/…`), so a relative link of a document
   of such a mission is shown as text, not as a link to the forge. Unchanged here: widening D3 is a change to
@@ -161,13 +170,14 @@ alone, a name ending in `.git.git`. One reading moved: `App.GIT` reads `app` whe
   by a hosted deployment, with the identity its forge's token names equal to the declared one.
 - An Azure DevOps project with a space in its name asked for by a user: then either an escape form with its
   own planted controls, or the answer that the identity is the repository's stable id and the path a label.
-- A self-managed instance on a port, or a project deeper than eight segments, asked for by a user.
+- A project deeper than eight segments asked for by a user.
+- The self-managed witness on its port built into an index with the identity its token names.
 - A forge named here shown to tell two repositories apart by case alone: decision 2 is then wrong for it.
 
 ## Reevaluation trigger (mandatory, dated)
 
 Reopen on 2026-12-11, or earlier when: a forge named here stops resolving paths without regard to case; a
-user's repository is refused by the grammar (a space, a port, a ninth segment, an internationalised host); a
+user's repository is refused by the grammar (a space, a ninth segment, an internationalised host); a
 fourth forge is added whose addresses do not fit a host and a path; `runward-fleet-index/0` changes in a
 non-additive way.
 

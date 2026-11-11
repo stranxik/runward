@@ -3,13 +3,16 @@
 //   github.com/org/app                          GitHub: owner, repository
 //   gitlab.example.com/group/subgroup/project   GitLab: nested groups, then the project
 //   dev.azure.com/org/project/_git/repo         Azure DevOps Services: as its clone address writes it
+//   gitlab.internal:8929/group/project          a self-managed instance that answers on a port
 //
 // One grammar, closed, read before anything is folded:
 //   - the whole identity is ASCII and at most 512 characters;
 //   - the host is a DNS name: labels of letters, digits and inner hyphens (63 at most each, 253 in all),
 //     the last one starting with a letter, so it is a name and never an address (`10.0.0.1`, `0x7f.1`),
-//     without a port and without an internationalised label (`xn--`): a look-alike host is refused in
-//     both of its spellings;
+//     without an internationalised label (`xn--`): a look-alike host is refused in both of its spellings;
+//   - the host may be followed by `:` and a port, 1 to 65535 in decimal digits without a leading zero,
+//     as a self-managed instance writes it in its own addresses. `:443` is the port an https address
+//     has without saying so and is dropped, so the instance has one spelling;
 //   - the path has 2 to 8 segments of letters, digits, `_`, `.` and `-` (255 at most each); a segment is
 //     never empty and never made of dots alone (`.`, `..`), and nothing is decoded: `%`, `\`, `:`, `@`,
 //     `?`, `#` and a space are outside the set, so an encoded slash or an encoded dot has no way in;
@@ -27,8 +30,9 @@
 export const REPOSITORY_SEGMENTS = Object.freeze({ min: 2, max: 8 });
 export const REPOSITORY_MAX_LENGTH = 512;
 /** What a refusal says the identity must read like. */
-export const REPOSITORY_SHAPE = "host/path with 2 to 8 path segments (e.g. github.com/org/app, gitlab.example.com/group/subgroup/project, dev.azure.com/org/project/_git/repo)";
+export const REPOSITORY_SHAPE = "host/path with 2 to 8 path segments (e.g. github.com/org/app, gitlab.example.com/group/subgroup/project, dev.azure.com/org/project/_git/repo, gitlab.internal:8929/group/project)";
 
+const PORT = /^[1-9][0-9]{0,4}$/;
 const LABEL = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$/;
 const SEGMENT = /^[A-Za-z0-9_.-]{1,255}$/;
 const DOTS = /^\.+$/;
@@ -38,10 +42,18 @@ const endsInGit = (s) => s.length >= 4 && lower(s.slice(-4)) === ".git";
 function read(s) {
   if (typeof s !== "string" || s === "") return { why: "it is not a text" };
   if (s.length > REPOSITORY_MAX_LENGTH) return { why: `it is longer than ${REPOSITORY_MAX_LENGTH} characters` };
-  const [host, ...segments] = s.split("/");
+  const [authority, ...segments] = s.split("/");
+  const colon = authority.indexOf(":");
+  const host = colon === -1 ? authority : authority.slice(0, colon);
+  let port = null;
+  if (colon !== -1) {
+    const digits = authority.slice(colon + 1);
+    if (!PORT.test(digits) || Number(digits) > 65535) return { why: "its port is not a number from 1 to 65535 in decimal digits, without a leading zero" };
+    port = Number(digits) === 443 ? null : Number(digits);
+  }
   if (host.length > 253) return { why: "its host is longer than 253 characters" };
   const labels = host.split(".");
-  if (!labels.every((l) => LABEL.test(l))) return { why: "its host is not a DNS name (letters, digits and inner hyphens, no port, no scheme)" };
+  if (!labels.every((l) => LABEL.test(l))) return { why: "its host is not a DNS name (letters, digits and inner hyphens, no scheme, no credentials)" };
   if (labels.some((l) => lower(l.slice(0, 4)) === "xn--")) return { why: "its host holds an internationalised label (xn--), which this version does not read" };
   if (!/^[A-Za-z]/.test(labels[labels.length - 1])) return { why: "its host is an address, not a name" };
   if (segments.length < REPOSITORY_SEGMENTS.min) return { why: `its path holds ${segments.length} segment${segments.length === 1 ? "" : "s"}, fewer than ${REPOSITORY_SEGMENTS.min}` };
@@ -54,8 +66,9 @@ function read(s) {
     if (DOTS.test(seg)) return { why: "a segment of its path is made of dots alone" };
   }
   if (endsInGit(segments[last])) return { why: "its last segment still ends in .git once the clone suffix is dropped" };
-  return { host: lower(host), segments: segments.map(lower) };
+  return { host: lower(host), port, segments: segments.map(lower) };
 }
+const idOf = (r) => `${r.host}${r.port === null ? "" : `:${r.port}`}/${r.segments.join("/")}`;
 
 /** Why a declared identity is refused, in a few words, or null when it is one. */
 export function repositoryProblem(s) {
@@ -65,13 +78,14 @@ export function repositoryProblem(s) {
 /** The canonical identity (`host/segment/segment…`, lower case, no `.git`) of a declared one, or null. */
 export function canonRepository(s) {
   const r = read(s);
-  return r.why ? null : `${r.host}/${r.segments.join("/")}`;
+  return r.why ? null : idOf(r);
 }
 
-/** The host and the path segments of an identity, `{ id, host, segments }`, or null. */
+/** The host, the port (a number, or null when none is written) and the path segments of an identity,
+ *  `{ id, host, port, segments }`, or null. */
 export function repositoryParts(s) {
   const r = read(s);
-  return r.why ? null : { id: `${r.host}/${r.segments.join("/")}`, host: r.host, segments: r.segments };
+  return r.why ? null : { id: idOf(r), host: r.host, port: r.port, segments: r.segments };
 }
 
 /**
@@ -89,9 +103,10 @@ export function foreignRepository(s) {
 }
 
 /**
- * The https address of a repository in its forge, `https://host/segment/…`, or null when the identity
- * is not one. Nothing is encoded because nothing needs to be: the address a URL parser reads back has
- * this host and this path, no credentials, no port, no query and no fragment.
+ * The https address of a repository in its forge, `https://host[:port]/segment/…`, or null when the
+ * identity is not one. Nothing is encoded because nothing needs to be: the address a URL parser reads
+ * back has this host, this port and this path, no credentials, no query and no fragment. The scheme is
+ * https whatever the instance serves: an instance reached in clear is the deployment's to know.
  */
 export function repositoryUrl(s) {
   const id = canonRepository(s);
