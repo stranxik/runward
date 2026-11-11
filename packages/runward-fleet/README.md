@@ -116,7 +116,7 @@ two to eight segments, `github.com/org/app`, `gitlab.example.com/group/subgroup/
 decoded, no empty or dot segment, no scheme and no port; the index carries it in lower case, without
 `.git`. The build stops on anything else and says which rule it breaks. The trust policy's `repositories`
 and `verify-run --repository` read the same grammar
-([the specification](../../docs/spec/runward-fleet-index.md), §1.1).
+([the specification](https://github.com/stranxik/runward/blob/main/docs/spec/runward-fleet-index.md), §1.1).
 
 ## In a hosted deployment
 
