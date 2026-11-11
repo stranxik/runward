@@ -6,9 +6,12 @@ import { isatty } from "node:tty";
 //
 // How many colours standard output takes: 0 none, 1 the 16 basic ones, 2 the 256-colour palette,
 // 3 24-bit. Decided once, when the process starts, in this order:
-//   - NO_COLOR set to anything (https://no-color.org/), or `--no-color` before a `--`: none;
+//   - NO_COLOR set to anything (https://no-color.org/): none;
 //   - FORCE_COLOR: `0` or `false` none; a number, that level (3 at most); `true` or empty, colours
 //     even when the output is not a terminal, at the level detected below (1 at least);
+//   - `--no-color` before a `--`, when FORCE_COLOR says nothing readable: none. The variable wins
+//     over the flag (`FORCE_COLOR=3 runward --no-color check` is coloured), as it did with the
+//     dependency this replaces: kept as found, the maintainer's to decide (ADR-0129);
 //   - output that is not a terminal (a pipe, a file): none;
 //   - then what the terminal says of itself: TERM=dumb, the Windows build, a CI that renders
 //     colours, COLORTERM, TERM_PROGRAM, TERM.

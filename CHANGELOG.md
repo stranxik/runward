@@ -25,12 +25,20 @@ moved with the arrow keys. The questions, their order, their defaults and what i
 Ctrl-C at a question still exits 1 and writes nothing; its sentence is now runward's ("interrupted at a
 question (Ctrl-C): no answer was taken").
 
-The tarball carries no `node_modules` (845,804 bytes packed from this change; 1,227,496 with the bundle
-of ADR-0116), installs offline from the file with an empty npm cache, and its SBOM lists the package
+The tarball carries no `node_modules` (about 0.85 MB packed from this change; about 1.23 MB with the
+bundle of ADR-0116), installs offline from the file with an empty npm cache, and its SBOM lists the package
 alone; `scripts/package-sbom.mjs` is unchanged and still refuses a bundle the lockfile does not explain.
 `test/unit/zero-runtime-dependencies.test.js` fails if `package.json` declares a runtime dependency, if
 the lockfile's runtime tree is not empty, or if a module of the build imports anything but a Node.js
 built-in or one of the package's own files.
+
+An adversarial review before the merge (14,186 argument lists through both versions, no difference)
+found nothing blocking and six things, all closed here and listed in ADR-0129: the record said the
+questions use no raw mode, and `node:readline` does (reworded; runward writes none of its own); a
+comment put `--no-color` before `FORCE_COLOR`, where the variable wins as it did before; the colour
+dependency also read `--color`, `--colors`, `--color=…` and `--no-colors` from the arguments, each an
+unknown option then and now, which no longer changes the colours when it stands as an option's value; a
+short flag without a value is now refused when declared; the tarball's size is given approximately.
 
 What this does not do: the build and the tests still run the development dependencies, and Node.js, npm
 and the operating system are still what runward runs on. The three modules (about 780 lines) are read

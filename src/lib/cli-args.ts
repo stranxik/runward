@@ -154,8 +154,8 @@ function parseCommand(program: ProgramSpec, command: CommandSpec, before: string
     tokens: true,
   } as const;
   // `util.parseArgs` reads `-xp value` as the short options `-x` and `-p value`. Here a group of
-  // short options is one argument, known as a whole or not at all (no command declares a short flag
-  // without a value): when a group it does not start with a known option took the next argument as a
+  // short options is one argument, known as a whole or not at all (no command can declare a short flag
+  // without a value: the declaration is refused, see `defineProgram`): when a group it does not start with a known option took the next argument as a
   // value, the group is set aside as the unknown option it is and the line is read again.
   const work = [...args];
   const written = new Map<number, string>();
@@ -388,7 +388,10 @@ export function defineProgram(name: string, description: string): ProgramBuilder
     name, description, options, commands,
     option(flags, text) {
       const option: OptionSpec = { flags, description: text };
-      if (readFlag(option).takesValue) throw new Error(`cli-args: a program option takes no value ("${flags}")`);
+      const flag = readFlag(option);
+      if (flag.takesValue) throw new Error(`cli-args: a program option takes no value ("${flags}")`);
+      // Recognised by its long spelling only, wherever it stands: a short form would never be read.
+      if (flag.short) throw new Error(`cli-args: a program option has no short form ("${flags}")`);
       options.push(option);
       return program;
     },
@@ -399,7 +402,11 @@ export function defineProgram(name: string, description: string): ProgramBuilder
         description(text) { spec.description = text; return builder; },
         option(flags, description, extra) {
           const option: OptionSpec = { flags, description, ...extra };
-          readFlag(option); // an unreadable declaration fails here, at start, not at the first use
+          // An unreadable declaration fails here, at start, not at the first use. So does a short
+          // flag without a value (`-f, --force`): parseCommand reads a group of short options as one
+          // argument, which holds only while every short option takes a value.
+          const flag = readFlag(option);
+          if (flag.short && !flag.takesValue) throw new Error(`cli-args: a short option must take a value ("${flags}")`);
           spec.options.push(option);
           return builder;
         },

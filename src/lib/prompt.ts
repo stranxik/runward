@@ -3,9 +3,11 @@
  * list, any number of choices in a list (ADR-0129). Written on `node:readline`, line by line.
  *
  * Choices are numbered and answered by typing the number, then Enter. There is no arrow-key
- * navigation and no redrawing: nothing here puts the terminal in raw mode or moves the cursor, so
- * the same lines read the same in every terminal, over SSH, in a Windows console and in a
- * transcript, and a question that was interrupted leaves the terminal as it found it.
+ * navigation and no menu to redraw: runward writes no raw-mode or cursor code of its own. At a
+ * terminal `node:readline` does both for the line being typed (it reads keys in raw mode, which is
+ * why Ctrl-C arrives here as its SIGINT event, and it writes cursor sequences to edit the line), and
+ * gives the terminal back when the reader closes: Ctrl-C and a closed input close it. A process
+ * killed in the middle of a question (SIGTERM, SIGKILL) may leave the terminal in raw mode.
  *
  * Who must not be asked is decided by the caller (`isNonInteractive`, ADR-0030: `--yes`, a CI, a
  * stream that is not a terminal). Called without a terminal all the same, a question is refused

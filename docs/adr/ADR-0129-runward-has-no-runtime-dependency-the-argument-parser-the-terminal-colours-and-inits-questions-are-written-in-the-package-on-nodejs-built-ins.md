@@ -78,8 +78,11 @@ unmaintained, and no advisory is open against the versions the lockfile held.
    supersedes this one.
 
 2. **Step 1, `init`'s questions** (`src/lib/prompt.ts`, on `node:readline`). A line of text, one choice,
-   several choices. Choices are numbered and answered by typing the number: no arrow-key navigation, no
-   raw mode, no cursor movement. It is the one visible change of this record (see Consequences). Who is
+   several choices. Choices are numbered and answered by typing the number: no arrow-key navigation, and no
+   raw-mode or cursor code written by runward. `node:readline` itself edits the line being typed in raw
+   mode and restores the terminal when the reader closes (Ctrl-C and a closed input close it; a process
+   killed by SIGTERM or SIGKILL in the middle of a question may leave the terminal in raw mode). It is
+   the one visible change of this record (see Consequences). Who is
    not asked is unchanged (ADR-0030: `--yes`, a CI, a stream that is not a terminal take the defaults).
    Ctrl-C at a question exits 1 and writes nothing, as measured on 0.46.0.
 
@@ -137,8 +140,9 @@ Each of these was somebody else's maintenance, and is now runward's:
   runs, its updates stop arriving, and a reader of the package has more to read, not less. ADR-0116's
   bundle already gave what vendoring gives (the tested tree is the installed tree) without the fork.
 - **`util.styleText` for the colours.** It takes named colours only; the palette is six hex values.
-- **Arrow-key menus written here.** They need raw mode, cursor addressing, redraw on resize, and a way
-  back to a sane terminal on every exit path, on three operating systems. That is the part of
+- **Arrow-key menus written here.** They need raw mode handled by runward's own code, cursor addressing,
+  redraw on resize, and a way back to a sane terminal on every exit path, on three operating systems
+  (the numbered questions leave all of that to `node:readline`, for one line of input). That is the part of
   `@inquirer/prompts` that justified a dependency; rewriting it small and correct is not credible, and
   five questions asked once per project do not need it.
 - **A hand-written scan instead of `util.parseArgs`.** It would mirror the previous parser most directly.
@@ -150,8 +154,9 @@ Each of these was somebody else's maintenance, and is now runward's:
 - **An installation of runward is one package on disk** instead of 28 (measured: 28 with the published
   0.46.0, 28 with the tarball of `main`, 27 of them bundled; 1 with this change, installed offline from the
   file with an empty npm cache). The tarball packed from `main` with
-  ADR-0116's bundle is 1,227,496 bytes; packed from this change it is 845,804 bytes, and an
-  installation from the file needs no registry and no cache.
+  ADR-0116's bundle is about 1.23 MB; packed from this change it is about 0.85 MB (the exact figure
+  moves with every line of the changelog the tarball carries), and an installation from the file needs
+  no registry and no cache.
 - **`init`'s questions change at a terminal.** Before: menus moved with the arrow keys, a space to tick a
   tool profile. After: numbered lists, a number and Enter (several numbers for the tool profiles, Enter
   alone for the default). The questions, their order, their defaults and what is written from the answers
@@ -171,6 +176,16 @@ Each of these was somebody else's maintenance, and is now runward's:
 - **Dependabot has nothing to propose for the runtime**: its pull requests now concern development
   dependencies and workflows only.
 
+- **Four spellings the colour dependency read from the command line are gone.** It looked for `--color`,
+  `--colors`, `--color=…` (`true`, `always`, `256`, `16m`, `false`, `never`…) and `--no-colors` among the
+  arguments, beside `--no-color`. runward never declared them: each was, and still is, an unknown option
+  (exit 2) unless it stands as an option's value, where it used to switch colours on or off as a side
+  effect and no longer does. The comparison over 86 environments passed no such argument and could not
+  see it; found by the review below.
+- **`FORCE_COLOR` wins over `--no-color`**, as before: `FORCE_COLOR=3 runward --no-color check` is
+  coloured, in a pipe too. Kept as found, and stated in `src/lib/styles.ts`; whether the flag should win
+  is the maintainer's to decide.
+
 ### What this does not do
 
 - **It does not make the build free of other people's code.** The build and the tests still run every
@@ -182,6 +197,29 @@ Each of these was somebody else's maintenance, and is now runward's:
   repository's tests and by one agent session; they have had no outside review.
 - **The satellites** (`runward-forge`, `runward-fleet`, `runward-run`) are separate packages with their
   own manifests; `runward-fleet` already had no dependency, and this record does not change the others.
+
+## Adversarial review (2026-11-11)
+
+A second agent session read the pull request with the brief of refuting it, before the maintainer. It
+ran 14,186 argument lists through `main` and the change, every command replaced by a recorder: no
+difference, and nothing blocking. Its six findings, and what was done with each in the same pull request:
+
+1. **The record and `src/lib/prompt.ts` said "no raw mode, no cursor movement". False**: at a terminal
+   `node:readline` reads keys in raw mode and writes cursor sequences for the line being typed. Reworded
+   (decision 2, the alternative on menus, the module's header): runward writes none of its own, readline
+   restores the terminal on close, a process killed mid-question may not. Behaviour unchanged.
+2. **A comment of `src/lib/styles.ts` put `--no-color` before `FORCE_COLOR`.** The code, like the
+   dependency before it, lets the variable win. Comment corrected, behaviour kept, stated in Consequences.
+3. **The colour dependency also read `--color`, `--colors`, `--color=…` and `--no-colors`** from the
+   arguments, which the 86 environments never exercised. Stated in Consequences.
+4. **The parser relied on "no command declares a short flag without a value" without enforcing it.**
+   Such a declaration, and a short form on a program option, now throw when declared
+   (`test/unit/cli-args.test.js`, planted).
+5. **The tarball size stated here differed from the reviewer's by about a kilobyte** (the tarball carries
+   the changelog, which grew). The exact figure is dropped for an approximate one.
+6. **Where the review is recorded**: here, and in the changelog entry.
+
+A review by a model is advisory (ADR-0007): it produces findings and crosses no gate.
 
 ## What would settle it
 

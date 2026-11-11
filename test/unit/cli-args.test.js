@@ -141,4 +141,9 @@ test("a declaration the parser cannot read fails when it is written, not when it
   assert.throws(() => p.command("y").argument("file", "no brackets"), /unreadable argument declaration/);
   assert.throws(() => defineProgram("t", "").option("-x", "short only"), /unreadable option declaration/);
   assert.throws(() => defineProgram("t", "").option("--level <n>", "a value"), /a program option takes no value/);
+  // The parser reads a group of short options (`-xp`) as one argument, which holds only while every
+  // short option takes a value: a short flag is refused when it is declared (planted control).
+  assert.throws(() => p.command("z").option("-f, --force", "a short flag"), /a short option must take a value \("-f, --force"\)/);
+  assert.throws(() => defineProgram("t", "").option("-y, --yes", "a short program flag"), /a program option has no short form/);
+  assert.doesNotThrow(() => p.command("w").option("-p, --path <path>", "a short option with a value").option("--force", "a long flag"));
 });
