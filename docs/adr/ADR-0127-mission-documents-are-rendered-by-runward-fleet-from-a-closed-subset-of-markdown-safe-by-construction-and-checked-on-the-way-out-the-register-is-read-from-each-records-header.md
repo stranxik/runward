@@ -192,10 +192,13 @@ Shown in this pull request, in `test/unit/fleet-documents.test.js`, each with it
    document of the same size on the same machine, and never under 200 ms (a fixed 200 ms failed on a slower
    Windows runner: 203 ms; on macOS the worst input takes about 3 times the plain document, a planted
    quadratic scan 26 to 50 times), grow at most 20 times (16.4 measured, on one-character headings) and
-   are checked within the same bound. Three planted
-   copies exceed it: an unbounded scan of backtick runs, emphasis nested without a limit (on the three
-   closing shapes, `*`, `**` and `_`), and short rows filled to the header's width (more than 200 times
-   the source).
+   are checked within the same bound. The planted quadratic copies are caught by how their cost grows,
+   which does not depend on the machine: from 50 KB to 200 KB of the same shape, after a warm-up, the sound
+   module grows at most 8 times (4.3 to 4.8 measured) and each planted copy at least 10 times (16.9 to 19.9
+   measured): an unbounded scan of backtick runs, and emphasis nested without a limit (on the three
+   closing shapes, `*`, `**` and `_`). A time bound alone let a planted copy pass on a slower Linux runner
+   (2026-11-11). Short rows filled to the header's width are caught on size (more than 200 times the
+   source).
 5. Every Markdown file of this repository's own mission, records, specifications and templates renders
    inside the closed lists.
 6. The register of the 21 records of the real mission is golden and is compared with the header lines
