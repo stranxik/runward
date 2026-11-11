@@ -36,9 +36,11 @@ written), 2 a usage error.
 ## The decision reading
 
 The page opens on a plain-language reading of the index, for the people who answer for what agents deliver
-and do not read code (ADR-0125): for each application, its state, the reason, the refusals by kind and
-each refusal's own text as written, the documents not filled in, how the decided rows were endorsed (an
-agent's endorsement is never worded as a person's), and where the reading comes from. Every sentence
+and do not read code (ADR-0125): the applications refused first, then those whose required level is not
+met, then the others (ADR-0128); for each, its state, the reason, the refusals by kind and, within a kind,
+by their own text as written, shown once and folded with every refusal it stands for, the documents not
+filled in, how the decided rows were endorsed (an agent's endorsement is never worded as a person's), and
+where the reading comes from. Every sentence
 comes from a closed lexicon in English and French, keyed on a closed value of the index; nothing is
 computed and no model is called. `decide(index)` and `renderDecision(index, id?)`, exported by
 `runward-fleet/views`, give it as a document (`runward-fleet-decision/0`) and as HTML whose elements carry

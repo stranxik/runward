@@ -1,8 +1,10 @@
 # runward-fleet: the decision reading, `runward-fleet-decision/0`
 
-**Status**: specification of `runward-fleet-decision/0`, dated 2026-11-10, with the code that implements it
-(`packages/runward-fleet/ui/views.js`) · **Decided by**:
-[ADR-0125](../adr/ADR-0125-the-decision-reading-a-plain-language-projection-of-the-fleet-index-from-a-closed-lexicon-in-two-languages-without-a-model.md)
+**Status**: specification of `runward-fleet-decision/0`, dated 2026-11-10, refined on 2026-11-11, with the code
+that implements it (`packages/runward-fleet/ui/views.js`) · **Decided by**:
+[ADR-0125](../adr/ADR-0125-the-decision-reading-a-plain-language-projection-of-the-fleet-index-from-a-closed-lexicon-in-two-languages-without-a-model.md),
+refined by [ADR-0128](../adr/ADR-0128-the-decision-reading-groups-refusals-by-kind-and-by-text-folds-the-text-and-lists-refused-applications-first.md)
+(the refusals grouped by kind and by text, the order of the applications, the five states always shown)
 · **Reads**: `runward-fleet-index/0` ([runward-fleet-index.md](runward-fleet-index.md)) and nothing else
 · **Closed lists**: [runward-closed-values.json](runward-closed-values.json)
 
@@ -38,17 +40,24 @@ and every technical view is in the navigation.
 | `index` | `{ format, builtBy }` of the index read |
 | `names` | `shown`, or `omitted` when the index leaves the names of people out (`fleet.json` `"names": "omitted"`) |
 | `title` | a sentence: the title, the one place where the reader's decision is named |
-| `fleet` | `declared` (a number with its path) and `groups[]`: for each state of `fleet.byVerdict`, `{ state, label, count }`, `count` being `{ text, n, N, list, path }` |
-| `applications[]` | one per mission, in the inventory's order |
+| `listing` | the order the reading lists the applications in (ADR-0128): `ids`, read from the lists of `fleet.byVerdict`, the group `gaps` first, then `level-not-met`, then the other groups in the index's order, each list in the inventory's order (an application no list names comes after them, never dropped); and `note`, the sentence that says so, `from` `fleet.byVerdict` |
+| `fleet` | `declared` (a number with its path) and `groups[]`: for each state of `fleet.byVerdict`, `{ state, label, count }`, `count` being `{ text, n, N, list, path }`; every state is present, `0 / N` included |
+| `applications[]` | one per mission, in the inventory's order (`listing` gives the order of the page) |
 
 An application: `id`, `path` (`missions[id=…]`), `name` (data), `state` (the index's own: `clean`,
 `gaps`, `level-not-met`, `not-observed`, `not-available`, or any value it holds, never recomputed),
 `stateWord` (for a check received whose export writes no verdict, "Check received, no state written",
 never "No check received"), `qualifier` (after `clean` only), `date` (the last check received: the export's `at` label,
 or "date not declared"; none for `not-observed`), `reason`, `kinds[]` (the refusals by kind, from
-`latest.conformanceByKind`, each with its n / N), `pieceCounts[]` (the documents not filled in, by state,
+`latest.conformanceByKind`, each with its n / N, and its `texts[]`: for each text the check wrote for that
+kind, from `byText`, `problem`, the text as data, read from the first refusal it lists; `label`, "Check
+detail, as written" for one refusal, "(the same for n / N)" for several, N being the kind's; and
+`refusals`, their positions in `problems`), `pieceCounts[]` (the documents not filled in, by state,
 from `latest.deliverables.byState`), `problems[]` (each refusal: `line`, the sentence "{document}:
-{kind}"; `where`, its file, line and requirement as data; `problem`, its text as data), `pieces[]` (the
+{kind}"; `where`, its file, line and requirement as data; `entry`, the sentence "{document}: {where}" the
+page lists it with; `problem`, its text as data), `ungrouped` (the positions of the refusals no text group
+lists: none for an index this version builds, every refusal for an index built before ADR-0128, each
+then shown alone with its own sentence and text), `pieces[]` (the
 documents not filled in, grouped by nature: `{ nature, label, items[] }`), `endorsement` (`detailed`,
 `lines[]`, `disclosure[]`, `declared`), `origin` (from `implemented`) and `version` (the `runward`
 version the export names). A grouping read from an export's own values is named by its position
@@ -69,6 +78,14 @@ inside another.
 a colon. The sentence that always follows `clean` (`qualifier.clean`) reads "according to the team's
 requirements", in French "selon les exigences de l'équipe", and the date line "Last check received:
 {date}", in French "Dernier contrôle reçu : {date}". `{…}` is a value, filled as data.
+
+**The order of the list** (`orderByState`, the note of the portfolio, ADR-0128; `order` is kept for a view
+listed in the inventory's order)
+
+| Key | English | French |
+|---|---|---|
+| `orderByState` | Sorted by state: refused by the check first, then required level not met, then the others; within a state, in the order of the inventory. | Triées par état : refusées par le contrôle d'abord, puis niveau exigé non atteint, puis les autres ; dans un même état, dans l'ordre de l'inventaire. |
+| `order` | Applications are listed in the order of the inventory. | Les applications sont listées dans l'ordre de l'inventaire. |
 
 **States** (`state`) and the fleet's labels (`group`, plural in French; the label of `clean` carries the requirements)
 
@@ -151,6 +168,23 @@ requirements", in French "selon les exigences de l'équipe", and the date line "
 | `analysis-linkage` | a file the record cites refers to an item that does not exist. | un fichier que cite le dossier fait appel à un élément qui n'existe pas. |
 | `analysis-policy` | the analysis policy the team chose is unknown to this version of the check. | la politique d'analyse choisie par l'équipe est inconnue de cette version du contrôle. |
 | `not-observed` | a refusal whose kind the check does not write. | un refus dont le contrôle n'écrit pas le genre. |
+
+**What the check refuses** (`problems`): a kind's sentence, then each text of that kind once, behind a
+disclosure, then where each refusal is, behind a second one when there are several (ADR-0128). The label of
+the text does not name its language: the text carries `lang="en"`.
+
+| Key | English | French |
+|---|---|---|
+| `title` | What the check refuses | Ce que le contrôle refuse |
+| `byKind` | {count} refusals of this kind: {reason} | {count} refus de ce genre : {reason} |
+| `detail` | Check detail, as written | Détail du contrôle, tel quel |
+| `same` | Check detail, as written (the same for {count}) | Détail du contrôle, tel quel (le même pour {count}) |
+| `items` | Where, refusal by refusal | Où, refus par refus |
+| `entry` | {subject}: {where} | {subject} : {where} |
+| `line` | {subject}: {reason} | {subject} : {reason} |
+| `where` | {file}, line {line}, requirement {rule} | {file}, ligne {line}, exigence {rule} |
+| `whereFile` | {file}, requirement {rule} | {file}, exigence {rule} |
+| `whereRule` | requirement {rule} | exigence {rule} |
 
 **Documents** (`pieces.piece`, keyed on `relPath`)
 
@@ -252,6 +286,7 @@ requirements", in French "selon les exigences de l'équipe", and the date line "
 | `noneRecorded` | No endorsement recorded. | Aucune validation enregistrée. |
 | `notDetailed` | Endorsement mode not detailed. | Mode de validation non détaillé. |
 | `declared` | These names and modes are declared by the team: the check does not verify who answered. | Ces noms et ces modes sont déclarés par l'équipe : le contrôle ne vérifie pas qui a répondu. |
+| `disclosure` | What the check writes about it: | Ce que le contrôle écrit à ce sujet : |
 
 **Where the reading comes from** (`origin`, keyed on `implemented`)
 
@@ -295,26 +330,30 @@ alone; a refusal inverts the two grounds on the static page.
 | `data-role` | Holds |
 |---|---|
 | `title`, `lede`, `note` | the title, the line under it, the order of the list |
-| `groups`, `group`, `group-label` | the fleet's groupings by state, each with its n / N |
-| `applications`, `application` | the list of applications (`data-state`, `data-mission`) |
+| `groups`, `group`, `group-label` | the fleet's groupings by state, each with its n / N: every state, `0 / N` included, `gaps` and `level-not-met` first |
+| `applications`, `application` | the list of applications (`data-state`, `data-mission`), in the order of `listing` |
 | `name` | an application's name, data |
 | `state`, `mark`, `state-word` | the state line (`data-state`), its shape, its word |
 | `qualifier`, `date`, `reason` | what follows the state |
-| `kinds`, `kind`, `piece-count` | why, in a few lines: refusals by kind, documents not filled in by state, each with n / N |
-| `problems`, `problem`, `sentence` | each refusal and its sentence |
-| `detail`, `detail-label`, `location`, `verbatim` | the check's detail: where (file, line, requirement) and its text as written (`lang="en"`) |
+| `kinds`, `kind`, `piece-count` | why, in a few lines: refusals by kind, documents not filled in by state, each with n / N (an application's page says the kinds in `problems`) |
+| `problems`, `refusal-kinds`, `refusal-kind`, `sentence` | what the check refuses: one item per kind, its sentence with n / N |
+| `refusal-text` | one text of a kind: its detail, then where its refusals are |
+| `detail`, `detail-label`, `verbatim` | the check's text as written (`lang="en"`), once, in a `<details>` whose `<summary>` is its label with the n / N it stands for; the first of the page is open. On the endorsement, the CLI's own disclosure, in a `<div>` |
+| `where`, `where-label`, `refusals` | where the refusals of one text are, in a `<details>` when there are several |
+| `problem` | one refusal: "{document}: {file}, line {line}, requirement {rule}", carrying its index path (`data-index`) |
 | `pieces`, `legend`, `nature`, `piece` | the documents not filled in, by nature |
 | `endorsement` | how the rows were endorsed |
 | `origin`, `version`, `links`, `back` | where it comes from, the version that checked, the way to the technical detail |
 
 Data is marked as the views mark it: `<span data-verbatim>`, `<code>`, and `<!--verbatim:start-->` around
 the check's text. Every number is a `<span class="n">` with its `data-index`, and a count is always n / N.
+Nothing is folded by a script: `<details>` folds, and every refusal is in the HTML whether it is open or not.
 
 ## 5. Its rules
 
 Held by the build on every rendered view of the reading and on the whole lexicon before a page is written
-(`checkReading`, `checkLexicon` of `runward-fleet/rules`), and by `test/unit/fleet-decision.test.js`, each
-with a planted control:
+(`checkReading`, `checkLexicon`, `checkRefusals` of `runward-fleet/rules`), and by
+`test/unit/fleet-decision.test.js`, each with a planted control:
 
 | # | Rule | Held by |
 |---|---|---|
@@ -323,6 +362,7 @@ with a planted control:
 | R3 | no state, group label or reason reads as a decision taken (`NOT_A_STATE`); the decision is named in a title only | build and test |
 | R4 | "nothing is blocking" is always followed by the team's requirements, and, for an application, by the date of the last check (the export's `at` label, or "date not declared": a static inventory may declare none) | build and test (on each application's state, and on the fleet's label, which carries the requirements) |
 | R5 | a row endorsed by an agent is never worded as a person's; a refusal's text is shown as written and never read | test (a planted copy of the view that says an agent's rows in a person's words is caught; every `problem` reworded moves no sentence) |
+| R6 | grouped, no refusal is hidden: within a kind, the text groups partition its refusals, each n / N of the kind and holding only refusals of its text; an application's page lists every refusal once, under its index path (ADR-0128) | build (`checkIndex` on the index, `checkRefusals` on each application's page) and test (a refusal taken out of a group, out of a page, or listed twice, and a planted copy of the view that lists one fewer, are refused) |
 
 The words runward never says (`BANNED`) are held on every view, the reading's included, in each listed form
 and with boundaries of any script. The eighteen rules of ADR-0093 decision 11 hold too.
@@ -331,7 +371,9 @@ and with boundaries of any script. The eighteen rules of ADR-0093 decision 11 ho
 
 - It shows no history of states: the index carries the last check of each application only.
 - It names no symbol from a refusal's text: that needs a structured field the CLI does not write.
-- It computes no state, no count, no score, no percentage, no threshold on a date.
+- It computes no state, no count, no score, no percentage, no threshold on a date. The groupings by text
+  and the order of the applications are read from the index (`byText`, `fleet.byVerdict`); the page sorts
+  nothing by date: the `at` label is data, not a clock.
 - With names omitted, it knows the names the exports declare in fields (who ratified in a person's mode,
   the person an agent answers to), and refuses an index where one of them appears in any mission's
   projected text, across any run of blanks: a name written only in free text and declared in no field is
@@ -347,7 +389,7 @@ CLI wrote it:
 |---|---|---|
 | `demo-renamed.check.json` | runward 0.46.0, in CI | `stranxik/runward-demo-renaming`, a name changed in the code (run 42836065477): two refusals `evidence-refused` |
 | `demo-repaired.check.json` | runward 0.46.0, in CI | the same, the record following the new name (run 42836073560): `clean` |
-| `hosted-proposed.check.json` | runward 0.46.0 from npm | `stranxik/runward-hosted` at `a4ede14`: 42 rows proposed, 4 missing, one document untouched |
+| `hosted-proposed.check.json` | runward 0.46.0 from npm | `stranxik/runward-hosted` at `a4ede14`: 42 rows proposed, 4 missing, one document untouched; four texts for its 46 refusals (22, 19 and 1 of the kind `proposed`, 4 of `missing-row`), the case of many identical refusals |
 | `agent-ratified.check.json` | runward 0.46.0 from npm | `init --example`, two rows proposed then ratified with `ratify --agent review-bot --for Alice` (one with `--single-accountable`), the rows of the threat model ratified line by line by a person (written by the library function the interactive command calls) |
 | `level-not-met.check.json` | the CLI of this tree at `5a9cdf0` | `init --example`, `check --strict --require attested`: `level-not-met`, exit 5 (the published 0.46.0 does not write it; the build names itself 0.46.0, RWD-2026-0210) |
 
