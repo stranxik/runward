@@ -6,7 +6,8 @@
       "inputs": {
         "module": { "allowed": "non-empty" },
         "mode": { "allowed": ["measure"] },
-        "target_minutes": { "allowed": "any" }
+        "target_minutes": { "allowed": "any" },
+        "reuse": { "allowed": "any" }
       }
     },
     "documented-commands.yml": {
