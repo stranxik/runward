@@ -134,3 +134,36 @@ export function declarationAt(source) {
     return name;
   };
 }
+
+/**
+ * The stable keys of a report's surviving mutants, in the order given: the identity the ratchet
+ * compares with the register. One construction, here, for the ratchet (scripts/mutation-ratchet.mjs)
+ * and for the reuse of a previous release's survivors (scripts/mutation-reuse.mjs, ADR-0106), which
+ * must ask the register exactly the question the ratchet will.
+ *
+ * `source` is the module's source as the report embeds it, `mutants` the report's surviving mutants
+ * of that module, all of them: an ordinal is a rank among siblings (assignOrdinals).
+ */
+export function survivorKeys(source, moduleName, mutants) {
+  const src = String(source ?? "");
+  const lines = src.split("\n");
+  const offsetOf = (l, c) => {
+    let o = 0;
+    for (let i = 0; i < l - 1; i++) o += lines[i].length + 1;
+    return o + c - 1;
+  };
+  const functionAt = declarationAt(src);
+  const items = mutants.map((m) => ({
+    module: moduleName,
+    function: functionAt(m.location.start.line),
+    mutator: m.mutatorName,
+    replacement: m.replacement,
+    original: src.slice(offsetOf(m.location.start.line, m.location.start.column),
+                        offsetOf(m.location.end.line, m.location.end.column)),
+    source: lines[m.location.start.line - 1] ?? "",
+    line: m.location.start.line,
+    column: m.location.start.column,
+  }));
+  assignOrdinals(items);
+  return items.map((m) => stableKey(m));
+}
