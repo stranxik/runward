@@ -1331,6 +1331,19 @@
 	<testcase name="the register matches the verdicts it is derived from" classname="test"/>
 	<testcase name="the register's cells read on GitHub exactly as the verdicts are written" classname="test"/>
 	<testcase name="the parser is actually reading the register" classname="test"/>
+	<testcase name="previousTag: the newest release below the current version, or at it with --inclusive" classname="test"/>
+	<testcase name="environmentDiffers: Node, Stryker and each harness file are named when they move" classname="test"/>
+	<testcase name="configDigest: Stryker's settings count, its prose and its perimeter do not" classname="test"/>
+	<testcase name="planReuse: an unchanged, unrefiled module offers its survivors, marked, and nothing else" classname="test"/>
+	<testcase name="planReuse (positive control): a bundle that carries a killed mutant is refused whole" classname="test"/>
+	<testcase name="planReuse (positive control): a changed line is handed to Stryker with the source it was measured on" classname="test"/>
+	<testcase name="planReuse (positive control): a survivor the register no longer files is measured, its sibling still reused" classname="test"/>
+	<testcase name="planReuse: every reason not to reuse is a full plan with its reason" classname="test"/>
+	<testcase name="buildBundle: survivors only, complete modules only, and none without this run's plan" classname="test"/>
+	<testcase name="legFile and trimReport: the leg carries survivors only, and keeps its report to its range" classname="test"/>
+	<testcase name="lineMap: equal lines keep their place across an insertion, a changed line maps nowhere" classname="test"/>
+	<testcase name="plan --reuse: offered survivors cost nothing to predict, and every line is still measured" classname="test"/>
+	<testcase name="leg (command line): a leg planned for reuse that cannot apply it fails; one not planned measures" classname="test"/>
 	<testcase name="the table numbers mutants in source order, from 0, within the range, and refuses a config whose mutator it would not mirror" classname="test"/>
 	<testcase name="this repository's stryker.config.json sets neither `mutator` nor `ignorers`, so the table mirrors its run" classname="test"/>
 	<testcase name="the table reproduces the numbering of release run 40684642130 on paths.js:1-60" classname="test">
@@ -1471,6 +1484,7 @@
 	<testcase name="ADR-0079: every module answering 'describes' is the only green verdict" classname="test"/>
 	<testcase name="ADR-0079: a mismatch, a refusal or a silent module makes the run refused, and each is named" classname="test"/>
 	<testcase name="ADR-0079: a merged report is identified by its SHA-256 and its survivors counted" classname="test"/>
+	<testcase name="ADR-0106: the summary says what the run reused, counted on the merged report, and the bundle it leaves" classname="test"/>
 	<testcase name="an agent that itself proposed the row never binds it, whoever it answers for" classname="test"/>
 	<testcase name="an agent trace that names no agent still binds when its accountable person did not propose" classname="test"/>
 	<testcase name="a row that is not decided is not the tier's business, and a deliverable that is absent is skipped" classname="test"/>
@@ -2348,9 +2362,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2344 -->
+	<!-- tests 2358 -->
 	<!-- suites 0 -->
-	<!-- pass 2343 -->
+	<!-- pass 2357 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->
