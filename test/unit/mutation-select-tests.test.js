@@ -238,6 +238,8 @@ test("the test command runs the selected files cheap-first and stops at the firs
     r = cmd({ __STRYKER_ACTIVE_MUTANT__: s.idOn(5, "ArrayDeclaration"), RUNWARD_MUTATION_MAP: join(s.aside, "other-map.json") });
     assert.equal(r.status, 1, r.stdout + r.stderr);
     assert.match(r.stderr, /running the whole suite/);
+    // ADR-0131 C: several expensive covering files run in batches of increasing cost.
+    await batchesScenario();
   } finally { rmSync(s.root, { recursive: true, force: true }); }
 });
 
@@ -249,7 +251,9 @@ test("the test command runs the selected files cheap-first and stops at the firs
 // the killer the sixth. A kill must stop after the batch holding the killer and never start the
 // next; a survivor must still run every covering file; and the control shows why batches exist:
 // one invocation over the same files runs the last one after the killer has failed.
-test("the expensive covering files run in batches of increasing cost: a kill stops at its batch, a survivor runs them all", { skip: process.platform === "win32" ? "POSIX bash harness: the mutation ratchet runs on Linux runners only" : false }, async () => {
+// Run inside the test command's case below (POSIX bash, skipped on Windows like it), so the batches
+// add no skip of their own.
+async function batchesScenario() {
   const root = mkdtempSync(join(tmpdir(), "rw-batches-"));
   try {
     const box = join(root, "sandbox");
@@ -321,7 +325,7 @@ test("the expensive covering files run in batches of increasing cost: a kill sto
     assert.notEqual(r.status, 0);
     assert.ok(ran().includes("s8"), `one invocation ran ${ran().join(",")}`);
   } finally { rmSync(root, { recursive: true, force: true }); }
-});
+}
 
 // POSITIVE CONTROL, on the real tree. The `--witness` beside `--freeze` refusal of check-contract.js
 // (L41-43 of the build when this control was written) carries an ObjectLiteral mutant the release

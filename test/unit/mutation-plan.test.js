@@ -171,10 +171,11 @@ test("positive control: a file grown in the middle is re-cut at the cap; the old
     const before = Array.from({ length: 120 }, (_, i) => `export const v${i} = "k${i}";`);
     const inserted = Array.from({ length: 60 }, (_, i) => `export const w${i} = ["a${i}", "b${i}"];`);
     const after = [...before.slice(0, 30), ...inserted, ...before.slice(30)].join("\n");
-    const file = join(root, "dist", "lib", "alpha.js");
-    writeFileSync(file, after);
+    // Relative, as stryker.config.json writes it: `<file>:<range>` cannot carry a Windows drive letter.
+    const file = "dist/lib/alpha.js";
+    writeFileSync(join(root, file), after);
     const cfg = { mutate: [file] };
-    const sourceOf = (f) => readFileSync(f, "utf8");
+    const sourceOf = (f) => readFileSync(join(root, f), "utf8");
     // The record of the 120-line build: one kill on each line, survivors on 100-120 (the dear block).
     const rec = { model: DEFAULT_MODEL, run: "1", measuredAt: "2026-10-28", modules: { alpha: {
       lines: 120, mutants: before.map((_, i) => (i >= 99 ? [i + 1, 0, 1] : [i + 1, 1, 0])),
