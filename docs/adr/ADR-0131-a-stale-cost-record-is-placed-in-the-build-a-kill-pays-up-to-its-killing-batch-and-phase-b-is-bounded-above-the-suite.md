@@ -7,6 +7,11 @@ written for the maintainer's arbitration, with the code in the same pull request
 **Deciders**: the maintainer. Written by an agent session; under ADR-0088 decision 4 the maintainer is
 the single accountable person, and the agent's writing is disclosed throughput, not independent review.
 The review of this gate-adjacent code by a second model is planned after 2026-11-17 and has not happened
+**Chosen, not yet accepted (2026-11-13)**: the maintainer chose the cap of 60 mutants a chunk (decision
+B3), in chat on 2026-11-13, answering « ok » (French in the original, unchanged) to the item « Valider le
+plafond de 60 mutants par lot dans la #516. Je recommande oui. » (approve the cap of 60 mutants per chunk in
+#516; recommended yes). On the agent's recommendation; the maintainer did not review this text. The status
+stays proposed until the adversarial review (after 2026-11-17 11:00) has run
 **Method**: read on a fresh worktree of `stranxik/runward` at `main@c1f2a12`: `scripts/mutation-plan.mjs`,
 `scripts/mutation-timeouts.mjs`, `scripts/mutation-testcmd.sh`, `scripts/mutation-select-tests.mjs`,
 `scripts/mutation-mutant-table.mjs`, `docs/compliance/mutation-chunk-costs.json`,
@@ -135,7 +140,7 @@ regenerated from a release ratchet. The default is **60**: the smallest round va
 256. What it costs: with C, a lexer kill costs about a tenth of what it did (below), so a 60-mutant
 chunk stays under the ceiling unless more than about 84 % of its mutants survive at the whole
 suite's cost ((18 000 − 961 − 60 × 34) / (60 × 296)); the worst lexer leg of the run had 37 %
-survivors (15 of 41). Which value is the maintainer's question 1 below.
+survivors (15 of 41). The maintainer chose 60 on 2026-11-13 (the status line above).
 
 **C on one lexer mutant.** The ArrayDeclaration mutant of the `go` lexicon (`go: { line: [] }`,
 `dist/lib/evidence.js` L67, id 1 of `--mutate dist/lib/evidence.js:67-67`), in a sandbox laid out as
