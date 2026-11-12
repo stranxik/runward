@@ -8,7 +8,12 @@
 // overall verdict. A refused or mismatched run is summarised exactly like a green one. The workflow
 // signs the file as a GitHub artifact attestation; this script only reads and writes files.
 //
-//   node scripts/ratchet-summary.mjs --merged <dir> --answers <dir> --out <file.json>
+//   node scripts/ratchet-summary.mjs --merged <dir> --answers <dir> --out <file.json> [--reuse-plan <f>] [--bundle <f>]
+//
+// ADR-0106: with `--reuse-plan`, the summary says whether this run reused survivors of an earlier
+// release, from which one, and per module how many results came from it (`survivorsReused`, counted
+// on the merged report, never taken from the plan); with `--bundle`, the SHA-256 of the reuse bundle
+// this run leaves for the next release. A run that reused nothing says so in the same place.
 //
 // Inputs: `<dir>` trees as actions/download-artifact leaves them (a file may sit one level down).
 // Environment (all optional, recorded as given): GITHUB_REPOSITORY, GITHUB_SHA, GITHUB_RUN_ID,
@@ -18,10 +23,12 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { SEP } from "./mutation-key.mjs";
+import { reusedIn } from "./mutation-reuse.mjs";
 
 const argv = process.argv.slice(2);
 const arg = (name) => { const i = argv.indexOf(`--${name}`); return i === -1 ? null : argv[i + 1]; };
 const mergedDir = arg("merged"), answersDir = arg("answers"), out = arg("out");
+const reusePlanPath = arg("reuse-plan"), bundlePath = arg("bundle");
 if (!mergedDir || !answersDir || !out) {
   console.error("usage: ratchet-summary.mjs --merged <dir> --answers <dir> --out <file.json>");
   process.exit(2);
@@ -73,12 +80,13 @@ const ANSWER = { 0: "describes", 1: "mismatch", 2: "refused" };
 const modules = perimeter.map((module) => {
   const a = answers.get(module);
   const reportPath = merged.get(module);
-  let survivors = null, sha256 = null;
+  let survivors = null, sha256 = null, reused = null;
   if (reportPath) {
     const bytes = readFileSync(reportPath);
     sha256 = createHash("sha256").update(bytes).digest("hex");
     const report = JSON.parse(bytes.toString("utf8"));
     survivors = 0;
+    reused = reusedIn(report);
     for (const file of Object.values(report.files ?? {})) {
       for (const mutant of file.mutants ?? []) if (mutant.status === "Survived" || mutant.status === "NoCoverage") survivors++;
     }
@@ -89,9 +97,23 @@ const modules = perimeter.map((module) => {
     chunks: a ? { expected: a.chunksExpected, measured: a.chunksMeasured } : null,
     survivorsMeasured: survivors,
     survivorsFiled: filed.get(module) ?? 0,
+    survivorsReused: reused,
     mergedReportSha256: sha256,
   };
 });
+
+// ADR-0106: what this run reused, read from its own plan; absent plan, said absent.
+let reuse = null;
+if (reusePlanPath) {
+  let plan = null;
+  try { plan = JSON.parse(readFileSync(reusePlanPath, "utf8")); } catch { plan = null; }
+  reuse = plan
+    ? { state: plan.state, reason: plan.reason, from: plan.from ?? null, generation: plan.generation ?? null }
+    : { state: "unknown", reason: `no readable reuse plan at ${reusePlanPath}`, from: null, generation: null };
+}
+const reuseBundleSha256 = bundlePath && existsSync(bundlePath)
+  ? createHash("sha256").update(readFileSync(bundlePath)).digest("hex")
+  : null;
 
 const verdict = modules.every((m) => m.answer === "describes") ? "the register describes this tree" : "refused";
 const env = process.env;
@@ -105,6 +127,8 @@ const summary = {
   event: env.GITHUB_EVENT_NAME ?? null,
   run: env.GITHUB_RUN_ID ? { id: env.GITHUB_RUN_ID, attempt: env.GITHUB_RUN_ATTEMPT ?? null } : null,
   verdict,
+  reuse,
+  reuseBundleSha256,
   modules,
   nonScope: "This summary proves what the ratchet measured and answered on this run. It does not prove that the register's qualifications (hole, equivalent, …) are right: that judgement lives in the reviewed register.",
 };

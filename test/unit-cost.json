@@ -8,7 +8,7 @@
   ],
   "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 855.1,
+  "totalSeconds": 855.3,
   "slowSeconds": 792.9,
   "slow": [
     "test/unit/fleet-documents.test.js",
@@ -1468,6 +1468,11 @@
     {
       "file": "test/unit/fleet-repository.test.js",
       "seconds": 0.63,
+      "passed": true
+    },
+    {
+      "file": "test/unit/mutation-reuse.test.js",
+      "seconds": 0.15,
       "passed": true
     }
   ]

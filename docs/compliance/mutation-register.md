@@ -101,6 +101,14 @@ module=<m> -f mode=measure`), from that run's `merged-<m>` artifact, in this ord
    chunks from it. A record left stale only costs time (the planner warns and cuts the lines it does
    not know on a mean cost); it never changes which lines are measured.
 
+A release ratchet may reuse the previous release's survivors
+([ADR-0106](../adr/ADR-0106-the-release-ratchet-reuses-the-previous-releases-survivors-and-measures-every-other-mutant.md),
+proposed): a survivor whose code did not change and whose filing is still here is taken from the previous
+release's attested bundle, and every other mutant is measured. Retiring a filing in step 1 is therefore
+what makes the next release ratchet measure that survivor again. The signed summary counts what each
+module reused (`survivorsReused`); a module dispatched with `-f mode=measure` measures every mutant, since
+`reuse` is `off` by default.
+
 Before a tag, `npm run build && npm run mutation:fresh` compares every module's built file with that
 record: exit 0 when every module is fresh, 1 naming each stale or unknown module with the command that
 re-measures it, 2 when an input is missing. The release workflow runs the same check before it drafts

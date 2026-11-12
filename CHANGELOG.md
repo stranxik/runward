@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+### The release ratchet reuses the previous release's survivors, and measures every other mutant (ADR-0106, proposed)
+
+Every release ratchet measured every mutant of the perimeter: on the 0.46.0 model (ADR-0104), 128 legs and
+170 runner-hours (101 of them survivors), 14.5 h at 12 legs abreast. A release
+ratchet now hands each leg, as Stryker's incremental file, the previous release's survivors whose code did
+not change and whose stable key the register still files, with the source they were measured on; Stryker
+takes those and measures everything else, every killed mutant included. Only survivors, read in Stryker's
+source and then run (`test/stryker-incremental-contract.js`): with the command runner and
+`coverageAnalysis: "off"`, Stryker's differ reuses every mutant whose code did not change, whatever the
+tests became, so a reused kill could hide a hole a test change opened; a reused survivor can only overstate
+one. The previous release's bundle is its ratchet's own artifact, attested by the `summary` job and
+verified by the next `plan` job against that release's tag and commit (`gh attestation verify
+--cert-identity …@refs/tags/<tag> --source-digest <commit>`); a missing or unverified bundle, another
+Node.js, Stryker or harness, or a Stryker that fails the contract is a full measure with its reason in the
+signed summary, never a pass. One release ratchet in four measures everything. The planner predicts a
+reused survivor at zero and cuts fewer, longer ranges that still cover every line; each leg trims its
+report to its range, since Stryker copies a file's out-of-range mutants into the report; a leg cut for
+reuse that cannot apply it fails, so its module is refused. The signed summary gains `reuse`,
+`reuseBundleSha256` and, per module, `survivorsReused`. Modelled on the 0.46.0 record against the register
+29, 91 and 280 commits after the tag: 92 to 100 % of survivors reused, 41 to 48 legs, 46 to 56
+runner-hours, 4.2 to 4.7 h at 12 abreast. The plan and measure jobs take the Node.js of `.nvmrc`;
+`mutation-ratchet.yml` gains the dispatch input `reuse` (`off` by default; a release runs `auto`), listed
+in `.github/dispatch-allowlist.json`. The survivor key is built in one place, `survivorKeys` in
+`scripts/mutation-key.mjs`, which the ratchet now calls (its output on run 42878769502's `verdict` report
+is byte-identical before and after). New: `scripts/mutation-reuse.mjs`, `test/unit/mutation-reuse.test.js`
+(each refusal with its positive control), `test/stryker-incremental-contract.js`.
+
 ### runward-fleet reads a repository of GitHub, GitLab and Azure DevOps: a host and a path of two to eight segments (ADR-0130, proposed)
 
 `runward-fleet` read a repository as exactly `host/owner/repo`, GitHub's shape, so a GitLab project in
