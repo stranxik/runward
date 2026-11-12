@@ -14,7 +14,7 @@
 //      always re-measured);
 //   3. a mutant whose code changed is measured, whatever the file says.
 //
-// And it is why runward checks the tests itself: with the command runner and coverageAnalysis "off",
+// And it is why runward offers Stryker survivors only: with the command runner and coverageAnalysis "off",
 // Stryker has no per-test coverage, and `mutantCanBeReused` returns true for every unchanged mutant
 // ("This is the best we can do when the test runner didn't report coverage"). A changed test is invisible
 // to it. Case 4 below records that blindness as observed, so the ADR's reading stays checked; case 5
@@ -136,7 +136,7 @@ try {
   const blind = stryker("src.js", false);
   const stillReused = mutantsOf(blind).filter((m) => m.statusReason === MARK).length;
   results.push({ name: "4. (observed) a changed test does not stop Stryker reusing a survivor under the command runner", ok: null,
-    detail: stillReused > 0 ? `yes: ${stillReused} survivor(s) reused although the test now kills them; runward checks the covering tests itself` : "no: Stryker re-measured them" });
+    detail: stillReused > 0 ? `yes: ${stillReused} survivor(s) reused although the test now kills them; this is why runward offers survivors only, never kills` : "no: Stryker re-measured them" });
   writeFileSync(join(dir, "test.js"), WEAK_TEST);
 
   // Case 5 (observed, not required): a mutant of the file outside the `--mutate` range.
