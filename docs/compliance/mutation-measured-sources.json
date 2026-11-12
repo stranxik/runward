@@ -71,9 +71,9 @@
     },
     {
       "module": "mission",
-      "sha256": "a9394d4d70bf04763f592b1d764686f2b2503dce99ab798a2bd7840b4fe29fb1",
-      "run": "42042768906",
-      "measuredAt": "2026-11-05"
+      "sha256": "6f29c0e3d0c9b33d6846f0a5ca250ef4c99d8a4c9869ce29623a2a0bc2f8582a",
+      "run": "43208428078",
+      "measuredAt": "2026-11-12"
     },
     {
       "module": "paths",

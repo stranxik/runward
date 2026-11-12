@@ -5,8 +5,8 @@
  ],
  "verdicts": [
   {
-   "key": "207|9|207|23|ConditionalExpression|false",
-   "line": 207,
+   "key": "249|9|249|23|ConditionalExpression|false",
+   "line": 249,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The detail builder repaired by RWD-2026-0105; its branches need the exact matching cause to render. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -14,8 +14,8 @@
    "stableKey": "mission\u0001inProgressDetail\u0001ConditionalExpression\u0001false\u0001!a.templateKey\u0001if (!a.templateKey)"
   },
   {
-   "key": "210|9|210|53|ConditionalExpression|false",
-   "line": 210,
+   "key": "252|9|252|53|ConditionalExpression|false",
+   "line": 252,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The detail builder repaired by RWD-2026-0105; its branches need the exact matching cause to render. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -23,22 +23,13 @@
    "stableKey": "mission\u0001inProgressDetail\u0001ConditionalExpression\u0001false\u0001!spec || !structureContractOptIn(missionDir)\u0001if (!spec || !structureContractOptIn(missionDir))"
   },
   {
-   "key": "210|9|210|53|LogicalOperator|!spec && !structureContractOptIn(missionDir)",
-   "line": 210,
+   "key": "252|9|252|53|LogicalOperator|!spec && !structureContractOptIn(missionDir)",
+   "line": 252,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The detail builder repaired by RWD-2026-0105; its branches need the exact matching cause to render. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
    "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The detail builder repaired by RWD-2026-0105; its branches need the exact matching cause to render. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
    "stableKey": "mission\u0001inProgressDetail\u0001LogicalOperator\u0001!spec && !structureContractOptIn(missionDir)\u0001!spec || !structureContractOptIn(missionDir)\u0001if (!spec || !structureContractOptIn(missionDir))"
-  },
-  {
-   "key": "217|11|219|6|BlockStatement|{}",
-   "line": 217,
-   "mutator": "BlockStatement",
-   "filing": "hole",
-   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The detail builder repaired by RWD-2026-0105; its branches need the exact matching cause to render. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
-   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The detail builder repaired by RWD-2026-0105; its branches need the exact matching cause to render. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
-   "stableKey": "mission\u0001inProgressDetail\u0001BlockStatement\u0001{}\u0001{ return null; }\u0001catch {"
   }
  ]
 }
