@@ -150,14 +150,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      # 8, and one dispatched run at a time (the workflow's `concurrency`). The account's ceiling on
+      # 12, and one dispatched run at a time (the workflow's `concurrency`). The account's ceiling on
       # standard runners is 20 concurrent jobs, shared by every repository of the account. 16 assumed
       # one run; measured 2026-11-12, two measuring runs dispatched together held all 20 (13 + 7), and
       # for hours every other repository waited: a deploy of runward-hosted waited 21 min for one job,
-      # the hosted-service send of other repositories over 40 min. 8 leaves 12 for everyone else. The
+      # the hosted-service send of other repositories over 40 min. 12 leaves 8 for everyone else. The
       # price, said plainly: by ADR-0104's measured sum, a whole-perimeter run's floor goes from about
-      # 11.4 h at 16 abreast to about 23 h at 8. Above the ceiling legs queue rather than fail.
-      max-parallel: 8
+      # 11.4 h at 16 abreast to about 15.2 h at 12 (8 was weighed: about 23 h, judged too long by the
+      # maintainer). Above the ceiling legs queue rather than fail.
+      max-parallel: 12
       matrix:
         chunk: ${{ fromJson(needs.plan.outputs.chunks) }}
     steps:
