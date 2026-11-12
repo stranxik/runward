@@ -183,11 +183,19 @@ files ran.
 ### Composition with ADR-0106 (pull request #515)
 
 #515 discounts a reused survivor in `lineCosts`' output (`discountReuse`) and adds `reuse` to `plan`.
-The two meet on three lines of `scripts/mutation-plan.mjs` (the `plan` signature, the `cutModule`
-call in its loop, the `plan` call in `main`), each resolved by keeping both arguments. In a stale
-module the discount subtracts a survivor's modeled cost (151.5 s) from a line priced at the module's
-mean (about 43 s a mutant for `evidence`), so a reused line is predicted free; and a reused survivor
-still counts toward the cap. Both err toward more legs, never fewer lines measured.
+The two meet in four places of `scripts/mutation-plan.mjs` (the usage line, the `plan` signature, the
+cut in its loop, the `plan` call in `main`), each resolved by keeping both sides. One line more
+belongs to the resolution: a survivor offered for reuse is instrumented but not run, so it must not
+count toward the cap; where #515 computes `counts` (offered survivors per line), the loop subtracts
+them from `lc.mutants` (never below zero) before `cutModule`. Without that line the cap would cut for
+mutants a leg does not measure: more legs, never fewer lines. In a stale module the discount
+subtracts a survivor's modeled cost (151.5 s) from a line priced at the module's mean (about 43 s a
+mutant for `evidence`), so a reused line is predicted free, the same direction.
+
+The scripts this decision changes (`mutation-testcmd.sh`, `mutation-select-tests.mjs`,
+`mutation-timeouts.mjs`, `stryker.config.json`) are part of ADR-0106's harness fingerprint, so the
+first ratchet after both land re-measures everything instead of reusing: expected, and the reuse
+resumes from the release after.
 
 ### What this does not catch
 
