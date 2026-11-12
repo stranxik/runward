@@ -6,6 +6,13 @@ written by an agent session; the maintainer has not read this text. It becomes a
 of the pull request that carries it, or is amended on his review. The adversarial review this kind of
 record gets (a second model, on the critical path of the release ratchet) has not run yet: it is pending,
 and the pull request says so
+**Chosen, not yet accepted (2026-11-12)**: the maintainer chose option A (survivors only) and one full
+measure every four release ratchets (decision 6), in chat on 2026-11-12, answering « ok go » (French in the
+original, unchanged) to the item « Trancher les deux options de l'ADR-0106 : réutiliser seulement les
+survivants, et faire une mesure complète une release sur quatre. Je recommande oui aux deux. » (decide the
+two options of ADR-0106: reuse survivors only, and measure everything one release in four; recommended
+yes to both). On the agent's recommendation; the maintainer did not review this text. The status stays
+proposed until the adversarial review (after 2026-11-17) has run; the 0.47.0 tag waits for it
 **Deciders**: the maintainer, by approving the pull request that carries this record; proposed by an agent
 session. Under ADR-0088 decision 4 the maintainer is the single accountable person, and the agent's writing
 is disclosed throughput, not independent review
@@ -99,7 +106,8 @@ cheaper here: the changed files are the slow CLI-spawning ones, 103.6 runner-hou
 
 ## Decision
 
-**A**, proposed.
+**A**, proposed, with one full measure every four release ratchets (decision 6): both chosen by the
+maintainer in chat on 2026-11-12 (see Status); acceptance waits for the adversarial review.
 
 1. **What is reused.** A mutant that SURVIVED (Stryker's `Survived` or `NoCoverage`, the set the ratchet
    files) at the previous release, whose code Stryker's diff finds unchanged, and whose stable key the
