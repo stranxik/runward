@@ -79,7 +79,8 @@ module's own tests, 20 s), which this decision does not touch.
    whole suite on the leg's runner; `stryker.config.json` sets `fileLogLevel: "info"` so that its line
    ("Initial test run succeeded … (net N ms, overhead M ms)") is in `stryker.log`, where the verifier,
    which runs in the next step of the same leg, reads it.
-2. Without that line the bound is 900 s, above every dry run measured (533 s at most).
+2. Without that line the bound is 900 s, above every dry run measured on the runners (533 s at most);
+   not above every machine's suite (the maintainer's server: 865 s), see below.
 3. `--limit-ms` still sets the bound outright; `--suite-ms` gives a duration when no log does. The
    verifier prints the bound and why on its first line.
 4. A hang now costs up to the bound (about 700 to 1100 s on a runner, against 240 s) when it hides
@@ -204,7 +205,16 @@ resumes from the release after.
   is fitted across modules and a module whose kills are dear stays underpriced. ADR-0104's "refit"
   remains the remedy.
 - **Phase A's bound (20 s)**, sized for a module's own tests of about 1.3 s; not re-measured here.
-- **The seven verdicts already filed.** Their re-check is in the pull request, not in this record.
+- **The seven verdicts already filed, and the default off the runner.** Re-verified alone on the
+  maintainer's server on 2026-11-12 (a `node:24` container capped at 3.5 cores, no `stryker.log`, so
+  the 900 s default): all seven stopped at the bound again (910 s each). That server runs the pristine
+  whole-suite command in 865 s, so 900 s is not above its suite and the re-check is inconclusive, not
+  a confirmation. The default is above the runner's suite (533 s at most), not above every machine's:
+  a verification off the runner passes `--suite-ms` (or `--limit-ms`) from that machine's own suite.
+  Read from the code, `k++` at L251 and `i - 1` at L445 loop forever (real hangs); `k < 0` at L251
+  skips its loop and the two L111 mutants end at the start of the text (survivors or kills, not
+  hangs); L51 and L53 empty a string delimiter, which may or may not loop. Settling them is a re-run
+  with `--suite-ms 865000` on that server (bound 1730 s, at most about 3.4 h for the seven).
 
 ## What would settle it
 
