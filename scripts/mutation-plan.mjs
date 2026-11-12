@@ -11,10 +11,15 @@
 //
 // This script does two things, and nothing else writes the plan:
 //
-//   node scripts/mutation-plan.mjs [--module <m>] [--target <minutes>] [--github-output]
+//   node scripts/mutation-plan.mjs [--module <m>] [--target <minutes>] [--reuse <plan>] [--github-output]
 //       Cuts every module of the perimeter into line ranges whose PREDICTED time stays under the
 //       target, orders them longest first (so the sixteen slots of the matrix drain evenly), and
 //       prints the plan as JSON. `--github-output` appends `chunks=` and `modules=` to $GITHUB_OUTPUT.
+//       `--reuse` takes the reuse plan of scripts/mutation-reuse.mjs (ADR-0106): a survivor it offers
+//       is predicted to cost nothing, since Stryker takes its result from the incremental file, so the
+//       plan predicts only what will be measured and cuts fewer, longer ranges. Each chunk then
+//       carries `reuse`, the offered survivors predicted in its range. The ranges still cover every
+//       line: a reuse changes what a leg pays, never which lines it is handed.
 //
 //   node scripts/mutation-plan.mjs --record --merged <dir> --run <id> --measured-at <date> [--out <file>]
 //       Regenerates the plan input, docs/compliance/mutation-chunk-costs.json, from the merged
@@ -95,6 +100,21 @@ function meanLineCost(model, record) {
 }
 
 /**
+ * ADR-0106: a survivor the reuse plan offers costs nothing to predict, because Stryker takes its
+ * result from the leg's incremental file. Returns per line the offered count, and lowers `costs`
+ * in place (never below zero; a line that moved or changed, predicted line null, keeps its cost).
+ */
+export function discountReuse(model, costs, offered) {
+  const counts = new Array(costs.length).fill(0);
+  for (const line of offered?.predictedLines ?? []) {
+    if (!Number.isInteger(line) || line < 1 || line >= costs.length) continue;
+    counts[line] += 1;
+    costs[line] = Math.max(0, costs[line] - model.perSurvivorSeconds);
+  }
+  return counts;
+}
+
+/**
  * Cuts one module into ranges whose predicted time stays under `targetSeconds`. Greedy and
  * left to right: a chunk grows until the next line would push it over; a chunk always holds at
  * least one line, so a single line dearer than the target is still measured, over target and said so.
@@ -144,11 +164,12 @@ export function assertCovers(chunks, modules) {
  * The plan. `config` is the parsed stryker.config.json, `sourceOf(file)` returns the built file's
  * text (throws if it is not built), `record` the parsed costs file or null.
  */
-export function plan({ config, sourceOf, record, model = record?.model ?? DEFAULT_MODEL, targetMinutes = DEFAULT_TARGET_MINUTES, only = "" }) {
+export function plan({ config, sourceOf, record, model = record?.model ?? DEFAULT_MODEL, targetMinutes = DEFAULT_TARGET_MINUTES, only = "", reuse = null }) {
   const targetSeconds = targetMinutes * 60;
   const modules = [];
   const stale = [];
   let chunks = [];
+  let reused = 0;
   for (const entry of config.mutate) {
     const file = fileOf(entry);
     const module = moduleOf(file);
@@ -157,7 +178,14 @@ export function plan({ config, sourceOf, record, model = record?.model ?? DEFAUL
     modules.push({ module, file, lines });
     const lc = lineCosts(model, record, module, lines);
     if (lc.stale) stale.push(`${module} (${lc.stale})`);
-    chunks.push(...cutModule({ module, file, lines, costs: lc.costs, model, targetSeconds }));
+    const offered = reuse?.state === "reuse" && reuse.modules?.[module]?.reuse ? reuse.modules[module] : null;
+    const counts = offered ? discountReuse(model, lc.costs, offered) : null;
+    const cut = cutModule({ module, file, lines, costs: lc.costs, model, targetSeconds });
+    if (counts) {
+      for (const c of cut) { let n = 0; for (let l = c.start; l <= c.end; l++) n += counts[l]; c.reuse = n; }
+      reused += offered.predictedLines.length;
+    }
+    chunks.push(...cut);
   }
   if (chunks.length === 0) throw new Error("nothing to measure — check the module input");
   assertCovers(chunks, modules);
@@ -165,7 +193,7 @@ export function plan({ config, sourceOf, record, model = record?.model ?? DEFAUL
   if (chunks.length > MATRIX_LIMIT) throw new Error(`${chunks.length} chunks exceed the matrix limit of ${MATRIX_LIMIT}; raise --target`);
   const longest = chunks[0].predicted;
   const total = chunks.reduce((s, c) => s + c.predicted, 0);
-  return { chunks, modules: modules.map((m) => m.module), stale, targetMinutes, longestSeconds: longest, totalSeconds: total };
+  return { chunks, modules: modules.map((m) => m.module), stale, targetMinutes, longestSeconds: longest, totalSeconds: total, reused };
 }
 
 // ── the record ──────────────────────────────────────────────────────────────────────────────────
@@ -264,6 +292,10 @@ function main(argv) {
   const config = JSON.parse(readFileSync(configPath, "utf8"));
   const record = existsSync(costsPath) ? JSON.parse(readFileSync(costsPath, "utf8")) : null;
   if (!record) console.error(`::warning::no ${costsPath} — every module is cut on a mean line cost`);
+  let reuse = null;
+  if (arg("reuse")) {
+    try { reuse = JSON.parse(readFileSync(arg("reuse"), "utf8")); } catch (e) { console.error(`::warning::the reuse plan ${arg("reuse")} is not readable (${e.message}); every survivor is predicted at full cost`); }
+  }
   const targetMinutes = Number(arg("target") ?? DEFAULT_TARGET_MINUTES);
   if (!Number.isFinite(targetMinutes) || targetMinutes <= 0) { console.error("--target must be a positive number of minutes"); return 2; }
   const sourceOf = (file) => {
@@ -272,13 +304,13 @@ function main(argv) {
   };
   let result;
   try {
-    result = plan({ config, sourceOf, record, targetMinutes, only: arg("module") ?? "" });
+    result = plan({ config, sourceOf, record, targetMinutes, only: arg("module") ?? "", reuse });
   } catch (e) {
     console.error(`::error::${e.message}`);
     return 2;
   }
   const min = (s) => (s / 60).toFixed(1);
-  console.error(`${result.modules.length} module(s), ${result.chunks.length} chunk(s), target ${targetMinutes} min: longest predicted ${min(result.longestSeconds)} min, ${(result.totalSeconds / 3600).toFixed(1)} runner-hours predicted, record ${record ? `from run ${record.run} (${record.measuredAt})` : "absent"}`);
+  console.error(`${result.modules.length} module(s), ${result.chunks.length} chunk(s), target ${targetMinutes} min: longest predicted ${min(result.longestSeconds)} min, ${(result.totalSeconds / 3600).toFixed(1)} runner-hours predicted, record ${record ? `from run ${record.run} (${record.measuredAt})` : "absent"}, ${reuse?.state === "reuse" ? `${result.reused} survivor(s) of ${reuse.from.tag} offered for reuse (ADR-0106)` : "no reuse: every mutant is measured"}`);
   if (result.stale.length) console.error(`::warning::plan input stale for ${result.stale.join(", ")} — cut on a guessed cost, coverage unchanged; regenerate with --record after this run`);
   if (flag("github-output")) {
     const path = process.env.GITHUB_OUTPUT;

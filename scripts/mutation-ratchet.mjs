@@ -20,7 +20,7 @@
 
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { resolve, join } from "node:path";
-import { SEP, stableKey, describeKey, assignOrdinals, declarationAt } from "./mutation-key.mjs";
+import { SEP, describeKey, survivorKeys } from "./mutation-key.mjs";
 
 const VERDICTS = "docs/compliance/mutation-survivors";
 const SURVIVING = new Set(["Survived", "NoCoverage"]);
@@ -59,46 +59,17 @@ if (files.length !== 1) {
 const [, entry] = files[0];
 const src = entry.source ?? "";
 if (!src) refuse("the report carries no source, so no stable key can be built from it");
-const lines = src.split("\n");
-const offsetOf = (l, c) => {
-  let o = 0;
-  for (let i = 0; i < l - 1; i++) o += lines[i].length + 1;
-  return o + c - 1;
-};
-
-/**
- * Which top-level declaration a line belongs to. The register is organised by it and the key carries
- * it, so the two sides have to agree on this before anything else is comparable — which is why the
- * rule lives in mutation-key.mjs beside the key it feeds, and not in a copy here.
- */
-const functionAt = declarationAt(src);
-
 let timeouts = 0;
-// Collected first, keyed second. An ordinal is a mutant's rank among its textually identical
-// siblings on the same line, so it cannot be computed one mutant at a time, and without it two
-// occurrences of the same literal on one line share an identity. That is measured and real:
-// normalize("NFC") appears twice on one line of onDiskSpelling, and each occurrence is its own
-// mutant.
-const survivors = [];
-for (const m of entry.mutants) {
-  if (m.status === "Timeout") timeouts++;
-  if (!SURVIVING.has(m.status)) continue;
-  survivors.push({
-    module: moduleName,
-    function: functionAt(m.location.start.line),
-    mutator: m.mutatorName,
-    replacement: m.replacement,
-    original: src.slice(offsetOf(m.location.start.line, m.location.start.column),
-                        offsetOf(m.location.end.line, m.location.end.column)),
-    source: lines[m.location.start.line - 1] ?? "",
-    line: m.location.start.line,
-    column: m.location.start.column,
-  });
-}
-assignOrdinals(survivors);
+for (const m of entry.mutants) if (m.status === "Timeout") timeouts++;
+// Keyed by mutation-key.mjs, which owns the whole construction: the top-level declaration a line
+// belongs to (the register is organised by it and the key carries it, so both sides must agree on
+// it before anything else is comparable), the mutated text, the line, and the ordinal, a mutant's
+// rank among its textually identical siblings on the same line. An ordinal cannot be computed one
+// mutant at a time, and without it two occurrences of the same literal on one line share an
+// identity: normalize("NFC") appears twice on one line of onDiskSpelling, and each occurrence is its
+// own mutant. The reuse of ADR-0106 asks the register the same question through the same function.
 const measured = new Map();
-for (const m of survivors) {
-  const key = stableKey(m);
+for (const key of survivorKeys(src, moduleName, entry.mutants.filter((m) => SURVIVING.has(m.status)))) {
   measured.set(key, (measured.get(key) ?? 0) + 1);
 }
 

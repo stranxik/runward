@@ -50,6 +50,12 @@ on:
         default: gate
         type: choice
         options: [gate, measure]
+      reuse:
+        description: "off = measure every mutant · auto = reuse the newest release's verified survivors (ADR-0106; a release always uses auto)"
+        required: false
+        default: "off"
+        type: choice
+        options: ["off", auto]
 
 # One dispatched run at a time: a second dispatch waits for the first instead of doubling the legs
 # that hold the account's 20 concurrent jobs (see max-parallel below). The group is per event, so a
@@ -98,9 +104,24 @@ jobs:
   # under a 5 h step ceiling and a last wave of long legs with the other slots idle: 13.5 h of wall
   # clock for 11.5 h of work. The planner cuts to a predicted target and sorts longest first. The
   # record never decides WHAT is measured: every line of every module as built, once, whatever it says.
+  #
+  # WHAT a leg re-measures is narrowed by ADR-0106 (proposed), and only in one direction: the survivors
+  # of the previous release whose code has not changed and whose filing the register still holds are
+  # handed to Stryker as an incremental file and taken from it; every killed mutant, every mutant whose
+  # code changed and every survivor whose filing was retired is measured on this tree. A reused result is therefore only ever "survived", and a
+  # hole cannot be hidden by one. The bundle is the previous release ratchet's own artifact, verified
+  # against that release's tag by its attestation before use; anything missing, unverified or changed
+  # (Node, Stryker, the harness) is a full measure with its reason in the summary, never a pass. One
+  # release ratchet in four measures everything.
   plan:
     needs: refuse-delegate
     runs-on: ubuntu-latest
+    # ADR-0106: list the previous release's ratchet run, download its reuse-bundle artifact and read
+    # its attestation. Reads only; this job runs no mutated code.
+    permissions:
+      contents: read
+      actions: read
+      attestations: read
     outputs:
       chunks: ${{ steps.split.outputs.chunks }}
       modules: ${{ steps.split.outputs.modules }}
@@ -108,10 +129,56 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24
+          # ADR-0106: a reuse requires the Node.js the bundle was measured under, exactly; `.nvmrc`
+          # changes only when the maintainer bumps it, where `24` moved with every patch release.
+          node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       - run: npm run build
+
+      # ADR-0106. Every exit below that is not the last line is a FULL measure with its reason, written
+      # to reuse-plan.json and kept in the signed summary; none of them is a pass. A bundle that fails
+      # its attestation is also an error annotation: it should never happen.
+      - name: Plan the reuse of the previous release's survivors (ADR-0106)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+          REUSE: ${{ inputs.reuse || 'auto' }}
+        run: |
+          set -uo pipefail
+          full() { node scripts/mutation-reuse.mjs plan --full "$1" --out reuse-plan.json; exit 0; }
+          [ "$REUSE" = "auto" ] || full "reuse=$REUSE was asked at dispatch"
+          node test/stryker-incremental-contract.js || full "the Stryker installed fails test/stryker-incremental-contract.js"
+          VERSION=$(node -p 'require("./package.json").version')
+          INCLUSIVE=""
+          [ "$EVENT" = "release" ] || INCLUSIVE="--inclusive"
+          TAG=$(gh api "repos/$REPO/releases?per_page=100" --jq '.[] | select(.draft == false and .prerelease == false) | .tag_name' \
+            | node scripts/mutation-reuse.mjs previous-tag --current "$VERSION" $INCLUSIVE) || full "the releases could not be listed"
+          [ -n "$TAG" ] || full "no release before $VERSION"
+          RUN=$(gh api "repos/$REPO/actions/workflows/mutation-ratchet.yml/runs?event=release&branch=$TAG&status=completed&per_page=1" \
+            --jq '.workflow_runs[0].id // empty') || full "the ratchet runs of $TAG could not be listed"
+          [ -n "$RUN" ] || full "no completed release ratchet of $TAG"
+          COMMIT=$(gh api "repos/$REPO/commits/$TAG" --jq .sha) || full "the commit of $TAG could not be read"
+          gh run download "$RUN" -R "$REPO" -n reuse-bundle -D reuse-previous \
+            || full "run $RUN of $TAG left no reuse-bundle artifact (none before ADR-0106, or past its 90 days)"
+          if ! gh attestation verify reuse-previous/reuse-bundle.json -R "$REPO" \
+               --cert-identity "https://github.com/$REPO/.github/workflows/mutation-ratchet.yml@refs/tags/$TAG" \
+               --source-ref "refs/tags/$TAG" --source-digest "$COMMIT" --deny-self-hosted-runners; then
+            echo "::error title=reuse bundle (ADR-0106)::the reuse-bundle of run $RUN carries no attestation of $TAG's ratchet at $COMMIT: not used"
+            full "the reuse bundle of run $RUN does not verify against $TAG's attestation"
+          fi
+          node scripts/mutation-reuse.mjs plan --bundle reuse-previous/reuse-bundle.json \
+            --tag "$TAG" --commit "$COMMIT" --run "$RUN" --out reuse-plan.json
+      - name: Keep the reuse plan (ADR-0106)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: reuse-plan
+          path: reuse-plan.json
+          if-no-files-found: warn
+          retention-days: 7
+
       - id: split
         env:
           ONLY: ${{ inputs.module }}
@@ -121,10 +188,12 @@ jobs:
         # and the predicted runner-hours, and warns on a stale record; it refuses (exit 2) an unbuilt
         # module, an empty plan or more legs than a matrix can hold.
         run: |
+          REUSE_PLAN=""
+          [ -s reuse-plan.json ] && REUSE_PLAN="--reuse reuse-plan.json"
           if [ -n "$ONLY" ]; then
-            node scripts/mutation-plan.mjs --github-output --target "$TARGET" --module "$ONLY"
+            node scripts/mutation-plan.mjs --github-output --target "$TARGET" --module "$ONLY" $REUSE_PLAN
           else
-            node scripts/mutation-plan.mjs --github-output --target "$TARGET"
+            node scripts/mutation-plan.mjs --github-output --target "$TARGET" $REUSE_PLAN
           fi
 
       # ADR-0105: the per-file coverage map, built ONCE here on the same commit and Node the legs
@@ -165,7 +234,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24
+          node-version-file: .nvmrc   # ADR-0106: the Node.js the reuse plan was made under
           cache: npm
       - run: npm ci
       - run: npm run build
@@ -175,6 +244,28 @@ jobs:
         with:
           name: coverage-map
           path: .
+      - name: Collect the reuse plan (ADR-0106)
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: reuse-plan
+          path: .
+
+      # ADR-0106: the module's offered survivors as Stryker's incremental file. No file, `--force`, as
+      # before. A leg the plan cut for reuse (chunk.reuse > 0) that cannot apply it FAILS here: its
+      # chunk does not come back and the ratchet refuses the module, rather than measuring for hours
+      # on a plan cut for a cheaper leg.
+      - name: Hand this leg the survivors it may reuse (ADR-0106)
+        id: reuse
+        env:
+          MODULE: ${{ matrix.chunk.module }}
+          EXPECT: ${{ matrix.chunk.reuse || 0 }}
+        run: |
+          mkdir -p reports/mutation
+          rm -f reports/mutation/incremental.json
+          node scripts/mutation-reuse.mjs leg --plan reuse-plan.json --module "$MODULE" --expect "$EXPECT" \
+            --out reports/mutation/incremental.json
+          if [ -s reports/mutation/incremental.json ]; then echo "force=" >> "$GITHUB_OUTPUT"; else echo "force=--force" >> "$GITHUB_OUTPUT"; fi
 
       # CONCURRENCY IS COMPUTED, not copied. The committed value (2) was measured on an 8-core
       # machine against a suite that uses 3.1 cores — `node --test` parallelises its own files. A
@@ -193,6 +284,7 @@ jobs:
         timeout-minutes: 300
         env:
           RUNWARD_MUTATION_MODULE: ${{ matrix.chunk.module }}
+          FORCE: ${{ steps.reuse.outputs.force }}
         run: |
           CORES=$(nproc)
           CONC=$(( CORES / 3 ))
@@ -210,8 +302,17 @@ jobs:
           fi
           npx stryker run \
             --mutate "${{ matrix.chunk.file }}:${{ matrix.chunk.start }}-${{ matrix.chunk.end }}" \
-            --concurrency "$CONC" --force
+            --concurrency "$CONC" $FORCE
         continue-on-error: true   # a failed chunk must still reach the ratchet, which calls it REFUSED
+
+      # ADR-0106: Stryker carries the incremental file's mutants from outside `--mutate` into the
+      # report (test/stryker-incremental-contract.js, case 5). A full measure of this range never
+      # reports them, so they are dropped here, and the merge sees what it always saw.
+      - name: Keep only this leg's range (ADR-0106)
+        env:
+          START: ${{ matrix.chunk.start }}
+          END: ${{ matrix.chunk.end }}
+        run: node scripts/mutation-reuse.mjs trim --report reports/mutation/mutation.json --start "$START" --end "$END"
 
       # Not optional. Stryker counts a Timeout as DETECTED, and an unverified one hides a survivor:
       # on `evidence` 199 of 269 "timeouts" turned out to be survivors when re-run alone. The ratchet
@@ -409,12 +510,29 @@ jobs:
         with:
           pattern: answer-*
           path: reports/mutation/answers
+      - name: Collect the reuse plan (ADR-0106)
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: reuse-plan
+          path: .
+      # ADR-0106: the survivors this run measured or reused, per complete module, with the source they
+      # were measured on: the next release's input. No bundle (no plan, say) is a warning, and the next
+      # release ratchet then measures everything.
+      - name: Write the reuse bundle (ADR-0106)
+        id: bundle
+        run: |
+          if node scripts/mutation-reuse.mjs bundle --merged reports/mutation/merged --answers reports/mutation/answers \
+               --reuse-plan reuse-plan.json --out reuse-bundle.json; then
+            echo "file=reuse-bundle.json" >> "$GITHUB_OUTPUT"
+          fi
       - name: Write the summary
         id: write
         run: |
           VERSION=$(node -p 'require("./package.json").version')
           OUT="ratchet-summary-$VERSION.json"
-          node scripts/ratchet-summary.mjs --merged reports/mutation/merged --answers reports/mutation/answers --out "$OUT"
+          node scripts/ratchet-summary.mjs --merged reports/mutation/merged --answers reports/mutation/answers --out "$OUT" \
+            --reuse-plan reuse-plan.json --bundle reuse-bundle.json
           echo "file=$OUT" >> "$GITHUB_OUTPUT"
           { echo "### Ratchet summary (ADR-0079)"; echo; echo '```json'; cat "$OUT"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       - name: Attest the summary
@@ -426,5 +544,19 @@ jobs:
         with:
           name: ratchet-summary
           path: ${{ steps.write.outputs.file }}
+          retention-days: 90
+          if-no-files-found: error
+      # The next release verifies this attestation against its tag before it reuses anything.
+      - name: Attest the reuse bundle (ADR-0106)
+        if: steps.bundle.outputs.file != ''
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ steps.bundle.outputs.file }}
+      - name: Keep the reuse bundle (ADR-0106)
+        if: steps.bundle.outputs.file != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: reuse-bundle
+          path: ${{ steps.bundle.outputs.file }}
           retention-days: 90
           if-no-files-found: error

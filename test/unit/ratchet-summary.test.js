@@ -69,3 +69,40 @@ test("ADR-0079: a merged report is identified by its SHA-256 and its survivors c
   assert.equal(m.survivorsMeasured, 2, "Survived and NoCoverage are survivors; Killed and Timeout are not");
   assert.ok(Number.isInteger(m.survivorsFiled));
 });
+
+test("ADR-0106: the summary says what the run reused, counted on the merged report, and the bundle it leaves", () => {
+  const mod = perimeter[0];
+  const dir = mkdtempSync(join(tmpdir(), "rw-ratchet-summary-reuse-"));
+  try {
+    const a = join(dir, "answers"), m = join(dir, "merged");
+    mkdirSync(a, { recursive: true });
+    mkdirSync(m, { recursive: true });
+    writeFileSync(join(a, `${mod}-answer.json`), JSON.stringify({ module: mod, exit: 0, chunksExpected: 1, chunksMeasured: 1 }));
+    writeFileSync(join(m, `${mod}-merged.json`), JSON.stringify({ files: { [`dist/lib/${mod}.js`]: { mutants: [
+      { status: "Survived", statusReason: "reused by ADR-0106 from v0.47.0 (run 9)" },
+      { status: "Survived" },
+      { status: "Killed" },
+    ] } } }));
+    const plan = join(dir, "reuse-plan.json");
+    writeFileSync(plan, JSON.stringify({ state: "reuse", reason: "1 survivor(s) of v0.47.0 offered", generation: 1, from: { tag: "v0.47.0", run: "9" } }));
+    const bundle = join(dir, "reuse-bundle.json");
+    writeFileSync(bundle, "{}\n");
+    const out = join(dir, "summary.json");
+    const runIt = (...extra) => {
+      execFileSync(process.execPath, [SCRIPT, "--merged", m, "--answers", a, "--out", out, ...extra], { cwd: ROOT, stdio: "pipe" });
+      return JSON.parse(readFileSync(out, "utf8"));
+    };
+    const s = runIt("--reuse-plan", plan, "--bundle", bundle);
+    const row = s.modules.find((x) => x.module === mod);
+    assert.equal(row.survivorsReused, 1, "the marker in the merged report, never the plan's promise");
+    assert.equal(row.survivorsMeasured, 2);
+    assert.deepEqual(s.reuse, { state: "reuse", reason: "1 survivor(s) of v0.47.0 offered", from: { tag: "v0.47.0", run: "9" }, generation: 1 });
+    assert.equal(s.reuseBundleSha256, createHash("sha256").update("{}\n").digest("hex"));
+    const unknown = runIt("--reuse-plan", join(dir, "absent.json"));
+    assert.equal(unknown.reuse.state, "unknown", "a plan that is missing is said missing, never read as a full measure");
+    assert.equal(unknown.reuseBundleSha256, null);
+    assert.equal(runIt().reuse, null);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
