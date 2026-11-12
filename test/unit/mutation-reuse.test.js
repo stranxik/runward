@@ -28,7 +28,7 @@ import { plan, assertCovers, DEFAULT_MODEL } from "../../scripts/mutation-plan.m
 import { survivorKeys } from "../../scripts/mutation-key.mjs";
 
 const ENV = {
-  node: "v24.22.1",
+  node: "v0.0.1-test",
   stryker: Object.fromEntries(STRYKER_PACKAGES.map((p) => [p, "10.1.1"])),
   harness: Object.fromEntries(HARNESS.map((f) => [f, sha256(f)])),
 };
@@ -67,7 +67,7 @@ test("previousTag: the newest release below the current version, or at it with -
 
 test("environmentDiffers: Node, Stryker and each harness file are named when they move", () => {
   assert.equal(environmentDiffers(ENV, ENV), null);
-  assert.match(environmentDiffers({ ...ENV, node: "v24.22.2" }, ENV), /Node\.js v24\.22\.2 then, v24\.22\.1 now/);
+  assert.equal(environmentDiffers({ ...ENV, node: "v24.22.2" }, ENV), `Node.js v24.22.2 then, ${ENV.node} now`);
   assert.match(environmentDiffers({ ...ENV, stryker: { ...ENV.stryker, "@stryker-mutator/core": "10.2.0" } }, ENV), /@stryker-mutator\/core 10\.2\.0 then/);
   for (const f of HARNESS) {
     assert.match(environmentDiffers({ ...ENV, harness: { ...ENV.harness, [f]: "x" } }, ENV), new RegExp(`${f.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")} changed`));
@@ -247,7 +247,10 @@ test("leg (command line): a leg planned for reuse that cannot apply it fails; on
     assert.equal(main(["leg", "--plan", missing, "--module", "alpha", "--expect", "0", "--out", out]), 0);
     assert.equal(existsSync(out), false);
     const planPath = join(dir, "plan.json");
-    const p = planReuse(args(bundleWith(), { env: { ...ENV, node: process.version } }));
+    // The plan's Node.js is this process's, as in a leg; the bundle's must be the same or the plan is full.
+    const here = { ...ENV, node: process.version };
+    const p = planReuse(args(bundleWith({ env: here }), { env: here }));
+    assert.equal(p.state, "reuse", p.reason);
     writeFileSync(planPath, JSON.stringify(p));
     assert.equal(main(["leg", "--plan", planPath, "--module", "alpha", "--expect", "1", "--out", out]), 0);
     assert.deepEqual(JSON.parse(readFileSync(out, "utf8")), legFile(p, "alpha"));
