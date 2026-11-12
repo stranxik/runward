@@ -13,7 +13,8 @@
 // real tree: the ObjectLiteral mutant of check-contract.js's `--witness` beside `--freeze` refusal,
 // killed on 2026-10-28 by the release ratchet, is executed by exactly one unit test file of its
 // module's neighbourhood, the 24-second verdict-witness.test.js, and the map hands the selector that
-// file and no other.
+// file and no other. And since ADR-0131, the expensive covering files run in batches of increasing
+// cost, so a killed mutant pays up to the batch that kills it and a survivor still runs them all.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, cpSync, existsSync, chmodSync } from "node:fs";
@@ -238,6 +239,88 @@ test("the test command runs the selected files cheap-first and stops at the firs
     assert.equal(r.status, 1, r.stdout + r.stderr);
     assert.match(r.stderr, /running the whole suite/);
   } finally { rmSync(s.root, { recursive: true, force: true }); }
+});
+
+// ADR-0131 C: the expensive covering files run in batches of increasing cost, and the first batch
+// that fails ends the run. Measured 2026-11-12 on the `evidence` measure (run 43208399067), a mutant
+// of the comment lexer is executed by 185 files and killed by one on the slow list; handed to ONE
+// `node --test`, which runs every file it is given even after one fails, the kill paid the whole
+// expensive set, 200 to 330 s per mutant on a runner. Here: eight expensive files priced 3 to 89 s,
+// the killer the sixth. A kill must stop after the batch holding the killer and never start the
+// next; a survivor must still run every covering file; and the control shows why batches exist:
+// one invocation over the same files runs the last one after the killer has failed.
+test("the expensive covering files run in batches of increasing cost: a kill stops at its batch, a survivor runs them all", { skip: process.platform === "win32" ? "POSIX bash harness: the mutation ratchet runs on Linux runners only" : false }, async () => {
+  const root = mkdtempSync(join(tmpdir(), "rw-batches-"));
+  try {
+    const box = join(root, "sandbox");
+    const aside = join(root, "aside");
+    mkdirSync(join(box, "dist", "lib"), { recursive: true });
+    mkdirSync(join(box, "test", "unit"), { recursive: true });
+    mkdirSync(join(box, "scripts"), { recursive: true });
+    mkdirSync(join(box, "ran"));
+    mkdirSync(aside);
+    const priced = { s1: 3, s2: 5, s3: 8, s4: 13, s5: 21, s6: 34, s7: 55, s8: 89 };
+    const write = (killer) => {
+      for (const name of ["f", ...Object.keys(priced)]) {
+        const body = name === killer ? 'throw new Error("killed");' : "";
+        writeFileSync(join(box, "test", "unit", `${name}.test.js`),
+          `import { test } from "node:test"; import { writeFileSync } from "node:fs";\n` +
+          `test("${name}", () => { writeFileSync("ran/${name}", ""); ${body} });\n`);
+      }
+    };
+    writeFileSync(join(box, "test", "unit-cost.json"), JSON.stringify({
+      totalSeconds: 229, slow: Object.keys(priced).map((n) => `test/unit/${n}.test.js`),
+      files: [{ file: "test/unit/f.test.js", seconds: 1 }, ...Object.entries(priced).map(([n, s]) => ({ file: `test/unit/${n}.test.js`, seconds: s }))],
+    }));
+    cpSync(SELECT, join(box, "scripts", "mutation-select-tests.mjs"));
+    cpSync(TESTCMD, join(box, "scripts", "mutation-testcmd.sh"));
+    chmodSync(join(box, "scripts", "mutation-testcmd.sh"), 0o755);
+    writeFileSync(join(box, "stryker.config.json"), JSON.stringify({ mutate: ["dist/lib/alpha.js"] }));
+    writeFileSync(join(box, "dist", "lib", "alpha.js"), ALPHA);
+    const r0 = run(process.execPath, [TABLE, "--mutate", "dist/lib/alpha.js:1-6", "--out", join(aside, "table.json")], { cwd: box });
+    assert.equal(r0.status, 0, r0.stderr);
+    writeFileSync(join(box, "dist", "lib", "alpha.js"), (await instrumented(join(box, "dist", "lib", "alpha.js"), ALPHA, 1, 6)).content);
+    const table = JSON.parse(readFileSync(join(aside, "table.json"), "utf8"));
+    const names = ["f", ...Object.keys(priced)];
+    writeFileSync(join(aside, "map.json"), JSON.stringify({
+      digests: { alpha: sha(ALPHA) },
+      tests: names.map((n) => ({ file: `test/unit/${n}.test.js` })),
+      modules: { alpha: { lines: { 2: names.map((_, i) => i) } } },
+    }));
+    const env = { RUNWARD_MUTATION_MAP: join(aside, "map.json"), RUNWARD_MUTATION_TABLE: join(aside, "table.json"),
+      __STRYKER_ACTIVE_MUTANT__: table.mutants.find((m) => m.line === 2).id };
+    const ran = () => names.filter((n) => existsSync(join(box, "ran", n)));
+    const clear = () => { rmSync(join(box, "ran"), { recursive: true, force: true }); mkdirSync(join(box, "ran")); };
+
+    write(null);
+    // The selection: the cheap file, then batches cheapest first. The first batch fills to 30 s
+    // (3 + 5 + 8 + 13 + 21: the file that crosses the budget joins it), the second to the sum of
+    // the first (34 + 55), the last file alone.
+    const sel = run(process.execPath, ["scripts/mutation-select-tests.mjs"], { cwd: box, env });
+    assert.equal(sel.status, 0, sel.stderr);
+    const t = (...n) => n.map((x) => `test/unit/${x}.test.js`).join(" ");
+    assert.equal(sel.stdout, `${t("f")}\n${t("s1", "s2", "s3", "s4", "s5")}\n${t("s6", "s7")}\n${t("s8")}\n`);
+    assert.match(sel.stderr, /the expensive 8 in 3 batch\(es\)/);
+
+    // A kill by s6: the run fails, s6's batch ran whole, the last batch never started.
+    write("s6");
+    let r = run("/bin/bash", ["scripts/mutation-testcmd.sh"], { cwd: box, env });
+    assert.equal(r.status, 1, r.stdout + r.stderr);
+    assert.deepEqual(ran(), ["f", "s1", "s2", "s3", "s4", "s5", "s6", "s7"]);
+
+    // A survivor: every covering file ran, the same set the single invocation ran.
+    write(null); clear();
+    r = run("/bin/bash", ["scripts/mutation-testcmd.sh"], { cwd: box, env });
+    assert.equal(r.status, 0, r.stdout + r.stderr);
+    assert.deepEqual(ran(), names);
+
+    // CONTROL: the old stage, one `node --test` over the same expensive files, does not stop at the
+    // killer: s8, the dearest, runs after s6 has failed. That is the cost the batches remove.
+    write("s6"); clear();
+    r = run(process.execPath, ["--test", ...Object.keys(priced).map((n) => `test/unit/${n}.test.js`)], { cwd: box });
+    assert.notEqual(r.status, 0);
+    assert.ok(ran().includes("s8"), `one invocation ran ${ran().join(",")}`);
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
 // POSITIVE CONTROL, on the real tree. The `--witness` beside `--freeze` refusal of check-contract.js

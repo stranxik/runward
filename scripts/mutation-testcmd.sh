@@ -23,8 +23,16 @@
 # never executes the line cannot fail because of it, so this cannot turn a survivor into a kill;
 # it can only, if the map is wrong, turn a kill into a survivor the ratchet then refuses.
 #
-# Two stages rather than one file at a time: `node --test` parallelises the files inside one
+# Stages rather than one file at a time: `node --test` parallelises the files inside one
 # invocation, and 52 sequential process starts would spend more on startup than the tests cost.
+#
+# A KILL PAYS UP TO ITS KILLING BATCH SINCE ADR-0131, MEASURED 2026-11-12. `node --test` does not
+# stop at the first failing file: it runs every file it was handed. With the expensive covering
+# files in ONE invocation, a killed mutant whose killer sits on the slow list paid the whole
+# expensive set, like a survivor; on the comment lexer of evidence.js (lines that run at module
+# load, executed by 185 files) that was 200 to 330 s per mutant on a runner. The selector now hands
+# the expensive files in batches of increasing cost, one per line, and this script stops at the
+# first batch that fails. The narrowed path only: the whole-suite fallback below is unchanged.
 #
 # Set RUNWARD_MUTATION_MODULE to put that module's own tests at the very front of stage 1.
 # Everything here is opt-in and degrades to "run the whole suite", which is always correct.
@@ -39,10 +47,16 @@ COST="test/unit-cost.json"
 if [ -n "${RUNWARD_MUTATION_MAP:-}" ] && [ -n "${RUNWARD_MUTATION_TABLE:-}" ] && [ -n "${__STRYKER_ACTIVE_MUTANT__:-}" ]; then
   SELECTED=$(node scripts/mutation-select-tests.mjs)
   if [ -n "$SELECTED" ] && [ "$SELECTED" != "ALL" ]; then
-    SEL_FAST=$(printf '%s\n' "$SELECTED" | sed -n '1p')
-    SEL_SLOW=$(printf '%s\n' "$SELECTED" | sed -n '2p')
-    [ -n "$SEL_FAST" ] && { node --test ${SEL_FAST} || exit 1; }
-    [ -n "$SEL_SLOW" ] && { node --test ${SEL_SLOW} || exit 1; }
+    # Line 1: the cheap covering files. Each further line: a batch of the expensive ones, cheapest
+    # batch first (ADR-0131 C). One invocation per line, and the first that fails ends the run: a
+    # killed mutant pays up to the batch that kills it, a survivor runs every line, so every
+    # covering file, as before. The loop reads on fd 3 so no test inherits the list as its stdin.
+    while IFS= read -r BATCH <&3; do
+      [ -n "$BATCH" ] || continue
+      node --test ${BATCH} || exit 1
+    done 3<<EOF
+$SELECTED
+EOF
     exit 0
   fi
 fi
