@@ -2,6 +2,43 @@
 
 ## Unreleased
 
+### runward-fleet reads a repository of GitHub, GitLab and Azure DevOps: a host and a path of two to eight segments (ADR-0130, proposed)
+
+`runward-fleet` read a repository as exactly `host/owner/repo`, GitHub's shape, so a GitLab project in
+nested groups and an Azure DevOps repository were refused in the inventory, in the trust policy and by
+`verify-run`. The identity is now a host and a path of two to eight segments, read by one closed grammar
+(`src/repository.js`): `github.com/org/app`, `gitlab.example.com/group/subgroup/project`,
+`dev.azure.com/org/project/_git/repo`. The host is a DNS name in ASCII, without scheme, address or
+internationalised label, and may be followed by a port (`gitlab.internal:8929/group/project`, 1 to 65535,
+part of the identity; `:443` is dropped); a segment holds letters, digits, `_`, `.` and `-`, is never empty and never made
+of dots alone, and nothing is decoded, so an encoded slash has no way in. The canonical form is the
+lower-case spelling without `.git`: DNS and the three forges resolve a path without regard to case, so two
+spellings that differ by case are one repository. That holds for GitHub, GitLab and Azure DevOps only: a
+forge that tells two repositories apart by case alone (Gerrit, gitolite, cgit) must not be declared. The
+build and `verify-run` stop on anything else and say which rule it breaks; `verify-run --repository` also
+accepts a forge address (one `https://` or `http://` in front, slashes at the end).
+
+Equality is decided on canonical identities only. A name a signature carries is read by the same grammar,
+and one that is not an identity is equal to no repository; it was lower-cased with Unicode rules before
+being compared, and U+212A (the Kelvin sign) folds to `k` (RWD-2026-0211, in code no release carried). The
+former pattern also accepted a dot segment (`github.com/../app`) and a host that is not a name: both are
+refused now.
+
+**Breaking, for an instance declared by its IP address**: the former pattern accepted
+`10.0.0.1/group/project`; a host that is an address is now refused, and such an instance is declared by a
+name. Whether dotted-decimal IPv4 should be admitted is left open in ADR-0130.
+
+`runward-fleet-index/0` does not change: `repository` stays one text, and a three-segment identity reads
+as it did, byte for byte (compared with the former reading over 4,860 identities; the golden files are
+not regenerated). `repositoryUrl(id)` and `repositoryParts(id)` are exported from `runward-fleet/trust`
+for a deployment that puts the identity in an address. Not representable, and refused: an Azure DevOps
+name with a space, an internationalised host. The Azure DevOps identity is the clone address without its
+`org@` (`dev.azure.com/org/project/_git/repo`); `org.visualstudio.com/…` and `dev.azure.com/org/_git/repo`
+are other identities. A relative link in a document of an
+Azure DevOps mission is shown as text, because that forge addresses a file in the query and the documents'
+rule asks that a forge address end with the path. `test/unit/fleet-repository.test.js` holds 49 planted
+identities, each refused for its own reason beside an accepted neighbour.
+
 ### runward-fleet renders a mission's documents from a closed subset of Markdown, and reads the register of its decision records (ADR-0127)
 
 A new module, `runward-fleet/documents` (`ui/documents.js`), for a deployment that shows a mission's own

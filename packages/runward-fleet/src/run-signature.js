@@ -29,23 +29,25 @@
 // which that signer vouches for by signing it.
 import { isDeepStrictEqual } from "node:util";
 import { pae, verifyBundle } from "./sigstore.js";
-import { PROTECTED_REF, normRepo } from "./trust.js";
+import { REPOSITORY_SHAPE, foreignRepository, normRepo } from "./repository.js";
+import { PROTECTED_REF } from "./trust.js";
 import { signatureVerifies } from "./ed25519.js";
 
 export const RUN_PREDICATE_TYPE = "https://runward.dev/run/v1";
 const STATEMENTS = new Set(["https://in-toto.io/Statement/v1"]);
 
 /** The repository a workflow identity lives in: `host/owner/repo` from a GitHub Build Signer URI
- *  (`https://github.com/org/ci/.github/workflows/x.yml@ref`), `host/group/project` from a GitLab one
- *  (`https://gitlab.example/group/project//.gitlab-ci.yml@ref`); null when neither shape. */
+ *  (`https://github.com/org/ci/.github/workflows/x.yml@ref`), `host/group/…/project` from a GitLab one
+ *  (`https://gitlab.example/group/subgroup/project//.gitlab-ci.yml@ref`); null when neither shape, or
+ *  when what precedes the workflow is not a repository identity (ADR-0130). */
 export function workflowRepository(uri) {
   const s = String(uri ?? "").replace(/^https?:\/\//, "");
   const at = s.lastIndexOf("@");
   const path = at > 0 ? s.slice(0, at) : s;
   const gitlab = path.indexOf("//");
-  if (gitlab > 0) return normRepo(path.slice(0, gitlab));
+  if (gitlab > 0) return foreignRepository(path.slice(0, gitlab));
   const gh = path.indexOf("/.github/workflows/");
-  if (gh > 0) return normRepo(path.slice(0, gh));
+  if (gh > 0) return foreignRepository(path.slice(0, gh));
   return null;
 }
 
@@ -69,7 +71,7 @@ function sameRun(signed, unsigned) {
 /**
  * Verify one signed run Statement. `document` is the parsed Sigstore bundle (what `actions/attest` and
  * `cosign attest-blob --bundle` write) or a DSSE envelope; `policy` what trust.readPolicy returns;
- * `expect` the repository (`host/owner/repo`) and commit the verdict is about, and optionally the ref.
+ * `expect` the repository (`host/path`, ADR-0130) and commit the verdict is about, and optionally the ref.
  * Returns `accepted` true only when the signature verifies and every rule holds; `landing` true only
  * when it was signed on the protected ref under an entry that pins it (ADR-0093 decision 8).
  */
@@ -77,8 +79,14 @@ export function verifyRunSignature({ document, policy, expect, unsigned = null }
   const r = { accepted: false, state: "refused", via: null, signer: null, identity: null, vouched: null, landing: false, checks: [], reasons: [], statement: null };
   const reason = (code, params = {}) => r.reasons.push({ code, ...params });
   const done = () => { r.accepted = r.state === "verified" && r.reasons.length === 0; if (!r.accepted && r.state === "verified") r.state = "outside-policy"; return r; };
-  const mission = normRepo(expect?.repository);
-  if (!mission || !/^[0-9a-f]{40}([0-9a-f]{24})?$/.test(String(expect?.commit ?? ""))) throw new Error("expect.repository (host/owner/repo) and expect.commit (a full commit digest) are required");
+  // What the caller expects is read as a signature's name is: a forge address is accepted, and nothing
+  // outside the grammar is.
+  const mission = foreignRepository(expect?.repository);
+  if (!mission || !/^[0-9a-f]{40}([0-9a-f]{24})?$/.test(String(expect?.commit ?? ""))) throw new Error(`expect.repository (${REPOSITORY_SHAPE}) and expect.commit (a full commit digest) are required`);
+  // The repository the signature vouches for, canonical, or null when it names none: `claims.repository`
+  // is what is shown, `claimed` what is compared.
+  let claimed = null;
+  const shown = (raw) => { claimed = foreignRepository(raw); return claimed ?? normRepo(raw); };
   if (!policy) { reason("no-policy"); r.state = "not-verifiable"; return r; }
 
   const isBundle = document && typeof document.mediaType === "string" && /^application\/vnd\.dev\.sigstore\.bundle/.test(document.mediaType);
@@ -121,16 +129,17 @@ export function verifyRunSignature({ document, policy, expect, unsigned = null }
       else reason("workflow-digest-not-pinned", { workflow: id.buildSignerURI, digest: id.buildSignerDigest ?? null, pinned: pinned.flatMap((s) => s.workflowDigests) });
     }
     if (entry?.runnerEnvironment && id.runnerEnvironment !== entry.runnerEnvironment) reason("runner-not-pinned", { signed: id.runnerEnvironment ?? null, pinned: entry.runnerEnvironment });
-    const source = normRepo(id.sourceRepositoryURI);
+    const source = foreignRepository(id.sourceRepositoryURI);
     const said = statement?.predicate?.mission ?? null;
     if (signerRepo && source === signerRepo) {
       // The pipeline ran in the signer's own project: the certificate names that project, so the
       // mission is what the signed Statement says, vouched for by the signer.
-      claims = said && typeof said === "object" ? { repository: normRepo(said.repository), commit: said.commit ?? null, ref: said.ref ?? null, from: "statement" } : null;
+      claims = said && typeof said === "object" ? { repository: shown(said.repository), commit: said.commit ?? null, ref: said.ref ?? null, from: "statement" } : null;
     } else {
-      claims = { repository: source, commit: id.sourceRepositoryDigest ?? null, ref: id.sourceRepositoryRef ?? null, from: "certificate" };
+      claims = { repository: shown(id.sourceRepositoryURI), commit: id.sourceRepositoryDigest ?? null, ref: id.sourceRepositoryRef ?? null, from: "certificate" };
       if (said && typeof said === "object") {
-        if (said.repository && normRepo(said.repository) !== source) reason("statement-names-another-repository", { statement: normRepo(said.repository), certificate: source });
+        const stated = said.repository ? foreignRepository(said.repository) : null;
+        if (said.repository && (source === null || stated !== source)) reason("statement-names-another-repository", { statement: stated ?? normRepo(said.repository), certificate: claims.repository });
         if (said.commit && String(said.commit).toLowerCase() !== String(claims.commit ?? "").toLowerCase()) reason("statement-names-another-commit", { statement: said.commit, certificate: claims.commit });
       }
     }
@@ -158,7 +167,7 @@ export function verifyRunSignature({ document, policy, expect, unsigned = null }
     r.identity = { key: entry.keyDigest, algorithm: entry.algorithm };
     if (!entry.repositories.includes(mission)) reason("signer-pinned-for-other-repositories", { key: entry.keyDigest });
     const said = statement.predicate?.mission ?? null;
-    claims = said && typeof said === "object" ? { repository: normRepo(said.repository), commit: said.commit ?? null, ref: said.ref ?? null, from: "statement" } : null;
+    claims = said && typeof said === "object" ? { repository: shown(said.repository), commit: said.commit ?? null, ref: said.ref ?? null, from: "statement" } : null;
   }
 
   r.statement = statement;
@@ -168,7 +177,7 @@ export function verifyRunSignature({ document, policy, expect, unsigned = null }
   if (!claims) reason("no-mission-claims");
   else {
     r.vouched = claims;
-    if (claims.repository !== mission) reason("signed-for-another-repository", { signed: claims.repository ?? null, mission });
+    if (claimed !== mission) reason("signed-for-another-repository", { signed: claims.repository ?? null, mission });
     if (String(claims.commit ?? "").toLowerCase() !== String(expect.commit).toLowerCase()) reason("signed-at-another-commit", { signed: claims.commit ?? null, expected: expect.commit });
     if (expect.ref && claims.ref !== expect.ref) reason("signed-on-another-ref", { signed: claims.ref ?? null, expected: expect.ref });
     r.landing = claims.ref === PROTECTED_REF && entry?.ref === PROTECTED_REF;
