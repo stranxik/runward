@@ -1,0 +1,9 @@
+{
+  "what": "The decision records (runward/adr/) and the topology note (runward/execution-topology.md) of a real mission, copied unchanged: the inputs on which the register of runward-fleet/documents is held exact.",
+  "repository": "github.com/stranxik/runward-hosted",
+  "ref": "main",
+  "commit": "5084999864ca5b705a2ff28c59a102e401d33ad6",
+  "readOn": "2026-11-11",
+  "records": 21,
+  "template": "adr/ADR-0000-template.md"
+}

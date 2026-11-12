@@ -288,6 +288,24 @@ export function checkIndex(index) {
       if (series.records.some((r) => r.signatureVerified !== false)) problems.push(`missions[id=${m.id}]: a history record claims a verified signature`);
     }
   }
+  // ADR-0128: within a kind, the refusals by text partition its refusals, each n of the kind's n, and
+  // each lists only refusals that carry its text. An index built before carries no `byText`.
+  for (const m of index.missions ?? []) {
+    const L = m.latest;
+    if (!L || typeof L !== "object" || !Array.isArray(L.conformanceByKind)) continue;
+    const rows = Array.isArray(L.conformance) ? L.conformance : [];
+    L.conformanceByKind.forEach((g, k) => {
+      if (!Array.isArray(g?.byText)) return;
+      const at = `missions[id=${m.id}].latest.conformanceByKind[${k}]`;
+      const of = rows.map((c, i) => ((c?.kind ?? "not-observed") === g.state ? i : -1)).filter((i) => i !== -1);
+      const grouped = g.byText.flatMap((t) => (Array.isArray(t?.list) ? t.list : [])).sort((a, b) => a - b);
+      if (grouped.length !== of.length || grouped.some((x, i) => x !== of[i])) problems.push(`${at}: its text groups do not partition its refusals`);
+      g.byText.forEach((t, j) => {
+        if (t?.N !== g.n) problems.push(`${at}.byText[${j}]: N is not the number of refusals of its kind`);
+        for (const i of Array.isArray(t?.list) ? t.list : []) if (rows[i]?.problem !== t.state) problems.push(`${at}.byText[${j}]: refusal ${i} does not carry its text`);
+      });
+    });
+  }
   try {
     // eslint-disable-next-line no-unused-expressions
     JSON.stringify(index).match(PRIVATE_PATH) && problems.push("a private filesystem path is in the index");
@@ -352,6 +370,42 @@ export function checkReading(html, where = "reading") {
   return problems;
 }
 const STATE_OPEN = '<p data-role="state" ';
+
+const REFUSAL_OPEN = 'data-role="problem"';
+/** The index path every refusal of a view names (`data-role="problem" … data-index="path"`, in its tag), in order. */
+export function refusalPaths(html) {
+  const s = String(html);
+  const out = [];
+  for (let k = s.indexOf(REFUSAL_OPEN); k !== -1; k = s.indexOf(REFUSAL_OPEN, k + REFUSAL_OPEN.length)) {
+    const end = s.indexOf(">", k);
+    const tag = s.slice(k, end === -1 ? s.length : end);
+    const i = tag.indexOf(DATA_INDEX);
+    if (i === -1) { out.push(null); continue; }
+    const q = tag.indexOf('"', i + DATA_INDEX.length);
+    out.push(decode(tag.slice(i + DATA_INDEX.length, q === -1 ? tag.length : q)));
+  }
+  return out;
+}
+
+/**
+ * ADR-0128, on one application's page of the decision reading: grouped by kind and by text, the page
+ * still lists every refusal the index holds for it, each exactly once, under its index path. A refusal a
+ * grouping would hide, or show twice, is named.
+ */
+export function checkRefusals(html, index, id, where = "reading") {
+  const m = (index?.missions ?? []).find((x) => x.id === id);
+  if (!m || !m.latest || typeof m.latest !== "object") return [];
+  const base = `missions[id=${id}].latest.conformance`;
+  const seen = new Map();
+  for (const p of refusalPaths(html)) seen.set(p, (seen.get(p) ?? 0) + 1);
+  const problems = [];
+  (Array.isArray(m.latest.conformance) ? m.latest.conformance : []).forEach((_, i) => {
+    const times = seen.get(`${base}[${i}]`) ?? 0;
+    if (times !== 1) problems.push(`${where}: the refusal ${base}[${i}] is listed ${times} times, once expected`);
+  });
+  if (seen.has(null)) problems.push(`${where}: a refusal is listed with no index path`);
+  return problems;
+}
 const CLEAN_STATE = '<p data-role="state" data-state="clean">';
 
 /** Every string of a value, with the path that leads to it. */

@@ -17,7 +17,9 @@
     "./sigstore": "./src/sigstore.js",
     "./rules": "./src/rules.js",
     "./site": "./src/site.js",
-    "./views": "./ui/views.js"
+    "./views": "./ui/views.js",
+    "./documents": "./ui/documents.js",
+    "./mission": "./ui/mission.js"
   },
   "bin": {
     "runward-fleet": "src/cli.js"

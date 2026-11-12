@@ -18,7 +18,10 @@ move. `check --json` names the mission by the name it declares, no longer by the
 (RWD-2026-0199). The shipped example cites four reports a tool writes, and the CI runward ships regenerates
 them before the gate (ADR-0115). Three packages of this repository are released with runward, packed and
 attested by the isolated builder and attached to the release, none published to npm by it:
-`runward-fleet` (the fleet view, its decision reading in English and French from a closed lexicon, and `verify-run`; ADR-0093 D4, ADR-0125, ADR-0120 D4a), `runward-run` (the tests and
+`runward-fleet` (the fleet view, its decision reading in English and French from a closed lexicon, its
+refusals grouped by kind and by text, the projections of each application on the six steps of the method, a
+renderer for a mission's documents and the register of its decision records, and `verify-run`; ADR-0093 D4,
+ADR-0125 to ADR-0128, ADR-0120 D4a), `runward-run` (the tests and
 the declared reports run out of the agent's reach, read at `attested`, ADR-0120) and
 `runward-integrations` (three recipes, each counted only while its control passes, ADR-0122). The tarball
 bundles its runtime dependencies at the lockfile's versions, and the SBOM is the package's (ADR-0116).
@@ -29,6 +32,97 @@ minutes (RWD-2026-0205). The mutation register describes the build this release 
 (`npm run mutation:fresh`, ADR-0103), and the 0.46.0 mutation ratchet summary is committed unchanged
 (`docs/compliance/ratchet-summaries/ratchet-summary-0.46.0.json`, verdict: the register describes this
 tree).
+
+### runward-fleet renders a mission's documents from a closed subset of Markdown, and reads the register of its decision records (ADR-0127)
+
+A new module, `runward-fleet/documents` (`ui/documents.js`), for a deployment that shows a mission's own
+documents. They are written in a repository the package does not hold, so they are untrusted text.
+`renderDocument(markdown, context?)` renders a closed subset of Markdown (headings, paragraphs, lists,
+quotes, tables, fenced code, rules, code spans, bold, italic, links) into a closed list of elements, with
+no class, no style, no image and no event attribute. No character of the source is copied: raw HTML is
+shown as text. A link is rewritten: a fragment becomes a slug, a relative path must stay inside the
+repository and goes to the application's route or to the file in the forge, an absolute address is kept
+only when it is https without credentials, and anything else (`javascript:`, `data:`, `http:`, `//host`)
+is shown as the text the document wrote. `checkRendered(html)` is the second net a page asks before
+inserting an output: it refuses whatever is outside the same closed lists and says why.
+
+`register(files)` reads the register of a mission's decision records from the header of each
+`adr/ADR-NNNN-*.md`: number, title, date, status, what it supersedes and refines, the reevaluation
+trigger, what would settle it, the references. Nothing is inferred: a field a file does not carry is
+`null`, a status outside the template's words is shown as written, and the groups by status arrive with
+their n / N. `topology(markdown)` gives the port placement table of a topology note as data.
+
+Held by a corpus of 201 attack vectors, a seeded property test over 10,000 strings, planted copies of the
+module with one rule loosened each, a bound on time and on growth over 100,000 characters of pathological
+input, and the register of a real mission's 21 records.
+
+An adversarial review before the merge found nine things, all closed here with the review's inputs as
+vectors and a planted control each. Emphasis nested and closed rendered in quadratic time (100 KB in
+789 ms, now 88 ms): beyond eight pairs the marks are text. A table of 64 columns grew a source of short
+rows 292 times: a short row is no longer filled. A segment encoded twice (`%252e%252e`), or holding an
+encoded `?` or `#`, could leave the repository's prefix when a deployment's `source` or `route`
+concatenates: such a segment is refused, a forge address must end with the path asked, and the
+specification states that both functions are handed decoded text they must encode. The register read
+`accepted` on `accepted, then superseded by …`, on `accepted: no, rejected`, and on a status inside an
+HTML comment or a fence: a line that says a second status is shown as written, comments and fences are
+skipped, a record number is four digits and no more, and a linked record is read. Two headings can no
+longer share an id, a slug is never cut through a surrogate pair, tag characters (U+E0000 to U+E007F)
+are replaced, and `checkRendered` refuses what a browser's parser would move or close (a block in a
+paragraph, anything but rows in a table, nesting deeper than 64). The specification is `docs/spec/runward-fleet-documents.md`.
+Nothing changes in the index, the views or the CLI.
+
+### runward-fleet places each application on the six steps of the method, side by side and over time (ADR-0126, proposed)
+
+`runward-fleet/mission` is a new module of `runward-fleet`, with its views and a closed lexicon in English and
+French. `path(index, id)` gives an application's six steps (Frame, Architect, Floor, Iterate, Govern, Hand over;
+in French Cadrer, Architecturer, Plancher, Itérer, Gouverner, Transmettre): each reads "Crossed", "Documents
+complete", "Refused at this step", "Current step", "Not reached yet" or "Not asked by the gate", with its
+documents filled and its refusals as n / N, the documents missing with their state and cause, and the refusals
+by kind; the refusals that belong to no step are listed apart. The current step is the CLI's own: the first
+whose documents are not all filled. A step is crossed only where its documents are filled, nothing is refused
+at it, and the check is strict with a verdict that judges the answers: below the level the team requires, under
+a presence-only check or a check that writes no state, it reads "Documents complete" and says why. Step 4 is
+never crossed. `portfolio(index)` maps applications by step, each step's readings counted over every application
+declared. `point(index)` is one version's compact summary for a history, and `series(entries)` the series of
+points over the versions a service received: in the order of `seq`, an erased version a hole that breaks a run,
+a change of the runward version that judged marked, and since when the last state and position hold.
+`renderPath`, `renderPortfolio` and `renderSeries` give their HTML, whose elements carry style roles.
+
+The projections read `runward-fleet-index/0` as it is and add nothing to it: every version a service already
+keeps has its path and its point, and an index written before refusals carried their phase reads the same steps
+(the gated scope names it). A document, a refusal and an application's state are named as the decision reading
+names them. Six rules, M1 to M6, are held by `test/unit/fleet-mission.test.js` with planted controls, among them
+the steps of the five real exports of the decision reading agreeing with the CLI's own words for them. The closed
+values gain a `mission` section (`docs/spec/runward-closed-values.json`), and the specification is
+`docs/spec/runward-fleet-mission.md`. The static page does not show these views yet. The satellite's boundary
+test now walks every module of `ui/`.
+
+### The decision reading groups the refusals by kind and by text, and lists the refused applications first (ADR-0128, proposed)
+
+An application's page of the decision reading said every refusal with its text in full: the 46 refusals of a
+public repository whose rows are all proposed carry four texts, so the same paragraph was shown 22 times, and
+the page was 10,555 px tall at 1440 px and 19,118 px on a phone where the hosted product shows it. It now says,
+for each kind, its sentence with n / N; for each text of that kind, the text once, as written, behind a
+`<details>` labelled "Check detail, as written (the same for n / N)" ("Détail du contrôle, tel quel (le même
+pour n / N)"), the first of the page open; and where each refusal is ("{document}: {file}, line {line},
+requirement {rule}"), behind a second disclosure when there are several. No script: every refusal stays in the
+HTML. The same page is now 1,483 px tall at 1440 px and 3,656 px on a phone. A label no longer announces the
+text's language; the text keeps `lang="en"`.
+
+The portfolio lists the applications refused first, then those whose required level is not met, then the
+others, each state in the inventory's order, read from the lists of `fleet.byVerdict`, and says so; it shows a
+tile for every state, `0 / N` included. `decide()` keeps `applications[]` in the inventory's order and adds
+`listing`, the order of the page.
+
+`runward-fleet-index/0` grows, additively: each group of `conformanceByKind` carries `byText`, its refusals by
+text as written, each n / N of the kind with the positions of its refusals in `conformance`, so the reading
+counts nothing. A sixth rule of the reading, held by the build (`checkIndex`, and `checkRefusals` of
+`runward-fleet/rules` on each application's page): the text groups partition each kind's refusals, and a page
+lists every refusal exactly once. An index built before carries no `byText`; the reading then lists each
+refusal alone. The golden readings and the page's digest move (`test/fixtures/golden/fleet/decision.*`,
+`page.sha256`): the decision documents gain `listing`, `kinds[].path`, `kinds[].texts`, `problems[].entry` and
+`ungrouped`, and lose nothing. A hosted deployment re-pins and styles the new roles (`refusal-kinds`,
+`refusal-kind`, `refusal-text`, `where`, `where-label`, `refusals`).
 
 ### runward-fleet reads the index in plain words, from a closed lexicon in English and French (ADR-0125)
 

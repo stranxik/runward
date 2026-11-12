@@ -8,9 +8,10 @@
   ],
   "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 853.8,
+  "totalSeconds": 854.5,
   "slowSeconds": 792.9,
   "slow": [
+    "test/unit/fleet-documents.test.js",
     "test/unit/run-mutation.test.js",
     "test/unit/run-binding.test.js",
     "test/unit/levels-lock.test.js",
@@ -1452,6 +1453,16 @@
     {
       "file": "test/unit/fleet-decision.test.js",
       "seconds": 0.98,
+      "passed": true
+    },
+    {
+      "file": "test/unit/fleet-documents.test.js",
+      "seconds": 4.9,
+      "passed": true
+    },
+    {
+      "file": "test/unit/fleet-mission.test.js",
+      "seconds": 0.74,
       "passed": true
     }
   ]
