@@ -1,0 +1,87 @@
+{
+  "format": "runward-closed-values/0",
+  "about": "The closed values of `check --strict --json` that runward-fleet's decision reading is keyed on (ADR-0125, docs/spec/runward-fleet-decision.md). `published` lists the values the runward package published on npm writes; `unreleased` the values only the CLI of this tree writes. Values are only ever added (ADR-0030). test/unit/fleet-decision.test.js holds this file against the CLI of this tree, read from its code, and requires a sentence for every value, in both languages of the lexicon.",
+  "published": {
+    "package": "runward@0.46.0",
+    "integrity": "sha512-+O+Q8yVcdxCNm9bsb9IbrIcHU5SB90hgfReoHdKolzCwTvBggWn7DXDu6IAhX84bHQ8M6qJks6yU6DHbtFyLIQ==",
+    "read": "2026-11-10, the tarball from the registry, its integrity compared with the line above: every place that sets a value of these fields in dist/lib/check-contract.js (conformanceEntries, machinePayload), conformance.js (conformance, driftReport, charterActGaps, ratificationRows, ledgerMode, GATED_DELIVERABLES), evidence.js, verdict.js, delegation.js and mission.js (PHASES, artifactState, inProgressCause)"
+  },
+  "lists": {
+    "verdict": {
+      "field": "verdict",
+      "published": ["clean", "gaps"],
+      "unreleased": ["level-not-met"]
+    },
+    "deliverableState": {
+      "field": "deliverables[].state",
+      "published": ["missing", "untouched", "in-progress", "filled"],
+      "unreleased": []
+    },
+    "deliverableCause": {
+      "field": "deliverables[].cause (null outside in-progress)",
+      "published": ["placeholders", "below-floor", "missing-section", "invalid-field", "row-out-of-domain", "incoherent-rows", "broken-echo"],
+      "unreleased": []
+    },
+    "deliverable": {
+      "field": "deliverables[].relPath",
+      "published": ["framing.md", "mission-contract.md", "architecture.md", "execution-topology.md", "decision-matrix.md", "adr", "contracts", "floor.md", "governance/threat-model.md", "governance/evaluation-rubric.md", "governance/observability-schema.md", "runbook.md", "handover.md"],
+      "unreleased": []
+    },
+    "phase": {
+      "field": "deliverables[].phaseId and conformance[].phaseId (null for a scope that is not a phase)",
+      "published": ["frame", "architect", "topology", "floor", "govern", "handover"],
+      "unreleased": []
+    },
+    "conformanceKind": {
+      "field": "conformance[].kind",
+      "published": [
+        "rule-violation", "mapping-floor", "deliverable-missing", "manifest-unreadable", "unknown-rule", "duplicate-row", "missing-row", "proposed",
+        "empty-status", "invalid-status", "applied-without-evidence", "deviated-without-adr", "na-without-reason", "unresolved-pointer",
+        "evidence-placeholder", "evidence-refused", "corpus-missing", "corpus-edited", "corpus-extra", "corpus-unrecorded", "seal-violation",
+        "unratified-decision", "charter-malformed", "charter-stage-unread", "charter-class-refused", "sample-malformed", "agent-not-delegate",
+        "charter-expired", "class-suspended", "sample-missed", "unbound-row"
+      ],
+      "unreleased": [
+        "requires-unmet", "analysis-boundary", "analysis-capability", "analysis-secret", "analysis-test-integrity", "analysis-symbol",
+        "analysis-linkage", "analysis-policy"
+      ]
+    },
+    "conformanceScope": {
+      "field": "conformance[].scope",
+      "published": ["Architect", "Topology", "Floor", "Govern", "Handover", "corpus", "evidence-seal", "reconstruction", "delegation", "ratification"],
+      "unreleased": ["analysis"]
+    },
+    "ratificationState": {
+      "field": "ratification.byRow[].state",
+      "published": ["ratified", "changed", "untraced", "blind"],
+      "unreleased": []
+    },
+    "ratificationMode": {
+      "field": "ratification.byRow[].mode (null for an untraced row)",
+      "published": ["line-by-line", "en bloc", "blind", "agent", "agent (single accountable)"],
+      "unreleased": []
+    }
+  },
+  "index": {
+    "about": "The values runward-fleet adds when it builds runward-fleet-index/0 (docs/spec/runward-fleet-index.md): the reading has a sentence for each too.",
+    "verdict": ["not-observed", "not-available"],
+    "implemented": ["ci-declared", "machine-established"],
+    "conformanceKind": ["not-observed"]
+  },
+  "mission": {
+    "about": "The values runward-fleet's mission projections add (ADR-0126, docs/spec/runward-fleet-mission.md): the six steps and the phases each holds, the gated scope that names a refusal's phase in an index written before refusals carried their phaseId, how a step reads, why a step is complete and not crossed, the state of a check received that writes none, and the holes of a series. Every phase of lists.phase is on exactly one step, and every value here has a sentence in both languages of the lexicon: test/unit/fleet-mission.test.js holds this section against ui/mission.js.",
+    "steps": [
+      { "step": 1, "id": "frame", "phases": ["frame"] },
+      { "step": 2, "id": "architect", "phases": ["architect", "topology"] },
+      { "step": 3, "id": "floor", "phases": ["floor"] },
+      { "step": 4, "id": "iterate", "phases": [] },
+      { "step": 5, "id": "govern", "phases": ["govern"] },
+      { "step": 6, "id": "handover", "phases": ["handover"] }
+    ],
+    "scopePhase": { "Architect": "architect", "Topology": "topology", "Floor": "floor", "Govern": "govern", "Handover": "handover" },
+    "reading": ["crossed", "complete", "refused", "current", "ahead", "not-asked", "not-listed"],
+    "completeCause": ["not-strict", "level-not-met", "no-state", "other"],
+    "pointState": ["no-state"],
+    "hole": ["erased", "unreadable"]
+  }
+}

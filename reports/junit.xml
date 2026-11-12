@@ -870,6 +870,46 @@
 	<testcase name="the specification names every key the index carries: a key added without its line reddens" classname="test"/>
 	<testcase name="commitSource: the inventory may say where its commit was read from; the index carries it as declared, only when declared" classname="test"/>
 	<testcase name="one interface, two deployments: runward-fleet/site renders, from the index.json the build wrote, the page it wrote; both are golden" classname="test"/>
+	<testcase name="the closed lists are the values the CLI of this tree writes, read from its code; a planted value reddens" classname="test"/>
+	<testcase name="every closed value has its sentence, in both languages; a sentence taken out reddens, and an unknown value is shown as written" classname="test"/>
+	<testcase name="the specification shows the lexicon as it ships, in both languages; a sentence changed in the code and not in the specification reddens" classname="test"/>
+	<testcase name="the lexicon holds no word runward never says, in any form, in either language; each form planted reddens, the masculine singular after an accent included" classname="test"/>
+	<testcase name="the reading holds none of the method's words, in either language; each form planted in a sentence or a view reddens" classname="test"/>
+	<testcase name="no state reads as a decision taken: a planted Go reddens, in the lexicon and on the page; the title before your go / no-go passes" classname="test"/>
+	<testcase name="nothing is blocking is never shown without the team's requirements and the date of the last check; taken out, it reddens" classname="test"/>
+	<testcase name="the refused state of the renaming demonstration: every sentence from closed fields, the check's text shown as written and never read" classname="test"/>
+	<testcase name="the line of each refusal is the export's, projected into the index and tied to it on the page; a planted line reddens" classname="test"/>
+	<testcase name="grouped, no refusal is hidden: every refusal of the real exports is listed once, under its own text, with the index's n / N; one dropped from the page or from a group reddens, and the build refuses it" classname="test"/>
+	<testcase name="the applications are listed refused first, then level not met, then the others, in the order of the index's groupings; every state keeps its tile, 0 / N included" classname="test"/>
+	<testcase name="the check's detail is labelled as the validated screens label it, without naming its language; its text keeps lang=&quot;en&quot;" classname="test"/>
+	<testcase name="how rows were endorsed: groups n / N from the index, partitioning the decided rows; no view computes a denominator" classname="test"/>
+	<testcase name="a row endorsed by an agent is worded as an agent's, under the person declared, never as a person's mode; a planted one is caught" classname="test"/>
+	<testcase name="names can be left out of an index: no declared person reaches it, the agent's line says the name is not published; a name left in a text is refused" classname="test"/>
+	<testcase name="a mission received as digests only has its own state, in both languages, and none of the others" classname="test"/>
+	<testcase name="a check received whose export writes no verdict says so, never that nothing was received" classname="test"/>
+	<testcase name="the reading shows no history of states: the index holds the last check only, and nothing of a replay reaches it" classname="test"/>
+	<testcase name="the decision readings of the real exports are golden, in both languages, and the same through the package's exports" classname="test"/>
+	<testcase name="the page opens on the decision reading, holds its rules and lexicon before it is written, and lists them on the sources view" classname="test"/>
+	<testcase name="the corpus: at least 120 attack vectors in ten families, each asserted on the parsed tokens of the output" classname="test"/>
+	<testcase name="the corpus: every output passes the module's own check, and no vector yields more anchors than it declares" classname="test"/>
+	<testcase name="the reader of this test is not blind: it names an element, an attribute, an address and a hidden character outside the lists" classname="test"/>
+	<testcase name="the closed subset: headings, paragraphs, lists, quotes, tables, code, bold, italic, rules and links, and nothing else" classname="test"/>
+	<testcase name="the closed lists are the design's, and the module holds no import, no clock, no DOM, no sink" classname="test"/>
+	<testcase name="property: 10,000 strings drawn from a dangerous alphabet never yield anything outside the closed lists (seed 20261111)" classname="test"/>
+	<testcase name="property: whatever the check accepts, the reader of this test accepts too, over 5,000 outputs with one random change each" classname="test"/>
+	<testcase name="planted controls: each rule of the renderer, loosened alone, turns the corpus red" classname="test"/>
+	<testcase name="by construction: a piece the renderer did not build, an element or an attribute outside the lists cannot be emitted" classname="test"/>
+	<testcase name="the check on the way out refuses each output outside the closed lists, with its reason, and accepts the renderer's" classname="test"/>
+	<testcase name="planted controls: each rule of the check, loosened alone, accepts an output it must refuse" classname="test"/>
+	<testcase name="time bound: 100 KB of each pathological input renders in under ten times a plain document's CPU time (at least 200 ms), grows at most 20 times and is checked within the same bound; planted quadratic scans and a planted filling of rows are caught" classname="test"/>
+	<testcase name="real documents: every Markdown file of this repository's mission, records and templates renders inside the closed lists" classname="test"/>
+	<testcase name="the register is exact on the decision records of a real mission, read at the commit SOURCE.json names" classname="test"/>
+	<testcase name="the register says nothing a file does not: a field not found is null, an unknown status is shown as written, a relation is never mirrored" classname="test"/>
+	<testcase name="planted controls on the register: a status guessed, a template counted, a relation read from the whole line, each is caught on the real mission" classname="test"/>
+	<testcase name="the register reads a status only where the line says one: a second status word, a comment or a fence leaves it as written or not observed" classname="test"/>
+	<testcase name="planted controls on the reading of a status: each rule, loosened alone, changes what the register says of exactly the lines it holds" classname="test"/>
+	<testcase name="topology: the port placement table of a real mission, its cells as written, its ports grouped by location family with n / N" classname="test"/>
+	<testcase name="topology: the template's rows are marked as examples, a note without the table is not found, and a cell is never interpreted" classname="test"/>
 	<testcase name="ownText: the verbatim blocks and the tags come out as the former patterns took them out" classname="test"/>
 	<testcase name="resolvePath: the same value as the former pattern for every generated path, on one index" classname="test"/>
 	<testcase name="the numbers of a view and the paths it names: the former pattern's matches, and its substring test" classname="test"/>
@@ -888,6 +928,20 @@
 	<testcase name="checkPage, script tags that never end: 1,000,000 characters read in linear time" classname="test"/>
 	<testcase name="normRepo, a run of slashes (CodeQL; 7.8 s at 100,000 before): 1,000,000 characters read in linear time" classname="test"/>
 	<testcase name="md, comment openers that never close (CodeQL): 1,000,000 characters read in linear time" classname="test"/>
+	<testcase name="the steps of the five real exports agree with the CLI's own words: the current step it names, the phases it says are red, nothing crossed below the level required" classname="test"/>
+	<testcase name="step 4 is never said crossed, and no step is crossed under a check that does not read the answers or below the level required; planted, both redden" classname="test"/>
+	<testcase name="every grouping is n / N with the index path of each item it counts, and the steps partition the documents and the refusals; a planted count reddens" classname="test"/>
+	<testcase name="every number a view shows is the projection's value at the path it names, in both languages, with its denominator; planted, a number and a bare count redden" classname="test"/>
+	<testcase name="the lexicon holds no word runward never says and names no reading as a decision taken, in both languages, which hold the same keys; each planted breach reddens" classname="test"/>
+	<testcase name="the specification shows the lexicon as it ships, in both languages; a sentence changed in the code and not in the specification reddens" classname="test"/>
+	<testcase name="the closed values of the projections are the module's, every phase the CLI writes is on exactly one step, and every value has its sentence in both languages; a phase without a step reddens" classname="test"/>
+	<testcase name="an index written before refusals carried their phase reads the same steps; an explicit null phase belongs to no step" classname="test"/>
+	<testcase name="a value the lexicon does not know is shown as written, escaped, never dropped and never guessed" classname="test"/>
+	<testcase name="an application without a check read has its own state and no step, and is listed and counted, never filtered" classname="test"/>
+	<testcase name="the point of a version is compact, a pure function of the index, and reads an index built before refusals carried their phase" classname="test"/>
+	<testcase name="the series: the versions received in the order of seq, since when from the last run, a hole breaking it, a change of judging version marked" classname="test"/>
+	<testcase name="the projections of real exports are golden, in both languages, and the same through the package's exports" classname="test"/>
+	<testcase name="the module imports the package's views and nothing else, and reads no clock" classname="test"/>
 	<testcase name="runward-fleet ships at runward's version, private to npm, with no dependency and no script" classname="test"/>
 	<testcase name="the runward-fleet tarball holds its modules, its page, its fonts with their licenses, README, package.json and LICENSE, nothing else" classname="test"/>
 	<testcase name="the fleet Action builds from this repository's package, passes its inputs through the environment, pins every action, reads no secret" classname="test"/>
@@ -2279,9 +2333,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2275 -->
+	<!-- tests 2329 -->
 	<!-- suites 0 -->
-	<!-- pass 2274 -->
+	<!-- pass 2328 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->

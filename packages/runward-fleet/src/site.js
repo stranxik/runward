@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BuildError } from "./build.js";
-import { checkIndex, checkPage, checkView } from "./rules.js";
+import { checkIndex, checkLexicon, checkPage, checkReading, checkRefusals, checkView } from "./rules.js";
 import * as api from "../ui/views.js";
 
 const UI = join(dirname(fileURLToPath(import.meta.url)), "..", "ui");
@@ -50,12 +50,15 @@ export function renderPage(index) {
  * that breaks one is not written. `fonts` are { family, weight, format, bytes }.
  */
 export function renderSite(index, { template, views, api, fonts }) {
-  const problems = [...checkIndex(index)];
+  // The lexicon of the decision reading is held whatever this index holds (ADR-0125): every sentence of
+  // both languages, not only the ones this page shows.
+  const problems = [...checkIndex(index), ...(api.LEXICON ? checkLexicon(api.LEXICON) : [])];
   for (const [route, arg] of api.allViews(index)) {
     const where = `#/${route}${arg ? `/${arg}` : ""}`;
     let html;
     try { html = api.renderView(index, route, arg ?? undefined, { strict: true }); } catch (e) { problems.push(`${where}: the view cannot be built from this index (${e.message})`); continue; }
     problems.push(...checkView(html, index, where));
+    if (route === "decision") problems.push(...checkReading(html, where), ...(arg ? checkRefusals(html, index, arg, where) : []));
   }
   if (/<\/script/i.test(views)) problems.push("ui/views.js holds a closing script tag");
   const fontCss = fonts.map((f) => `@font-face{font-family:"${f.family}";font-style:normal;font-weight:${f.weight};font-display:swap;src:url(data:font/woff2;base64,${f.bytes.toString("base64")}) format("woff2")}`).join("\n");

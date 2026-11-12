@@ -23,7 +23,8 @@ written), 2 a usage error.
 ## What it shows, and what it never does
 
 - It shows what each export says, the source and the JSON path of every number, the sha256 of every
-  file it read, and every count as `n / N` with the list it counts.
+  file it read, and every count as `n / N` with the list it counts. A refusal's own text is shown as
+  written, and no sentence is read from it.
 - It never computes a state in a view, never adds states into one score, never prints a percentage,
   never hides a silent mission: a mission declared in `fleet.json` whose export is absent is a finding.
 - It never raises a cell above what a verified signature under a pinned policy supports. A record runward
@@ -31,6 +32,46 @@ written), 2 a usage error.
 - The eighteen view rules of ADR-0093 decision 11 are listed on the page with where each is held. The
   build renders every view and checks the rules it can read on them before it writes anything: a page
   that breaks one is not written.
+
+## The decision reading
+
+The page opens on a plain-language reading of the index, for the people who answer for what agents deliver
+and do not read code (ADR-0125): the applications refused first, then those whose required level is not
+met, then the others (ADR-0128); for each, its state, the reason, the refusals by kind and, within a kind,
+by their own text as written, shown once and folded with every refusal it stands for, the documents not
+filled in, how the decided rows were endorsed (an agent's endorsement is never worded as a person's), and
+where the reading comes from. Every sentence
+comes from a closed lexicon in English and French, keyed on a closed value of the index; nothing is
+computed and no model is called. `decide(index)` and `renderDecision(index, id?)`, exported by
+`runward-fleet/views`, give it as a document (`runward-fleet-decision/0`) and as HTML whose elements carry
+style roles. The specification, the lexicon and the closed lists are
+[docs/spec/runward-fleet-decision.md](https://github.com/stranxik/runward/blob/main/docs/spec/runward-fleet-decision.md)
+and [docs/spec/runward-closed-values.json](https://github.com/stranxik/runward/blob/main/docs/spec/runward-closed-values.json).
+
+## A mission's documents
+
+`runward-fleet/documents` is for a deployment that shows a mission's own Markdown documents, which are
+untrusted text (ADR-0127). `renderDocument(markdown, context?)` renders a closed subset of Markdown into a
+closed list of elements: raw HTML is shown as text, a link is rewritten (a slug, a route of the
+application, or an https address without credentials) and anything else stays text; there is no class, no
+style and no image. `checkRendered(html)` is the check a page asks before inserting an output.
+`register(files)` reads the register of the decision records from each record's header, and
+`topology(markdown)` the port placement table. The module has no import and no DOM. The specification is
+[docs/spec/runward-fleet-documents.md](https://github.com/stranxik/runward/blob/main/docs/spec/runward-fleet-documents.md).
+
+## The mission projections
+
+`runward-fleet/mission` (ADR-0126) says where each application stands in the six steps of the method (Frame,
+Architect, Floor, Iterate, Govern, Hand over; in French Cadrer, Architecturer, Plancher, Itérer, Gouverner,
+Transmettre), side by side for a portfolio, and how that changed over the versions a hosted service received.
+`path(index, id)` reads each step crossed, documents complete, refused at this step, current, not reached yet,
+or not asked by the gate (step 4: the gate asks for no document there), each with its documents and
+refusals as n / N and what is missing; `portfolio(index)` maps applications by step; `point(index)` is one
+version's compact summary, and `series(entries)` the series of points over the versions received, with since
+when the last state holds. They read the index as it is and add nothing to it, share the decision reading's
+words, and `renderPath`, `renderPortfolio` and `renderSeries` give their HTML with style roles. The static page
+does not show them yet. The specification is
+[docs/spec/runward-fleet-mission.md](https://github.com/stranxik/runward/blob/main/docs/spec/runward-fleet-mission.md).
 
 ## fleet.json, the declared inventory
 
@@ -61,6 +102,10 @@ written), 2 a usage error.
 ```
 
 Paths are relative to `fleet.json`. `asOf` is a label: neither the build nor the page reads a clock.
+An export whose content is not shared is declared by its digest alone, `{ "sha256": "<64 hex digits>" }`
+without `file`: the mission then reads "content not shared". `"names": "omitted"` keeps the names of the
+people an export declares out of the index, for a page published in public; the build refuses one that
+would still carry such a name in another field.
 `lang` is `en` or `fr`. The export kinds are `check`, `attestation`, `verify`, `witness`, `summary`,
 `report` and `history`; `expects` may also name `signature`. A mission may add `commitSource`, a short
 label of where `commit` was read from; the index carries it as written, and nothing checks it.
