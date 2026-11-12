@@ -2,7 +2,7 @@
 
 Shipped work is recorded in [CHANGELOG.md](CHANGELOG.md). This file lists only what is ahead.
 
-Last groomed: 2026-10-28 (v0.46.0) — a packaging test fails the build if this stamp lags the
+Last groomed: 2026-11-10 (v0.47.0) — a packaging test fails the build if this stamp lags the
 package version, so this file can no longer rot silently (it had, from v0.14.2 to v0.21.0:
 the floor-ts English pass and the documentation site were both long shipped and still listed).
 
@@ -112,7 +112,11 @@ agent-weeks in total. The order relative to ADR-0090's work order above is the m
 - **D4, the organisation view at the customer's (6 weeks).** Static `runward-fleet`, trust policy,
   signature verification, `machine-established` on GitHub and GitLab; cosign and `actions/attest`
   recipes with offline verification. *Accepted when:* the eighteen view rules are tests; the satellite
-  imports no runward module; an unpinned trust policy raises nothing.
+  imports no runward module; an unpinned trust policy raises nothing. *Shipped in 0.47.0:*
+  `runward-fleet` v1 (the static view, the trust policy, Sigstore bundles and Ed25519 signatures
+  verified offline; the view rules held by the build or by tests, the three the satellite cannot hold
+  listed as runward's; no runward import; an unpinned policy raises nothing) and `runward-fleet verify-run` (ADR-0120 D4a), a release asset and
+  never on npm. *Ahead:* the display half of run Statements (D4b); see the CHANGELOG.
 - **D5, the container and the connectors (10 weeks).** The satellite container (no outbound call); the
   GitLab two-mode module; the Kosli type; the forge-neutral independence rule with GitHub and GitLab
   readers (ADR-0080 Part 2); Azure and Bitbucket posters. *Accepted when:* no outbound call with the
@@ -175,7 +179,7 @@ pull request of its own, outside the D-plan's estimate:
 - **Whether the mutation ratchet holds, now that it has an artifact.** Until 0.36.1 the ratchet of
   [ADR-0046](docs/adr/ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md) decision 2 had no
   list to be diffed against, so "the survivor list does not grow" could not be falsified. It now
-  does. Next pass due 2026-11-05, and it must be compared against
+  does. The next pass is the 0.47.0 release's, and it must be compared against
   [`docs/compliance/mutation-register.md`](docs/compliance/mutation-register.md) rather than against
   any number published earlier: every figure taken before 2026-08-21 was measured while orphaned
   test processes were saturating the machine, and Stryker counts a starved run as *detected*. The

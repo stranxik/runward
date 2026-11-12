@@ -1,6 +1,6 @@
 {
   "name": "runward-integrations",
-  "version": "0.46.0",
+  "version": "0.47.0",
   "private": true,
   "description": "MIT recipes outside runward's verdict (ADR-0122): each one regenerates one report from the project's own tools, in a CI step pinned out of the agent's reach, normalised as ADR-0073 option 1, with the requires: rows it satisfies, a planted-sabotage control and a named maintainer. A recipe is counted only while its control passes. Imports nothing from runward; runward imports nothing from it.",
   "license": "MIT",

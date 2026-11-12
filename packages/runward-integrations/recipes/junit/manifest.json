@@ -68,7 +68,7 @@
       { "sabotage": "sarif", "why": "a credential literal in a file no test loads changes no case: the suite is as green as before" }
     ]
   },
-  "maintainer": { "name": "stranxik", "lastPassingControl": { "date": "2026-11-06", "runward": "0.46.0" } },
+  "maintainer": { "name": "stranxik", "lastPassingControl": { "date": "2026-11-10", "runward": "0.47.0" } },
   "limits": [
     "It regenerates what the tests say, and the tests are the project's: a case rewritten to pass whatever the code does stays green.",
     "A case that no longer exercises the code it is named after stays green: that is the coverage recipe's sabotage, which this one does not catch.",

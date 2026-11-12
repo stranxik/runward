@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+## 0.47.0
+
+### A level of proof, code read against what the mission declares, and three packages released with runward
+
+A minor release, cut on 2026-11-13, of everything merged since 0.46.0. **Verdicts change, on purpose,
+under `--strict`:** a mission none of whose applied rows the gate verified exits 5 (`verdict:
+"level-not-met"`), and `--require traced` accepts it by name (ADR-0114); a `#SYMBOL` of identifier form is
+looked for outside the file's comments (ADR-0114, RWD-2026-0194); an `applied` row whose pointers resolve
+to no file of the kind its rule requires is refused (ADR-0115); four sabotages that passed `check --strict`
+are refused (ADR-0124). A mission that pins `"analysis": "runward-analysis/1"` in its lock has its delivered
+TypeScript and JavaScript read, never run, by built-in analyzers (ADR-0118), and `runward init` writes
+`"requiredLevel": "re-derived"` in a new mission's lock (ADR-0119 decision 4); existing missions do not
+move. `check --json` names the mission by the name it declares, no longer by the checkout's absolute path
+(RWD-2026-0199). The shipped example cites four reports a tool writes, and the CI runward ships regenerates
+them before the gate (ADR-0115). Three packages of this repository are released with runward, packed and
+attested by the isolated builder and attached to the release, none published to npm by it:
+`runward-fleet` (the fleet view, its decision reading in English and French from a closed lexicon, its
+refusals grouped by kind and by text, the projections of each application on the six steps of the method, a
+renderer for a mission's documents and the register of its decision records, and `verify-run`; ADR-0093 D4,
+ADR-0125 to ADR-0128, ADR-0120 D4a), `runward-run` (the tests and
+the declared reports run out of the agent's reach, read at `attested`, ADR-0120) and
+`runward-integrations` (three recipes, each counted only while its control passes, ADR-0122). The tarball
+bundles its runtime dependencies at the lockfile's versions, and the SBOM is the package's (ADR-0116).
+Among the fixes: `verify` no longer answers verified over predicate fields it neither re-derives nor names
+(RWD-2026-0192); in a partial clone, `characterize`, `doctor` and `sample` no longer make git fetch from
+the remote (RWD-2026-0202); one long manifest cell or decision record no longer holds `check --strict` for
+minutes (RWD-2026-0205). The mutation register describes the build this release packs
+(`npm run mutation:fresh`, ADR-0103), and the 0.46.0 mutation ratchet summary is committed unchanged
+(`docs/compliance/ratchet-summaries/ratchet-summary-0.46.0.json`, verdict: the register describes this
+tree).
+
 ### runward-fleet renders a mission's documents from a closed subset of Markdown, and reads the register of its decision records (ADR-0127)
 
 A new module, `runward-fleet/documents` (`ui/documents.js`), for a deployment that shows a mission's own

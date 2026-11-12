@@ -199,7 +199,7 @@
 	<testcase name="beta form: its three terms are required checkboxes, not prose a reader skips" classname="test"/>
 	<testcase name="beta form and page: every link into the page lands on a heading the page has" classname="test"/>
 	<testcase name="beta page: the beta is not the pilot, changes nothing in it, and does not move its deadline" classname="test"/>
-	<testcase name="beta page: the bridge is said to be unreleased while the current release lacks it" classname="test"/>
+	<testcase name="beta page: the bridge is said to be released, in the release that carries it" classname="test"/>
 	<testcase name="beta page: the weekly slot is time set aside, not a response-time promise" classname="test"/>
 	<testcase name="obj 7: bundle emits a valid in-toto Statement whose subjects are the artifacts by RAW sha256" classname="test"/>
 	<testcase name="obj 7: bundle is byte-idempotent on unchanged artifacts" classname="test"/>
