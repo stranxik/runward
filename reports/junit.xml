@@ -1315,6 +1315,8 @@
 	<testcase name="plan: a stale or absent record changes the cut, never the coverage" classname="test"/>
 	<testcase name="plan (ADR-0131 B): a stale module's mutants are priced where they are in the build, at the module's mean, and a chunk of it holds at most the cap" classname="test"/>
 	<testcase name="positive control: a file grown in the middle is re-cut at the cap; the old line-number reading made one oversized range of it" classname="test"/>
+	<testcase name="plan (ADR-0131): a fresh record missing mutants prices them as survivors, and an entry's own model cuts it" classname="test"/>
+	<testcase name="record --update: one module's chunk reports become its entry, stamped with the run and its model; the others are kept" classname="test"/>
 	<testcase name="plan: `--module` narrows to one module, an unknown module is an error, and the matrix limit is enforced" classname="test"/>
 	<testcase name="cutModule and predict: the arithmetic the plan rests on" classname="test"/>
 	<testcase name="record: a merged Stryker report becomes per-line killed and surviving counts, and round-trips through the file" classname="test"/>
@@ -2353,9 +2355,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2349 -->
+	<!-- tests 2351 -->
 	<!-- suites 0 -->
-	<!-- pass 2348 -->
+	<!-- pass 2350 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->
