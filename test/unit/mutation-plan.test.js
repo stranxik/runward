@@ -203,6 +203,56 @@ test("positive control: a file grown in the middle is re-cut at the cap; the old
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
+// ADR-0131 B5-B6, measured on run 43333757332 (evidence, 2026-11-13): two legs never came back, and
+// the run's 48 others re-priced the lexer. A record re-measured that way describes the build but
+// misses mutants; each placed mutant it does not account for is priced as a survivor, never free.
+// And an entry re-measured on its own run carries the model fitted there, base included.
+test("plan (ADR-0131): a fresh record missing mutants prices them as survivors, and an entry's own model cuts it", () => {
+  const src = built(10);
+  const cfg = { mutate: ["dist/lib/alpha.js"] };
+  const model = { baseSeconds: 100, perKilledSeconds: 1, perSurvivorSeconds: 300, perTimeoutSeconds: 1000 };
+  const rec = { model: MODEL, modules: { alpha: { lines: 10, sha256: sha256(src), mutants: [[2, 3, 0, 0], [5, 0, 1, 1]] } } };
+  // the build places 3 mutants on line 2 (all recorded), 2 on line 5 (both recorded), 4 on line 8 (none)
+  const placed = [2, 2, 2, 5, 5, 8, 8, 8, 8];
+  const lc = lineCosts(MODEL, rec, "alpha", 10, { digest: sha256(src), placed });
+  assert.equal(lc.stale, null, "the digest matches: the record describes this build");
+  assert.equal(lc.costs[2], 3 * 10);
+  assert.equal(lc.costs[5], 150 + 150, "a row's timeouts are priced as survivors by a model that has no perTimeoutSeconds");
+  assert.equal(lc.costs[8], 4 * 150, "four unmeasured mutants, each priced as a survivor");
+  assert.equal(lineCosts(MODEL, rec, "alpha", 10, { digest: sha256(src) }).costs[8], 0, "without placements the record alone is read, as before");
+  // the entry's own model: its coefficients and its base
+  const own = { ...rec, modules: { alpha: { ...rec.modules.alpha, model } } };
+  const lo = lineCosts(MODEL, own, "alpha", 10, { digest: sha256(src), placed });
+  assert.equal(lo.model, model);
+  assert.equal(lo.costs[5], 300 + 1000);
+  assert.equal(lo.costs[8], 4 * 300);
+  const r = plan({ config: cfg, sourceOf: () => src, record: own, targetMinutes: 30, placements: { alpha: placed } });
+  assert.equal(r.chunks.reduce((t, c) => t + c.predicted, 0), r.chunks.length * 100 + 3 + 1300 + 1200, "each chunk pays the entry's base, 100 s, not the record's 600");
+  assert.doesNotThrow(() => assertCovers(r.chunks, [{ module: "alpha", lines: 10 }]));
+  assert.equal(predict(model, 2, 1, 1), 100 + 2 + 300 + 1000);
+});
+
+test("record --update: one module's chunk reports become its entry, stamped with the run and its model; the others are kept", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-plan-update-"));
+  try {
+    const source = built(9);
+    const chunk = (n, mutants) => { mkdirSync(join(dir, "art", `chunk-alpha--${n}`), { recursive: true }); writeFileSync(join(dir, "art", `chunk-alpha--${n}`, "verified.json"), JSON.stringify({ files: { "dist/lib/alpha.js": { source, mutants } } })); };
+    chunk(1, [{ status: "Killed", location: { start: { line: 1 } } }, { status: "Survived", location: { start: { line: 2 } } }]);
+    chunk(5, [{ status: "Timeout", location: { start: { line: 6 } } }]);
+    const model = { baseSeconds: 500, perKilledSeconds: 1, perSurvivorSeconds: 294, perTimeoutSeconds: 1346 };
+    const rec = buildRecord({ mergedDir: join(dir, "art"), run: 9, measuredAt: "2026-11-13", model, previous: record, update: true });
+    assert.deepEqual(rec.modules.alpha, { lines: 9, sha256: sha256(source), mutants: [[1, 1, 0, 0], [2, 0, 1, 0], [6, 0, 0, 1]], run: "9", measuredAt: "2026-11-13", model });
+    assert.deepEqual(rec.modules.beta, record.modules.beta, "a module the run did not measure is kept as it was");
+    assert.deepEqual([rec.model, rec.run, rec.measuredAt], [record.model, record.run, record.measuredAt], "the record's own run and model are unchanged");
+    assert.deepEqual(JSON.parse(serializeRecord(rec)), rec);
+    // two sources of one module are refused, and --update needs a record to update
+    mkdirSync(join(dir, "art", "chunk-alpha--8"));
+    writeFileSync(join(dir, "art", "chunk-alpha--8", "verified.json"), JSON.stringify({ files: { "dist/lib/alpha.js": { source: built(8), mutants: [] } } }));
+    assert.throws(() => buildRecord({ mergedDir: join(dir, "art"), run: 9, measuredAt: "x", previous: record, update: true }), /embed two different sources/);
+    assert.throws(() => buildRecord({ mergedDir: join(dir, "nothing"), run: 9, measuredAt: "x", update: true }), /no merged report|needs an existing record/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test("plan: `--module` narrows to one module, an unknown module is an error, and the matrix limit is enforced", () => {
   const r = plan({ config, sourceOf, record, targetMinutes: 90, only: "beta", placements });
   assert.deepEqual(r.modules, ["beta"]);
@@ -244,7 +294,8 @@ test("record: a merged Stryker report becomes per-line killed and surviving coun
       "test/unit/other.js": { source: "", mutants: [{ status: "Survived", location: { start: { line: 1 } } }] },
     },
   };
-  assert.deepEqual(recordModule(report), { alpha: { lines: 4, sha256: sha256("l1\nl2\nl3\n"), mutants: [[1, 2, 1], [3, 1, 1]] } });
+  // [line, killed, survived, timeouts]: a Timeout is its own column since ADR-0131 (it costs a phase-B run, not a kill)
+  assert.deepEqual(recordModule(report), { alpha: { lines: 4, sha256: sha256("l1\nl2\nl3\n"), mutants: [[1, 1, 1, 1], [3, 1, 1, 0]] } });
   const dir = mkdtempSync(join(tmpdir(), "rw-plan-"));
   try {
     mkdirSync(join(dir, "merged-alpha"));
@@ -298,7 +349,7 @@ test("command line: the plan job's call writes chunks= and modules= to $GITHUB_O
     const rec = spawnSync(process.execPath, [SCRIPT, "--record", "--merged", "merged", "--run", "7", "--measured-at", "2026-11-03", "--out", "rec.json"], { cwd: dir, encoding: "utf8" });
     assert.equal(rec.status, 0, rec.stderr);
     const written = JSON.parse(readFileSync(join(dir, "rec.json"), "utf8"));
-    assert.deepEqual(written.modules, { beta: { lines: 7, sha256: sha256(built(7)), mutants: [[4, 0, 1]] } });
+    assert.deepEqual(written.modules, { beta: { lines: 7, sha256: sha256(built(7)), mutants: [[4, 0, 1, 0]] } });
     assert.equal(written.run, "7");
     assert.ok(existsSync(join(dir, "rec.json")));
     const usage = spawnSync(process.execPath, [SCRIPT, "--record"], { cwd: dir, encoding: "utf8" });
@@ -320,7 +371,7 @@ test("this repository: the committed record names every module of the perimeter,
   const fromRecord = (f) => built(rec.modules[f.replace(/^.*\//, "").replace(/\.js$/, "")].lines);
   // Placeholder sources of the recorded lengths, so the digests a record carries (ADR-0131) are
   // left out: this case is about the line counts and the coverage, not about the bytes.
-  const byLines = { ...rec, modules: Object.fromEntries(Object.entries(rec.modules).map(([m, e]) => [m, { lines: e.lines, mutants: e.mutants }])) };
+  const byLines = { ...rec, modules: Object.fromEntries(Object.entries(rec.modules).map(([m, e]) => [m, { lines: e.lines, mutants: e.mutants, ...(e.model ? { model: e.model } : {}) }])) };
   const r = plan({ config: cfg, sourceOf: fromRecord, record: byLines });
   assert.doesNotThrow(() => assertCovers(r.chunks, names.map((m) => ({ module: m, lines: rec.modules[m].lines }))));
   assert.ok(r.chunks.length <= MATRIX_LIMIT);

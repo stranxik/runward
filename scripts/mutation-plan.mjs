@@ -82,9 +82,19 @@ export const moduleOf = (file) => basename(file).replace(/\.js$/, "");
 export const lineCount = (source) => source.split("\n").length;
 export const sha256 = (text) => createHash("sha256").update(text).digest("hex");
 
-export function predict(model, killed, survivors) {
-  return model.baseSeconds + model.perKilledSeconds * killed + model.perSurvivorSeconds * survivors;
+export function predict(model, killed, survivors, timeouts = 0) {
+  return model.baseSeconds + rowCost(model, [0, killed, survivors, timeouts]);
 }
+
+/**
+ * What one record row costs, in seconds: `[line, killed, survived, timeouts]`. A row written before
+ * ADR-0131 has no fourth field (its timeouts were counted as killed), and a model fitted before it
+ * has no `perTimeoutSeconds`: a timeout is then priced as a survivor.
+ */
+export function rowCost(model, [, killed, survivors, timeouts = 0]) {
+  return model.perKilledSeconds * killed + model.perSurvivorSeconds * survivors + (model.perTimeoutSeconds ?? model.perSurvivorSeconds) * timeouts;
+}
+const rowCount = ([, killed, survivors, timeouts = 0]) => killed + survivors + timeouts;
 
 /**
  * Why the record does not describe the module as built, or null when it does. A record that
@@ -109,15 +119,28 @@ export function staleness(entry, lines, digest) {
  * module without `placed` is refused: reading the old record by line number is the error this
  * replaced. Either way a guess changes where a module is cut, never what is measured.
  */
-export function lineCosts(model, record, module, lines, { digest = null, placed = null } = {}) {
+export function lineCosts(recordModel, record, module, lines, { digest = null, placed = null } = {}) {
   const entry = record?.modules?.[module];
+  // An entry re-measured on its own run (`--record --update`) carries the model fitted on that run.
+  const model = entry?.model ?? recordModel;
   const costs = new Array(lines + 1).fill(0);
   const stale = staleness(entry, lines, digest);
   if (!stale) {
-    for (const [line, killed, survivors] of entry.mutants ?? []) {
-      if (line >= 1 && line <= lines) costs[line] += model.perKilledSeconds * killed + model.perSurvivorSeconds * survivors;
+    const recorded = new Array(lines + 1).fill(0);
+    for (const row of entry.mutants ?? []) {
+      const line = row[0];
+      if (line >= 1 && line <= lines) { costs[line] += rowCost(model, row); recorded[line] += rowCount(row); }
     }
-    return { costs, mutants: null, stale: null };
+    // A record describing this build may still miss mutants: a chunk that never came back (a leg at
+    // the ceiling), a mutant straddling two ranges. With the build's placements, each placed mutant
+    // the record does not account for on its line is priced as a survivor, the dearest outcome that
+    // is not a hang: an unmeasured mutant is never free (ADR-0131 B5).
+    if (Array.isArray(placed)) {
+      const here = new Array(lines + 1).fill(0);
+      for (const line of placed) if (Number.isInteger(line) && line >= 1 && line <= lines) here[line] += 1;
+      for (let l = 1; l <= lines; l++) if (here[l] > recorded[l]) costs[l] += (here[l] - recorded[l]) * model.perSurvivorSeconds;
+    }
+    return { costs, mutants: null, stale: null, model };
   }
   if (!Array.isArray(placed)) throw new Error(`${module}: the record is stale (${stale}) and the mutants of the build were not placed; the planner cannot price it`);
   const perMutant = meanMutantCost(model, entry ? { [module]: entry } : record?.modules) ?? model.perSurvivorSeconds;
@@ -127,16 +150,16 @@ export function lineCosts(model, record, module, lines, { digest = null, placed 
     mutants[line] += 1;
     costs[line] += perMutant;
   }
-  return { costs, mutants, stale };
+  return { costs, mutants, stale, model };
 }
 
 /** The mean predicted cost of one recorded mutant over `modules`, or null when they record none. */
 function meanMutantCost(model, modules) {
   let total = 0, count = 0;
   for (const entry of Object.values(modules ?? {})) {
-    for (const [, killed, survivors] of entry.mutants ?? []) {
-      total += model.perKilledSeconds * killed + model.perSurvivorSeconds * survivors;
-      count += killed + survivors;
+    for (const row of entry.mutants ?? []) {
+      total += rowCost(model, row);
+      count += rowCount(row);
     }
   }
   return count > 0 ? total / count : null;
@@ -213,7 +236,7 @@ export function plan({ config, sourceOf, record, model = record?.model ?? DEFAUL
     modules.push({ module, file, lines });
     const lc = lineCosts(model, record, module, lines, { digest: sha256(source), placed: placements?.[module] ?? null });
     if (lc.stale) stale.push(`${module} (${lc.stale})`);
-    chunks.push(...cutModule({ module, file, lines, costs: lc.costs, model, targetSeconds, mutants: lc.mutants, maxMutants }));
+    chunks.push(...cutModule({ module, file, lines, costs: lc.costs, model: lc.model, targetSeconds, mutants: lc.mutants, maxMutants }));
   }
   if (chunks.length === 0) throw new Error("nothing to measure — check the module input");
   assertCovers(chunks, modules);
@@ -250,8 +273,8 @@ export function recordModule(report) {
     for (const m of entry.mutants ?? []) {
       const line = m.location?.start?.line;
       if (!Number.isInteger(line)) continue;
-      const row = byLine.get(line) ?? [line, 0, 0];
-      if (SURVIVING.has(m.status)) row[2] += 1; else row[1] += 1;
+      const row = byLine.get(line) ?? [line, 0, 0, 0];
+      if (SURVIVING.has(m.status)) row[2] += 1; else if (m.status === "Timeout") row[3] += 1; else row[1] += 1;
       byLine.set(line, row);
     }
     out[moduleOf(path)] = { lines: lineCount(entry.source ?? ""), sha256: sha256(entry.source ?? ""), mutants: [...byLine.values()].sort((a, b) => a[0] - b[0]) };
@@ -259,12 +282,31 @@ export function recordModule(report) {
   return out;
 }
 
-export function buildRecord({ mergedDir, run, measuredAt, model = DEFAULT_MODEL }) {
-  const modules = {};
+/**
+ * The record of the reports under `mergedDir`. Several reports of one module (the merged report, or
+ * the chunk reports of a run whose merge never happened because a leg did not come back) are read
+ * as one, provided they embed the same source; reports of one module on two sources are refused.
+ * With `previous` and `update`, the modules found replace their entries in the previous record, each
+ * stamped with this run, and every other module of it is kept as it was.
+ */
+export function buildRecord({ mergedDir, run, measuredAt, model = DEFAULT_MODEL, previous = null, update = false }) {
+  const reports = {};
   for (const path of find(mergedDir, (n) => n.endsWith(".json"))) {
-    Object.assign(modules, recordModule(JSON.parse(readFileSync(path, "utf8"))));
+    const report = JSON.parse(readFileSync(path, "utf8"));
+    for (const [file, entry] of Object.entries(report.files ?? {})) {
+      const seen = reports[file];
+      if (!seen) { reports[file] = { source: entry.source ?? "", mutants: [...(entry.mutants ?? [])] }; continue; }
+      if (sha256(seen.source) !== sha256(entry.source ?? "")) throw new Error(`${file}: the reports under ${mergedDir} embed two different sources; record one run at a time`);
+      seen.mutants.push(...(entry.mutants ?? []));
+    }
   }
+  const modules = recordModule({ files: reports });
   if (Object.keys(modules).length === 0) throw new Error(`no merged report under ${mergedDir}`);
+  if (update) {
+    if (!previous) throw new Error("--update needs an existing record to update");
+    for (const m of Object.keys(modules)) modules[m] = { ...modules[m], run: String(run), measuredAt, model };
+    for (const [m, e] of Object.entries(previous.modules ?? {})) if (!(m in modules)) modules[m] = e;
+  }
   const sorted = Object.fromEntries(Object.keys(modules).sort().map((m) => [m, modules[m]]));
   return {
     _comment: [
@@ -274,10 +316,13 @@ export function buildRecord({ mergedDir, run, measuredAt, model = DEFAULT_MODEL 
       "It never decides what is measured: the plan always covers every line of every module as built now.",
       "A stale record costs time, never coverage. Regenerate it after each release ratchet (see",
       "docs/compliance/mutation-register.md, 'Filing a measurement').",
+      "Each row is [line, killed, survived, timeouts] (a row of three predates ADR-0131: its timeouts are among",
+      "the killed). An entry stamped with its own run, date and model was re-measured alone (--record --update)",
+      "and is priced with that model; the record's own run and model describe the other entries.",
     ],
-    model,
-    run: String(run),
-    measuredAt,
+    model: update ? previous.model : model,
+    run: update ? previous.run : String(run),
+    measuredAt: update ? previous.measuredAt : measuredAt,
     modules: sorted,
   };
 }
@@ -291,7 +336,8 @@ export function serializeRecord(record) {
   names.forEach((m, i) => {
     const e = record.modules[m];
     const digest = e.sha256 ? `"sha256": ${JSON.stringify(e.sha256)}, ` : "";
-    lines.push(`    ${JSON.stringify(m)}: { "lines": ${e.lines}, ${digest}"mutants": ${JSON.stringify(e.mutants)} }${i < names.length - 1 ? "," : ""}`);
+    const stamp = e.run ? `"run": ${JSON.stringify(e.run)}, "measuredAt": ${JSON.stringify(e.measuredAt)}, ${e.model ? `"model": ${JSON.stringify(e.model)}, ` : ""}` : "";
+    lines.push(`    ${JSON.stringify(m)}: { "lines": ${e.lines}, ${digest}${stamp}"mutants": ${JSON.stringify(e.mutants)} }${i < names.length - 1 ? "," : ""}`);
   });
   lines.push("  }", "}", "");
   return lines.join("\n");
@@ -324,12 +370,21 @@ async function main(argv) {
   if (flag("record")) {
     const mergedDir = arg("merged"), run = arg("run"), measuredAt = arg("measured-at");
     if (!mergedDir || !run || !measuredAt) {
-      console.error("usage: mutation-plan.mjs --record --merged <dir> --run <id> --measured-at <YYYY-MM-DD> [--out <file>]");
+      console.error("usage: mutation-plan.mjs --record --merged <dir> --run <id> --measured-at <YYYY-MM-DD> [--out <file>] [--update] [--model <base>,<killed>,<survivor>,<timeout>]");
       return 2;
     }
     const out = arg("out") ?? COSTS_FILE;
     const previous = existsSync(out) ? JSON.parse(readFileSync(out, "utf8")) : null;
-    const record = buildRecord({ mergedDir, run, measuredAt, model: previous?.model ?? DEFAULT_MODEL });
+    let model = previous?.model ?? DEFAULT_MODEL;
+    if (arg("model")) {
+      const v = arg("model").split(",").map(Number);
+      if (v.length !== 4 || !v.every((x) => Number.isFinite(x) && x > 0)) { console.error("--model takes four positive numbers: base,killed,survivor,timeout seconds"); return 2; }
+      model = { baseSeconds: v[0], perKilledSeconds: v[1], perSurvivorSeconds: v[2], perTimeoutSeconds: v[3] };
+    }
+    let record;
+    try {
+      record = buildRecord({ mergedDir, run, measuredAt, model, previous, update: flag("update") });
+    } catch (e) { console.error(`::error::${e.message}`); return 2; }
     writeFileSync(out, serializeRecord(record));
     const n = Object.keys(record.modules).length;
     console.error(`${out}: ${n} module(s) recorded from run ${run} (${measuredAt})`);

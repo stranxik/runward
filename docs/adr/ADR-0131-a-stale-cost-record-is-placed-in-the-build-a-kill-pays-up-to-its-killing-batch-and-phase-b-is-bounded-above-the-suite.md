@@ -104,6 +104,15 @@ module's own tests, 20 s), which this decision does not touch.
    their guessed price. A line carrying more is a chunk of its own, over the cap and measured.
 4. A stale module whose mutants were not placed is refused, never planned on the old reading; the
    256-job refusal stays, and now also names the cap.
+5. In a module the record describes, a placed mutant the record does not account for on its line
+   (a chunk that never came back, a mutant straddling two ranges) is priced as a survivor: an
+   unmeasured mutant is never free. Added 2026-11-13, below.
+6. A record row is `[line, killed, survived, timeouts]`; a timeout was counted among the kills,
+   priced 12.7 s where it costs a verification. `--record --update --model b,k,s,t` replaces one
+   module's entry from a run's chunk reports (read as one when they embed the same source), stamps it
+   with that run, its date and the model fitted on it, and keeps every other entry; the planner prices
+   and cuts a stamped entry with its own model. The `evidence` entry is regenerated that way from run
+   43333757332, below.
 
 **C. A kill pays up to its killing batch** (`scripts/mutation-select-tests.mjs`,
 `scripts/mutation-testcmd.sh`).
@@ -158,6 +167,34 @@ invocations, 428 s in the seven of the new command (+11 %, the price of the batc
 expensive file failed in both runs of the pristine set, with the machine's load average near 70 (the
 suite's own subprocesses), and the same one in both is assumed, not checked; it does not change which
 files ran.
+
+### The second `evidence` measure (2026-11-13), and B5-B6
+
+Run 43333757332 measured `evidence` with A, B and C (#497's head, this branch and #517 merged; target
+90 minutes; 50 legs). 48 legs came back; two hit the 300-minute ceiling (lines 195-227, predicted
+58 min; lines 334-359, predicted 55 min), so the module is refused (ADR-0059: a missing chunk refuses
+it; the 48 green chunks are not a measurement of the module). Read from the 48 chunk reports and the
+job durations:
+
+- **Per status** (least squares, base fixed at 500 s, the leg's setup and its 7 min 40 s dry run):
+  a kill costs about nothing (C works: fit −3 s, recorded as 1 s), a survivor 294 s, a timeout
+  1346 s (Stryker's own timeout, then the verifier's phase B). R² 0.77. The survivor's cost is the same
+  outside the lexer (309 s fitted on the 34 other legs): it is the suite, not the lexer.
+- **Why the lexer is dear**: its 14 green legs hold 417 kills, 325 survivors and 28 timeouts, 42 %
+  survivors and 4 % timeouts, against 18 % and 0.4 % in the 34 others. The 0.46.0 mean the stale
+  pricing used (about 43 s a mutant) is a fifth of what a lexer mutant costs.
+- **The regenerated entry** (B6: 2671 mutants on the build's digest, 185 placed mutants unaccounted
+  for, priced as survivors by B5) re-prices the run's own legs: the green ones at a median 0.85 of
+  their real duration, the worst at 1.51 (733-778, 21 min against 14); the two legs that hit the
+  ceiling at 293 and 273 minutes.
+- **The plan it gives**: `evidence` alone at 90 minutes, 72 legs, the longest predicted 96.5 min
+  (line 367 alone); times the worst ratio measured, 146 min, under the 300-minute ceiling. The two
+  ranges that hit it are cut 195-199, 200-202, 203-210, 211-231 and 334-335, 336-340, 341-347,
+  348-349, 350-359, each predicted 43 to 87 min. The whole perimeter at 90 minutes: 252 legs, under
+  256 with a margin of four.
+- **Not done: a global refit.** The other 24 entries keep the 0.46.0 model (a survivor at 151.5 s).
+  With the new coefficients for every module the whole perimeter is 278 legs at 90 minutes (refused)
+  and 231 at 120; that refit, and the target it needs, are the maintainer's.
 
 ## Alternatives discarded
 

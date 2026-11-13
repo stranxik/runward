@@ -82,6 +82,12 @@ re-evaluation trigger, for three reasons, each fixed in the maintenance scripts 
   hangs. `scripts/mutation-timeouts.mjs` now bounds it at twice the leg's own dry run (never under
   240 s), read from `stryker.log` (`stryker.config.json` sets `fileLogLevel: "info"`), and at 900 s
   without one.
+- **Re-measured 2026-11-13** (run 43333757332): with the three fixes, 48 of 50 `evidence` legs came back
+  and two still hit the ceiling: a lexer survivor costs the suite (294 s), a timeout 1346 s, and 42 %
+  of the lexer's mutants survive. The record's rows now carry timeouts, `--record --update --model`
+  replaces one module's entry from a run's chunk reports with the model fitted on it, and a mutant the
+  record does not account for is priced as a survivor. The `evidence` entry is regenerated from that
+  run: 72 legs, the longest predicted 96.5 min; the whole perimeter plans in 252 legs.
 
 ### runward-fleet renders a mission's documents from a closed subset of Markdown, and reads the register of its decision records (ADR-0127)
 
