@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Fixed: the packed-example test runs in Stryker's sandbox, so it no longer kills every mutant it meets
+
+`test/unit/example-packed.test.js` packs the tarball and extracts it with `tar -xzf`. In Stryker's
+sandbox, whose `node_modules` is a link to the checkout's, npm writes the bundled dependencies' own
+dependencies under `package/../../node_modules/` once the hidden lockfile is older than one package
+folder, and `tar` refuses those members. The failure does not depend on the mutant, so every mutant
+whose only failing test was this one was counted Killed: 596 in `mission` (run 43208428078), and 65 in
+`attestation`, 61 in `verdict`, 16 in `check-contract`, 6 in `rules` and 1 in `paths` in the runs at
+`7d1846b`. The test now packs where `node_modules` really is, as the SBOM tests do since `7d1846b`, and
+then ships the tree under test's own files in the extracted package, so the CLI it runs is still the
+sandbox's code, mutant included: packing the checkout alone would have turned this test's real kills into
+survivors. Reproduced on a copy of the tree with a linked `node_modules` and a stale hidden lockfile:
+`main`'s test fails on `tar` with or without a mutant, this one passes on the pristine copy and fails on
+`init --example` under the `mission.js` line 549 `LogicalOperator` mutant. Outside a sandbox nothing
+changes. Mutation measures taken before this fix count those kills and need the same re-verification.
+No shipped file changes.
+
 ### runward-fleet reads a repository of GitHub, GitLab and Azure DevOps: a host and a path of two to eight segments (ADR-0130, proposed)
 
 `runward-fleet` read a repository as exactly `host/owner/repo`, GitHub's shape, so a GitLab project in
