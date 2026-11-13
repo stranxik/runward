@@ -3,6 +3,15 @@
  "probeMissions": [],
  "verdicts": [
   {
+   "key": "306|9|306|26|ConditionalExpression|false",
+   "line": 306,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "The existsSync guard is redundant: the surrounding try already absorbs the read failure and returns null. Measured corpusStamp over 13 fixtures — absent corpus.json, absent directory entirely, corpus.json as a directory, empty file, UTF-8 BOM, malformed JSON, non-object, null, missing name, missing version, non-string name, UTF-8 name with accents and emoji, and a well-formed stamp — with byte-identical results before and after. Re-measured 2026-11-10 (mutation-ratchet.yml run 42807518226, mode=measure, at 7d1846b): Stryker reported it Killed only because test/unit/example-packed.test.js refused the tarball npm packed inside Stryker's sandbox (`tar -xzf`, members under package/../../node_modules), a failure independent of the mutant, while every other covering test passed; re-run alone on that test on 2026-11-13 against a local build byte-identical to the measured source, it survives, so this filing stands.",
+   "argument": "The existsSync guard is redundant: the surrounding try already absorbs the read failure and returns null. Measured corpusStamp over 13 fixtures — absent corpus.json, absent directory entirely, corpus.json as a directory, empty file, UTF-8 BOM, malformed JSON, non-object, null, missing name, missing version, non-string name, UTF-8 name with accents and emoji, and a well-formed stamp — with byte-identical results before and after. Re-measured 2026-11-10 (mutation-ratchet.yml run 42807518226, mode=measure, at 7d1846b): Stryker reported it Killed only because test/unit/example-packed.test.js refused the tarball npm packed inside Stryker's sandbox (`tar -xzf`, members under package/../../node_modules), a failure independent of the mutant, while every other covering test passed; re-run alone on that test on 2026-11-13 against a local build byte-identical to the measured source, it survives, so this filing stands.",
+   "stableKey": "rules\u0001corpusStamp\u0001ConditionalExpression\u0001false\u0001!existsSync(path)\u0001if (!existsSync(path))"
+  },
+  {
    "key": "309|51|309|57|StringLiteral|\"\"",
    "line": 309,
    "mutator": "StringLiteral",

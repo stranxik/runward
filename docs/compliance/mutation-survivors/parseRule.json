@@ -1,0 +1,15 @@
+{
+ "function": "parseRule",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "31|51|31|53|StringLiteral|\"Stryker was here!\"",
+   "line": 31,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "The sentinel only replaces fm on the no-frontmatter branch, and no field key (title:, impact:, phases:, asi:, tags:, impactDescription:, signature:, nonScope:, appliesTo:, governs:, noTerritory:, noAsi:) matches at line start inside 'Stryker was here!'. Measured byte-identical parseRule and ruleBody output over the 64-rule shipped corpus, 9 crafted frontmatter shapes and 14 no-frontmatter contents (including 'Stryker was here!' itself, 'here!: yes' and 'was: 1'). Re-measured 2026-11-10 (mutation-ratchet.yml run 42807518226, mode=measure, at 7d1846b): Stryker reported it Killed only because test/unit/example-packed.test.js refused the tarball npm packed inside Stryker's sandbox (`tar -xzf`, members under package/../../node_modules), a failure independent of the mutant, while every other covering test passed; re-run alone on that test on 2026-11-13 against a local build byte-identical to the measured source, it survives, so this filing stands.",
+   "argument": "The sentinel only replaces fm on the no-frontmatter branch, and no field key (title:, impact:, phases:, asi:, tags:, impactDescription:, signature:, nonScope:, appliesTo:, governs:, noTerritory:, noAsi:) matches at line start inside 'Stryker was here!'. Measured byte-identical parseRule and ruleBody output over the 64-rule shipped corpus, 9 crafted frontmatter shapes and 14 no-frontmatter contents (including 'Stryker was here!' itself, 'here!: yes' and 'was: 1'). Re-measured 2026-11-10 (mutation-ratchet.yml run 42807518226, mode=measure, at 7d1846b): Stryker reported it Killed only because test/unit/example-packed.test.js refused the tarball npm packed inside Stryker's sandbox (`tar -xzf`, members under package/../../node_modules), a failure independent of the mutant, while every other covering test passed; re-run alone on that test on 2026-11-13 against a local build byte-identical to the measured source, it survives, so this filing stands.",
+   "stableKey": "rules\u0001parseRule\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const fm = content.match(FRONTMATTER)?.[1] ?? \"\";"
+  }
+ ]
+}
