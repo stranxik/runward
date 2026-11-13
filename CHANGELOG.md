@@ -56,6 +56,39 @@ Azure DevOps mission is shown as text, because that forge addresses a file in th
 rule asks that a forge address end with the path. `test/unit/fleet-repository.test.js` holds 49 planted
 identities, each refused for its own reason beside an accepted neighbour.
 
+### Fixed: the mutation ratchet places a stale cost record in the build, a killed mutant stops at its killing batch, and phase B is bounded above the suite (ADR-0131, proposed)
+
+The `evidence` measure of 2026-11-12 (run 43208399067) hit the 300-minute ceiling, ADR-0104's
+re-evaluation trigger, for three reasons, each fixed in the maintenance scripts (no workflow change).
+
+- **The plan read a stale record by line number.** The 0.46.0 record knew `dist/lib/evidence.js` at
+  1793 lines and 1653 mutants; ADR-0114's lexer inserted 336 lines near line 70, so the build had 2441
+  lines and 2856 mutants, and range 65-105 was predicted 2038 s for 52 mutants where it held 147.
+  `scripts/mutation-plan.mjs` now places the mutants of a module the record does not describe where
+  Stryker's instrumenter puts them in the build being planned, prices each at the module's recorded
+  mean, and holds a chunk of such a module to 60 mutants (`--max-mutants`). A record written by
+  `--record` now carries the SHA-256 of the source it measured, so staleness is read from the bytes.
+  The whole perimeter on today's tree plans in 228 legs (141 before, every one of them at risk where
+  a module had moved); 256 stays the refusal.
+- **A killed mutant paid for the whole expensive set.** The lexer's lines run at module load, 185 test
+  files execute them, the killer is on the slow list, and one `node --test` runs every file it is
+  given even after one fails: 200 to 330 s a mutant, killed or not. The selector now hands the
+  expensive covering files in batches of increasing cost and the test command stops at the first
+  batch that fails. Measured on one lexer mutant on the laptop: 328.6 s before, 33.8 s after. A
+  survivor still runs every covering file.
+- **Phase B of the timeout verification was bounded under the suite** (a correctness defect, in the
+  direction that hides survivors). The bound was 240 s, set for a ~105 s suite; the suite's dry run
+  took 267 to 533 s on the runners, and seven verdicts were cut off at about 244 s and filed as real
+  hangs. `scripts/mutation-timeouts.mjs` now bounds it at twice the leg's own dry run (never under
+  240 s), read from `stryker.log` (`stryker.config.json` sets `fileLogLevel: "info"`), and at 900 s
+  without one.
+- **Re-measured 2026-11-13** (run 43333757332): with the three fixes, 48 of 50 `evidence` legs came back
+  and two still hit the ceiling: a lexer survivor costs the suite (294 s), a timeout 1346 s, and 42 %
+  of the lexer's mutants survive. The record's rows now carry timeouts, `--record --update --model`
+  replaces one module's entry from a run's chunk reports with the model fitted on it, and a mutant the
+  record does not account for is priced as a survivor. The `evidence` entry is regenerated from that
+  run: 72 legs, the longest predicted 96.5 min; the whole perimeter plans in 252 legs.
+
 ### runward-fleet renders a mission's documents from a closed subset of Markdown, and reads the register of its decision records (ADR-0127)
 
 A new module, `runward-fleet/documents` (`ui/documents.js`), for a deployment that shows a mission's own

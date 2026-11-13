@@ -18,6 +18,7 @@
     "test/unit/run-executor.test.js",
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
+    "test/unit/mutation-timeouts.test.js",
     "test/unit/mission-name-independent-of-checkout.test.js",
     "test/unit/verdict-witness.test.js",
     "test/unit/verify-predicate.test.js",
@@ -678,6 +679,11 @@
     {
       "file": "test/unit/mutation-plan.test.js",
       "seconds": 0.5,
+      "passed": true
+    },
+    {
+      "file": "test/unit/mutation-timeouts.test.js",
+      "seconds": 10,
       "passed": true
     },
     {

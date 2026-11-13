@@ -137,6 +137,14 @@
   },
   "timeoutMS": 120000,
   "dryRunTimeoutMinutes": 30,
+  "_fileLogLevel": [
+    "info, so stryker.log keeps the dry run's line ('Initial test run succeeded ... (net N ms, overhead M ms)').",
+    "scripts/mutation-timeouts.mjs reads it to bound phase B at twice the suite's duration on the same",
+    "runner (ADR-0131 A): a constant bound under the suite filed seven survivors-or-kills of the 2026-11-12",
+    "`evidence` measure as real hangs. Without the line the bound is 900 s, so the log is a convenience",
+    "that tightens the bound, never what keeps it above the suite."
+  ],
+  "fileLogLevel": "info",
   "concurrency": 2,
   "tempDirName": ".stryker-tmp",
   "cleanTempDir": true,

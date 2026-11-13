@@ -12,6 +12,7 @@
 // pointer regex, SURVIVES. This script is that check, made routine.
 //
 //   node scripts/mutation-timeouts.mjs --report reports/mutation/evidence.json --module evidence
+//       [--stryker-log stryker.log] [--suite-ms <ms>] [--limit-ms <ms>] [--phase-a-ms <ms>]
 //
 // Prints a verdict per mutant and exits non-zero if any Timeout turned out not to be one, so it
 // can gate a register that would otherwise be built on a fiction.
@@ -19,6 +20,7 @@
 import { readFileSync, writeFileSync, appendFileSync, existsSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { runBounded, claimExclusive } from "./bounded-run.mjs";
+import { phaseBBound, dryRunMsFromLog, verdictOf, FLOOR_MS } from "./mutation-timeout-bounds.mjs";
 import { resolve } from "node:path";
 
 const argv = process.argv.slice(2);
@@ -63,13 +65,31 @@ const only = value("module");
 // harmless: both are detected, and neither enters the register as a survivor.
 //
 // Phase B is only reached when phase A passes, and it must run the whole suite because that is
-// what proving a survivor requires. 240 s against a ~105 s suite, alone.
+// what proving a survivor requires. Its bound must therefore EXCEED the suite's own duration on
+// this machine, or every survivor that reaches it is filed as a hang: the false-green direction.
+// It was a constant 240 s, set against a ~105 s suite; measured 2026-11-12 on the runner, the suite
+// (Stryker's dry run) took 267 to 533 s, and seven survivors-or-kills were cut off at ~244 s and
+// filed "real hang, detected" (ADR-0131 A). The bound now follows the leg's own dry run, read from
+// stryker.log: twice it, never under 240 s; 900 s when no dry run was logged
+// (scripts/mutation-timeout-bounds.mjs). `--limit-ms` still sets it outright, and `--suite-ms`
+// gives the suite's duration when no log does.
 //
 // Verifying all 66 timeouts of the evidence pass costs ~33 min this way against ~4 h with a single
 // 240 s bound. The cheap discrimination is what makes "verify, do not trust" affordable enough to
-// actually be done.
+// actually be done: a hang costs the phase-B bound only when it hides behind a passing phase A.
 const PHASE_A_MS = Number(value("phase-a-ms") ?? 20_000);
-const PHASE_B_MS = Number(value("limit-ms") ?? 240_000);
+const strykerLog = value("stryker-log") ?? "stryker.log";
+const suiteMs = value("suite-ms") !== null
+  ? Number(value("suite-ms"))
+  : existsSync(strykerLog) ? dryRunMsFromLog(readFileSync(strykerLog, "utf8")) : null;
+let PHASE_B;
+try {
+  PHASE_B = phaseBBound({ limitMs: value("limit-ms"), suiteMs, floorMs: Number(value("phase-b-floor-ms") ?? FLOOR_MS) });
+} catch (e) {
+  console.error(e.message);
+  process.exit(2);
+}
+const PHASE_B_MS = PHASE_B.ms;
 
 // Verify a handful instead of all of them, to smoke-test the harness itself before committing
 // hours to it. The harness has been wrong twice (a signal-only hang check, then orphaned test
@@ -164,7 +184,8 @@ if (existsSync(LEDGER)) {
   if (done.size) console.log(`resuming: ${done.size} verdict(s) already in ${LEDGER}`);
 }
 
-console.log(`verifying ${trials.length} Timeout mutant(s) in ${target}, one at a time\n`);
+console.log(`verifying ${trials.length} Timeout mutant(s) in ${target}, one at a time; ` +
+  `phase A ${PHASE_A_MS / 1000} s, phase B ${PHASE_B_MS / 1000} s (${PHASE_B.why})\n`);
 
 const wrong = [];
 
@@ -194,19 +215,15 @@ for (const [i, t] of trials.entries()) {
     ? await runBounded("node", ["--test", ...own], { timeoutMs: PHASE_A_MS })
     : null;
 
-  let verdict;
-  if (a && a.timedOut) verdict = "Timeout";
-  else if (a && a.status !== 0) verdict = "Killed";
-  else {
-    // Phase B: nothing cheap killed it, so the claim "this mutant survives" now has to be paid for
-    // in full — every remaining test, including the expensive tail.
-    const b = await runBounded("scripts/mutation-testcmd.sh", [], {
-      shell: true,
-      env: { ...process.env, RUNWARD_MUTATION_MODULE: t.mod },
-      timeoutMs: PHASE_B_MS,
-    });
-    verdict = b.timedOut ? "Timeout" : b.status === 0 ? "Survived" : "Killed";
-  }
+  // Phase B: nothing cheap killed it, so the claim "this mutant survives" now has to be paid for
+  // in full — every remaining test, including the expensive tail.
+  const decided = a && (a.timedOut || a.status !== 0);
+  const b = decided ? null : await runBounded("scripts/mutation-testcmd.sh", [], {
+    shell: true,
+    env: { ...process.env, RUNWARD_MUTATION_MODULE: t.mod },
+    timeoutMs: PHASE_B_MS,
+  });
+  const verdict = verdictOf(a, b);
 
   const seconds = (Date.now() - t0) / 1000;
   appendFileSync(LEDGER, `${JSON.stringify({ key, line: m.location.start.line,

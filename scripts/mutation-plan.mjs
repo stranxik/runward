@@ -11,7 +11,7 @@
 //
 // This script does two things, and nothing else writes the plan:
 //
-//   node scripts/mutation-plan.mjs [--module <m>] [--target <minutes>] [--github-output]
+//   node scripts/mutation-plan.mjs [--module <m>] [--target <minutes>] [--max-mutants <n>] [--github-output]
 //       Cuts every module of the perimeter into line ranges whose PREDICTED time stays under the
 //       target, orders them longest first (so the sixteen slots of the matrix drain evenly), and
 //       prints the plan as JSON. `--github-output` appends `chunks=` and `modules=` to $GITHUB_OUTPUT.
@@ -28,16 +28,40 @@
 // module that grew or shrank since the record: each costs time, never coverage. The guarantees of
 // ADR-0059 are untouched: every chunk is counted by the ratchet job against this plan, and a chunk
 // that does not come back refuses the module.
+//
+// A STALE RECORD IS PLACED, NOT READ BY LINE NUMBER (ADR-0131 B). Until 2026-11-12 a module whose
+// build differed from the recorded one kept the record's per-line costs at the record's line
+// numbers, and only lines past the recorded length were averaged. ADR-0114's lexer inserted 336
+// lines near line 70 of dist/lib/evidence.js after the 0.46.0 record (1793 lines, 1653 mutants);
+// the build had 2441 lines and 2856 mutants, the lexer's ranges were priced with the code the
+// insertion had pushed down, and range 65-105, predicted 2038 s for 52 mutants, held 147 mutants at
+// 200 to 330 s each and hit the 300-minute ceiling. Now the mutants of a stale module are placed
+// where Stryker's instrumenter puts them in the build being planned (the call
+// scripts/mutation-mutant-table.mjs makes), each priced at the module's recorded mean cost per
+// mutant, and no chunk of it holds more than DEFAULT_MAX_MUTANTS of them: a mean is a guess, and
+// the cap bounds what a guess can cost.
 
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync, appendFileSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
 
 export const COSTS_FILE = "docs/compliance/mutation-chunk-costs.json";
 export const CONFIG_FILE = "stryker.config.json";
 export const DEFAULT_TARGET_MINUTES = 90;
 /** GitHub refuses a matrix of more than 256 jobs; a plan above that would never run. */
 export const MATRIX_LIMIT = 256;
+/**
+ * The most mutants a chunk of a STALE module holds (ADR-0131 B), whatever their guessed price. A
+ * leg has 300 minutes and pays about 961 s before its first mutant. Measured 2026-11-12, a lexer
+ * survivor runs about the whole suite (267 to 533 s on a runner), and since ADR-0131 C a lexer kill
+ * about a tenth of that. 40 would hold even a chunk where every mutant survives; it also makes the
+ * whole perimeter 321 legs on today's tree, over the matrix's 256, while 15 of 25 modules are stale.
+ * 60 plans it in 228 legs and stays under the ceiling unless more than about 84 % of a chunk
+ * survives (the worst lexer leg measured: 37 %). A module whose record describes its build is cut
+ * on measured cost and carries no cap.
+ */
+export const DEFAULT_MAX_MUTANTS = 60;
 
 /**
  * The cost model, in seconds. Fitted by least squares on the 173 chunks of the 0.46.0 release
@@ -56,60 +80,112 @@ export const fileOf = (entry) => entry.replace(/:.*$/, "");
 export const moduleOf = (file) => basename(file).replace(/\.js$/, "");
 /** The line count the workflow has always used: `split("\n").length`, trailing newline included. */
 export const lineCount = (source) => source.split("\n").length;
+export const sha256 = (text) => createHash("sha256").update(text).digest("hex");
 
-export function predict(model, killed, survivors) {
-  return model.baseSeconds + model.perKilledSeconds * killed + model.perSurvivorSeconds * survivors;
+export function predict(model, killed, survivors, timeouts = 0) {
+  return model.baseSeconds + rowCost(model, [0, killed, survivors, timeouts]);
 }
 
 /**
- * Per-line cost of one module, in seconds, index 1..lines (index 0 unused).
- * A line the record knows nothing about costs the module's mean line (or, with no record for the
- * module at all, the mean line of the whole record): a guess that keeps the chunks a sane size,
- * never a value that changes what is measured.
+ * What one record row costs, in seconds: `[line, killed, survived, timeouts]`. A row written before
+ * ADR-0131 has no fourth field (its timeouts were counted as killed), and a model fitted before it
+ * has no `perTimeoutSeconds`: a timeout is then priced as a survivor.
  */
-export function lineCosts(model, record, module, lines) {
-  const entry = record?.modules?.[module];
-  const costs = new Array(lines + 1).fill(0);
-  let known = 0, knownCost = 0;
-  if (entry) {
-    for (const [line, killed, survivors] of entry.mutants ?? []) {
-      const c = model.perKilledSeconds * killed + model.perSurvivorSeconds * survivors;
-      if (line >= 1 && line <= lines) costs[line] += c;
-      knownCost += c;
-    }
-    known = entry.lines ?? 0;
-  }
-  const fallback = known > 0 ? knownCost / known : meanLineCost(model, record);
-  // Lines beyond what the record measured (the module grew) carry the fallback.
-  for (let l = (entry ? known : 0) + 1; l <= lines; l++) costs[l] = fallback;
-  return { costs, stale: !entry ? "no record" : known !== lines ? `recorded ${known} lines, built ${lines}` : null };
+export function rowCost(model, [, killed, survivors, timeouts = 0]) {
+  return model.perKilledSeconds * killed + model.perSurvivorSeconds * survivors + (model.perTimeoutSeconds ?? model.perSurvivorSeconds) * timeouts;
+}
+const rowCount = ([, killed, survivors, timeouts = 0]) => killed + survivors + timeouts;
+
+/**
+ * Why the record does not describe the module as built, or null when it does. A record that
+ * carries the digest of the source it measured (every record written since ADR-0131) is compared
+ * by digest; an older one only by line count, which misses an edit that keeps the count.
+ */
+export function staleness(entry, lines, digest) {
+  if (!entry) return "no record";
+  if (entry.sha256 && digest && entry.sha256 !== digest) return `recorded source ${entry.sha256.slice(0, 12)}, built ${digest.slice(0, 12)}, ${entry.lines} lines then, ${lines} now`;
+  if ((entry.lines ?? 0) !== lines) return `recorded ${entry.lines ?? 0} lines, built ${lines}`;
+  return null;
 }
 
-function meanLineCost(model, record) {
-  let total = 0, lines = 0;
-  for (const entry of Object.values(record?.modules ?? {})) {
-    for (const [, killed, survivors] of entry.mutants ?? []) total += model.perKilledSeconds * killed + model.perSurvivorSeconds * survivors;
-    lines += entry.lines ?? 0;
+/**
+ * Per-line cost of one module, in seconds, index 1..lines (index 0 unused), and per line how many
+ * mutants a cap counts (`mutants`, null when the module is cut on measured cost alone).
+ *
+ * A module the record describes: each line costs what the record measured on it. A stale module
+ * (ADR-0131 B): each mutant of `placed`, the start lines of the mutants Stryker places in the build
+ * being planned, costs the module's recorded mean per mutant (with no record for the module, the
+ * record's mean; with no record at all, a survivor), and `mutants` counts them per line. A stale
+ * module without `placed` is refused: reading the old record by line number is the error this
+ * replaced. Either way a guess changes where a module is cut, never what is measured.
+ */
+export function lineCosts(recordModel, record, module, lines, { digest = null, placed = null } = {}) {
+  const entry = record?.modules?.[module];
+  // An entry re-measured on its own run (`--record --update`) carries the model fitted on that run.
+  const model = entry?.model ?? recordModel;
+  const costs = new Array(lines + 1).fill(0);
+  const stale = staleness(entry, lines, digest);
+  if (!stale) {
+    const recorded = new Array(lines + 1).fill(0);
+    for (const row of entry.mutants ?? []) {
+      const line = row[0];
+      if (line >= 1 && line <= lines) { costs[line] += rowCost(model, row); recorded[line] += rowCount(row); }
+    }
+    // A record describing this build may still miss mutants: a chunk that never came back (a leg at
+    // the ceiling), a mutant straddling two ranges. With the build's placements, each placed mutant
+    // the record does not account for on its line is priced as a survivor, the dearest outcome that
+    // is not a hang: an unmeasured mutant is never free (ADR-0131 B5).
+    if (Array.isArray(placed)) {
+      const here = new Array(lines + 1).fill(0);
+      for (const line of placed) if (Number.isInteger(line) && line >= 1 && line <= lines) here[line] += 1;
+      for (let l = 1; l <= lines; l++) if (here[l] > recorded[l]) costs[l] += (here[l] - recorded[l]) * model.perSurvivorSeconds;
+    }
+    return { costs, mutants: null, stale: null, model };
   }
-  return lines > 0 ? total / lines : 0;
+  if (!Array.isArray(placed)) throw new Error(`${module}: the record is stale (${stale}) and the mutants of the build were not placed; the planner cannot price it`);
+  const perMutant = meanMutantCost(model, entry ? { [module]: entry } : record?.modules) ?? model.perSurvivorSeconds;
+  const mutants = new Array(lines + 1).fill(0);
+  for (const line of placed) {
+    if (!Number.isInteger(line) || line < 1 || line > lines) throw new Error(`${module}: a mutant placed on line ${line} of a ${lines}-line build`);
+    mutants[line] += 1;
+    costs[line] += perMutant;
+  }
+  return { costs, mutants, stale, model };
+}
+
+/** The mean predicted cost of one recorded mutant over `modules`, or null when they record none. */
+function meanMutantCost(model, modules) {
+  let total = 0, count = 0;
+  for (const entry of Object.values(modules ?? {})) {
+    for (const row of entry.mutants ?? []) {
+      total += rowCost(model, row);
+      count += rowCount(row);
+    }
+  }
+  return count > 0 ? total / count : null;
 }
 
 /**
  * Cuts one module into ranges whose predicted time stays under `targetSeconds`. Greedy and
  * left to right: a chunk grows until the next line would push it over; a chunk always holds at
  * least one line, so a single line dearer than the target is still measured, over target and said so.
+ * With `mutants` (per-line counts) a chunk also ends before it would hold more than `maxMutants`;
+ * a single line carrying more is a chunk of its own, over the cap and still measured.
  */
-export function cutModule({ module, file, lines, costs, model, targetSeconds }) {
+export function cutModule({ module, file, lines, costs, model, targetSeconds, mutants = null, maxMutants = DEFAULT_MAX_MUTANTS }) {
   const chunks = [];
-  let start = 1, predicted = model.baseSeconds;
+  let start = 1, predicted = model.baseSeconds, held = 0;
   for (let l = 1; l <= lines; l++) {
     const next = predicted + costs[l];
-    if (l > start && next > targetSeconds) {
+    const count = mutants ? mutants[l] : 0;
+    if (l > start && (next > targetSeconds || (mutants && held + count > maxMutants))) {
       chunks.push({ module, file, start, end: l - 1, predicted: Math.round(predicted) });
       start = l;
       predicted = model.baseSeconds + costs[l];
+      held = count;
     } else {
       predicted = next;
+      held += count;
     }
   }
   chunks.push({ module, file, start, end: lines, predicted: Math.round(predicted) });
@@ -142,9 +218,11 @@ export function assertCovers(chunks, modules) {
 
 /**
  * The plan. `config` is the parsed stryker.config.json, `sourceOf(file)` returns the built file's
- * text (throws if it is not built), `record` the parsed costs file or null.
+ * text (throws if it is not built), `record` the parsed costs file or null, `placements` per module
+ * the start line of each mutant Stryker places in that text (`placeAll`; needed for every module
+ * the record does not describe), `maxMutants` the cap on a chunk of such a module.
  */
-export function plan({ config, sourceOf, record, model = record?.model ?? DEFAULT_MODEL, targetMinutes = DEFAULT_TARGET_MINUTES, only = "" }) {
+export function plan({ config, sourceOf, record, model = record?.model ?? DEFAULT_MODEL, targetMinutes = DEFAULT_TARGET_MINUTES, only = "", placements = null, maxMutants = DEFAULT_MAX_MUTANTS }) {
   const targetSeconds = targetMinutes * 60;
   const modules = [];
   const stale = [];
@@ -153,16 +231,20 @@ export function plan({ config, sourceOf, record, model = record?.model ?? DEFAUL
     const file = fileOf(entry);
     const module = moduleOf(file);
     if (only && module !== only) continue;
-    const lines = lineCount(sourceOf(file));
+    const source = sourceOf(file);
+    const lines = lineCount(source);
     modules.push({ module, file, lines });
-    const lc = lineCosts(model, record, module, lines);
+    const lc = lineCosts(model, record, module, lines, { digest: sha256(source), placed: placements?.[module] ?? null });
     if (lc.stale) stale.push(`${module} (${lc.stale})`);
-    chunks.push(...cutModule({ module, file, lines, costs: lc.costs, model, targetSeconds }));
+    chunks.push(...cutModule({ module, file, lines, costs: lc.costs, model: lc.model, targetSeconds, mutants: lc.mutants, maxMutants }));
   }
   if (chunks.length === 0) throw new Error("nothing to measure — check the module input");
   assertCovers(chunks, modules);
   chunks = orderLongestFirst(chunks);
-  if (chunks.length > MATRIX_LIMIT) throw new Error(`${chunks.length} chunks exceed the matrix limit of ${MATRIX_LIMIT}; raise --target`);
+  if (chunks.length > MATRIX_LIMIT) {
+    const capped = stale.length ? `, or --max-mutants (the cap on a chunk of a stale module, ${maxMutants}; regenerating the record with --record lifts it)` : "";
+    throw new Error(`${chunks.length} chunks exceed the matrix limit of ${MATRIX_LIMIT}; raise --target${capped}`);
+  }
   const longest = chunks[0].predicted;
   const total = chunks.reduce((s, c) => s + c.predicted, 0);
   return { chunks, modules: modules.map((m) => m.module), stale, targetMinutes, longestSeconds: longest, totalSeconds: total };
@@ -191,21 +273,40 @@ export function recordModule(report) {
     for (const m of entry.mutants ?? []) {
       const line = m.location?.start?.line;
       if (!Number.isInteger(line)) continue;
-      const row = byLine.get(line) ?? [line, 0, 0];
-      if (SURVIVING.has(m.status)) row[2] += 1; else row[1] += 1;
+      const row = byLine.get(line) ?? [line, 0, 0, 0];
+      if (SURVIVING.has(m.status)) row[2] += 1; else if (m.status === "Timeout") row[3] += 1; else row[1] += 1;
       byLine.set(line, row);
     }
-    out[moduleOf(path)] = { lines: lineCount(entry.source ?? ""), mutants: [...byLine.values()].sort((a, b) => a[0] - b[0]) };
+    out[moduleOf(path)] = { lines: lineCount(entry.source ?? ""), sha256: sha256(entry.source ?? ""), mutants: [...byLine.values()].sort((a, b) => a[0] - b[0]) };
   }
   return out;
 }
 
-export function buildRecord({ mergedDir, run, measuredAt, model = DEFAULT_MODEL }) {
-  const modules = {};
+/**
+ * The record of the reports under `mergedDir`. Several reports of one module (the merged report, or
+ * the chunk reports of a run whose merge never happened because a leg did not come back) are read
+ * as one, provided they embed the same source; reports of one module on two sources are refused.
+ * With `previous` and `update`, the modules found replace their entries in the previous record, each
+ * stamped with this run, and every other module of it is kept as it was.
+ */
+export function buildRecord({ mergedDir, run, measuredAt, model = DEFAULT_MODEL, previous = null, update = false }) {
+  const reports = {};
   for (const path of find(mergedDir, (n) => n.endsWith(".json"))) {
-    Object.assign(modules, recordModule(JSON.parse(readFileSync(path, "utf8"))));
+    const report = JSON.parse(readFileSync(path, "utf8"));
+    for (const [file, entry] of Object.entries(report.files ?? {})) {
+      const seen = reports[file];
+      if (!seen) { reports[file] = { source: entry.source ?? "", mutants: [...(entry.mutants ?? [])] }; continue; }
+      if (sha256(seen.source) !== sha256(entry.source ?? "")) throw new Error(`${file}: the reports under ${mergedDir} embed two different sources; record one run at a time`);
+      seen.mutants.push(...(entry.mutants ?? []));
+    }
   }
+  const modules = recordModule({ files: reports });
   if (Object.keys(modules).length === 0) throw new Error(`no merged report under ${mergedDir}`);
+  if (update) {
+    if (!previous) throw new Error("--update needs an existing record to update");
+    for (const m of Object.keys(modules)) modules[m] = { ...modules[m], run: String(run), measuredAt, model };
+    for (const [m, e] of Object.entries(previous.modules ?? {})) if (!(m in modules)) modules[m] = e;
+  }
   const sorted = Object.fromEntries(Object.keys(modules).sort().map((m) => [m, modules[m]]));
   return {
     _comment: [
@@ -215,10 +316,13 @@ export function buildRecord({ mergedDir, run, measuredAt, model = DEFAULT_MODEL 
       "It never decides what is measured: the plan always covers every line of every module as built now.",
       "A stale record costs time, never coverage. Regenerate it after each release ratchet (see",
       "docs/compliance/mutation-register.md, 'Filing a measurement').",
+      "Each row is [line, killed, survived, timeouts] (a row of three predates ADR-0131: its timeouts are among",
+      "the killed). An entry stamped with its own run, date and model was re-measured alone (--record --update)",
+      "and is priced with that model; the record's own run and model describe the other entries.",
     ],
-    model,
-    run: String(run),
-    measuredAt,
+    model: update ? previous.model : model,
+    run: update ? previous.run : String(run),
+    measuredAt: update ? previous.measuredAt : measuredAt,
     modules: sorted,
   };
 }
@@ -231,27 +335,56 @@ export function serializeRecord(record) {
   const names = Object.keys(record.modules);
   names.forEach((m, i) => {
     const e = record.modules[m];
-    lines.push(`    ${JSON.stringify(m)}: { "lines": ${e.lines}, "mutants": ${JSON.stringify(e.mutants)} }${i < names.length - 1 ? "," : ""}`);
+    const digest = e.sha256 ? `"sha256": ${JSON.stringify(e.sha256)}, ` : "";
+    const stamp = e.run ? `"run": ${JSON.stringify(e.run)}, "measuredAt": ${JSON.stringify(e.measuredAt)}, ${e.model ? `"model": ${JSON.stringify(e.model)}, ` : ""}` : "";
+    lines.push(`    ${JSON.stringify(m)}: { "lines": ${e.lines}, ${digest}${stamp}"mutants": ${JSON.stringify(e.mutants)} }${i < names.length - 1 ? "," : ""}`);
   });
   lines.push("  }", "}", "");
   return lines.join("\n");
 }
 
+/**
+ * Per module of the plan, the start line of every mutant Stryker's instrumenter places in the
+ * built file, whole file, as scripts/mutation-mutant-table.mjs calls it (same options, so the same
+ * mutants). Refuses a configuration that sets `mutator` or `ignorers`, which that call would not mirror.
+ */
+export async function placeAll({ config, sourceOf, only = "" }) {
+  const { placeMutants, mirrorsConfig } = await import("./mutation-mutant-table.mjs");
+  if (!mirrorsConfig(config)) throw new Error("stryker.config.json sets `mutator` or `ignorers`; the planner would not place the mutants Stryker places");
+  const placements = {};
+  for (const entry of config.mutate) {
+    const file = fileOf(entry);
+    const module = moduleOf(file);
+    if (only && module !== only) continue;
+    placements[module] = (await placeMutants(file, sourceOf(file))).map((m) => m.line);
+  }
+  return placements;
+}
+
 // ── command line ────────────────────────────────────────────────────────────────────────────────
 
-function main(argv) {
+async function main(argv) {
   const arg = (name) => { const i = argv.indexOf(`--${name}`); return i === -1 ? null : argv[i + 1]; };
   const flag = (name) => argv.includes(`--${name}`);
 
   if (flag("record")) {
     const mergedDir = arg("merged"), run = arg("run"), measuredAt = arg("measured-at");
     if (!mergedDir || !run || !measuredAt) {
-      console.error("usage: mutation-plan.mjs --record --merged <dir> --run <id> --measured-at <YYYY-MM-DD> [--out <file>]");
+      console.error("usage: mutation-plan.mjs --record --merged <dir> --run <id> --measured-at <YYYY-MM-DD> [--out <file>] [--update] [--model <base>,<killed>,<survivor>,<timeout>]");
       return 2;
     }
     const out = arg("out") ?? COSTS_FILE;
     const previous = existsSync(out) ? JSON.parse(readFileSync(out, "utf8")) : null;
-    const record = buildRecord({ mergedDir, run, measuredAt, model: previous?.model ?? DEFAULT_MODEL });
+    let model = previous?.model ?? DEFAULT_MODEL;
+    if (arg("model")) {
+      const v = arg("model").split(",").map(Number);
+      if (v.length !== 4 || !v.every((x) => Number.isFinite(x) && x > 0)) { console.error("--model takes four positive numbers: base,killed,survivor,timeout seconds"); return 2; }
+      model = { baseSeconds: v[0], perKilledSeconds: v[1], perSurvivorSeconds: v[2], perTimeoutSeconds: v[3] };
+    }
+    let record;
+    try {
+      record = buildRecord({ mergedDir, run, measuredAt, model, previous, update: flag("update") });
+    } catch (e) { console.error(`::error::${e.message}`); return 2; }
     writeFileSync(out, serializeRecord(record));
     const n = Object.keys(record.modules).length;
     console.error(`${out}: ${n} module(s) recorded from run ${run} (${measuredAt})`);
@@ -266,13 +399,16 @@ function main(argv) {
   if (!record) console.error(`::warning::no ${costsPath} — every module is cut on a mean line cost`);
   const targetMinutes = Number(arg("target") ?? DEFAULT_TARGET_MINUTES);
   if (!Number.isFinite(targetMinutes) || targetMinutes <= 0) { console.error("--target must be a positive number of minutes"); return 2; }
+  const maxMutants = Number(arg("max-mutants") ?? DEFAULT_MAX_MUTANTS);
+  if (!Number.isInteger(maxMutants) || maxMutants <= 0) { console.error("--max-mutants must be a positive integer"); return 2; }
   const sourceOf = (file) => {
     if (!existsSync(file)) throw new Error(`perimeter names ${file} and it is not built`);
     return readFileSync(file, "utf8");
   };
   let result;
   try {
-    result = plan({ config, sourceOf, record, targetMinutes, only: arg("module") ?? "" });
+    const placements = await placeAll({ config, sourceOf, only: arg("module") ?? "" });
+    result = plan({ config, sourceOf, record, targetMinutes, only: arg("module") ?? "", placements, maxMutants });
   } catch (e) {
     console.error(`::error::${e.message}`);
     return 2;
@@ -291,5 +427,5 @@ function main(argv) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  process.exit(main(process.argv.slice(2)));
+  process.exit(await main(process.argv.slice(2)));
 }
