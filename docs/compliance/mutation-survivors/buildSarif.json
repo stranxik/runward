@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "139|41|139|62|StringLiteral|\"\"",
-   "line": 139,
+   "key": "190|41|190|62|StringLiteral|\"\"",
+   "line": 190,
    "mutator": "StringLiteral",
    "filing": "defence-in-depth",
    "evidence": "Applied it: driver.informationUri becomes \"\" in every document. `node test/sarif-shape.js` exits 1 on all four fixtures — the OASIS schema rejects it on `format: \"uri\"`.",
@@ -12,8 +12,8 @@
    "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"https://runward.dev\"\u0001informationUri: \"https://runward.dev\","
   },
   {
-   "key": "140|32|140|51|MethodExpression|[...ruleIds]",
-   "line": 140,
+   "key": "191|32|191|51|MethodExpression|[...ruleIds]",
+   "line": 191,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "Dropping the sort changes the rules array order: measured on the red mission the emitted order goes from alphabetical to Set-insertion order (hexa-architecture and zz-invented-rule jump ahead of the handover rules). The document bytes change on every multi-rule mission and nothing — unit suite or sarif-shape.js — distinguishes them.",
@@ -21,44 +21,8 @@
    "stableKey": "sarif\u0001buildSarif\u0001MethodExpression\u0001[...ruleIds]\u0001[...ruleIds].sort()\u0001rules: [...ruleIds].sort().map((id) => ({"
   },
   {
-   "key": "142|55|142|94|ConditionalExpression|true",
-   "line": 142,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Forcing the ternary true titles EVERY craft rule `A gated deliverable is missing or unfilled`. Measured on the red mission: handover-agents-charter-final, handover-redone-task-proof, hexa-architecture and the rest all carry the deliverable title. That title is the alert headline the reviewer reads; sarif-shape.js stays green.",
-   "argument": "Forcing the ternary true titles EVERY craft rule `A gated deliverable is missing or unfilled`. Measured on the red mission: handover-agents-charter-final, handover-redone-task-proof, hexa-architecture and the rest all carry the deliverable title. That title is the alert headline the reviewer reads; sarif-shape.js stays green.",
-   "stableKey": "sarif\u0001buildSarif\u0001ConditionalExpression\u0001true\u0001id === \"runward/deliverable-not-filled\"\u0001shortDescription: { text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\" : `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
-  },
-  {
-   "key": "142|144|142|208|StringLiteral|``",
-   "line": 142,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "Measured on the red mission: every craft rule's shortDescription.text becomes \"\" — nine rules with no title in one document. sarif-shape.js stays green.",
-   "argument": "Measured on the red mission: every craft rule's shortDescription.text becomes \"\" — nine rules with no title in one document. sarif-shape.js stays green.",
-   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001``\u0001`Craft rule ${id.slice(\"runward/\".length)} is not accounted for`\u0001shortDescription: { text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\" : `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
-  },
-  {
-   "key": "142|158|142|185|MethodExpression|id",
-   "line": 142,
-   "mutator": "MethodExpression",
-   "filing": "hole",
-   "evidence": "Measured: titles become `Craft rule runward/handover-agents-charter-final is not accounted for` — the `runward/` namespace is no longer stripped, so every craft-rule headline in the document changes. Nothing catches it.",
-   "argument": "Measured: titles become `Craft rule runward/handover-agents-charter-final is not accounted for` — the `runward/` namespace is no longer stripped, so every craft-rule headline in the document changes. Nothing catches it.",
-   "stableKey": "sarif\u0001buildSarif\u0001MethodExpression\u0001id\u0001id.slice(\"runward/\".length)\u0001shortDescription: { text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\" : `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
-  },
-  {
-   "key": "142|167|142|177|StringLiteral|\"\"",
-   "line": 142,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "slice(\"\".length) is slice(0), i.e. no strip at all: measured, the same wrong titles as leaving the id whole (`Craft rule runward/handover-...`). Nothing catches it.",
-   "argument": "slice(\"\".length) is slice(0), i.e. no strip at all: measured, the same wrong titles as leaving the id whole (`Craft rule runward/handover-...`). Nothing catches it.",
-   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"runward/\"\u0001shortDescription: { text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\" : `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
-  },
-  {
-   "key": "144|51|144|69|ObjectLiteral|{}",
-   "line": 144,
+   "key": "197|51|197|69|ObjectLiteral|{}",
+   "line": 197,
    "mutator": "ObjectLiteral",
    "filing": "hole",
    "evidence": "Measured: `defaultConfiguration` becomes `{}` on every rule, so a consumer reading rule-level severity falls back to the SARIF default `warning` instead of `error`. The document stays schema-valid and sarif-shape.js stays green.",
@@ -66,8 +30,8 @@
    "stableKey": "sarif\u0001buildSarif\u0001ObjectLiteral\u0001{}\u0001{ level: \"error\" }\u0001defaultConfiguration: { level: \"error\" },"
   },
   {
-   "key": "144|60|144|67|StringLiteral|\"\"",
-   "line": 144,
+   "key": "197|60|197|67|StringLiteral|\"\"",
+   "line": 197,
    "mutator": "StringLiteral",
    "filing": "defence-in-depth",
    "evidence": "Applied it: `defaultConfiguration.level` becomes \"\". `node test/sarif-shape.js` exits 1 — the OASIS enum rejects it (`allowedValues [\"none\",\"note\",\"warning\",\"error\"]`).",
@@ -75,8 +39,8 @@
    "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"error\"\u0001defaultConfiguration: { level: \"error\" },"
   },
   {
-   "key": "198|154|198|156|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 198,
+   "key": "209|154|209|156|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 209,
    "mutator": "ArrayDeclaration",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 56b0541dacfbb8d505cace9613aad55f84b264f5738757460447988184152860 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
@@ -84,13 +48,104 @@
    "stableKey": "sarif\u0001buildSarif\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001...(verdict.ratification.agent ? { agentRatification: { rows: verdict.ratification.agent, agents: verdict.ratification.agents ?? [],"
   },
   {
-   "key": "200|170|200|172|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 200,
+   "key": "208|170|208|172|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 208,
    "mutator": "ArrayDeclaration",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 13cfda6fdf648e4d32cfb70205ee3f9d571952dfa16322bbcc67f0b36ea928bc (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
    "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 13cfda6fdf648e4d32cfb70205ee3f9d571952dfa16322bbcc67f0b36ea928bc (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
    "stableKey": "sarif\u0001buildSarif\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001...(verdict.ratification.changed ? { ratificationChanged: { rows: verdict.ratification.changed, changedRows: verdict.ratification.changedRows ?? [] } } : {}),"
+  },
+  {
+   "key": "193|55|193|94|ConditionalExpression|true",
+   "line": 193,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "sarif\u0001buildSarif\u0001ConditionalExpression\u0001true\u0001id === \"runward/deliverable-not-filled\"\u0001shortDescription: { text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\""
+  },
+  {
+   "key": "194|39|194|73|MethodExpression|id.endsWith(\"runward/analysis-\")",
+   "line": 194,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "sarif\u0001buildSarif\u0001MethodExpression\u0001id.endsWith(\"runward/analysis-\")\u0001id.startsWith(\"runward/analysis-\")\u0001: id.startsWith(\"runward/analysis-\") ? `The delivered code breaks an invariant the mission declares (${id.slice(\"runward/analysis-\".length)})`"
+  },
+  {
+   "key": "194|53|194|72|StringLiteral|\"\"",
+   "line": 194,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"runward/analysis-\"\u0001: id.startsWith(\"runward/analysis-\") ? `The delivered code breaks an invariant the mission declares (${id.slice(\"runward/analysis-\".length)})`"
+  },
+  {
+   "key": "194|76|194|179|StringLiteral|``",
+   "line": 194,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001``\u0001`The delivered code breaks an invariant the mission declares (${id.slice(\"runward/analysis-\".length)})`\u0001: id.startsWith(\"runward/analysis-\") ? `The delivered code breaks an invariant the mission declares (${id.slice(\"runward/analysis-\".length)})`"
+  },
+  {
+   "key": "194|140|194|176|MethodExpression|id",
+   "line": 194,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "sarif\u0001buildSarif\u0001MethodExpression\u0001id\u0001id.slice(\"runward/analysis-\".length)\u0001: id.startsWith(\"runward/analysis-\") ? `The delivered code breaks an invariant the mission declares (${id.slice(\"runward/analysis-\".length)})`"
+  },
+  {
+   "key": "194|149|194|168|StringLiteral|\"\"",
+   "line": 194,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"runward/analysis-\"\u0001: id.startsWith(\"runward/analysis-\") ? `The delivered code breaks an invariant the mission declares (${id.slice(\"runward/analysis-\".length)})`\u0001#2",
+   "ordinal": 2
+  },
+  {
+   "key": "195|43|195|107|StringLiteral|``",
+   "line": 195,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001``\u0001`Craft rule ${id.slice(\"runward/\".length)} is not accounted for`\u0001: `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
+  },
+  {
+   "key": "195|57|195|84|MethodExpression|id",
+   "line": 195,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "sarif\u0001buildSarif\u0001MethodExpression\u0001id\u0001id.slice(\"runward/\".length)\u0001: `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
+  },
+  {
+   "key": "195|66|195|76|StringLiteral|\"\"",
+   "line": 195,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"runward/\"\u0001: `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
+  },
+  {
+   "key": "222|63|222|100|ObjectLiteral|{}",
+   "line": 222,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222295996 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 cbf0b90d26913afcb66905376663a98400c49ec70f731fb7b3d5574e357c65ee (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "sarif\u0001buildSarif\u0001ObjectLiteral\u0001{}\u0001{ fallback: verdict.levels.fallback }\u0001...(verdict.levels.fallback ? { fallback: verdict.levels.fallback } : {}),"
   }
  ]
 }

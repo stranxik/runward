@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "154|30|154|143|StringLiteral|\"\"",
-   "line": 154,
+   "key": "233|30|233|143|StringLiteral|\"\"",
+   "line": 233,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "Measured: every rule's fullDescription loses its first sentence (`runward verifies that a decision was traced to resolving, non-empty ... evidence.`). The unit test only matches the second and third sentences, and sarif-shape.js does not read fullDescription at all, so the non-scope caveat ships truncated.",

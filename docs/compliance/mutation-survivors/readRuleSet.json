@@ -3,12 +3,12 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "201|12|203|16|MethodExpression|readdirSync(dir).filter(f => f.endsWith(\".md\"))",
-   "line": 201,
+   "key": "293|12|295|16|MethodExpression|readdirSync(dir).filter(f => f.endsWith(\".md\"))",
+   "line": 293,
    "mutator": "MethodExpression",
    "filing": "hole",
-   "evidence": "Removing .sort() makes the 'deterministic inventory' depend on readdir order, which Node leaves unspecified. Measured on a fixture rules directory where APFS's UTF-8 byte order differs from JS code-unit order (astral-plane vs BMP filenames): readRuleSet returned slugs in a different order than pristine. On the shipped corpus this filesystem happens to return sorted order, so smoke's sortedness assertion and every other layer stayed green.",
-   "argument": "Removing .sort() makes the 'deterministic inventory' depend on readdir order, which Node leaves unspecified. Measured on a fixture rules directory where APFS's UTF-8 byte order differs from JS code-unit order (astral-plane vs BMP filenames): readRuleSet returned slugs in a different order than pristine. On the shipped corpus this filesystem happens to return sorted order, so smoke's sortedness assertion and every other layer stayed green.",
+   "evidence": "Removing .sort() makes the 'deterministic inventory' depend on readdir order, which Node leaves unspecified. Measured on a fixture rules directory where APFS's UTF-8 byte order differs from JS code-unit order (astral-plane vs BMP filenames): readRuleSet returned slugs in a different order than pristine. On the shipped corpus this filesystem happens to return sorted order, so smoke's sortedness assertion and every other layer stayed green. Re-measured 2026-11-10 (mutation-ratchet.yml run 42807518226, mode=measure, at 7d1846b): Stryker reported it Killed only because test/unit/example-packed.test.js refused the tarball npm packed inside Stryker's sandbox (`tar -xzf`, members under package/../../node_modules), a failure independent of the mutant, while every other covering test passed; re-run alone on that test on 2026-11-13 against a local build byte-identical to the measured source, it survives, so this filing stands.",
+   "argument": "Removing .sort() makes the 'deterministic inventory' depend on readdir order, which Node leaves unspecified. Measured on a fixture rules directory where APFS's UTF-8 byte order differs from JS code-unit order (astral-plane vs BMP filenames): readRuleSet returned slugs in a different order than pristine. On the shipped corpus this filesystem happens to return sorted order, so smoke's sortedness assertion and every other layer stayed green. Re-measured 2026-11-10 (mutation-ratchet.yml run 42807518226, mode=measure, at 7d1846b): Stryker reported it Killed only because test/unit/example-packed.test.js refused the tarball npm packed inside Stryker's sandbox (`tar -xzf`, members under package/../../node_modules), a failure independent of the mutant, while every other covering test passed; re-run alone on that test on 2026-11-13 against a local build byte-identical to the measured source, it survives, so this filing stands.",
    "stableKey": "rules\u0001readRuleSet\u0001MethodExpression\u0001readdirSync(dir).filter(f => f.endsWith(\".md\"))\u0001readdirSync(dir) .filter((f) => f.endsWith(\".md\")) .sort()\u0001return readdirSync(dir)"
   }
  ]

@@ -6,16 +6,16 @@
  ],
  "verdicts": [
   {
-   "key": "230|23|230|35|MethodExpression|chunk",
-   "line": 230,
+   "key": "648|23|648|35|MethodExpression|chunk",
+   "line": 648,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "FALSE GREEN, verified by exit code. Applied on m4 (single defect: `file:code/deleted-a.ts<U+2028>; file:code/b.ts`): `check --strict --json` went from **exit 1 to exit 0**, conformance 1 -> 0, and the violation `Floor · tools-scope-atomicity · typed pointer does not resolve: file:code/deleted-a.ts — update it or remove the row` disappeared entirely. Re-observed on m2, where the same mutant removed TWO refusals (conformance 10 -> 8): `file:code/deleted-a.ts` (U+2028 separator) and `file:code/deleted-a2.ts` (CR separator). Mechanism as observed, not as read: when a chunk ends in a line terminator, POINTER_PREFIX's `(\\S.*)$` cannot reach `$` (`.` excludes line terminators), the chunk yields no match and the pointer is dropped silently — the row still reads as typed and the cited file is never opened. This is the RWD-2026-0006 family: a pointer that looks precise and verifies nothing. Reachable because `readManifest` only trims the ENDS of a cell, so a terminator sitting before a `;` survives into the chunk. The missing test: a cell whose first pointer is followed by CR or U+2028 and then `; <second pointer>` must still refuse the first pointer's missing file.",
    "stableKey": "evidence\u0001parseEvidenceCell\u0001MethodExpression\u0001chunk\u0001chunk.trim()\u0001const m = chunk.trim().match(POINTER_PREFIX);"
   },
   {
-   "key": "235|47|235|51|Regex|/\\S/",
-   "line": 235,
+   "key": "653|47|653|51|Regex|/\\S/",
+   "line": 653,
    "mutator": "Regex",
    "filing": "display-only",
    "evidence": "Applied on m2, m3 and m6. Exit code, violation count and all evidence counters unchanged; the `problem` strings became `typed pointer does not resolve: test: — update it or remove the row` and `typed pointer test: — test named \"the \"guard\" path\" not found in the file` (baseline: the full `test:code/test/nope.test.ts` / `test:code/test/pointers.test.ts::the`). Splitting on `/\\S/` instead of `/\\s/` makes `rest.split(...)[0]` the empty string, so the printed pointer collapses to its scheme.",
@@ -23,8 +23,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001Regex\u0001/\\S/\u0001/\\s/\u0001const raw = `${kind}:${rest.split(/\\s/)[0]}`;"
   },
   {
-   "key": "235|25|235|57|StringLiteral|``",
-   "line": 235,
+   "key": "653|25|653|57|StringLiteral|``",
+   "line": 653,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Applied on m2 and m6. `check --strict --json` kept exit 1, the same violation count and every evidence counter, but two `problem` strings lost the pointer they name: `typed pointer does not resolve: test:code/test/nope.test.ts — update it or remove the row` became `typed pointer does not resolve:  — update it or remove the row`, and `typed pointer test:code/test/pointers.test.ts::the — test named …` became `typed pointer  — test named …`. On m3 the same, on the `::` names no test row.",
@@ -32,8 +32,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001StringLiteral\u0001``\u0001`${kind}:${rest.split(/\\s/)[0]}`\u0001const raw = `${kind}:${rest.split(/\\s/)[0]}`;"
   },
   {
-   "key": "251|21|251|32|Regex|/ADR-?\\d/i",
-   "line": 251,
+   "key": "669|21|669|32|Regex|/ADR-?\\d/i",
+   "line": 669,
    "mutator": "Regex",
    "filing": "equivalent",
    "evidence": "Four siblings KILLED here (the `pathShaped` condition of the `::` branch, the block it guards, the echo of the branch without `::`, the echo of a misspelt `adr:`), two of them on a site that NO input of the probe reached before it was widened — there are two `if (!pathShaped(tpath))`. What remains is on anchoring variants unreachable by the grammar: `/^ADR-?\\d/i` against `/ADR-?\\d/i` on an operand already split at the first whitespace, and `/\\S/` where the split guarantees there is no whitespace. METHOD OF THIS PASS (identical for every verdict below, closed on 2026-09-18). The mutant is APPLIED to the build, a behaviour probe calls the product on inputs that reach the mutated line, and a canonical digest of 250+ observations is compared: pointer grammar over 34 cells, manifest sections over 12 documents (renamed heading, lowercase, deep, last, duplicated, inside a code block, unclosed block), decision journals over 16 layouts, nine real missions read by evidenceReport/evidenceBreakdown/collectSealableEvidence/requiresLedger/prosePointerLedger/computeVerdict in strict AND non-strict, and the exact bounds of the signature guard (30, 119, 120, 121, 511, 512, 513). COVERAGE VERIFIED: the 56 instructed survivors are all on a line the probe EXECUTES, measured by NODE_V8_COVERAGE taking the innermost range (the first version marked 1540 lines out of 1540 and measured nothing). SENSITIVITY PROVEN: on this same pass, 20 mutants moved the probe and are now KILLED by tests written after reading the difference — so the instrument does tell what changes from what does not. The probe was wrong six times before it was right, and its failure mode was always to answer \"equivalent\": branches not reached, messages cut at 200 characters, verdict truncated at 4000, wrong mutated occurrence chosen. Each correction surfaced changing mutants that would have been filed wrongly.",
@@ -41,8 +41,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001Regex\u0001/ADR-?\\d/i\u0001/^ADR-?\\d/i\u0001if (/^ADR-?\\d/i.test(operand))"
   },
   {
-   "key": "251|21|251|32|Regex|/^ADR-?\\D/i",
-   "line": 251,
+   "key": "669|21|669|32|Regex|/^ADR-?\\D/i",
+   "line": 669,
    "mutator": "Regex",
    "filing": "equivalent",
    "evidence": "Four siblings KILLED here (the `pathShaped` condition of the `::` branch, the block it guards, the echo of the branch without `::`, the echo of a misspelt `adr:`), two of them on a site that NO input of the probe reached before it was widened — there are two `if (!pathShaped(tpath))`. What remains is on anchoring variants unreachable by the grammar: `/^ADR-?\\d/i` against `/ADR-?\\d/i` on an operand already split at the first whitespace, and `/\\S/` where the split guarantees there is no whitespace. METHOD OF THIS PASS (identical for every verdict below, closed on 2026-09-18). The mutant is APPLIED to the build, a behaviour probe calls the product on inputs that reach the mutated line, and a canonical digest of 250+ observations is compared: pointer grammar over 34 cells, manifest sections over 12 documents (renamed heading, lowercase, deep, last, duplicated, inside a code block, unclosed block), decision journals over 16 layouts, nine real missions read by evidenceReport/evidenceBreakdown/collectSealableEvidence/requiresLedger/prosePointerLedger/computeVerdict in strict AND non-strict, and the exact bounds of the signature guard (30, 119, 120, 121, 511, 512, 513). COVERAGE VERIFIED: the 56 instructed survivors are all on a line the probe EXECUTES, measured by NODE_V8_COVERAGE taking the innermost range (the first version marked 1540 lines out of 1540 and measured nothing). SENSITIVITY PROVEN: on this same pass, 20 mutants moved the probe and are now KILLED by tests written after reading the difference — so the instrument does tell what changes from what does not. The probe was wrong six times before it was right, and its failure mode was always to answer \"equivalent\": branches not reached, messages cut at 200 characters, verdict truncated at 4000, wrong mutated occurrence chosen. Each correction surfaced changing mutants that would have been filed wrongly.",
@@ -50,8 +50,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001Regex\u0001/^ADR-?\\D/i\u0001/^ADR-?\\d/i\u0001if (/^ADR-?\\d/i.test(operand))"
   },
   {
-   "key": "251|21|251|32|Regex|/^ADR-\\d/i",
-   "line": 251,
+   "key": "669|21|669|32|Regex|/^ADR-\\d/i",
+   "line": 669,
    "mutator": "Regex",
    "filing": "equivalent",
    "evidence": "Four siblings KILLED here (the `pathShaped` condition of the `::` branch, the block it guards, the echo of the branch without `::`, the echo of a misspelt `adr:`), two of them on a site that NO input of the probe reached before it was widened — there are two `if (!pathShaped(tpath))`. What remains is on anchoring variants unreachable by the grammar: `/^ADR-?\\d/i` against `/ADR-?\\d/i` on an operand already split at the first whitespace, and `/\\S/` where the split guarantees there is no whitespace. METHOD OF THIS PASS (identical for every verdict below, closed on 2026-09-18). The mutant is APPLIED to the build, a behaviour probe calls the product on inputs that reach the mutated line, and a canonical digest of 250+ observations is compared: pointer grammar over 34 cells, manifest sections over 12 documents (renamed heading, lowercase, deep, last, duplicated, inside a code block, unclosed block), decision journals over 16 layouts, nine real missions read by evidenceReport/evidenceBreakdown/collectSealableEvidence/requiresLedger/prosePointerLedger/computeVerdict in strict AND non-strict, and the exact bounds of the signature guard (30, 119, 120, 121, 511, 512, 513). COVERAGE VERIFIED: the 56 instructed survivors are all on a line the probe EXECUTES, measured by NODE_V8_COVERAGE taking the innermost range (the first version marked 1540 lines out of 1540 and measured nothing). SENSITIVITY PROVEN: on this same pass, 20 mutants moved the probe and are now KILLED by tests written after reading the difference — so the instrument does tell what changes from what does not. The probe was wrong six times before it was right, and its failure mode was always to answer \"equivalent\": branches not reached, messages cut at 200 characters, verdict truncated at 4000, wrong mutated occurrence chosen. Each correction surfaced changing mutants that would have been filed wrongly.",
@@ -59,8 +59,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001Regex\u0001/^ADR-\\d/i\u0001/^ADR-?\\d/i\u0001if (/^ADR-?\\d/i.test(operand))"
   },
   {
-   "key": "260|54|260|67|EqualityOperator|sep <= firstWs",
-   "line": 260,
+   "key": "678|54|678|67|EqualityOperator|sep <= firstWs",
+   "line": 678,
    "mutator": "EqualityOperator",
    "filing": "equivalent",
    "evidence": "Applied on the self-gate, on m2, on m3, on m4, on m5 and on m6: the `check --strict --json` payload was byte-identical to baseline every time (m2: exit 1 -> 1, conformance 10 -> 10, every evidence counter unchanged; m3, built specifically to put `::` and whitespace in every relative position, likewise). On the 484-cell sweep — which includes `test:a.ts::n`, `test:a.ts:: n`, `test:a.ts::`, `test:a b.ts::n`, `test:x y::z`, `test:a.ts :: n`, `test:  ::n`, `test:` and the same shapes embedded in prose — the parsed pointer objects were identical on all 484, field for field.",
@@ -68,24 +68,24 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001EqualityOperator\u0001sep <= firstWs\u0001sep < firstWs\u0001if (sep !== -1 && (firstWs === -1 || sep < firstWs)) {"
   },
   {
-   "key": "269|45|269|57|MethodExpression|after",
-   "line": 269,
+   "key": "687|45|687|57|MethodExpression|after",
+   "line": 687,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "Applied on m2 and m3. On m2, `check --strict --json` gained the violation `Floor · provider-no-crash-missing-env · typed pointer test:code/test/pointers.test.ts:: — test named \"  spaced name\" not found in the file` (conformance 10 -> 11) where the baseline was silent: the cell `test:code/test/pointers.test.ts::  spaced name` parses to the name `spaced name`, which the file declares, and without the trim the gate searches for the name with its two leading spaces still attached. On m3 the same effect on the cell `test:…:: plain` (searched name became ` plain`). 33 of the 484 sweep cells change the parsed `testName`. A green row goes red on whitespace the operator cannot see.",
    "stableKey": "evidence\u0001parseEvidenceCell\u0001MethodExpression\u0001after\u0001after.trim()\u0001const name = q ? q[2] : after.trim().replace(/^[\"'`]|[\"'`]$/g, \"\");"
   },
   {
-   "key": "269|84|269|86|StringLiteral|\"Stryker was here!\"",
-   "line": 269,
+   "key": "687|84|687|86|StringLiteral|\"Stryker was here!\"",
+   "line": 687,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "Applied on m2. `check --strict --json` gained `Floor · state-event-sourcing · typed pointer test:code/test/pointers.test.ts::'l'invariant — test named \"Stryker was here!l'invariant tientStryker was here!\" not found in the file` (conformance 10 -> 11) where the baseline was silent. The replacement string of the quote-strip is substituted into the test name, so the value the gate searches for is corrupted — 21 of 484 sweep cells change `testName`. Verdict-capable: any row whose test name starts or ends with a quote character goes red.",
    "stableKey": "evidence\u0001parseEvidenceCell\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const name = q ? q[2] : after.trim().replace(/^[\"'`]|[\"'`]$/g, \"\");"
   },
   {
-   "key": "292|50|292|74|ConditionalExpression|true",
-   "line": 292,
+   "key": "726|50|726|74|ConditionalExpression|true",
+   "line": 726,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -93,8 +93,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001ConditionalExpression\u0001true\u0001ci === chunks.length - 1\u0001const cutBySemicolon = !q && ci === chunks.length - 1 && next !== undefined"
   },
   {
-   "key": "293|28|293|46|ConditionalExpression|true",
-   "line": 293,
+   "key": "727|28|727|46|ConditionalExpression|true",
+   "line": 727,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -102,8 +102,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001ConditionalExpression\u0001true\u0001next.trim() !== \"\"\u0001&& next.trim() !== \"\" && !/^(file|test|adr):\\S/.test(next.trim());"
   },
   {
-   "key": "293|28|293|39|MethodExpression|next",
-   "line": 293,
+   "key": "727|28|727|39|MethodExpression|next",
+   "line": 727,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -111,8 +111,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001MethodExpression\u0001next\u0001next.trim()\u0001&& next.trim() !== \"\" && !/^(file|test|adr):\\S/.test(next.trim());"
   },
   {
-   "key": "293|44|293|46|StringLiteral|\"Stryker was here!\"",
-   "line": 293,
+   "key": "727|44|727|46|StringLiteral|\"Stryker was here!\"",
+   "line": 727,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -120,8 +120,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001&& next.trim() !== \"\" && !/^(file|test|adr):\\S/.test(next.trim());"
   },
   {
-   "key": "293|51|293|72|Regex|/(file|test|adr):\\S/",
-   "line": 293,
+   "key": "727|51|727|72|Regex|/(file|test|adr):\\S/",
+   "line": 727,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -129,8 +129,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001Regex\u0001/(file|test|adr):\\S/\u0001/^(file|test|adr):\\S/\u0001&& next.trim() !== \"\" && !/^(file|test|adr):\\S/.test(next.trim());"
   },
   {
-   "key": "293|86|293|90|StringLiteral|\"\"",
-   "line": 293,
+   "key": "699|86|699|90|StringLiteral|\"\"",
+   "line": 699,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Measured on `cells`: `test:code/reports/junit.xml::` (empty name) is refused either way, same exit 1, same counters; the problem string `typed pointer test:code/reports/junit.xml:: — the \\`::\\` names no test` becomes `typed pointer test:code/reports/junit.xml — …` in --json, text and the witness `problem`. Identical on `cells2` and on `seal-plain`. The literal is the echo of an empty `::`. The previous filing of this mutant (on the pre-echoTestName line) said equivalent; the message change is measured, so it is re-filed display-only. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js byte-identical to the report's embedded source). Each mutant was spliced into the built file at its report offsets (original text checked before the splice, the file read back after it), then a fixed battery of real CLI runs (`node dist/cli.js check ... --no-color --path .`, Node 24.22.1) was replayed on fresh copies of an `init --example` mission (request-triage) and every exit code, stdout, stderr and written file (lock, witness) was compared byte for byte with the pristine build. Fixtures: `cells`/`cells2` (test pointers with empty, quoted, glued, backslashed and quote-carrying names; `cells2` adds the named cases to the report so they are green), `seal-plain` (freeze, verify, timing-only and verdict changes), `seal-crlf` and `seal-crlf-ml` (a CRLF report, then one whose case name spans a line break), `seal-template` and `seal-bracket` (`[Rule name]`/`[x]` rows, then slugs ending or starting with a bracket, observed through `--attest`), `seal-adr`/`seal-adr-docs`/`seal-adr-dir` (`ADR-undefined-notes.md` in runward/adr then docs/adr with a malformed `adr:ADR-9999`, and a directory named `ADR-0004-…`), `seal-symlink` (cited link re-pointed at a decoy after freeze), `seal-twobase` (`notes.md` under two bases plus a dangling link in prose), `seal-forms` (non-projecting report with leading whitespace, report with a NUL byte, HTML), `lock-forms` (hand-written locks: hashKinds null/array/string/number, with and without a projected entry, unknown/non-string kinds, kinds on unsealed paths, pre-0102 bytes entries over a report, a runward rendering/NUL/HTML/JUnit written over sealed files, quote-escaping-only change, CRLF, unreadable report via chmod 000, crafted sentinel hashes), and `direct-unreadable` (collectEvidenceSeal/renderEvidenceSeal called directly on a mission whose cited file is chmod 000, the one input the CLI refuses before sealing). Probe runs per mutant: 26 to 40 CLI invocations; no mutant hung (60 s bound per call).",
@@ -138,8 +138,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001StringLiteral\u0001\"\"\u0001\"::\"\u0001const shown = `test:${tpath}${name ? `::${echoTestName(name)}` : \"::\"}`;"
   },
   {
-   "key": "295|101|295|105|BooleanLiteral|false",
-   "line": 295,
+   "key": "729|101|729|105|BooleanLiteral|false",
+   "line": 729,
    "mutator": "BooleanLiteral",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -147,8 +147,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001BooleanLiteral\u0001false\u0001true\u0001out.push({ kind, raw: shown, path: tpath, testName: name, testNameDeclared: true,"
   },
   {
-   "key": "296|123|296|147|MethodExpression|next.trim()",
-   "line": 296,
+   "key": "730|123|730|147|MethodExpression|next.trim()",
+   "line": 730,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -156,8 +156,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001MethodExpression\u0001next.trim()\u0001next.trim().slice(0, 40)\u0001malformed: `the unquoted test name \"${name}\" ends at the first \\`;\\`, and text follows it (\"${next.trim().slice(0, 40)}\"), so the case meant may be \"${name};${next.slice(0, 40)}\" — quote the name (\\`::\"…\"\\`), or follow the \\`;\\` with a pointer. An XML entity such as \\`&gt;\\` carries a \\`;\\` too: write the character itself` });"
   },
   {
-   "key": "296|123|296|134|MethodExpression|next",
-   "line": 296,
+   "key": "730|123|730|134|MethodExpression|next",
+   "line": 730,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -165,8 +165,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001MethodExpression\u0001next\u0001next.trim()\u0001malformed: `the unquoted test name \"${name}\" ends at the first \\`;\\`, and text follows it (\"${next.trim().slice(0, 40)}\"), so the case meant may be \"${name};${next.slice(0, 40)}\" — quote the name (\\`::\"…\"\\`), or follow the \\`;\\` with a pointer. An XML entity such as \\`&gt;\\` carries a \\`;\\` too: write the character itself` });"
   },
   {
-   "key": "296|188|296|205|MethodExpression|next",
-   "line": 296,
+   "key": "730|188|730|205|MethodExpression|next",
+   "line": 730,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -174,8 +174,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001MethodExpression\u0001next\u0001next.slice(0, 40)\u0001malformed: `the unquoted test name \"${name}\" ends at the first \\`;\\`, and text follows it (\"${next.trim().slice(0, 40)}\"), so the case meant may be \"${name};${next.slice(0, 40)}\" — quote the name (\\`::\"…\"\\`), or follow the \\`;\\` with a pointer. An XML entity such as \\`&gt;\\` carries a \\`;\\` too: write the character itself` });"
   },
   {
-   "key": "305|65|305|68|StringLiteral|\"\"",
-   "line": 305,
+   "key": "711|65|711|68|StringLiteral|\"\"",
+   "line": 711,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Measured on `cells`: only the suggested spelling inside the malformed message moves: for `::  \"x \"y\" z \"` the hint `test:…::\"x &quot;y&quot; z \"` becomes `test:…::\" &quot;x &quot;y&quot; z \"` (indexOf(\"\") is 0, so `meant` starts one character early). Exit, counters, testName and testNameDeclared unchanged in --json and the witness; `cells2` identical. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js byte-identical to the report's embedded source). Each mutant was spliced into the built file at its report offsets (original text checked before the splice, the file read back after it), then a fixed battery of real CLI runs (`node dist/cli.js check ... --no-color --path .`, Node 24.22.1) was replayed on fresh copies of an `init --example` mission (request-triage) and every exit code, stdout, stderr and written file (lock, witness) was compared byte for byte with the pristine build. Fixtures: `cells`/`cells2` (test pointers with empty, quoted, glued, backslashed and quote-carrying names; `cells2` adds the named cases to the report so they are green), `seal-plain` (freeze, verify, timing-only and verdict changes), `seal-crlf` and `seal-crlf-ml` (a CRLF report, then one whose case name spans a line break), `seal-template` and `seal-bracket` (`[Rule name]`/`[x]` rows, then slugs ending or starting with a bracket, observed through `--attest`), `seal-adr`/`seal-adr-docs`/`seal-adr-dir` (`ADR-undefined-notes.md` in runward/adr then docs/adr with a malformed `adr:ADR-9999`, and a directory named `ADR-0004-…`), `seal-symlink` (cited link re-pointed at a decoy after freeze), `seal-twobase` (`notes.md` under two bases plus a dangling link in prose), `seal-forms` (non-projecting report with leading whitespace, report with a NUL byte, HTML), `lock-forms` (hand-written locks: hashKinds null/array/string/number, with and without a projected entry, unknown/non-string kinds, kinds on unsealed paths, pre-0102 bytes entries over a report, a runward rendering/NUL/HTML/JUnit written over sealed files, quote-escaping-only change, CRLF, unreadable report via chmod 000, crafted sentinel hashes), and `direct-unreadable` (collectEvidenceSeal/renderEvidenceSeal called directly on a mission whose cited file is chmod 000, the one input the CLI refuses before sealing). Probe runs per mutant: 26 to 40 CLI invocations; no mutant hung (60 s bound per call).",
@@ -183,8 +183,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001StringLiteral\u0001\"\"\u0001'\"'\u0001const meant = after.slice(after.indexOf('\"') + 1, after.lastIndexOf('\"')).replace(/\\\\\"/g, '\"');"
   },
   {
-   "key": "306|59|306|108|MethodExpression|after.slice(0, after.lastIndexOf('\"') + 1)",
-   "line": 306,
+   "key": "712|59|712|108|MethodExpression|after.slice(0, after.lastIndexOf('\"') + 1)",
+   "line": 712,
    "mutator": "MethodExpression",
    "filing": "display-only",
    "evidence": "Measured on `cells`: the echo keeps the leading white space: `typed pointer test:…::\"x \"y\" z \"` becomes `typed pointer test:…::  \"x \"y\" z \"` (problem string and witness `raw`). Exit, counters and every other witness field unchanged; `cells2` identical. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js byte-identical to the report's embedded source). Each mutant was spliced into the built file at its report offsets (original text checked before the splice, the file read back after it), then a fixed battery of real CLI runs (`node dist/cli.js check ... --no-color --path .`, Node 24.22.1) was replayed on fresh copies of an `init --example` mission (request-triage) and every exit code, stdout, stderr and written file (lock, witness) was compared byte for byte with the pristine build. Fixtures: `cells`/`cells2` (test pointers with empty, quoted, glued, backslashed and quote-carrying names; `cells2` adds the named cases to the report so they are green), `seal-plain` (freeze, verify, timing-only and verdict changes), `seal-crlf` and `seal-crlf-ml` (a CRLF report, then one whose case name spans a line break), `seal-template` and `seal-bracket` (`[Rule name]`/`[x]` rows, then slugs ending or starting with a bracket, observed through `--attest`), `seal-adr`/`seal-adr-docs`/`seal-adr-dir` (`ADR-undefined-notes.md` in runward/adr then docs/adr with a malformed `adr:ADR-9999`, and a directory named `ADR-0004-…`), `seal-symlink` (cited link re-pointed at a decoy after freeze), `seal-twobase` (`notes.md` under two bases plus a dangling link in prose), `seal-forms` (non-projecting report with leading whitespace, report with a NUL byte, HTML), `lock-forms` (hand-written locks: hashKinds null/array/string/number, with and without a projected entry, unknown/non-string kinds, kinds on unsealed paths, pre-0102 bytes entries over a report, a runward rendering/NUL/HTML/JUnit written over sealed files, quote-escaping-only change, CRLF, unreadable report via chmod 000, crafted sentinel hashes), and `direct-unreadable` (collectEvidenceSeal/renderEvidenceSeal called directly on a mission whose cited file is chmod 000, the one input the CLI refuses before sealing). Probe runs per mutant: 26 to 40 CLI invocations; no mutant hung (60 s bound per call).",
@@ -192,8 +192,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001MethodExpression\u0001after.slice(0, after.lastIndexOf('\"') + 1)\u0001after.slice(0, after.lastIndexOf('\"') + 1).trim()\u0001const written = `test:${tpath}::${after.slice(0, after.lastIndexOf('\"') + 1).trim()}`;"
   },
   {
-   "key": "306|59|306|101|MethodExpression|after",
-   "line": 306,
+   "key": "712|59|712|101|MethodExpression|after",
+   "line": 712,
    "mutator": "MethodExpression",
    "filing": "display-only",
    "evidence": "Measured on `cells`: for `::\"a \"b\" c\" — trailing comment` the echo grows the comment: `typed pointer test:…::\"a \"b\" c\" — trailing comment — a \\`\"\\` cannot appear…` (problem string and witness `raw`). Exit 1 both, counters unchanged; `cells2` identical. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js byte-identical to the report's embedded source). Each mutant was spliced into the built file at its report offsets (original text checked before the splice, the file read back after it), then a fixed battery of real CLI runs (`node dist/cli.js check ... --no-color --path .`, Node 24.22.1) was replayed on fresh copies of an `init --example` mission (request-triage) and every exit code, stdout, stderr and written file (lock, witness) was compared byte for byte with the pristine build. Fixtures: `cells`/`cells2` (test pointers with empty, quoted, glued, backslashed and quote-carrying names; `cells2` adds the named cases to the report so they are green), `seal-plain` (freeze, verify, timing-only and verdict changes), `seal-crlf` and `seal-crlf-ml` (a CRLF report, then one whose case name spans a line break), `seal-template` and `seal-bracket` (`[Rule name]`/`[x]` rows, then slugs ending or starting with a bracket, observed through `--attest`), `seal-adr`/`seal-adr-docs`/`seal-adr-dir` (`ADR-undefined-notes.md` in runward/adr then docs/adr with a malformed `adr:ADR-9999`, and a directory named `ADR-0004-…`), `seal-symlink` (cited link re-pointed at a decoy after freeze), `seal-twobase` (`notes.md` under two bases plus a dangling link in prose), `seal-forms` (non-projecting report with leading whitespace, report with a NUL byte, HTML), `lock-forms` (hand-written locks: hashKinds null/array/string/number, with and without a projected entry, unknown/non-string kinds, kinds on unsealed paths, pre-0102 bytes entries over a report, a runward rendering/NUL/HTML/JUnit written over sealed files, quote-escaping-only change, CRLF, unreadable report via chmod 000, crafted sentinel hashes), and `direct-unreadable` (collectEvidenceSeal/renderEvidenceSeal called directly on a mission whose cited file is chmod 000, the one input the CLI refuses before sealing). Probe runs per mutant: 26 to 40 CLI invocations; no mutant hung (60 s bound per call).",
@@ -201,8 +201,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001MethodExpression\u0001after\u0001after.slice(0, after.lastIndexOf('\"') + 1)\u0001const written = `test:${tpath}::${after.slice(0, after.lastIndexOf('\"') + 1).trim()}`;"
   },
   {
-   "key": "306|92|306|95|StringLiteral|\"\"",
-   "line": 306,
+   "key": "712|92|712|95|StringLiteral|\"\"",
+   "line": 712,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Measured on `cells`: identical observation to the `after` mutant (lastIndexOf(\"\") is the length, so the slice is the whole remainder): the comment `— trailing comment` enters the echoed pointer in the problem string and the witness `raw`; exit and counters unchanged; `cells2` identical. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js byte-identical to the report's embedded source). Each mutant was spliced into the built file at its report offsets (original text checked before the splice, the file read back after it), then a fixed battery of real CLI runs (`node dist/cli.js check ... --no-color --path .`, Node 24.22.1) was replayed on fresh copies of an `init --example` mission (request-triage) and every exit code, stdout, stderr and written file (lock, witness) was compared byte for byte with the pristine build. Fixtures: `cells`/`cells2` (test pointers with empty, quoted, glued, backslashed and quote-carrying names; `cells2` adds the named cases to the report so they are green), `seal-plain` (freeze, verify, timing-only and verdict changes), `seal-crlf` and `seal-crlf-ml` (a CRLF report, then one whose case name spans a line break), `seal-template` and `seal-bracket` (`[Rule name]`/`[x]` rows, then slugs ending or starting with a bracket, observed through `--attest`), `seal-adr`/`seal-adr-docs`/`seal-adr-dir` (`ADR-undefined-notes.md` in runward/adr then docs/adr with a malformed `adr:ADR-9999`, and a directory named `ADR-0004-…`), `seal-symlink` (cited link re-pointed at a decoy after freeze), `seal-twobase` (`notes.md` under two bases plus a dangling link in prose), `seal-forms` (non-projecting report with leading whitespace, report with a NUL byte, HTML), `lock-forms` (hand-written locks: hashKinds null/array/string/number, with and without a projected entry, unknown/non-string kinds, kinds on unsealed paths, pre-0102 bytes entries over a report, a runward rendering/NUL/HTML/JUnit written over sealed files, quote-escaping-only change, CRLF, unreadable report via chmod 000, crafted sentinel hashes), and `direct-unreadable` (collectEvidenceSeal/renderEvidenceSeal called directly on a mission whose cited file is chmod 000, the one input the CLI refuses before sealing). Probe runs per mutant: 26 to 40 CLI invocations; no mutant hung (60 s bound per call).",
@@ -210,8 +210,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001StringLiteral\u0001\"\"\u0001'\"'\u0001const written = `test:${tpath}::${after.slice(0, after.lastIndexOf('\"') + 1).trim()}`;"
   },
   {
-   "key": "307|78|307|80|StringLiteral|\"Stryker was here!\"",
-   "line": 307,
+   "key": "713|78|713|80|StringLiteral|\"Stryker was here!\"",
+   "line": 713,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Measured on `cells`: two malformed messages (`::  \"x \"y\" z \"` and `::\"\"x\"`) end with `Stryker was here!` instead of nothing (the unquoted alternative is withheld for those names). Exit, counters and witness fields other than `problem` unchanged; `cells2` identical. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js byte-identical to the report's embedded source). Each mutant was spliced into the built file at its report offsets (original text checked before the splice, the file read back after it), then a fixed battery of real CLI runs (`node dist/cli.js check ... --no-color --path .`, Node 24.22.1) was replayed on fresh copies of an `init --example` mission (request-triage) and every exit code, stdout, stderr and written file (lock, witness) was compared byte for byte with the pristine build. Fixtures: `cells`/`cells2` (test pointers with empty, quoted, glued, backslashed and quote-carrying names; `cells2` adds the named cases to the report so they are green), `seal-plain` (freeze, verify, timing-only and verdict changes), `seal-crlf` and `seal-crlf-ml` (a CRLF report, then one whose case name spans a line break), `seal-template` and `seal-bracket` (`[Rule name]`/`[x]` rows, then slugs ending or starting with a bracket, observed through `--attest`), `seal-adr`/`seal-adr-docs`/`seal-adr-dir` (`ADR-undefined-notes.md` in runward/adr then docs/adr with a malformed `adr:ADR-9999`, and a directory named `ADR-0004-…`), `seal-symlink` (cited link re-pointed at a decoy after freeze), `seal-twobase` (`notes.md` under two bases plus a dangling link in prose), `seal-forms` (non-projecting report with leading whitespace, report with a NUL byte, HTML), `lock-forms` (hand-written locks: hashKinds null/array/string/number, with and without a projected entry, unknown/non-string kinds, kinds on unsealed paths, pre-0102 bytes entries over a report, a runward rendering/NUL/HTML/JUnit written over sealed files, quote-escaping-only change, CRLF, unreadable report via chmod 000, crafted sentinel hashes), and `direct-unreadable` (collectEvidenceSeal/renderEvidenceSeal called directly on a mission whose cited file is chmod 000, the one input the CLI refuses before sealing). Probe runs per mutant: 26 to 40 CLI invocations; no mutant hung (60 s bound per call).",
@@ -219,24 +219,16 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const unquoted = /^[\"'`\\s]|[\"'`\\s]$|;/.test(meant) ? \"\" : `, or, with nothing after it in its segment, unquoted: test:${tpath}::${meant}`;"
   },
   {
-   "key": "320|39|320|67|Regex|/([^\\s#]+)#(\")([\\s\\S]*?)\\2/",
-   "line": 320,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "FALSE GREEN, verified by exit code. Applied on m5 (single defect: `file:code/deleted-b.ts — compare with code/b.ts#\"the exact sentence\"`): `check --strict --json` went from **exit 1 to exit 0**, conformance 1 -> 0, the refusal `typed pointer does not resolve: file:code/deleted-b.ts — update it or remove the row` disappeared, and `evidence.typed` rose 19 -> 20 while `evidence.prose` fell 4 -> 3 — the run now counts the row as mechanically verified. Without the `^`, the quoted-symbol matcher scans the whole cell and binds to a path mentioned in the PROSE, so the gate silently verifies a different file from the one the pointer names: `code/b.ts#\"the exact sentence\"` is checked and `code/deleted-b.ts`, which is gone, never is. Re-observed on m2 (conformance 10 -> 9, typed 16 -> 17). 12 of 484 sweep cells change `path`, `symbol` or `symbolDeclared`.",
-   "stableKey": "evidence\u0001parseEvidenceCell\u0001Regex\u0001/([^\\s#]+)#(\")([\\s\\S]*?)\\2/\u0001/^([^\\s#]+)#(\")([\\s\\S]*?)\\2/\u0001const quoted = rest.match(/^([^\\s#]+)#(\")([\\s\\S]*?)\\2/);"
-  },
-  {
-   "key": "337|36|337|45|Regex|/:(\\d+)/",
-   "line": 337,
+   "key": "771|36|771|45|Regex|/:(\\d+)/",
+   "line": 771,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Applied on m2. Two rows moved and the coverage counter with them (conformance 10 -> 11, `evidence.typed` 16 -> 15, `evidence.prose` 7 -> 8). A row that was GREEN went red: the cell `file:code/2026:07/report.md` — a real file in a directory whose name carries `:07` — produced the new violation `Architect · contracts-governance · typed pointer does not resolve: file:code/2026:07/report:7 — update it or remove the row`, because without the `$` the matcher takes `:07` out of the middle of the path, calls it a line number and truncates the path by three characters. The second row changed its message from `file:code/src/core/ports/routing.port.ts:5:8` to `file:code/src/core/ports/routing.port.ts::5` — the `path:line:column` shape an IDE puts on the clipboard. 34 of 484 sweep cells change `path` or `line`.",
    "stableKey": "evidence\u0001parseEvidenceCell\u0001Regex\u0001/:(\\d+)/\u0001/:(\\d+)$/\u0001const ln = token.match(/:(\\d+)$/);"
   },
   {
-   "key": "345|103|345|123|ConditionalExpression|true",
-   "line": 345,
+   "key": "779|103|779|123|ConditionalExpression|true",
+   "line": 779,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "Applied on the self-gate, on m2, on m3, on m4, on m5 and on m6: the `check --strict --json` payload was byte-identical to baseline every time (m2: exit 1 -> 1, conformance 10 -> 10, all counters unchanged; m3, which carries `file:code/b.ts#`, `file:code/b.ts#\"\"`, `file:code/b.ts#\"the exact sentence\"`, `file:code/b.ts#companion` and `file:code/b.ts#AbsentSymbol`, likewise). On the 484-cell sweep — which includes `#`, `#\"\"`, `#\" \"`, `#\"  \"`, `#a`, `#a b`, `#\\ta`, `#a#b` and `#\"a b\" tail` on five different paths — every parsed pointer was identical, `raw` included.",
@@ -244,8 +236,8 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001ConditionalExpression\u0001true\u0001symbol !== undefined\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
   },
   {
-   "key": "345|173|345|175|StringLiteral|\"Stryker was here!\"",
-   "line": 345,
+   "key": "779|173|779|175|StringLiteral|\"Stryker was here!\"",
+   "line": 779,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for (a symbol must be at least 2 characters); drop the `#` or name the symbol` became `typed pointer file:code/src/demo.ts#Stryker was here! — …`. Two rows moved the same way on m3 (`file:code/b.ts#` -> `file:code/b.ts#Stryker was here!`). The literal is the `symbol ?? \"\"` fallback in the pointer reconstruction, reached when a `#` was written and named nothing.",
