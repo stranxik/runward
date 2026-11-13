@@ -5,8 +5,8 @@
  ],
  "verdicts": [
   {
-   "key": "1432|50|1432|56|StringLiteral|\"\"",
-   "line": 1432,
+   "key": "2000|50|2000|56|StringLiteral|\"\"",
+   "line": 2000,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Shipped probe on t-multi: no observable difference. Battery: IDENTICAL on all 31 observations, including four missions built specifically to attack the byte-to-text step of this call — t-lock-bom (UTF-8 BOM), t-lock-badutf8 (0xFF 0xFE spliced in), t-lock-utf16 (UTF-16LE), t-corrupt-lock — plus every well-formed lock in the set. The same battery DOES see this function move: it caught the other 7 of 8 mutants in verifyEvidenceLock, so the null reading is a measurement, not a blind instrument. Node semantics measured directly (tools/enc-probe.mjs, node v24.18.0): `readFileSync(p, \"utf8\")` returns a string and `readFileSync(p, \"\")` returns a Buffer, and JSON.parse of the two agrees on all five shapes tried — well-formed (`OK {\"version\":1,...}` both), BOM (SyntaxError both, same message), invalid UTF-8 (both `OK` with the same U+FFFD replacement chars), leading NUL (SyntaxError both), corrupt (SyntaxError both).",
@@ -14,32 +14,32 @@
    "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001lock = JSON.parse(readFileSync(lockPath, \"utf8\"));"
   },
   {
-   "key": "1435|64|1435|72|StringLiteral|\"\"",
-   "line": 1435,
+   "key": "2003|64|2003|72|StringLiteral|\"\"",
+   "line": 2003,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "The mutated literal is the violation's RULE ATTRIBUTION, `rule: \"(seal)\"`, not its message. Battery: observable on 5 (json:t-corrupt-lock, json:t-lock-badutf8, json:t-lock-bom, json:t-lock-utf16, text:t-corrupt-lock). Measured side by side (tools/rulefield.mjs) on t-corrupt-lock: pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]` for the `scope: \"evidence-seal\"` entries of the --json `conformance[]` array. Terminal line loses its label the same way. Exit code, gap count, `seal.violations` and the `problem` text are all unchanged, so this is not a false green — what is lost is the identifier a consumer groups on, on the machine surface ADR-0030 calls the one a CI consumes blind. Nothing in src/ or test/ reads the literal `(seal)` (grepped), and nothing in the suite reddens. Not filed display-only: the house criterion for display-only in this register is 'count, scope and rule unchanged, only the human-readable explanation lost', and it is exactly the rule that moves here.",
    "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001return { present: true, count: 0, violations: [{ rule: \"(seal)\", problem: `runward/${EVIDENCE_LOCK} is not valid JSON — re-seal with \\`runward check --freeze\\` or remove it` }] };"
   },
   {
-   "key": "1443|33|1443|41|StringLiteral|\"\"",
-   "line": 1443,
+   "key": "2011|33|2011|41|StringLiteral|\"\"",
+   "line": 2011,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "Same literal, the unknown-version branch. Battery: observable on 3 (json:t-unknown-version, json:t-multi, text:t-multi). tools/rulefield.mjs on t-unknown-version: pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`. Verified the branch really fires: pristine t-unknown-version prints `✗ (seal) — runward/evidence-lock.json declares version 999, this runward reads version 1`, and the mutant prints the identical sentence with the label gone. Exit code and violation count unchanged.",
    "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `runward/${EVIDENCE_LOCK} declares version ${JSON.stringify(v)}, this runward reads version 1 — upgrade runward or re-seal` });"
   },
   {
-   "key": "1448|33|1448|41|StringLiteral|\"\"",
-   "line": 1448,
+   "key": "2016|33|2016|41|StringLiteral|\"\"",
+   "line": 2016,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "Same literal, the zero-files branch. Battery: observable on 2 (json:t-zero-files, text:t-zero-files). tools/rulefield.mjs on t-zero-files: pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`, the message 'seals zero files — it certifies nothing' unchanged in both. Exit code and violation count unchanged.",
    "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `runward/${EVIDENCE_LOCK} seals zero files — it certifies nothing; re-seal with \\`runward check --freeze\\` or remove it` });"
   },
   {
-   "key": "1456|34|1456|49|ConditionalExpression|false",
-   "line": 1456,
+   "key": "2043|34|2043|49|ConditionalExpression|false",
+   "line": 2043,
    "mutator": "ConditionalExpression",
    "filing": "display-only",
    "evidence": "The mutated node is `abs === rootAbs`, so the containment test becomes `isAbsolute(rel) || !(false || abs.startsWith(rootAbs + sep))`. Built t-root-key for it: a lock whose key is `.`, the only input on which the two disjuncts disagree, since every other key is either absolute, escaping, or strictly under the root. Battery: observable on exactly 2 (json:t-root-key, text:t-root-key) and on nothing else in 31 observations. Side by side on t-root-key, plain text: pristine `exit=1 … ✗ (seal) — sealed evidence missing: . — the file the gate crossed on is gone`; mutant `exit=1 … ✗ (seal) — sealed path escapes the project: . — a lock entry must be a project-relative file`. One violation either way, same `(seal)` attribution, same exit code, same `seal.count`. The mutant is also strictly MORE conservative — its condition is true wherever the pristine one is — so it can never let through anything runward refuses. Filed display-only rather than hole because the count, the scope, the rule and the verdict are all unchanged and only the sentence naming the reason moves, which is this register's own criterion.",
@@ -47,24 +47,24 @@
    "stableKey": "evidence\u0001verifyEvidenceLock\u0001ConditionalExpression\u0001false\u0001abs === rootAbs\u0001if (isAbsolute(rel) || !(abs === rootAbs || abs.startsWith(rootAbs + sep))) {"
   },
   {
-   "key": "1457|37|1457|45|StringLiteral|\"\"",
-   "line": 1457,
+   "key": "2044|37|2044|45|StringLiteral|\"\"",
+   "line": 2044,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "Same `rule: \"(seal)\"` literal, the escapes-the-project branch. Battery: observable on 4 (json:t-escape-abs, json:t-escape-dotdot, json:t-multi, text:t-multi). tools/rulefield.mjs on t-escape-abs (a lock key of `/etc/hosts`): pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`. The containment refusal itself still fires — this branch is the arbitrary-file-read guard and it is intact — but the violation it emits is no longer attributed. Exit code and count unchanged.",
    "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `sealed path escapes the project: ${rel} — a lock entry must be a project-relative file. Re-seal with \\`runward check --freeze\\`` });"
   },
   {
-   "key": "1461|37|1461|45|StringLiteral|\"\"",
-   "line": 1461,
+   "key": "2048|37|2048|45|StringLiteral|\"\"",
+   "line": 2048,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "Same literal, the sealed-evidence-missing branch. Battery: observable on 5 (json:t-missing-file, json:t-root-key, json:t-multi, text:t-multi, text:t-root-key). tools/rulefield.mjs on t-missing-file (a sealed file deleted after sealing): pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`. Exit code and count unchanged.",
    "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `sealed evidence missing: ${rel} — the file the gate crossed on is gone. Re-verify the pointer, then re-seal with \\`runward check --freeze\\`` });"
   },
   {
-   "key": "1585|26|1585|50|ConditionalExpression|false",
-   "line": 1585,
+   "key": "2032|26|2032|50|ConditionalExpression|false",
+   "line": 2032,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "IDENTICAL on every step, including `hk-kind-number` (5), `hk-kind-null-on-bytes` (null) and `hk-kind-unknown`. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js byte-identical to the report's embedded source). Each mutant was spliced into the built file at its report offsets (original text checked before the splice, the file read back after it), then a fixed battery of real CLI runs (`node dist/cli.js check ... --no-color --path .`, Node 24.22.1) was replayed on fresh copies of an `init --example` mission (request-triage) and every exit code, stdout, stderr and written file (lock, witness) was compared byte for byte with the pristine build. Fixtures: `cells`/`cells2` (test pointers with empty, quoted, glued, backslashed and quote-carrying names; `cells2` adds the named cases to the report so they are green), `seal-plain` (freeze, verify, timing-only and verdict changes), `seal-crlf` and `seal-crlf-ml` (a CRLF report, then one whose case name spans a line break), `seal-template` and `seal-bracket` (`[Rule name]`/`[x]` rows, then slugs ending or starting with a bracket, observed through `--attest`), `seal-adr`/`seal-adr-docs`/`seal-adr-dir` (`ADR-undefined-notes.md` in runward/adr then docs/adr with a malformed `adr:ADR-9999`, and a directory named `ADR-0004-…`), `seal-symlink` (cited link re-pointed at a decoy after freeze), `seal-twobase` (`notes.md` under two bases plus a dangling link in prose), `seal-forms` (non-projecting report with leading whitespace, report with a NUL byte, HTML), `lock-forms` (hand-written locks: hashKinds null/array/string/number, with and without a projected entry, unknown/non-string kinds, kinds on unsealed paths, pre-0102 bytes entries over a report, a runward rendering/NUL/HTML/JUnit written over sealed files, quote-escaping-only change, CRLF, unreadable report via chmod 000, crafted sentinel hashes), and `direct-unreadable` (collectEvidenceSeal/renderEvidenceSeal called directly on a mission whose cited file is chmod 000, the one input the CLI refuses before sealing). Probe runs per mutant: 26 to 40 CLI invocations; no mutant hung (60 s bound per call).",
@@ -72,8 +72,8 @@
    "stableKey": "evidence\u0001verifyEvidenceLock\u0001ConditionalExpression\u0001false\u0001typeof kind !== \"string\"\u0001else if (typeof kind !== \"string\" || !SEAL_HASH_KINDS.has(kind))"
   },
   {
-   "key": "1605|17|1605|45|ConditionalExpression|false",
-   "line": 1605,
+   "key": "2052|17|2052|45|ConditionalExpression|false",
+   "line": 2052,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "IDENTICAL on every step, including `lock-forms` `hk-kind-number` (kind 5), `hk-kind-null-on-bytes` (kind null) and `hk-kind-unknown-*`; its `||` and whole-condition siblings ARE observable on the same variants. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js byte-identical to the report's embedded source). Each mutant was spliced into the built file at its report offsets (original text checked before the splice, the file read back after it), then a fixed battery of real CLI runs (`node dist/cli.js check ... --no-color --path .`, Node 24.22.1) was replayed on fresh copies of an `init --example` mission (request-triage) and every exit code, stdout, stderr and written file (lock, witness) was compared byte for byte with the pristine build. Fixtures: `cells`/`cells2` (test pointers with empty, quoted, glued, backslashed and quote-carrying names; `cells2` adds the named cases to the report so they are green), `seal-plain` (freeze, verify, timing-only and verdict changes), `seal-crlf` and `seal-crlf-ml` (a CRLF report, then one whose case name spans a line break), `seal-template` and `seal-bracket` (`[Rule name]`/`[x]` rows, then slugs ending or starting with a bracket, observed through `--attest`), `seal-adr`/`seal-adr-docs`/`seal-adr-dir` (`ADR-undefined-notes.md` in runward/adr then docs/adr with a malformed `adr:ADR-9999`, and a directory named `ADR-0004-…`), `seal-symlink` (cited link re-pointed at a decoy after freeze), `seal-twobase` (`notes.md` under two bases plus a dangling link in prose), `seal-forms` (non-projecting report with leading whitespace, report with a NUL byte, HTML), `lock-forms` (hand-written locks: hashKinds null/array/string/number, with and without a projected entry, unknown/non-string kinds, kinds on unsealed paths, pre-0102 bytes entries over a report, a runward rendering/NUL/HTML/JUnit written over sealed files, quote-escaping-only change, CRLF, unreadable report via chmod 000, crafted sentinel hashes), and `direct-unreadable` (collectEvidenceSeal/renderEvidenceSeal called directly on a mission whose cited file is chmod 000, the one input the CLI refuses before sealing). Probe runs per mutant: 26 to 40 CLI invocations; no mutant hung (60 s bound per call).",
@@ -81,8 +81,8 @@
    "stableKey": "evidence\u0001verifyEvidenceLock\u0001ConditionalExpression\u0001false\u0001typeof recorded !== \"string\"\u0001if (typeof recorded !== \"string\" || !SEAL_HASH_KINDS.has(recorded))"
   },
   {
-   "key": "1621|33|1621|77|ConditionalExpression|true",
-   "line": 1621,
+   "key": "2071|33|2071|77|ConditionalExpression|true",
+   "line": 2071,
    "mutator": "ConditionalExpression",
    "filing": "display-only",
    "evidence": "Measured on `lock-forms` (migrate-not-junit, rendering/nul/html-over-bytes), `seal-plain` bytes-changed, `seal-symlink` repointed, `seal-adr` and `seal-forms`: every bytes drift gains the suffix `(this JUnit report was sealed by its bytes, as a lock written before…)`, including on AGENTS.md and a symlink; exit and counts unchanged. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js byte-identical to the report's embedded source). Each mutant was spliced into the built file at its report offsets (original text checked before the splice, the file read back after it), then a fixed battery of real CLI runs (`node dist/cli.js check ... --no-color --path .`, Node 24.22.1) was replayed on fresh copies of an `init --example` mission (request-triage) and every exit code, stdout, stderr and written file (lock, witness) was compared byte for byte with the pristine build. Fixtures: `cells`/`cells2` (test pointers with empty, quoted, glued, backslashed and quote-carrying names; `cells2` adds the named cases to the report so they are green), `seal-plain` (freeze, verify, timing-only and verdict changes), `seal-crlf` and `seal-crlf-ml` (a CRLF report, then one whose case name spans a line break), `seal-template` and `seal-bracket` (`[Rule name]`/`[x]` rows, then slugs ending or starting with a bracket, observed through `--attest`), `seal-adr`/`seal-adr-docs`/`seal-adr-dir` (`ADR-undefined-notes.md` in runward/adr then docs/adr with a malformed `adr:ADR-9999`, and a directory named `ADR-0004-…`), `seal-symlink` (cited link re-pointed at a decoy after freeze), `seal-twobase` (`notes.md` under two bases plus a dangling link in prose), `seal-forms` (non-projecting report with leading whitespace, report with a NUL byte, HTML), `lock-forms` (hand-written locks: hashKinds null/array/string/number, with and without a projected entry, unknown/non-string kinds, kinds on unsealed paths, pre-0102 bytes entries over a report, a runward rendering/NUL/HTML/JUnit written over sealed files, quote-escaping-only change, CRLF, unreadable report via chmod 000, crafted sentinel hashes), and `direct-unreadable` (collectEvidenceSeal/renderEvidenceSeal called directly on a mission whose cited file is chmod 000, the one input the CLI refuses before sealing). Probe runs per mutant: 26 to 40 CLI invocations; no mutant hung (60 s bound per call).",
@@ -90,8 +90,8 @@
    "stableKey": "evidence\u0001verifyEvidenceLock\u0001ConditionalExpression\u0001true\u0001sealHash(abs).kind === JUNIT_PROJECTION_KIND\u0001const migrate = sealHash(abs).kind === JUNIT_PROJECTION_KIND"
   },
   {
-   "key": "1623|23|1623|25|StringLiteral|\"Stryker was here!\"",
-   "line": 1623,
+   "key": "2073|23|2073|25|StringLiteral|\"Stryker was here!\"",
+   "line": 2073,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Measured on the same steps as the condition mutant: every bytes drift message ends with `Stryker was here!`; exit and counts unchanged. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js byte-identical to the report's embedded source). Each mutant was spliced into the built file at its report offsets (original text checked before the splice, the file read back after it), then a fixed battery of real CLI runs (`node dist/cli.js check ... --no-color --path .`, Node 24.22.1) was replayed on fresh copies of an `init --example` mission (request-triage) and every exit code, stdout, stderr and written file (lock, witness) was compared byte for byte with the pristine build. Fixtures: `cells`/`cells2` (test pointers with empty, quoted, glued, backslashed and quote-carrying names; `cells2` adds the named cases to the report so they are green), `seal-plain` (freeze, verify, timing-only and verdict changes), `seal-crlf` and `seal-crlf-ml` (a CRLF report, then one whose case name spans a line break), `seal-template` and `seal-bracket` (`[Rule name]`/`[x]` rows, then slugs ending or starting with a bracket, observed through `--attest`), `seal-adr`/`seal-adr-docs`/`seal-adr-dir` (`ADR-undefined-notes.md` in runward/adr then docs/adr with a malformed `adr:ADR-9999`, and a directory named `ADR-0004-…`), `seal-symlink` (cited link re-pointed at a decoy after freeze), `seal-twobase` (`notes.md` under two bases plus a dangling link in prose), `seal-forms` (non-projecting report with leading whitespace, report with a NUL byte, HTML), `lock-forms` (hand-written locks: hashKinds null/array/string/number, with and without a projected entry, unknown/non-string kinds, kinds on unsealed paths, pre-0102 bytes entries over a report, a runward rendering/NUL/HTML/JUnit written over sealed files, quote-escaping-only change, CRLF, unreadable report via chmod 000, crafted sentinel hashes), and `direct-unreadable` (collectEvidenceSeal/renderEvidenceSeal called directly on a mission whose cited file is chmod 000, the one input the CLI refuses before sealing). Probe runs per mutant: 26 to 40 CLI invocations; no mutant hung (60 s bound per call).",

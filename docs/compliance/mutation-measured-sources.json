@@ -53,9 +53,9 @@
     },
     {
       "module": "evidence",
-      "sha256": "b87a1a4fee1f2b97df2bab0caaf718d5cd15c6711f5eda1e9143c8d6fc1ca799",
-      "run": "42042763545",
-      "measuredAt": "2026-11-05"
+      "sha256": "22e48d75c4c54c9e626b177138b344e07c01c1571228a942d0e8921482965a10",
+      "run": "43421820797",
+      "measuredAt": "2026-11-13"
     },
     {
       "module": "gate-hook",

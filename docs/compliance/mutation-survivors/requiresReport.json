@@ -1,0 +1,15 @@
+{
+ "function": "requiresReport",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "2284|131|2284|154|StringLiteral|``",
+   "line": 2284,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820797 (mode=measure, this module alone) on branch measure/evidence-2026-11-13 at commit cba5d90 (the register branch at 66389a6 with fix/mutation-plan-stale at e056d0b and #517 merged; no file under src/, no build input and no lockfile changes against this branch); the report's embedded source is byte-identical to the local build of this branch, merged report sha256 73e0c9185ea8ac08a82465c5190119ac2352111320bf22154b6842af06388fb8 (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 42042763545, measured 2026-11-05): the code it sits on, or the tests that reach it, changed between that measurement and this one. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820797 (mode=measure, this module alone) on branch measure/evidence-2026-11-13 at commit cba5d90 (the register branch at 66389a6 with fix/mutation-plan-stale at e056d0b and #517 merged; no file under src/, no build input and no lockfile changes against this branch); the report's embedded source is byte-identical to the local build of this branch, merged report sha256 73e0c9185ea8ac08a82465c5190119ac2352111320bf22154b6842af06388fb8 (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 42042763545, measured 2026-11-05): the code it sits on, or the tests that reach it, changed between that measurement and this one. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "evidence\u0001requiresReport\u0001StringLiteral\u0001``\u0001`a report of that kind`\u0001problem: `the rule requires ${u.requires} evidence, and no pointer in this row resolves to ${REQUIRES_FORM[u.requires] ?? `a report of that kind`} — cite one (\\`runward explain ${u.rule}\\` shows a form), mark the row deviated with the ADR that decides it, or, if this delivery cannot produce that kind at all, declare it in an accepted ADR (\\`**Nature not carried**: ${u.requires} — why\\`) (runward ADR-0115)`,"
+  }
+ ]
+}

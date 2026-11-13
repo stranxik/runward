@@ -137,6 +137,1043 @@ The `Note` column is a summary. The full evidence for every verdict — what was
 observed, and the argument for each equivalence — is in
 [`mutation-survivors/`](mutation-survivors/), one file per function.
 
+## Module: evidence
+
+Survivors: 724
+
+Holes: 604 · Equivalent: 77 · Display-only: 36 · Defence-in-depth: 7
+
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `afe6d4026179…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+
+### withoutComments — 126 survivor(s): 126 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 266 | Regex | `/\.([A-Za-z0-9]+)/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 266 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 270 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 278 | BooleanLiteral | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 278 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 278 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 279 | ArithmeticOperator | `s.length + 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 279 | BooleanLiteral | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 279 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 280 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 282 | EqualityOperator | `i <= text.length` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 284 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 284 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 284 | EqualityOperator | `i !== 0` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 285 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 286 | UpdateOperator | `nextScalar--` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 287 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 287 | EqualityOperator | `scalars[nextScalar][0] !== i` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 289 | MethodExpression | `text` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 293 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 293 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 293 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 293 | LogicalOperator | `ch === "{" && ch === "}"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 293 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 293 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 294 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 294 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 294 | EqualityOperator | `ch !== "{"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 294 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 295 | ArithmeticOperator | `frames.length + 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 295 | UpdateOperator | `frames[frames.length - 1]--` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 296 | ArithmeticOperator | `frames.length + 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 296 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 296 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 296 | EqualityOperator | `frames[frames.length - 1] <= 0` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 297 | ArithmeticOperator | `frames.length + 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 297 | UpdateOperator | `frames[frames.length - 1]++` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 298 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 300 | ArithmeticOperator | `i - 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 302 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 303 | CallExpression | `;` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 308 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 308 | LogicalOperator | `lx.beginEnd \|\| lineStart` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 308 | Regex | `/=begin(?:\s\|$)/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 308 | Regex | `/^=begin(?:\s)/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 309 | MethodExpression | `text` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 309 | Regex | `/\n=end(?:\s)/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 309 | Regex | `/\n=end(?:\S\|$)/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 310 | ArithmeticOperator | `i + close - 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 310 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 310 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 310 | EqualityOperator | `close !== -1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 310 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 310 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 310 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 311 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 311 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 311 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 311 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 311 | EqualityOperator | `close !== -1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 311 | EqualityOperator | `lineEnd !== -1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 311 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 311 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 324 | ArithmeticOperator | `close - run.length` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 332 | ArithmeticOperator | `i - open.length` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 334 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 334 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 334 | EqualityOperator | `i > unclosedFrom` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 334 | LogicalOperator | `unclosedFrom !== undefined \|\| i >= unclosed…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 336 | EqualityOperator | `j <= text.length` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 337 | LogicalOperator | `lx.nests \|\| text.startsWith(open, j)` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 337 | MethodExpression | `text.endsWith(open, j)` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 341 | MethodExpression | `text.endsWith(close, j)` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 360 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 360 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 360 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 360 | LogicalOperator | `lx.hashAttribute \|\| line === "#"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 362 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 362 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | ArithmeticOperator | `i + 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | BooleanLiteral | `isIdentChar(text[i - 1] ?? "")` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | EqualityOperator | `ch !== "r"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | EqualityOperator | `ch !== "b"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | LogicalOperator | `lx.rawStrings && (ch === "r" \|\| ch === "b")…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | LogicalOperator | `lx.rawStrings \|\| ch === "r" \|\| ch === "b"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | LogicalOperator | `ch === "r" && ch === "b"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | LogicalOperator | `text[i - 1] && ""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 367 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 370 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 370 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 371 | ArithmeticOperator | `i - m[0].length` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 371 | StringLiteral | `ˋˋ` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 372 | ArithmeticOperator | `close + 1 - m[1].length` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 372 | ArithmeticOperator | `close - 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 372 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 372 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 372 | EqualityOperator | `close !== -1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 372 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 373 | MethodExpression | `text` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 378 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 378 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 381 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 382 | CallExpression | `;` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 386 | CallExpression | `;` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 400 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 400 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 401 | CallExpression | `;` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 405 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 405 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 405 | EqualityOperator | `prevSig !== ""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 405 | LogicalOperator | `isIdentChar(prevSig) \|\| JS_REGEX_KEYWORDS.h…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 405 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 413 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 415 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 419 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 419 | LogicalOperator | `isIdentChar(ch) && isIdentChar(prevSig) \|\| …` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 419 | LogicalOperator | `isIdentChar(ch) \|\| isIdentChar(prevSig)` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 419 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### evidenceReport — 66 survivor(s): 52 hole · 4 equivalent · 10 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1500 | MethodExpression | `row.evidence` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 1500 | Regex | `/\[[^\]\s]*\s[^\]]*\]$/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 1521 | ObjectLiteral | `{}` | equivalent | The value is consumed on exactly three paths in the function body: `const abs = r.abs`, `"why" in r`, and (inside the outside-branch only) `"at" in r && r.at`. `{ abs: null }` and `{}` agree on all t… |
+| 1523 | ConditionalExpression | `true` | equivalent | adjudicated is a Set\<string> written only here (adjudicated.add(abs)) and read only at the bare-path loop (adjudicated.has(abs)); it is never iterated, sized or serialised. With the guard defeated th… |
+| 1529 | ConditionalExpression | `false` | hole | wrong reason: reports plain resolution failure for a pointer that resolves to a real file outside the audited project — assert: a pointer that resolved to a real file outside the audited project must… |
+| 1529 | StringLiteral | `""` | hole | wrong reason: reports plain resolution failure for a pointer that resolves outside the audited project: the containment comparison can never match — assert: a pointer that resolved to a real file out… |
+| 1529 | StringLiteral | `""` | hole | wrong reason: reports plain resolution failure for a pointer that resolves outside the audited project — assert: a pointer that resolved to a real file outside the audited project must name containme… |
+| 1530 | ConditionalExpression | `false` | hole | wrong reason: names the containment class correctly but states the offending location as the literal `false` instead of the resolved path (borderline: same reading as mutant 17) — assert: when a cont… |
+| 1530 | ConditionalExpression | `true` | hole | wrong reason: names the containment class correctly but states the offending location as the literal `true` instead of the resolved path (borderline: the failure CLASS holds, the located fact does no… |
+| 1530 | ConditionalExpression | `false` | hole | wrong reason: silently degrades a known offending location to the generic fallback `a path` (borderline: same reading as mutant 19) — assert: when a containment failure carries a resolved location, t… |
+| 1530 | LogicalOperator | `"at" in r && r.at && "a path"` | hole | wrong reason: silently degrades a KNOWN offending location to the generic fallback `a path`, so a containment refusal the gate can locate reads as one it cannot (borderline: the class holds, the loca… |
+| 1530 | LogicalOperator | `"at" in r \|\| r.at` | hole | wrong reason: names the containment class correctly but states the offending location as the literal `true` (borderline: same reading as mutant 17) — assert: when a containment failure carries a reso… |
+| 1530 | StringLiteral | `ˋˋ` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` of the `probe-outside` entry becomes `typed pointer does not … |
+| 1530 | StringLiteral | `""` | hole | wrong reason: silently degrades a known offending location to the generic fallback `a path` (borderline: same reading as mutant 19) — assert: when a containment failure carries a resolved location, t… |
+| 1530 | StringLiteral | `""` | equivalent | The `\|\| "a path"` fallback is selected only when `("at" in r && r.at)` is falsy, and that arm of the ternary is entered only when `r.why === "outside"`. `resolvePointer` builds that object as `{ abs:… |
+| 1531 | ConditionalExpression | `false` | hole | wrong reason: reports plain resolution failure for a pointer the gate refused because it is an absolute path — assert: a pointer refused for being absolute must name the absolute-path refusal, never … |
+| 1531 | StringLiteral | `""` | hole | wrong reason: reports plain resolution failure for an absolute pointer: the absolute comparison can never match — assert: a pointer refused for being absolute must name the absolute-path refusal, nev… |
+| 1531 | StringLiteral | `""` | hole | wrong reason: reports plain resolution failure for an absolute pointer — assert: a pointer refused for being absolute must name the absolute-path refusal, never the generic 'update it or remove the r… |
+| 1532 | StringLiteral | `""` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope, `rule` and exit code unchanged; the `probe-absolute` message truncates to `typed pointer does no… |
+| 1551 | ObjectLiteral | `{}` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-dir` beco… |
+| 1551 | StringLiteral | `ˋˋ` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-dir` entry becomes "". Re-run on minimal… |
+| 1557 | BlockStatement | `{}` | hole | FALSE GREEN, measured end to end. m-unchk, where the UNCHECKABLE report is the mission's only violation: exit 1 -> 0, verdict gaps -> clean, conformance 1 -> 0. Downstream on a copy of the mission: p… |
+| 1557 | ConditionalExpression | `false` | hole | OBSERVABLE, measured on two missions. m-unchk (the UNCHECKABLE branch is the mission's ONLY violation): exit 1 in both runs, conformance 1 in both, but the entry's problem changes — pristine 'the gat… |
+| 1557 | StringLiteral | `""` | hole | Same observable as the ConditionalExpression on the same line and by the same mechanism: '' in r is false for every object the resolver returns, so the guard is dead and the UNCHECKABLE case falls in… |
+| 1558 | ObjectLiteral | `{}` | hole | NOT display-only: machine fields are lost, not prose. m-unchk: exit 1 -> 1 and conformance 1 -> 1, so the exit code sees nothing, but the conformance entry goes from {scope:Floor, rule:hexa-architect… |
+| 1558 | StringLiteral | `ˋˋ` | display-only | Payload comparison on m-unchk: exit 1 in both runs; ONE line of the 163-line check --strict --json payload differs — line 116, the problem string becomes ''. verdict (gaps), exitCode, gaps {deliverab… |
+| 1560 | BlockStatement | `{}` | hole | KILLED LOCALLY, SURVIVES ON THE RUNNER, and both halves are measured. Locally the unit net fails 8 tests, each reporting that the gate said nothing where pristine says one problem. Through the gate o… |
+| 1560 | ConditionalExpression | `false` | hole | FALSE GREEN on both missions. The else-if condition is defeated, the spelling violation is never pushed, and the pointer falls through to the content/symbol checks, which pass. Mission A: exit 1 -> 0… |
+| 1560 | StringLiteral | `""` | hole | Same false green by short-circuit: '' in r is false for every object resolvePointer returns, so the condition is dead. Every capture is BYTE-IDENTICAL to the ConditionalExpression->false mutant, whic… |
+| 1563 | ObjectLiteral | `{}` | hole | The violation is still pushed and the exit code still 1 — precisely why the exit code cannot be the instrument — but the object is empty, so rule and problem become undefined and the machine surface … |
+| 1564 | StringLiteral | `ˋˋ` | display-only | Only the prose of the prescribe-a-path form is emptied. Mission A whole-payload diff of --json: ONE line changes, the problem string becomes ''. Everything else identical: exit 1, gaps, conformance 1… |
+| 1565 | StringLiteral | `ˋˋ` | display-only | Only the prose of the no-remedy form is emptied. Mission B whole-payload diff of --json: ONE line changes, the problem string becomes '' (4934 -> 4598 B). Exit 1 in both, gaps, conformance 1, one ent… |
+| 1576 | LogicalOperator | `e.code && "unknown"` | hole | wrong reason: claims the gate does not know why the evidence file could not be read when it does: a permission refusal (EACCES) is reported as an unknown cause (borderline: the top-level class 'canno… |
+| 1576 | StringLiteral | `""` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-typed`: exit 1 / 1 g… |
+| 1576 | StringLiteral | `ˋˋ` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-unreadable` entry becomes "". Re-run on … |
+| 1595 | ConditionalExpression | `true` | equivalent | The guard is redundant against its own right-hand operand. `p.line` is either `undefined` or the result of `Number()` on a `\d+` capture, i.e. a number. When it is a number the guard was already true… |
+| 1595 | StringLiteral | `""` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — with `split("")` the length compared is the CHARACTER count, not the line count, so a… |
+| 1601 | MethodExpression | `p.symbol` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — dropping `.trim()` makes the symbol `" a "` three characters long, so the "names noth… |
+| 1637 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 1642 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 1642 | ConditionalExpression | `true` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 954, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
+| 1642 | EqualityOperator | `lt !== "unparseable"` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 954, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
+| 1642 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 1643 | ObjectLiteral | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 1643 | StringLiteral | `ˋˋ` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 1644 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 1644 | ConditionalExpression | `true` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 956, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
+| 1644 | EqualityOperator | `lt !== "absent"` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 956, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
+| 1644 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 1645 | ObjectLiteral | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 1645 | StringLiteral | `ˋˋ` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 1646 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 1646 | ConditionalExpression | `true` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 958, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
+| 1646 | EqualityOperator | `lt !== "findings"` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 958, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
+| 1646 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 1647 | ObjectLiteral | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 1647 | StringLiteral | `ˋˋ` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 1675 | Regex | `/\.(md\|markdown\|txt\|rst\|adoc\|asciidoc)/i` | hole | Dropping the $ makes the extension test match anywhere in the ABSOLUTE path, so a real test file is refused because some earlier component or infix contains .md, .txt, .rst, .adoc. Executed (original… |
+| 1676 | StringLiteral | `""` | display-only | abs.split(".") -> abs.split("") changes only the token interpolated into the violation TEXT: the path is split per character, so …/framing.md yields d and the message reads "a d document is not a tes… |
+| 1708 | StringLiteral | `""` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-prose`: exit 1 / 1 g… |
+| 1712 | Regex | `/\s/` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `code/src/extra.md`, whose content is the twelve characters `nowhitespace` and no whi… |
+| 1718 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 1718 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 1719 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 1719 | StringLiteral | `ˋˋ` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 1740 | StringLiteral | `""` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `probe-sig-case` gains `evidence does not match the rule's signature /ZEBRAWORD/i` be… |
+
+### regexEnds — 53 survivor(s): 53 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 190 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 193 | ArithmeticOperator | `n - 2` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 193 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 195 | ArithmeticOperator | `n + 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 195 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 195 | EqualityOperator | `j > 0` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 195 | EqualityOperator | `j < 0` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 197 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 197 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 197 | EqualityOperator | `ch !== "\n"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 197 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 199 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 199 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 199 | EqualityOperator | `ch !== "\\"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 199 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 200 | ArithmeticOperator | `j - 2` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 200 | ArithmeticOperator | `j - 2` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 200 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 200 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 200 | EqualityOperator | `j + 2 <= n` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 200 | EqualityOperator | `j + 2 >= n` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 200 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 201 | ArithmeticOperator | `j - 2` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 201 | ArithmeticOperator | `j - 2` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 201 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 201 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 201 | EqualityOperator | `j + 2 <= n` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 201 | EqualityOperator | `j + 2 >= n` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 201 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 203 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 203 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 203 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 203 | EqualityOperator | `ch !== "["` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 203 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 204 | ArithmeticOperator | `j - 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 205 | ArithmeticOperator | `j - 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 207 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 207 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 207 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 207 | EqualityOperator | `ch !== "]"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 207 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 208 | ArithmeticOperator | `j - 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 209 | ArithmeticOperator | `j - 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 211 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 211 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 211 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 211 | EqualityOperator | `ch !== "/"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 211 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 212 | ArithmeticOperator | `j - 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 213 | ArithmeticOperator | `j - 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 215 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 216 | ArithmeticOperator | `j - 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 217 | ArithmeticOperator | `j - 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### LEXICONS — 32 survivor(s): 32 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 62 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 63 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 65 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 65 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 65 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 65 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 65 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 66 | BooleanLiteral | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 66 | BooleanLiteral | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 66 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 66 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 66 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 66 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 66 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 67 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 67 | BooleanLiteral | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 68 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 68 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 68 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 69 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 69 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 69 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 69 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 69 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 70 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 70 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 71 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 73 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 73 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 73 | BooleanLiteral | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 73 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 73 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### unsafeSignature — 32 survivor(s): 15 hole · 17 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 849 | Regex | `/\[(?:\\.\|[^\]\\])\]/g` | equivalent | The class-matching half of the normalisation is unobservable. Measured: removing the `.replace(/\[…\]/g, "C")` step ENTIRELY leaves the 60000-signature fuzz digest byte-identical, and 17 class-heavy … |
+| 849 | Regex | `/\[(?:\\.\|[\]\\])*\]/g` | equivalent | Same measurement as the sibling above, on the same expression: the class-matching regex is inverted rather than narrowed, and the fuzz digest over 60000 signatures is byte-identical, as are the 17 ta… |
+| 849 | StringLiteral | `""` | hole | Escapes are deleted instead of being neutralised into a token. Measured on a deterministic differential fuzz of 60000 generated signatures: 739 answers move (23988 unsafe verdicts become 24727). Dele… |
+| 849 | StringLiteral | `""` | hole | The normalised class is DELETED instead of replaced by a token. Measured on the 60000-signature fuzz: 187 answers move (23988 unsafe verdicts become 24175). Deleting the class brings its neighbours t… |
+| 855 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?[^()][+*}][^()]*\)…` | hole | THE SERIOUS ONE. Battery mission: three refusals DISAPPEAR outright — `p02 /(a{2,})+/`, `p03 /(a{2})+/`, `p28 /((a){2,})+/` — so the screen hands a group whose body carries a brace quantifier straigh… |
+| 855 | Regex | `/\((?:\?[:=!]\|\?<[^>]>)?[^()]*[+*}][^()]*\)…` | hole | Battery mission: `p08 :: unsafe signature regex … /(?<a)>a+)+/` is replaced by `p08 :: invalid signature regex in the rule file: /(?<a)>a+)+/`. The gate still refuses; it refuses for a different, and… |
+| 855 | Regex | `/\((?:\?[:=!]\|\?<[>]*>)?[^()]*[+*}][^()]*\)…` | hole | Battery mission: three entries move from `unsafe signature regex` to `invalid signature regex in the rule file` — `p08 /(?<a)>a+)+/`, `p09 /(?<)>a+)+/`, `p16 /(?<)>[^()]+)+/`. Teeth mission: identica… |
+| 855 | Regex | `/\((?:\?[^:=!]\|\?<[^>]*>)?[^()]*[+*}][^()]*…` | hole | Battery mission: `p07 :: invalid signature regex in the rule file: /(?)+)+/ — fix runward/rules/p07.md` is replaced by `p07 :: unsafe signature regex (nested or overlapping-alternation quantifiers ri… |
+| 855 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?[^()]*[+*}][()]*\)…` | hole | The mutated NESTED scan matches only when the body quantifier sits immediately before the ), so it still catches (a+)+, (a\*b\*)\* and every reduced (G+)+ — but it stops catching a group whose quantifie… |
+| 857 | Regex | `/\((?:\?[:=!]\|\?<[^>]>)?[^()]*\\|[^()]*\)[+*…` | hole | Battery mission: `p11 :: unsafe signature regex … /(?<a)>\|)+/` is replaced by `p11 :: invalid signature regex in the rule file: /(?<a)>\|)+/`. Teeth mission: identical. |
+| 857 | Regex | `/\((?:\?[:=!]\|\?<[>]*>)?[^()]*\\|[^()]*\)[+*…` | hole | Battery mission: two entries move from `unsafe signature regex` to `invalid signature regex in the rule file` — `p11 /(?<a)>\|)+/` and `p12 /(?<)>\|)+/`. Teeth mission: identical. |
+| 857 | Regex | `/\((?:\?[^:=!]\|\?<[^>]*>)?[^()]*\\|[^()]*\)[…` | hole | Battery mission: `p10 :: invalid signature regex in the rule file: /(?)\|)+/` is replaced by `p10 :: unsafe signature regex (nested or overlapping-alternation quantifiers risk catastrophic backtrackin… |
+| 857 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?[^()]*\\|[^()]\)[+*…` | hole | The alternation scan requires EXACTLY ONE character between the pipe and the closing parenthesis. Measured: `(a\|bc)+`, `(a\|bcd)*`, `(?:xy\|zw)+` and `(ab\|cd){2}` all flip from unsafe to SAFE — a false… |
+| 885 | ArrayDeclaration | `["Stryker was here"]` | equivalent | \|\| [] is evaluated only when norm.match(/\\(/g) is null, i.e. when norm holds no ( at all — and opens is used for nothing but the loop bound. With no ( in t, the reduction regex (which requires a lite… |
+| 889 | EqualityOperator | `opens >= 64` | hole | An off-by-one on a threshold whose safe side no test pins. The two answers differ only at exactly 64 opening groups. Differential run over 56 054 inputs: 2 valid-regex inputs separate them — (?:a) x6… |
+| 891 | EqualityOperator | `i < opens` | equivalent | The loop never exits by exhausting its counter, so removing one iteration removes nothing. Every pass that changes t deletes at least one ( (the replacement G[+][q] contains no parenthesis), and t st… |
+| 891 | UpdateOperator | `i--` | equivalent | Same fact from the other side: with i-- the condition i \<= opens is always true, so the mutant is an unbounded loop — and it terminates anyway, because the loop always leaves through break (fixpoint)… |
+| 892 | Regex | `/\((?:\?[^:=!]\|\?<[^>]*>)?([^()]*)\)([+*?]\|…` | equivalent | The prefix alternation is a parsing convenience, not a decision: whatever it does not consume is consumed by ([^()]\*) in the same span, so the match always covers the same characters and the only obs… |
+| 892 | Regex | `/\((?:\?[:=!]\|\?<[^>]>)?([^()]*)\)([+*?]\|\{…` | equivalent | Same mechanism as the sibling: the named-group alternative now matches only a one-character name, so (?\<name>a+) folds ?\<name> into body instead of skipping it. A group name is [A-Za-z0-9\_$] and can … |
+| 892 | Regex | `/\((?:\?[:=!]\|\?<[>]*>)?([^()]*)\)([+*?]\|\{…` | equivalent | Same argument as the two siblings: the named-group alternative can no longer match a real name, so the whole ?\<name> span is folded into body, where it cannot change /[+\*}]/ because a group name carr… |
+| 892 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?([^()]*)\)([^+*?]\|…` | equivalent | The trailing quantifier is re-emitted verbatim (G${mark}${q ?? ""}), so CAPTURING it and LEAVING it in the text produce a character-identical result: the reduction builds the same string either way. … |
+| 892 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?([^()]*)\)([+*?]\|\…` | equivalent | The trailing quantifier is re-emitted verbatim (G${mark}${q ?? ""}), so CAPTURING it and LEAVING it in the text produce a character-identical result: the reduction builds the same string either way. … |
+| 892 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?([^()]*)\)([+*?]\|\…` | equivalent | The trailing quantifier is re-emitted verbatim (G${mark}${q ?? ""}), so CAPTURING it and LEAVING it in the text produce a character-identical result: the reduction builds the same string either way. … |
+| 892 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?([^()]*)\)([+*?]\|\…` | equivalent | The trailing quantifier is re-emitted verbatim (G${mark}${q ?? ""}), so CAPTURING it and LEAVING it in the text produce a character-identical result: the reduction builds the same string either way. … |
+| 892 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?([^()]*)\)([+*?]\|\…` | equivalent | The trailing quantifier is re-emitted verbatim (G${mark}${q ?? ""}), so CAPTURING it and LEAVING it in the text produce a character-identical result: the reduction builds the same string either way. … |
+| 892 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?([^()]*)\)([+*?]\|\…` | equivalent | The trailing quantifier is re-emitted verbatim (G${mark}${q ?? ""}), so CAPTURING it and LEAVING it in the text produce a character-identical result: the reduction builds the same string either way. … |
+| 896 | StringLiteral | `"Stryker was here!"` | equivalent | The mutation substitutes the literal `Stryker was here!` for an empty string inside the collapse replacement, so the string the loop builds does change. What cannot change is any predicate applied to… |
+| 896 | StringLiteral | `"Stryker was here!"` | equivalent | The mutation substitutes the literal `Stryker was here!` for an empty string inside the collapse replacement, so the string the loop builds does change. What cannot change is any predicate applied to… |
+| 897 | ConditionalExpression | `false` | equivalent | `if (next === t) break` is the loop's fixpoint test, and the mutation only removes the early exit; the loop stays bounded by `i < 20`, so it cannot run forever. Take the iteration where the guard hol… |
+| 907 | BlockStatement | `{}` | hole | Emptying the block is the same defect as defeating its condition, by the other route: the no-opinion refusal disappears and every pattern the reduction could not resolve falls through to return false… |
+| 907 | ConditionalExpression | `false` | hole | This deletes the property the 2026-08-26 rework was built to establish: an exhausted screen REFUSES rather than approves. After the reduction reaches its fixpoint, a leftover parenthesis means the fu… |
+| 914 | BooleanLiteral | `false` | hole | This is RWD-2026-0051 put back, and it is the worst of the three on this line: return false fires BEFORE the reduction loop, so a pattern with more than 64 opening groups is approved without ever bei… |
+
+### natureSatisfied — 28 survivor(s): 28 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 2188 | ConditionalExpression | `true` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
+| 2188 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2188 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2188 | LogicalOperator | `p.kind === "adr" && !!p.adrId \|\| adrIdExist…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2188 | LogicalOperator | `p.kind === "adr" \|\| !!p.adrId` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2191 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2194 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2194 | LogicalOperator | `!abs && !isRegularFile(abs)` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2200 | BlockStatement | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2203 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 2205 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2205 | LogicalOperator | `nature === "sarif" \|\| isSarifReport(content)` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2207 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2209 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2209 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2209 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2209 | EqualityOperator | `nature !== "coverage"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2209 | LogicalOperator | `nature === "coverage" \|\| isLcovReport(conte…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2209 | LogicalOperator | `isLcovReport(content) && isCoberturaReport(…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2209 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2210 | BooleanLiteral | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2211 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2211 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2211 | EqualityOperator | `nature !== "sbom"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2211 | LogicalOperator | `nature === "sbom" \|\| isCycloneDxSbom(conten…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2211 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2212 | BooleanLiteral | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 2213 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+
+### parseEvidenceCell — 27 survivor(s): 13 hole · 5 equivalent · 9 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 648 | MethodExpression | `chunk` | hole | FALSE GREEN, verified by exit code. Applied on m4 (single defect: `file:code/deleted-a.ts<U+2028>; file:code/b.ts`): `check --strict --json` went from \*\*exit 1 to exit 0\*\*, conformance 1 -> 0, and th… |
+| 653 | Regex | `/\S/` | display-only | Applied on m2, m3 and m6. Exit code, violation count and all evidence counters unchanged; the `problem` strings became `typed pointer does not resolve: test: — update it or remove the row` and `typed… |
+| 653 | StringLiteral | `ˋˋ` | display-only | Applied on m2 and m6. `check --strict --json` kept exit 1, the same violation count and every evidence counter, but two `problem` strings lost the pointer they name: `typed pointer does not resolve: … |
+| 669 | Regex | `/ADR-?\d/i` | equivalent | Four siblings KILLED here (the `pathShaped` condition of the `::` branch, the block it guards, the echo of the branch without `::`, the echo of a misspelt `adr:`), two of them on a site that NO input… |
+| 669 | Regex | `/^ADR-?\D/i` | equivalent | Four siblings KILLED here (the `pathShaped` condition of the `::` branch, the block it guards, the echo of the branch without `::`, the echo of a misspelt `adr:`), two of them on a site that NO input… |
+| 669 | Regex | `/^ADR-\d/i` | equivalent | Four siblings KILLED here (the `pathShaped` condition of the `::` branch, the block it guards, the echo of the branch without `::`, the echo of a misspelt `adr:`), two of them on a site that NO input… |
+| 678 | EqualityOperator | `sep <= firstWs` | equivalent | The comparison is only ever evaluated on the third leg of `sep !== -1 && (firstWs === -1 \|\| sep < firstWs)`: reaching it requires `sep !== -1` AND `firstWs !== -1`, since `firstWs === -1` short-circu… |
+| 687 | MethodExpression | `after` | hole | Applied on m2 and m3. On m2, `check --strict --json` gained the violation `Floor · provider-no-crash-missing-env · typed pointer test:code/test/pointers.test.ts:: — test named " spaced name" not foun… |
+| 687 | StringLiteral | `"Stryker was here!"` | hole | Applied on m2. `check --strict --json` gained `Floor · state-event-sourcing · typed pointer test:code/test/pointers.test.ts::'l'invariant — test named "Stryker was here!l'invariant tientStryker was h… |
+| 699 | StringLiteral | `""` | display-only | Measured on `cells`: `test:code/reports/junit.xml::` (empty name) is refused either way, same exit 1, same counters; the problem string `typed pointer test:code/reports/junit.xml:: — the \`::\\` names… |
+| 711 | StringLiteral | `""` | display-only | Measured on `cells`: only the suggested spelling inside the malformed message moves: for `:: "x "y" z "` the hint `test:…::"x &quot;y&quot; z "` becomes `test:…::" &quot;x &quot;y&quot; z "` (indexOf… |
+| 712 | MethodExpression | `after.slice(0, after.lastIndexOf('"') + 1)` | display-only | Measured on `cells`: the echo keeps the leading white space: `typed pointer test:…::"x "y" z "` becomes `typed pointer test:…:: "x "y" z "` (problem string and witness `raw`). Exit, counters and ever… |
+| 712 | MethodExpression | `after` | display-only | Measured on `cells`: for `::"a "b" c" — trailing comment` the echo grows the comment: `typed pointer test:…::"a "b" c" — trailing comment — a \`"\\` cannot appear…` (problem string and witness `raw`).… |
+| 712 | StringLiteral | `""` | display-only | Measured on `cells`: identical observation to the `after` mutant (lastIndexOf("") is the length, so the slice is the whole remainder): the comment `— trailing comment` enters the echoed pointer in th… |
+| 713 | StringLiteral | `"Stryker was here!"` | display-only | Measured on `cells`: two malformed messages (`:: "x "y" z "` and `::""x"`) end with `Stryker was here!` instead of nothing (the unquoted alternative is withheld for those names). Exit, counters and w… |
+| 726 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 727 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 727 | MethodExpression | `next` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 727 | Regex | `/(file\|test\|adr):\S/` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 727 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 729 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 730 | MethodExpression | `next.trim()` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 730 | MethodExpression | `next` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 730 | MethodExpression | `next` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 771 | Regex | `/:(\d+)/` | hole | Applied on m2. Two rows moved and the coverage counter with them (conformance 10 -> 11, `evidence.typed` 16 -> 15, `evidence.prose` 7 -> 8). A row that was GREEN went red: the cell `file:code/2026:07… |
+| 779 | ConditionalExpression | `true` | equivalent | The mutated operand is the left half of `symbol !== undefined && /\s/.test(symbol)`. When `symbol` is a string, `symbol !== undefined` is already `true`, so replacing it by `true` changes nothing. Wh… |
+| 779 | StringLiteral | `"Stryker was here!"` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for (a symbol must be at least… |
+
+### yamlBlockScalars — 22 survivor(s): 22 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 226 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 227 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 230 | ArithmeticOperator | `lines[i].length - 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 232 | ArithmeticOperator | `l.length + l.trimStart().length` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 234 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 234 | LogicalOperator | `lines[i].trimStart().startsWith("#") && !YA…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 234 | MethodExpression | `lines[i].trimStart().endsWith("#")` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 234 | MethodExpression | `lines[i].trimEnd()` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 238 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 238 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 238 | EqualityOperator | `lines[j].trim() !== ""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 238 | EqualityOperator | `indent(lines[j]) >= parent` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 238 | MethodExpression | `lines[j]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 238 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 240 | ArithmeticOperator | `i - 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 240 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 240 | EqualityOperator | `j >= i + 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 241 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 241 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 241 | EqualityOperator | `j <= lines.length` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 241 | EqualityOperator | `j >= lines.length` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 242 | ArithmeticOperator | `j + 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### atValue — 20 survivor(s): 20 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 110 | ArithmeticOperator | `i + 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 111 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 111 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 111 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 111 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 111 | EqualityOperator | `q > 0` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 111 | EqualityOperator | `q < 0` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 111 | EqualityOperator | `text[q] === "\n"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 111 | LogicalOperator | `q >= 0 \|\| text[q] !== "\n"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 111 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 112 | UpdateOperator | `q++` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 113 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 113 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 113 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 113 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 113 | EqualityOperator | `q <= 0` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 113 | LogicalOperator | `(q < 0 \|\| text[q] === "\n") && ":-[{,?".inc…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 113 | LogicalOperator | `q < 0 && text[q] === "\n"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 113 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 113 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### committedJUnitLedger — 19 survivor(s): 19 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 2396 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2399 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2401 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2409 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2416 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2419 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2420 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2420 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2420 | EqualityOperator | `p.testName.trim().length <= 2` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2420 | LogicalOperator | `p.malformed && !p.path` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2420 | MethodExpression | `p.testName` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2423 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2427 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2427 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 2427 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 2427 | LogicalOperator | `(content === null \|\| !isJUnitReport(content…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 2427 | LogicalOperator | `content === null && !isJUnitReport(content)` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 2433 | MethodExpression | `[...reports]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2439 | MethodExpression | `[...all]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+
+### onDiskSpelling — 15 survivor(s): 4 hole · 7 equivalent · 4 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1014 | ArithmeticOperator | `from - sep` | defence-in-depth | Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-cha… |
+| 1014 | ConditionalExpression | `true` | hole | Forces the bound ON unconditionally. Reachable through the workspace allowance: repo && (real === repo \|\| real.startsWith(repo + sep)) calls onDiskSpelling(abs, resolve(b)) on a path legitimately OUT… |
+| 1014 | ConditionalExpression | `false` | defence-in-depth | Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-cha… |
+| 1014 | ConditionalExpression | `true` | hole | Forces the bound ON unconditionally. Reachable through the workspace allowance: repo && (real === repo \|\| real.startsWith(repo + sep)) calls onDiskSpelling(abs, resolve(b)) on a path legitimately OUT… |
+| 1014 | ConditionalExpression | `false` | equivalent | The removed disjunct decides only when abs === from; everywhere else abs.startsWith(from + sep) already answers true. SENSITIVITY CONTROL: the nearby input is `file:.`, resolving exactly to the proje… |
+| 1014 | EqualityOperator | `abs !== from` | hole | Inverts the identity test, so the disjunction is true whenever abs !== from — i.e. for every pointer, including those NOT under from. Forces the bound ON unconditionally. Reachable through the worksp… |
+| 1014 | LogicalOperator | `abs === from && abs.startsWith(from.endsWit…` | defence-in-depth | Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-cha… |
+| 1014 | MethodExpression | `abs.endsWith(from.endsWith(sep) ? from : fr…` | defence-in-depth | Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-cha… |
+| 1014 | MethodExpression | `from.startsWith(sep)` | hole | On POSIX from is absolute, so from.startsWith(sep) is invariantly true and the ternary yields from instead of from + sep: the bound degrades to a bare string prefix and swallows any SIBLING whose nam… |
+| 1025 | ArithmeticOperator | `parts[0] - sep` | equivalent | Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly "", the parts[0] === "" test always takes… |
+| 1025 | ConditionalExpression | `true` | equivalent | Forces a condition already invariantly true on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with / and parts[0] is always "". SENSITIVITY CONTROL: the separating inp… |
+| 1025 | Regex | `/[A-Za-z]:$/` | equivalent | Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly "", the parts[0] === "" test always takes… |
+| 1025 | Regex | `/^[A-Za-z]:/` | equivalent | Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly "", the parts[0] === "" test always takes… |
+| 1025 | Regex | `/^[^A-Za-z]:$/` | equivalent | Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly "", the parts[0] === "" test always takes… |
+| 1031 | EqualityOperator | `i <= parts.length` | equivalent | Adds one iteration past the end. parts[parts.length] is undefined and the body first statement is if (!want) continue, so the extra pass does nothing and the loop exits. SENSITIVITY CONTROL: the near… |
+
+### withoutTrailingComment — 15 survivor(s): 15 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 251 | ArithmeticOperator | `line.length + 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 251 | EqualityOperator | `k > 0` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 253 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 253 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 253 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 253 | EqualityOperator | `ch !== "\r"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 253 | EqualityOperator | `ch !== "\u2028"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 253 | EqualityOperator | `ch !== "\u2029"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 253 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 253 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 258 | MethodExpression | `line` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 258 | Regex | `/\s#.*/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 258 | Regex | `/\S#.*$/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 258 | Regex | `/\s#.$/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 258 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### evidenceBreakdown — 14 survivor(s): 8 hole · 5 equivalent · 1 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 2109 | MethodExpression | `(row.evidence \|\| "").replace(/\s+/g, " ")` | hole | Mission m1-dup. `node scripts/mutation-probe.mjs --function evidenceBreakdown --mission <m1-dup>/runward` reports OBSERVABLE: json (ledger probe-m1-dup.jsonl; re-run once, same result), and scripts/p… |
+| 2109 | Regex | `/\s/g` | hole | THE ONE THAT MATTERS. Mission m1-dup: two `applied` rows carry the same two pointers, one written with a double space between them (`alpha file:code/src/core/domain/guard.ts file:code/src/core/domain… |
+| 2109 | StringLiteral | `"Stryker was here!"` | hole | Mission m2-empty (three `applied` rows whose Evidence cell is empty: `\| hexa-architecture \| applied \| \|`). Pristine baseline: exit 1, evidence.duplicated = []. Official probe: OBSERVABLE: json (probe… |
+| 2109 | StringLiteral | `""` | hole | Two directions, both measured. (a) m1-dup, official probe OBSERVABLE: json (twice), dual json+print: counters unchanged, but every duplicate key is re-spelled with its whitespace DELETED — "alpha fil… |
+| 2110 | ConditionalExpression | `true` | hole | Mission m2-empty. Official probe OBSERVABLE: json (probe-m2-empty.jsonl, two runs); dual probe json+print; also OBSERVABLE on m9-combined. probe-delta: duplicated goes from [] to [{"evidence":"","rul… |
+| 2132 | StringLiteral | `"Stryker was here!"` | equivalent | The mutated literal is only ever read when `row.evidence` is falsy. Two facts, both measured rather than reasoned: (a) `row.evidence` is always a string — scripts/probe-fuzz.mjs runs readManifest ove… |
+| 2135 | ConditionalExpression | `false` | equivalent | Deleting the guard changes the value returned only if some pointer with a falsy `path` can reach a different outcome through `resolveFile(p.path, bases)`. It cannot, for two measured reasons. (a) `ad… |
+| 2136 | BooleanLiteral | `true` | equivalent | Dedicated control built (no changing sibling): `typed++` -> `typed += 2` makes the probe diverge on `breakdown\|*`. The two survivors are on a `return false` of an inner function whose caller already … |
+| 2138 | LogicalOperator | `!abs && !isRegularFile(abs)` | hole | \|\| -> && disables the guard for the one input on which the two operators differ: a pointer that RESOLVES to something that is not a regular file. resolvePointer already requires existsSync, so that m… |
+| 2148 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback is used only when the Evidence cell is empty, and it is passed to parseEvidencePointers, which emits a pointer only for a chunk matching POINTER_PREFIX = /\b(file\|test\|adr):(\S.\*)$/. "St… |
+| 2152 | LogicalOperator | `!abs && !isRegularFile(abs)` | equivalent | Dedicated control built (no changing sibling): `typed++` -> `typed += 2` makes the probe diverge on `breakdown\|*`. The two survivors are on a `return false` of an inner function whose caller already … |
+| 2159 | MethodExpression | `[...byEvidence.entries()].filter(([, rs]) =…` | hole | Two missions. m1-dup (2 duplicate groups, inserted zeta-then-alpha so the sorted order is the reverse of the insertion order): official probe OBSERVABLE: json on two runs, dual probe json+print, prob… |
+| 2162 | ArrowFunction | `() => undefined` | hole | Same measurements as 803\|24\|806\|62 and the same result, taken separately: m1-dup official probe OBSERVABLE: json on two runs and dual probe json+print, with probe-delta showing duplicated flipping fr… |
+| 2170 | ConditionalExpression | `true` | defence-in-depth | Unreachable. t ranges over resolvedTargets, and a path enters that set only after if (!abs \|\| !isRegularFile(abs)) continue; three lines above — so every t is a regular file, while missionAbs is real… |
+
+### regexEnd — 14 survivor(s): 14 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 164 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 164 | EqualityOperator | `text.length > 4096` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 165 | ArithmeticOperator | `from - 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 165 | LogicalOperator | `regexEnds(text)[from + 1] && -1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 165 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 166 | BooleanLiteral | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 167 | EqualityOperator | `j <= text.length` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 169 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 169 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 170 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 175 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 175 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 176 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 182 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### spellingViaRealpath — 14 survivor(s): 13 hole · 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1116 | BlockStatement | `{}` | hole | COULD NOT BE CLEARED, and filed as a hole for that reason rather than argued equivalent. Corrected probe on all four missions: identical everywhere, because the catch never runs — scripts/catch-reach… |
+| 1119 | ArithmeticOperator | `canonBase - sep` | hole | Mission A: exit 1 -> exit 0, conformance []. `canonBase - sep` on two strings is NaN, `startsWith` coerces it to "NaN", the test fails for every path and the function returns null. Missions B, C, D u… |
+| 1119 | BooleanLiteral | `canon.startsWith(canonBase + sep)` | hole | Corrected probe and per-mutant-detail on mission A: baseline exit 1 with the two case-insensitive violations; with the mutant applied, exit 0 and conformance []. Dropping the `!` makes the function r… |
+| 1119 | ConditionalExpression | `false` | equivalent | The mutant deletes an early `return null`, so it can only change the RESULT in a state where the guard fires — canon not under canonBase + sep — AND where the surviving expression then answers non-nu… |
+| 1119 | ConditionalExpression | `true` | hole | Same runs. Mission A: exit 1 -> exit 0, conformance [] (the guard becomes an unconditional `return null`). Missions B, C, D unchanged. A false green on a mis-spelled pointer, produced by a one-token … |
+| 1119 | MethodExpression | `canon.endsWith(canonBase + sep)` | hole | Mission A: exit 1 -> exit 0, conformance []. A canonical file path never ends with its base directory + separator, so the negated test is always true and the function returns null before it ever comp… |
+| 1121 | ArithmeticOperator | `canonBase.length - 1` | hole | Mission A: exit 1 -> exit 0, conformance []. The off-by-two slice carries the last character of the base plus the separator into `disk`, which then never case-matches the pointer. Missions B, C, D un… |
+| 1121 | MethodExpression | `canon` | hole | Mission A: exit 1 -> exit 0, conformance []. With `disk` set to the whole absolute canonical path instead of the pointer-relative suffix, it can never case-match the pointer as written, so the case c… |
+| 1132 | StringLiteral | `""` | hole | FALSE GREEN, measured. Shipped probe on the self-gate: no observable difference (exit 0, 4416 bytes) — no pointer in runward's own mission has a diverging spelling. split('/') becoming split('') inte… |
+| 1133 | ConditionalExpression | `true` | hole | Caught in the OTHER direction, by mission B: baseline exit 0 (green) -> exit 1 with 'typed pointer file:code/src/core/domain/guard-alias.ts#guardFields — this filesystem is case-insensitive; on a cas… |
+| 1133 | ConditionalExpression | `false` | hole | Mission A: exit 1 -> exit 0, conformance []. The whole ternary condition forced false makes the function return null unconditionally — the same false green as emptying it. Missions B, C, D unchanged. |
+| 1133 | EqualityOperator | `disk.toLowerCase() !== wrote.toLowerCase()` | hole | Observable in BOTH directions, which is what makes it the most serious of the fifteen. Mission A: exit 1 -> exit 0, conformance [] (a real case mis-spelling is certified green). Mission B: exit 0 -> … |
+| 1133 | MethodExpression | `disk.toUpperCase()` | hole | Mission A: exit 1 -> exit 0, conformance []. Comparing disk.toUpperCase() with wrote.toLowerCase() can only be equal for a path with no cased letters, so the case rung answers null for every real poi… |
+| 1133 | MethodExpression | `wrote.toUpperCase()` | hole | Mission A: exit 1 -> exit 0, conformance []. Same asymmetric folding on the other operand, same false green. Missions B, C, D unchanged. |
+
+### JS_REGEX_KEYWORDS — 13 survivor(s): 13 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 81 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 81 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 81 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 81 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 81 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 81 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 81 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 81 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 81 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 81 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 81 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 81 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 81 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### citedJUnitNotGreen — 12 survivor(s): 12 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 2324 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2331 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2335 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2337 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2341 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2341 | LogicalOperator | `!abs && !isRegularFile(abs)` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2347 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2350 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2350 | LogicalOperator | `!isJUnitReport(content) && isRunwardJUnit(c…` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2353 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2365 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+| 2367 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
+
+### templateEnd — 12 survivor(s): 12 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 149 | EqualityOperator | `j <= text.length` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 150 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 150 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 154 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 154 | EqualityOperator | `text[j] !== "ˋ"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 156 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 156 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 156 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 156 | LogicalOperator | `text[j] === "$" \|\| text[j + 1] === "{"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 157 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 160 | BooleanLiteral | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 160 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### CHAR_LITERAL — 11 survivor(s): 11 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 83 | Regex | `/'(?:\\(?:u\{[0-9a-fA-F]\}\|x[0-9a-fA-F]{2}\|…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 83 | Regex | `/'(?:\\(?:u\{[^0-9a-fA-F]{1,6}\}\|x[0-9a-fA-…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 83 | Regex | `/'(?:\\(?:u\{[0-9a-fA-F]{1,6}\}\|x[0-9a-fA-F…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 83 | Regex | `/'(?:\\(?:u\{[0-9a-fA-F]{1,6}\}\|x[^0-9a-fA-…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 83 | Regex | `/'(?:\\(?:u\{[0-9a-fA-F]{1,6}\}\|x[0-9a-fA-F…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 83 | Regex | `/'(?:\\(?:u\{[0-9a-fA-F]{1,6}\}\|x[0-9a-fA-F…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 83 | Regex | `/'(?:\\(?:u\{[0-9a-fA-F]{1,6}\}\|x[0-9a-fA-F…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 83 | Regex | `/'(?:\\(?:u\{[0-9a-fA-F]{1,6}\}\|x[0-9a-fA-F…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 83 | Regex | `/'(?:\\(?:u\{[0-9a-fA-F]{1,6}\}\|x[0-9a-fA-F…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 83 | Regex | `/'(?:\\(?:u\{[0-9a-fA-F]{1,6}\}\|x[0-9a-fA-F…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 83 | Regex | `/'(?:\\(?:u\{[0-9a-fA-F]{1,6}\}\|x[0-9a-fA-F…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### resolvePointer — 11 survivor(s): 9 hole · 2 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1141 | StringLiteral | `""` | display-only | Ran `node scripts/mutation-probe.mjs --function resolvePointer --mission <esc>`: OBSERVABLE: json, not exit-code (ledger reports/mutation/probe-resolvePointer-esc.jsonl). Applied the mutant alone and… |
+| 1171 | ConditionalExpression | `false` | hole | Deletes the realpath fallback: walked === null silently becomes 'already matches'. Identical on eleven missions across all eight surfaces, with live controls moving in the same batteries. NOT equival… |
+| 1171 | ConditionalExpression | `true` | hole | Makes the realpath rung answer for EVERY pointer, discarding the walk's verdict. Observable twice, in opposite directions. m-unlist: pristine gaps/exit 1/conformance 5 becomes clean/exit 0/conformanc… |
+| 1171 | EqualityOperator | `walked !== null` | hole | Inverts the guard: the rung answers for verified, UNCHECKABLE and every real spelling, and the one input it was written for falls to the other arm. Same profile as the first, measured independently. … |
+| 1172 | ConditionalExpression | `false` | hole | No surface moved anywhere, over eleven missions and eight surfaces, with live controls moving in the same batteries. Filed hole rather than equivalent because the mutant IS in effect and the differen… |
+| 1172 | ConditionalExpression | `true` | hole | Collapses every answer the walk can give into null: a real spelling and UNCHECKABLE both reported as 'already matches'. The widest of the nine. m-case: gaps/exit 1/conformance 1 to clean/exit 0/confo… |
+| 1172 | EqualityOperator | `walked !== SPELLING_VERIFIED` | hole | Inverts the sentinel test: a real spelling and UNCHECKABLE become null, both refusals lost, while the sentinel passes through raw. Observable exactly like the ConditionalExpression true. m-case and m… |
+| 1190 | ConditionalExpression | `false` | hole | The repository-root twin: no surface moved on any of the eleven missions, with the repoD battery moving for its siblings. Filed hole for the same measured reason: the value diagnostic shows pristine … |
+| 1190 | ConditionalExpression | `true` | hole | The repository-root branch, which has NO realpath fallback below it: this makes it report null for every walk answer. repoA and repoC flip gaps/exit 1 to clean/exit 0. repoD: all eight surfaces diffe… |
+| 1190 | EqualityOperator | `walked !== SPELLING_VERIFIED` | hole | Inverts the sentinel test in the repository-root branch: a real spelling and UNCHECKABLE become null, the sentinel passes through raw. repoA and repoC flip to clean/exit 0, the unlistable-directory r… |
+| 1194 | StringLiteral | `""` | display-only | Ran the probe on esc: OBSERVABLE: json, not exit-code (probe-resolvePointer-esc.jsonl). Applied the mutant alone and diffed the payloads: pristine exit 1 / 6062 bytes, mutated exit 1 / 5734 bytes, an… |
+
+### sealableEvidencePaths — 11 survivor(s): 1 hole · 10 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1889 | ConditionalExpression | `false` | equivalent | readManifest (conformance.ts) already drops every row whose trimmed rule matches the same `/^\[.*\]$/` before returning it (RWD-2026-0097), and parseManifest returns those rows; the cell text is the … |
+| 1889 | Regex | `/^\[.\]$/` | equivalent | Same as the `false` sibling: readManifest removes every `/^\[.*\]$/` row before this loop, so narrowing the filter to one character between brackets removes nothing that reaches it. |
+| 1896 | ConditionalExpression | `false` | equivalent | adrId is assigned at exactly one site, the `kind === "adr"` branch of parseEvidencePointers (both the valid and the malformed pushes), so `!p.adrId` already excludes every file:/test: pointer and the… |
+| 1904 | StringLiteral | `"Stryker was here!"` | equivalent | `files` is a Map used as an ordered set: sealableEvidencePaths returns `[...files.keys()].sort()` and never reads a value, so the placeholder written by `files.set` cannot reach a caller. Re-measured… |
+| 1918 | StringLiteral | `"Stryker was here!"` | equivalent | Same Map-as-set argument: only the keys leave the function. |
+| 1926 | ConditionalExpression | `false` | equivalent | When `literal === abs`, falling through reaches `files.set` only if `isLink && isRegularFile(literal)`; `abs` comes from resolvePointer, which returns a real path (symlinks resolved), and a path equa… |
+| 1928 | BooleanLiteral | `true` | equivalent | The initialiser is dead: the only path to the `if` that skips `isLink = lstatSync(literal).isSymbolicLink()` is the throw, and the catch leaves the iteration with `continue`; isLink is declared insid… |
+| 1932 | BlockStatement | `{}` | equivalent | Falling out of the catch leaves isLink at its per-iteration `false`, so `isLink && …` short-circuits and nothing is added. It would be live only together with the `isLink = true` sibling. Re-measured… |
+| 1939 | StringLiteral | `"Stryker was here!"` | equivalent | Map-as-set: the value written for the link key is never read. The only read of `files` in sealableEvidencePaths is `[...files.keys()].sort()`. The same mutant on the line before the RWD-2026-0191 fix… |
+| 1949 | StringLiteral | `"Stryker was here!"` | equivalent | Map-as-set: the value is never read. Re-measured from the previous filing. |
+| 1967 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### verifyEvidenceLock — 11 survivor(s): 5 hole · 3 equivalent · 3 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 2000 | StringLiteral | `""` | equivalent | `readFileSync(path, "")` does not throw: an empty encoding is falsy, so Node returns the raw Buffer instead of decoding. The ONLY consumer of that value is `JSON.parse(...)` on the very next token, a… |
+| 2003 | StringLiteral | `""` | hole | The mutated literal is the violation's RULE ATTRIBUTION, `rule: "(seal)"`, not its message. Battery: observable on 5 (json:t-corrupt-lock, json:t-lock-badutf8, json:t-lock-bom, json:t-lock-utf16, tex… |
+| 2011 | StringLiteral | `""` | hole | Same literal, the unknown-version branch. Battery: observable on 3 (json:t-unknown-version, json:t-multi, text:t-multi). tools/rulefield.mjs on t-unknown-version: pristine `exit=1 ["(seal)"]`, mutant… |
+| 2016 | StringLiteral | `""` | hole | Same literal, the zero-files branch. Battery: observable on 2 (json:t-zero-files, text:t-zero-files). tools/rulefield.mjs on t-zero-files: pristine `exit=1 ["(seal)"]`, mutant `exit=1 [""]`, the mess… |
+| 2032 | ConditionalExpression | `false` | equivalent | `!SEAL_HASH_KINDS.has(kind)` is true for every non-string kind (the Set holds two strings), so the `typeof kind !== "string"` disjunct never decides the branch. |
+| 2043 | ConditionalExpression | `false` | display-only | The mutated node is `abs === rootAbs`, so the containment test becomes `isAbsolute(rel) \|\| !(false \|\| abs.startsWith(rootAbs + sep))`. Built t-root-key for it: a lock whose key is `.`, the only input… |
+| 2044 | StringLiteral | `""` | hole | Same `rule: "(seal)"` literal, the escapes-the-project branch. Battery: observable on 4 (json:t-escape-abs, json:t-escape-dotdot, json:t-multi, text:t-multi). tools/rulefield.mjs on t-escape-abs (a l… |
+| 2048 | StringLiteral | `""` | hole | Same literal, the sealed-evidence-missing branch. Battery: observable on 5 (json:t-missing-file, json:t-root-key, json:t-multi, text:t-multi, text:t-root-key). tools/rulefield.mjs on t-missing-file (… |
+| 2052 | ConditionalExpression | `false` | equivalent | SEAL_HASH_KINDS is a Set of two strings, so `!SEAL_HASH_KINDS.has(recorded)` is already true for every non-string `recorded`; dropping the typeof test leaves the condition true on exactly the same va… |
+| 2071 | ConditionalExpression | `true` | display-only | Measured on `lock-forms` (migrate-not-junit, rendering/nul/html-over-bytes), `seal-plain` bytes-changed, `seal-symlink` repointed, `seal-adr` and `seal-forms`: every bytes drift gains the suffix `(th… |
+| 2073 | StringLiteral | `"Stryker was here!"` | display-only | Measured on the same steps as the condition mutant: every bytes drift message ends with `Stryker was here!`; exit and counts unchanged. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614… |
+
+### conformanceRow — 10 survivor(s): 6 hole · 4 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1298 | ConditionalExpression | `false` | equivalent | with no pipe in the line the split yields a one-element array and the next line's cell-count test returns false regardless. One call site, so this oracle covers every use. Also survives the whole net… |
+| 1298 | StringLiteral | `""` | equivalent | includes of the empty string is true for every string, so the guard never fires — the same state the neighbour produces by returning false outright, and the two produce IDENTICAL digests, so that is … |
+| 1300 | StringLiteral | `"Stryker was here!"` | equivalent | The FIRST replace's replacement, the one stripping the leading pipe. The replacement text carries no pipe, so the pipe count is unchanged and the split returns exactly the same number of cells; the o… |
+| 1300 | StringLiteral | `"Stryker was here!"` | equivalent | The SECOND replace's replacement, stripping the trailing pipe. Both pristine and mutant CONSUME the trailing pipe — one replaces it with nothing, the other with pipe-free text — so the pipe count and… |
+| 1306 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 1306 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 1306 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 1306 | EqualityOperator | `proposedStatus(st) === null` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 1307 | BooleanLiteral | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 1332 | MethodExpression | `t.endsWith("\|")` | hole | Observable in BOTH directions, through the gate, on both filesystems. FALSE GREEN on m-crow-green: pristine exit 1 / gaps / one gap; mutant exit 0 / clean / zero. sarif results 1 to 0, attest verdict… |
+
+### stringEnd — 10 survivor(s): 10 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 89 | EqualityOperator | `j <= text.length` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 90 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 90 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 94 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 94 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 97 | ArithmeticOperator | `j - f.close.length` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 97 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 97 | LogicalOperator | `f.doubled \|\| text.startsWith(f.close, j + f…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 97 | MethodExpression | `text.endsWith(f.close, j + f.close.length)` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 98 | ArithmeticOperator | `2 / f.close.length` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### testNameIndex — 9 survivor(s): 9 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 441 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 442 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 444 | ArithmeticOperator | `name.length + 1` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 446 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 446 | EqualityOperator | `i >= 0` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 449 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 449 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 449 | EqualityOperator | `after <= content.length` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 449 | LogicalOperator | `tailWord \|\| after < content.length` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+
+### YAML_BLOCK_START — 9 survivor(s): 9 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 85 | Regex | `/(?:^\s*\|:\s+\|-\s+)[\|>][1-9+-]{0,2}\s*/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 85 | Regex | `/(?:\s*\|:\s+\|-\s+)[\|>][1-9+-]{0,2}\s*$/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 85 | Regex | `/(?:^\s\|:\s+\|-\s+)[\|>][1-9+-]{0,2}\s*$/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 85 | Regex | `/(?:^\S*\|:\s+\|-\s+)[\|>][1-9+-]{0,2}\s*$/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 85 | Regex | `/(?:^\s*\|:\s\|-\s+)[\|>][1-9+-]{0,2}\s*$/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 85 | Regex | `/(?:^\s*\|:\s+\|-\s)[\|>][1-9+-]{0,2}\s*$/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 85 | Regex | `/(?:^\s*\|:\s+\|-\S+)[\|>][1-9+-]{0,2}\s*$/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 85 | Regex | `/(?:^\s*\|:\s+\|-\s+)[\|>][^1-9+-]{0,2}\s*$/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 85 | Regex | `/(?:^\s*\|:\s+\|-\s+)[\|>][1-9+-]{0,2}\S*$/` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### projectRelativeSpelling — 8 survivor(s): 3 hole · 3 equivalent · 2 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1380 | ArrayDeclaration | `["Stryker was here"]` | hole | Survives on macOS too, so not a filesystem artifact: net exit 0 / fail 0 over 723 tests, the four extra nets exit 0 with byte-identical output, self-gate and all four missions byte-identical on json,… |
+| 1381 | ConditionalExpression | `false` | equivalent | Removes a fast path, not a decision. With every root falsy accepted is [], and the next guard if (!accepted.some(under)) return null returns the same null, since [].some(...) is false. SENSITIVITY CO… |
+| 1391 | ConditionalExpression | `false` | equivalent | The disjunct is subsumed by the conjunction beside it: for r === "", "" !== ".." is true, "".startsWith("../") is false and isAbsolute("") is false — on path.posix and path.win32 alike — so the secon… |
+| 1391 | ConditionalExpression | `true` | defence-in-depth | Lets under accept a spelling that is the PARENT of an accepted root. Shielded upstream: projectRelativeSpelling is only ever called on r.spelling, and resolvePointer produces a spelling only for a pa… |
+| 1391 | StringLiteral | `"Stryker was here!"` | equivalent | Same subsumption as the r === "" -> false mutant on this line: for the real value "" the conjunction beside it already returns true, and for a relative path literally spelled Stryker was here! it als… |
+| 1391 | StringLiteral | `""` | defence-in-depth | Behaviourally identical to the r !== ".." -> true mutant on this line: r !== "" is false only for r === "", where the first disjunct has already returned true, so the sole value whose verdict changes… |
+| 1396 | ConditionalExpression | `false` | hole | Net exit 0 / fail 0, four extra nets exit 0, every mission byte-identical. Direct drive: 2 of 196 moved, both turning null into the bare parent marker. With the guard defeated the gate would render '… |
+| 1396 | StringLiteral | `""` | hole | Measured separately from its neighbour on the same line — the two are only distinguishable by column. Net exit 0 / fail 0, every mission byte-identical, the same 2 of 196 battery cases moving with th… |
+
+### LX_PY — 7 survivor(s): 7 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 46 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 47 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 47 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 47 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 47 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 47 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 47 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### outsideManifestLines — 7 survivor(s): 7 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1250 | Regex | `/\s*(ˋˋˋ\|~~~)/` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 1250 | Regex | `/^\S*(ˋˋˋ\|~~~)/` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 1251 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 1257 | Regex | `/#{1,6}\s/` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 1260 | Regex | `/#{1,6}\s+Rule conformance/i` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 1260 | Regex | `/^#{1,6}\sRule conformance/i` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+| 1262 | EqualityOperator | `i <= lines.length` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+
+### splitPointers — 7 survivor(s): 2 hole · 5 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 542 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The mutant seeds the chunk accumulator with the constant string `Stryker was here`. `splitPointers` has exactly one consumer in the tree — the `for (const chunk of splitPointers(segment))` loop in `p… |
+| 543 | StringLiteral | `"Stryker was here!"` | equivalent | The mutant makes the FIRST chunk carry the prefix `Stryker was here!`. Every path by which that could move a pointer is closed. (1) It cannot CREATE one: the literal has no `:`, and `POINTER_PREFIX` … |
+| 550 | ArithmeticOperator | `segment.length + 1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 550 | EqualityOperator | `i > 0` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 568 | StringLiteral | `"Stryker was here!"` | equivalent | Same mechanism as the line-66 mutant, applied to every chunk after a cut rather than to the first: the buffer restarts with `Stryker was here!` instead of empty. The closures are identical and none o… |
+| 579 | MethodExpression | `out` | equivalent | Removing the filter changes exactly which chunks reach the consumer, and the chunks it removes are precisely those on which the consumer is a no-op. `out.filter((x) => x.trim())` drops a chunk if and… |
+| 579 | MethodExpression | `x` | equivalent | The predicate becomes the truthiness of the raw chunk instead of the truthiness of its trimmed form. For strings those two predicates disagree on exactly one class of value: the whitespace-only chunk… |
+
+### LX_SQL — 6 survivor(s): 6 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 53 | BooleanLiteral | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 53 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 53 | BooleanLiteral | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 53 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 53 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 53 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### REQUIRES_FORM — 6 survivor(s): 6 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 2261 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 2262 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 2263 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 2264 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 2265 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 2266 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### backtickRuns — 5 survivor(s): 5 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 118 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 122 | ArithmeticOperator | `k + i` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 123 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 126 | ArithmeticOperator | `k + i` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 126 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### LX_YAML — 5 survivor(s): 5 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 50 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 51 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 51 | BooleanLiteral | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 51 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 51 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### sealHash — 5 survivor(s): 5 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1817 | ConditionalExpression | `true` | display-only | Measured on `seal-forms`: the freeze prints two extra notes, `note code/page.html — it reads as a JUnit report but does not parse whole as one…` and the same for `code/reports/nul.xml`; the lock byte… |
+| 1817 | ConditionalExpression | `true` | display-only | Measured on `seal-forms`: same two extra freeze notes; lock bytes and verdicts identical. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js byte-identical to the … |
+| 1817 | LogicalOperator | `!text.includes("\0") && isJUnitReport(text)…` | display-only | Measured on `seal-forms`: same two extra freeze notes (page.html, nul.xml); lock bytes and verdicts identical. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js b… |
+| 1817 | LogicalOperator | `!text.includes("\0") \|\| isJUnitReport(text)` | display-only | Measured on every freeze of the battery: every sealed text file starting with `<`-less content still gets a note, e.g. `note AGENTS.md — it reads as a JUnit report…`, `note code/package.json — …`, `n… |
+| 1817 | Regex | `/^\uFEFF?\S*</` | display-only | Measured on `seal-forms`: the freeze note for `code/reports/broken.xml` (a report preceded by a newline and spaces that does not parse whole) disappears; the lock bytes and later verdicts are identic… |
+
+### quoteEscapingOnly — 4 survivor(s): 2 equivalent · 2 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1843 | StringLiteral | `""` | display-only | Measured on `seal-crlf-ml`: after the quote-escaping-only change of a CRLF report with a multi-line name, pristine says `changed only by the reporter's quote escaping`, the mutant says `its JUnit cas… |
+| 1848 | ConditionalExpression | `false` | equivalent | quoteEscapingOnly is called at one site, after hashOfKind read the same file the same way and returned neither `unreadable` nor `not-a-junit-report`, i.e. after `sealProjection(text)` returned non-nu… |
+| 1849 | BooleanLiteral | `true` | display-only | Measured on `lock-forms` `unreadable` and `unreadable-empty-hash`: the refusal of the unreadable projected report becomes `changed only by the reporter's quote escaping (nodejs/node#65971)…` instead … |
+| 1850 | ConditionalExpression | `true` | equivalent | junitProjectionQuoteVariants returns projectJUnit(content, spell) twice, and `spell` only rewrites attribute values after they are parsed: it cannot make the structural parse fail. projectJUnit with … |
+
+### textOutsideManifest — 4 survivor(s): 2 hole · 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1232 | StringLiteral | `"Stryker was here!"` | equivalent | `raw` is assigned unconditionally as the first statement of the `try`. The only path that skips that assignment is a throw inside `readFileSync`, and the `catch` returns a literal without ever readin… |
+| 1236 | BlockStatement | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 1237 | StringLiteral | `"Stryker was here!"` | equivalent | The `catch` cannot be entered on any call this code can receive. `textOutsideManifest` is called only from `circularEvidence`, only when `abs === self`, i.e. on the deliverable whose rows `evidenceRe… |
+| 1240 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+
+### DQ_MULTI — 3 survivor(s): 3 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 42 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 42 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 42 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### echoTestName — 3 survivor(s): 3 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 526 | ConditionalExpression | `true` | display-only | Measured on `cells` and `cells2`. On `cells2` the report holds the green case `a"`, cited `::a""`: accepted on both builds (exit 0), only the witness `raw` moves from `test:…::"a&quot;"` to `test:…::… |
+| 528 | StringLiteral | `ˋˋ` | display-only | Measured on `cells` and `cells2`: the echo of a name carrying a `"` becomes empty: `typed pointer test:…::"a&quot;" — no JUnit test case named "a""` becomes `typed pointer test:…:: — no JUnit…` on `c… |
+| 528 | StringLiteral | `""` | display-only | Measured on `cells` and `cells2`: the echo writes `"a"` instead of `"a&quot;"` (refusal sentence on `cells`, witness `raw` on `cells2`); exit and testName unchanged. METHOD (2026-11-04, report of CI … |
+
+### nextRunOf — 3 survivor(s): 3 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 135 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 136 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 140 | EqualityOperator | `starts[mid] <= from` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### repoRootAbove — 3 survivor(s): 2 hole · 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1200 | EqualityOperator | `i <= 24` | hole | Ran `node scripts/mutation-probe.mjs --function repoRootAbove --mission <d24>`: OBSERVABLE: exit-code (ledger reports/mutation/probe-repoRootAbove-d24.jsonl). Then applied the mutant alone and ran `n… |
+| 1200 | UpdateOperator | `i--` | hole | Ran the probe on d24: OBSERVABLE: exit-code (probe-repoRootAbove-d24.jsonl). Ran it again on d25, where the EqualityOperator mutant above is already identical to the pristine build: still OBSERVABLE:… |
+| 1206 | ConditionalExpression | `false` | equivalent | The guard only ends a walk that has already reached the filesystem root. The loop body examines `dir` for the five markers BEFORE computing `parent`, so the root is examined exactly once in the prist… |
+
+### SQ_MULTI — 3 survivor(s): 3 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 43 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 43 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 43 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### clean — 2 survivor(s): 2 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 800 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 800 | EqualityOperator | `end >= 0` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### collectEvidenceSeal — 2 survivor(s): 2 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1868 | ArrayDeclaration | `["Stryker was here"]` | display-only | Measured on every freeze: one extra line `note undefined — undefined (ADR-0102).`; `direct-unreadable` returns the stray element in `bytesFallbacks`. Lock bytes and every later verdict identical. MET… |
+| 1874 | ConditionalExpression | `true` | display-only | Measured on every freeze: one note per sealed file, `note AGENTS.md — undefined (ADR-0102).`, … ; lock bytes and verdicts identical. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, … |
+
+### DQ — 2 survivor(s): 2 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 40 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 40 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### isSpelling — 2 survivor(s): 1 hole · 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 960 | ConditionalExpression | `true` | equivalent | The empty spelling cannot pass either call site. At the exported parameter, the very next test rejects it for EVERY root: identity cannot hold because falsy roots are filtered out one line above, and… |
+| 960 | StringLiteral | `"Stryker was here!"` | hole | Two observable flips. (a) Case B6, as above: the empty spelling is no longer excluded, null becomes 'src'. (b) Case B7, unique to this mutant: a legitimate spelling equal to the marker string is now … |
+
+### LX_CSS — 2 survivor(s): 2 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 55 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 55 | ArrayDeclaration | `[]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### LX_MARKUP — 2 survivor(s): 2 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 49 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 49 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### RAW_STRING — 2 survivor(s): 2 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 84 | Regex | `/br(#*)"/y` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 84 | Regex | `/b?r(#)"/y` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### requiresReading — 2 survivor(s): 2 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 2221 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 2221 | LogicalOperator | `r.requires \|\| REQUIRABLE_NATURES.has(r.requ…` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### splitSegments — 2 survivor(s): 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 493 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The mutant seeds the accumulator with one extra segment whose value is the constant string `Stryker was here`. Two facts make it unable to move anything. First, `splitSegments` has exactly one consum… |
+| 494 | StringLiteral | `"Stryker was here!"` | equivalent | The mutant makes the FIRST segment carry the prefix `Stryker was here!`. Three separate reasons close every path by which that could move a pointer. (1) It cannot CREATE one: the literal has no `:`, … |
+
+### SQ — 2 survivor(s): 2 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 41 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+| 41 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### caseFold — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 982 | MethodExpression | `s.normalize("NFC").toLowerCase().toUpperCas…` | equivalent | The fold's output is never rendered or returned; its single consumer compares two folded names, so only the PARTITION it induces can be observed. The two folds induce the same partition, measured thr… |
+
+### isRegularFile — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1450 | BlockStatement | `{}` | equivalent | catch {} returns undefined instead of false, and every consumer uses the result in boolean position, where the two are indistinguishable. All eight call sites in the module are !isRegularFile(x) or i… |
+
+### pathShaped — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 612 | Regex | `/\.[^./]+/` | equivalent | Dedicated control built (no changing sibling): inverting `token.includes("/")` makes the probe diverge on `ptr\|*`. The survivor lifts the `$` anchor of `/\.[^./]+$/`: on the ten tokens measured (`x.t… |
+
+### POINTER_PREFIX — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 484 | Regex | `/\b(file\|test\|adr):(\S.*)/` | hole | Verified by exit code. On m3, whose only cell is `file:code/deleted-j.ts<U+2028> a trailing note` and whose cited file does not exist, `check --strict --json` went from \*\*exit 0 to exit 1\*\*, gaining … |
+
+### projectionHash — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1804 | StringLiteral | `""` | equivalent | `Hash.update(string, encoding)` treats a falsy encoding as the default, which is UTF-8, so `""` and `"utf8"` encode the projection lines identically; the digest, the lock and every comparison against… |
+
+### prosePointerLedger — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 2304 | StringLiteral | `"Stryker was here!"` | equivalent | Dedicated control built (no changing sibling): altering the pushed `deliverable` makes the probe diverge on `ledgerProse\|*`. The survivor replaces the `""` of `row.evidence \|\| ""` with a literal: it … |
+
+### realpathOr — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1442 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
+
+### requiresReport — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 2284 | StringLiteral | `ˋˋ` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
+### unmetRequires — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 2244 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820… |
+
 ## Module: mission
 
 Survivors: 636
@@ -1390,546 +2427,6 @@ Holes: 412 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 60 | StringLiteral | `""` | hole | NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222288… |
-
-## Module: evidence
-
-Survivors: 362
-
-Holes: 236 · Equivalent: 83 · Display-only: 36 · Defence-in-depth: 7
-
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `afe6d4026179…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
-
-### evidenceReport — 68 survivor(s): 52 hole · 6 equivalent · 10 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1052 | MethodExpression | `row.evidence` | equivalent | Six siblings KILLED in this function (the three bounds of the signature guard, the two anchors of the template guard, and the truncation of the echo). The two survivors are on `row.evidence.trim()` -… |
-| 1052 | Regex | `/\[[^\]]*\s[^\]]*\]$/` | equivalent | Six siblings KILLED in this function (the three bounds of the signature guard, the two anchors of the template guard, and the truncation of the echo). The two survivors are on `row.evidence.trim()` -… |
-| 1073 | ObjectLiteral | `{}` | equivalent | The value is consumed on exactly three paths in the function body: `const abs = r.abs`, `"why" in r`, and (inside the outside-branch only) `"at" in r && r.at`. `{ abs: null }` and `{}` agree on all t… |
-| 1075 | ConditionalExpression | `true` | equivalent | adjudicated is a Set\<string> written only here (adjudicated.add(abs)) and read only at the bare-path loop (adjudicated.has(abs)); it is never iterated, sized or serialised. With the guard defeated th… |
-| 1081 | ConditionalExpression | `false` | hole | wrong reason: reports plain resolution failure for a pointer that resolves to a real file outside the audited project — assert: a pointer that resolved to a real file outside the audited project must… |
-| 1081 | StringLiteral | `""` | hole | wrong reason: reports plain resolution failure for a pointer that resolves outside the audited project: the containment comparison can never match — assert: a pointer that resolved to a real file out… |
-| 1081 | StringLiteral | `""` | hole | wrong reason: reports plain resolution failure for a pointer that resolves outside the audited project — assert: a pointer that resolved to a real file outside the audited project must name containme… |
-| 1082 | ConditionalExpression | `false` | hole | wrong reason: names the containment class correctly but states the offending location as the literal `false` instead of the resolved path (borderline: same reading as mutant 17) — assert: when a cont… |
-| 1082 | ConditionalExpression | `true` | hole | wrong reason: names the containment class correctly but states the offending location as the literal `true` instead of the resolved path (borderline: the failure CLASS holds, the located fact does no… |
-| 1082 | ConditionalExpression | `false` | hole | wrong reason: silently degrades a known offending location to the generic fallback `a path` (borderline: same reading as mutant 19) — assert: when a containment failure carries a resolved location, t… |
-| 1082 | LogicalOperator | `"at" in r && r.at && "a path"` | hole | wrong reason: silently degrades a KNOWN offending location to the generic fallback `a path`, so a containment refusal the gate can locate reads as one it cannot (borderline: the class holds, the loca… |
-| 1082 | LogicalOperator | `"at" in r \|\| r.at` | hole | wrong reason: names the containment class correctly but states the offending location as the literal `true` (borderline: same reading as mutant 17) — assert: when a containment failure carries a reso… |
-| 1082 | StringLiteral | `ˋˋ` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` of the `probe-outside` entry becomes `typed pointer does not … |
-| 1082 | StringLiteral | `""` | hole | wrong reason: silently degrades a known offending location to the generic fallback `a path` (borderline: same reading as mutant 19) — assert: when a containment failure carries a resolved location, t… |
-| 1082 | StringLiteral | `""` | equivalent | The `\|\| "a path"` fallback is selected only when `("at" in r && r.at)` is falsy, and that arm of the ternary is entered only when `r.why === "outside"`. `resolvePointer` builds that object as `{ abs:… |
-| 1083 | ConditionalExpression | `false` | hole | wrong reason: reports plain resolution failure for a pointer the gate refused because it is an absolute path — assert: a pointer refused for being absolute must name the absolute-path refusal, never … |
-| 1083 | StringLiteral | `""` | hole | wrong reason: reports plain resolution failure for an absolute pointer: the absolute comparison can never match — assert: a pointer refused for being absolute must name the absolute-path refusal, nev… |
-| 1083 | StringLiteral | `""` | hole | wrong reason: reports plain resolution failure for an absolute pointer — assert: a pointer refused for being absolute must name the absolute-path refusal, never the generic 'update it or remove the r… |
-| 1084 | StringLiteral | `""` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope, `rule` and exit code unchanged; the `probe-absolute` message truncates to `typed pointer does no… |
-| 1103 | ObjectLiteral | `{}` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-dir` beco… |
-| 1103 | StringLiteral | `ˋˋ` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-dir` entry becomes "". Re-run on minimal… |
-| 1109 | BlockStatement | `{}` | hole | FALSE GREEN, measured end to end. m-unchk, where the UNCHECKABLE report is the mission's only violation: exit 1 -> 0, verdict gaps -> clean, conformance 1 -> 0. Downstream on a copy of the mission: p… |
-| 1109 | ConditionalExpression | `false` | hole | OBSERVABLE, measured on two missions. m-unchk (the UNCHECKABLE branch is the mission's ONLY violation): exit 1 in both runs, conformance 1 in both, but the entry's problem changes — pristine 'the gat… |
-| 1109 | StringLiteral | `""` | hole | Same observable as the ConditionalExpression on the same line and by the same mechanism: '' in r is false for every object the resolver returns, so the guard is dead and the UNCHECKABLE case falls in… |
-| 1110 | ObjectLiteral | `{}` | hole | NOT display-only: machine fields are lost, not prose. m-unchk: exit 1 -> 1 and conformance 1 -> 1, so the exit code sees nothing, but the conformance entry goes from {scope:Floor, rule:hexa-architect… |
-| 1110 | StringLiteral | `ˋˋ` | display-only | Payload comparison on m-unchk: exit 1 in both runs; ONE line of the 163-line check --strict --json payload differs — line 116, the problem string becomes ''. verdict (gaps), exitCode, gaps {deliverab… |
-| 1112 | BlockStatement | `{}` | hole | KILLED LOCALLY, SURVIVES ON THE RUNNER, and both halves are measured. Locally the unit net fails 8 tests, each reporting that the gate said nothing where pristine says one problem. Through the gate o… |
-| 1112 | ConditionalExpression | `false` | hole | FALSE GREEN on both missions. The else-if condition is defeated, the spelling violation is never pushed, and the pointer falls through to the content/symbol checks, which pass. Mission A: exit 1 -> 0… |
-| 1112 | StringLiteral | `""` | hole | Same false green by short-circuit: '' in r is false for every object resolvePointer returns, so the condition is dead. Every capture is BYTE-IDENTICAL to the ConditionalExpression->false mutant, whic… |
-| 1115 | ObjectLiteral | `{}` | hole | The violation is still pushed and the exit code still 1 — precisely why the exit code cannot be the instrument — but the object is empty, so rule and problem become undefined and the machine surface … |
-| 1116 | StringLiteral | `ˋˋ` | display-only | Only the prose of the prescribe-a-path form is emptied. Mission A whole-payload diff of --json: ONE line changes, the problem string becomes ''. Everything else identical: exit 1, gaps, conformance 1… |
-| 1117 | StringLiteral | `ˋˋ` | display-only | Only the prose of the no-remedy form is emptied. Mission B whole-payload diff of --json: ONE line changes, the problem string becomes '' (4934 -> 4598 B). Exit 1 in both, gaps, conformance 1, one ent… |
-| 1128 | LogicalOperator | `e.code && "unknown"` | hole | wrong reason: claims the gate does not know why the evidence file could not be read when it does: a permission refusal (EACCES) is reported as an unknown cause (borderline: the top-level class 'canno… |
-| 1128 | ObjectLiteral | `{}` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-unreadabl… |
-| 1128 | StringLiteral | `""` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-typed`: exit 1 / 1 g… |
-| 1128 | StringLiteral | `ˋˋ` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-unreadable` entry becomes "". Re-run on … |
-| 1147 | ConditionalExpression | `true` | equivalent | The guard is redundant against its own right-hand operand. `p.line` is either `undefined` or the result of `Number()` on a `\d+` capture, i.e. a number. When it is a number the guard was already true… |
-| 1147 | StringLiteral | `""` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — with `split("")` the length compared is the CHARACTER count, not the line count, so a… |
-| 1153 | MethodExpression | `p.symbol` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — dropping `.trim()` makes the symbol `" a "` three characters long, so the "names noth… |
-| 1189 | BlockStatement | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 1189 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 1194 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 1194 | ConditionalExpression | `true` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 954, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
-| 1194 | EqualityOperator | `lt !== "unparseable"` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 954, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
-| 1194 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 1195 | ObjectLiteral | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 1195 | StringLiteral | `ˋˋ` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 1196 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 1196 | ConditionalExpression | `true` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 956, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
-| 1196 | EqualityOperator | `lt !== "absent"` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 956, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
-| 1196 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 1197 | ObjectLiteral | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 1197 | StringLiteral | `ˋˋ` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 1198 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 1198 | ConditionalExpression | `true` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 958, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
-| 1198 | EqualityOperator | `lt !== "findings"` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 958, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
-| 1198 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 1199 | ObjectLiteral | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 1199 | StringLiteral | `ˋˋ` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 1225 | Regex | `/\.(md\|markdown\|txt\|rst\|adoc\|asciidoc)/i` | hole | Dropping the $ makes the extension test match anywhere in the ABSOLUTE path, so a real test file is refused because some earlier component or infix contains .md, .txt, .rst, .adoc. Executed (original… |
-| 1226 | StringLiteral | `""` | display-only | abs.split(".") -> abs.split("") changes only the token interpolated into the violation TEXT: the path is split per character, so …/framing.md yields d and the message reads "a d document is not a tes… |
-| 1258 | StringLiteral | `""` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-prose`: exit 1 / 1 g… |
-| 1262 | Regex | `/\s/` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `code/src/extra.md`, whose content is the twelve characters `nowhitespace` and no whi… |
-| 1268 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 1268 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 1269 | ObjectLiteral | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 1269 | StringLiteral | `ˋˋ` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 1290 | StringLiteral | `""` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `probe-sig-case` gains `evidence does not match the rule's signature /ZEBRAWORD/i` be… |
-
-### natureSatisfied — 47 survivor(s): 47 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1576 | ConditionalExpression | `false` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1320, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
-| 1576 | StringLiteral | `""` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1320, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
-| 1577 | ArrowFunction | `() => undefined` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
-| 1577 | BooleanLiteral | `!p.adrId` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
-| 1577 | BooleanLiteral | `p.adrId` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
-| 1577 | ConditionalExpression | `true` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
-| 1577 | ConditionalExpression | `false` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
-| 1577 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1577 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1577 | EqualityOperator | `p.kind !== "adr"` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
-| 1577 | LogicalOperator | `p.kind === "adr" && !!p.adrId \|\| adrIdExist…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1577 | LogicalOperator | `p.kind === "adr" \|\| !!p.adrId` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1577 | MethodExpression | `pointers.every(p => p.kind === "adr" && !!p…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1577 | StringLiteral | `""` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
-| 1577 | StringLiteral | `ˋˋ` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1580 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1583 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1583 | LogicalOperator | `!abs && !isRegularFile(abs)` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1589 | BlockStatement | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1592 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 1594 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1594 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1594 | EqualityOperator | `nature !== "sarif"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1594 | LogicalOperator | `nature === "sarif" \|\| isSarifReport(content)` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1594 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1595 | BooleanLiteral | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1596 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1596 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1596 | EqualityOperator | `nature !== "eslint"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1596 | LogicalOperator | `nature === "eslint" \|\| isEslintReport(conte…` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1340, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
-| 1596 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1597 | BooleanLiteral | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1598 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1598 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1598 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1598 | EqualityOperator | `nature !== "coverage"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1598 | LogicalOperator | `nature === "coverage" \|\| isLcovReport(conte…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1598 | LogicalOperator | `isLcovReport(content) && isCoberturaReport(…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1598 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1599 | BooleanLiteral | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1600 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1600 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1600 | EqualityOperator | `nature !== "sbom"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1600 | LogicalOperator | `nature === "sbom" \|\| isCycloneDxSbom(conten…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1600 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1601 | BooleanLiteral | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1602 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-
-### unsafeSignature — 32 survivor(s): 15 hole · 17 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 409 | Regex | `/\[(?:\\.\|[^\]\\])\]/g` | equivalent | The class-matching half of the normalisation is unobservable. Measured: removing the `.replace(/\[…\]/g, "C")` step ENTIRELY leaves the 60000-signature fuzz digest byte-identical, and 17 class-heavy … |
-| 409 | Regex | `/\[(?:\\.\|[\]\\])*\]/g` | equivalent | Same measurement as the sibling above, on the same expression: the class-matching regex is inverted rather than narrowed, and the fuzz digest over 60000 signatures is byte-identical, as are the 17 ta… |
-| 409 | StringLiteral | `""` | hole | Escapes are deleted instead of being neutralised into a token. Measured on a deterministic differential fuzz of 60000 generated signatures: 739 answers move (23988 unsafe verdicts become 24727). Dele… |
-| 409 | StringLiteral | `""` | hole | The normalised class is DELETED instead of replaced by a token. Measured on the 60000-signature fuzz: 187 answers move (23988 unsafe verdicts become 24175). Deleting the class brings its neighbours t… |
-| 415 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?[^()][+*}][^()]*\)…` | hole | THE SERIOUS ONE. Battery mission: three refusals DISAPPEAR outright — `p02 /(a{2,})+/`, `p03 /(a{2})+/`, `p28 /((a){2,})+/` — so the screen hands a group whose body carries a brace quantifier straigh… |
-| 415 | Regex | `/\((?:\?[:=!]\|\?<[^>]>)?[^()]*[+*}][^()]*\)…` | hole | Battery mission: `p08 :: unsafe signature regex … /(?<a)>a+)+/` is replaced by `p08 :: invalid signature regex in the rule file: /(?<a)>a+)+/`. The gate still refuses; it refuses for a different, and… |
-| 415 | Regex | `/\((?:\?[:=!]\|\?<[>]*>)?[^()]*[+*}][^()]*\)…` | hole | Battery mission: three entries move from `unsafe signature regex` to `invalid signature regex in the rule file` — `p08 /(?<a)>a+)+/`, `p09 /(?<)>a+)+/`, `p16 /(?<)>[^()]+)+/`. Teeth mission: identica… |
-| 415 | Regex | `/\((?:\?[^:=!]\|\?<[^>]*>)?[^()]*[+*}][^()]*…` | hole | Battery mission: `p07 :: invalid signature regex in the rule file: /(?)+)+/ — fix runward/rules/p07.md` is replaced by `p07 :: unsafe signature regex (nested or overlapping-alternation quantifiers ri… |
-| 415 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?[^()]*[+*}][()]*\)…` | hole | The mutated NESTED scan matches only when the body quantifier sits immediately before the ), so it still catches (a+)+, (a\*b\*)\* and every reduced (G+)+ — but it stops catching a group whose quantifie… |
-| 417 | Regex | `/\((?:\?[:=!]\|\?<[^>]>)?[^()]*\\|[^()]*\)[+*…` | hole | Battery mission: `p11 :: unsafe signature regex … /(?<a)>\|)+/` is replaced by `p11 :: invalid signature regex in the rule file: /(?<a)>\|)+/`. Teeth mission: identical. |
-| 417 | Regex | `/\((?:\?[:=!]\|\?<[>]*>)?[^()]*\\|[^()]*\)[+*…` | hole | Battery mission: two entries move from `unsafe signature regex` to `invalid signature regex in the rule file` — `p11 /(?<a)>\|)+/` and `p12 /(?<)>\|)+/`. Teeth mission: identical. |
-| 417 | Regex | `/\((?:\?[^:=!]\|\?<[^>]*>)?[^()]*\\|[^()]*\)[…` | hole | Battery mission: `p10 :: invalid signature regex in the rule file: /(?)\|)+/` is replaced by `p10 :: unsafe signature regex (nested or overlapping-alternation quantifiers risk catastrophic backtrackin… |
-| 417 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?[^()]*\\|[^()]\)[+*…` | hole | The alternation scan requires EXACTLY ONE character between the pipe and the closing parenthesis. Measured: `(a\|bc)+`, `(a\|bcd)*`, `(?:xy\|zw)+` and `(ab\|cd){2}` all flip from unsafe to SAFE — a false… |
-| 445 | ArrayDeclaration | `["Stryker was here"]` | equivalent | \|\| [] is evaluated only when norm.match(/\\(/g) is null, i.e. when norm holds no ( at all — and opens is used for nothing but the loop bound. With no ( in t, the reduction regex (which requires a lite… |
-| 449 | EqualityOperator | `opens >= 64` | hole | An off-by-one on a threshold whose safe side no test pins. The two answers differ only at exactly 64 opening groups. Differential run over 56 054 inputs: 2 valid-regex inputs separate them — (?:a) x6… |
-| 451 | EqualityOperator | `i < opens` | equivalent | The loop never exits by exhausting its counter, so removing one iteration removes nothing. Every pass that changes t deletes at least one ( (the replacement G[+][q] contains no parenthesis), and t st… |
-| 451 | UpdateOperator | `i--` | equivalent | Same fact from the other side: with i-- the condition i \<= opens is always true, so the mutant is an unbounded loop — and it terminates anyway, because the loop always leaves through break (fixpoint)… |
-| 452 | Regex | `/\((?:\?[^:=!]\|\?<[^>]*>)?([^()]*)\)([+*?]\|…` | equivalent | The prefix alternation is a parsing convenience, not a decision: whatever it does not consume is consumed by ([^()]\*) in the same span, so the match always covers the same characters and the only obs… |
-| 452 | Regex | `/\((?:\?[:=!]\|\?<[^>]>)?([^()]*)\)([+*?]\|\{…` | equivalent | Same mechanism as the sibling: the named-group alternative now matches only a one-character name, so (?\<name>a+) folds ?\<name> into body instead of skipping it. A group name is [A-Za-z0-9\_$] and can … |
-| 452 | Regex | `/\((?:\?[:=!]\|\?<[>]*>)?([^()]*)\)([+*?]\|\{…` | equivalent | Same argument as the two siblings: the named-group alternative can no longer match a real name, so the whole ?\<name> span is folded into body, where it cannot change /[+\*}]/ because a group name carr… |
-| 452 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?([^()]*)\)([^+*?]\|…` | equivalent | The trailing quantifier is re-emitted verbatim (G${mark}${q ?? ""}), so CAPTURING it and LEAVING it in the text produce a character-identical result: the reduction builds the same string either way. … |
-| 452 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?([^()]*)\)([+*?]\|\…` | equivalent | The trailing quantifier is re-emitted verbatim (G${mark}${q ?? ""}), so CAPTURING it and LEAVING it in the text produce a character-identical result: the reduction builds the same string either way. … |
-| 452 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?([^()]*)\)([+*?]\|\…` | equivalent | The trailing quantifier is re-emitted verbatim (G${mark}${q ?? ""}), so CAPTURING it and LEAVING it in the text produce a character-identical result: the reduction builds the same string either way. … |
-| 452 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?([^()]*)\)([+*?]\|\…` | equivalent | The trailing quantifier is re-emitted verbatim (G${mark}${q ?? ""}), so CAPTURING it and LEAVING it in the text produce a character-identical result: the reduction builds the same string either way. … |
-| 452 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?([^()]*)\)([+*?]\|\…` | equivalent | The trailing quantifier is re-emitted verbatim (G${mark}${q ?? ""}), so CAPTURING it and LEAVING it in the text produce a character-identical result: the reduction builds the same string either way. … |
-| 452 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?([^()]*)\)([+*?]\|\…` | equivalent | The trailing quantifier is re-emitted verbatim (G${mark}${q ?? ""}), so CAPTURING it and LEAVING it in the text produce a character-identical result: the reduction builds the same string either way. … |
-| 456 | StringLiteral | `"Stryker was here!"` | equivalent | The mutation substitutes the literal `Stryker was here!` for an empty string inside the collapse replacement, so the string the loop builds does change. What cannot change is any predicate applied to… |
-| 456 | StringLiteral | `"Stryker was here!"` | equivalent | The mutation substitutes the literal `Stryker was here!` for an empty string inside the collapse replacement, so the string the loop builds does change. What cannot change is any predicate applied to… |
-| 457 | ConditionalExpression | `false` | equivalent | `if (next === t) break` is the loop's fixpoint test, and the mutation only removes the early exit; the loop stays bounded by `i < 20`, so it cannot run forever. Take the iteration where the guard hol… |
-| 467 | BlockStatement | `{}` | hole | Emptying the block is the same defect as defeating its condition, by the other route: the no-opinion refusal disappears and every pattern the reduction could not resolve falls through to return false… |
-| 467 | ConditionalExpression | `false` | hole | This deletes the property the 2026-08-26 rework was built to establish: an exhausted screen REFUSES rather than approves. After the reduction reaches its fixpoint, a leftover parenthesis means the fu… |
-| 474 | BooleanLiteral | `false` | hole | This is RWD-2026-0051 put back, and it is the worst of the three on this line: return false fires BEFORE the reduction loop, so a pattern with more than 64 opening groups is approved without ever bei… |
-
-### parseEvidenceCell — 28 survivor(s): 14 hole · 5 equivalent · 9 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 230 | MethodExpression | `chunk` | hole | FALSE GREEN, verified by exit code. Applied on m4 (single defect: `file:code/deleted-a.ts<U+2028>; file:code/b.ts`): `check --strict --json` went from \*\*exit 1 to exit 0\*\*, conformance 1 -> 0, and th… |
-| 235 | Regex | `/\S/` | display-only | Applied on m2, m3 and m6. Exit code, violation count and all evidence counters unchanged; the `problem` strings became `typed pointer does not resolve: test: — update it or remove the row` and `typed… |
-| 235 | StringLiteral | `ˋˋ` | display-only | Applied on m2 and m6. `check --strict --json` kept exit 1, the same violation count and every evidence counter, but two `problem` strings lost the pointer they name: `typed pointer does not resolve: … |
-| 251 | Regex | `/ADR-?\d/i` | equivalent | Four siblings KILLED here (the `pathShaped` condition of the `::` branch, the block it guards, the echo of the branch without `::`, the echo of a misspelt `adr:`), two of them on a site that NO input… |
-| 251 | Regex | `/^ADR-?\D/i` | equivalent | Four siblings KILLED here (the `pathShaped` condition of the `::` branch, the block it guards, the echo of the branch without `::`, the echo of a misspelt `adr:`), two of them on a site that NO input… |
-| 251 | Regex | `/^ADR-\d/i` | equivalent | Four siblings KILLED here (the `pathShaped` condition of the `::` branch, the block it guards, the echo of the branch without `::`, the echo of a misspelt `adr:`), two of them on a site that NO input… |
-| 260 | EqualityOperator | `sep <= firstWs` | equivalent | The comparison is only ever evaluated on the third leg of `sep !== -1 && (firstWs === -1 \|\| sep < firstWs)`: reaching it requires `sep !== -1` AND `firstWs !== -1`, since `firstWs === -1` short-circu… |
-| 269 | MethodExpression | `after` | hole | Applied on m2 and m3. On m2, `check --strict --json` gained the violation `Floor · provider-no-crash-missing-env · typed pointer test:code/test/pointers.test.ts:: — test named " spaced name" not foun… |
-| 269 | StringLiteral | `"Stryker was here!"` | hole | Applied on m2. `check --strict --json` gained `Floor · state-event-sourcing · typed pointer test:code/test/pointers.test.ts::'l'invariant — test named "Stryker was here!l'invariant tientStryker was h… |
-| 292 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 293 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 293 | MethodExpression | `next` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 293 | Regex | `/(file\|test\|adr):\S/` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 293 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 293 | StringLiteral | `""` | display-only | Measured on `cells`: `test:code/reports/junit.xml::` (empty name) is refused either way, same exit 1, same counters; the problem string `typed pointer test:code/reports/junit.xml:: — the \`::\\` names… |
-| 295 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 296 | MethodExpression | `next.trim()` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 296 | MethodExpression | `next` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 296 | MethodExpression | `next` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 305 | StringLiteral | `""` | display-only | Measured on `cells`: only the suggested spelling inside the malformed message moves: for `:: "x "y" z "` the hint `test:…::"x &quot;y&quot; z "` becomes `test:…::" &quot;x &quot;y&quot; z "` (indexOf… |
-| 306 | MethodExpression | `after.slice(0, after.lastIndexOf('"') + 1)` | display-only | Measured on `cells`: the echo keeps the leading white space: `typed pointer test:…::"x "y" z "` becomes `typed pointer test:…:: "x "y" z "` (problem string and witness `raw`). Exit, counters and ever… |
-| 306 | MethodExpression | `after` | display-only | Measured on `cells`: for `::"a "b" c" — trailing comment` the echo grows the comment: `typed pointer test:…::"a "b" c" — trailing comment — a \`"\\` cannot appear…` (problem string and witness `raw`).… |
-| 306 | StringLiteral | `""` | display-only | Measured on `cells`: identical observation to the `after` mutant (lastIndexOf("") is the length, so the slice is the whole remainder): the comment `— trailing comment` enters the echoed pointer in th… |
-| 307 | StringLiteral | `"Stryker was here!"` | display-only | Measured on `cells`: two malformed messages (`:: "x "y" z "` and `::""x"`) end with `Stryker was here!` instead of nothing (the unquoted alternative is withheld for those names). Exit, counters and w… |
-| 320 | Regex | `/([^\s#]+)#(")([\s\S]*?)\2/` | hole | FALSE GREEN, verified by exit code. Applied on m5 (single defect: `file:code/deleted-b.ts — compare with code/b.ts#"the exact sentence"`): `check --strict --json` went from \*\*exit 1 to exit 0\*\*, conf… |
-| 337 | Regex | `/:(\d+)/` | hole | Applied on m2. Two rows moved and the coverage counter with them (conformance 10 -> 11, `evidence.typed` 16 -> 15, `evidence.prose` 7 -> 8). A row that was GREEN went red: the cell `file:code/2026:07… |
-| 345 | ConditionalExpression | `true` | equivalent | The mutated operand is the left half of `symbol !== undefined && /\s/.test(symbol)`. When `symbol` is a string, `symbol !== undefined` is already `true`, so replacing it by `true` changes nothing. Wh… |
-| 345 | StringLiteral | `"Stryker was here!"` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for (a symbol must be at least… |
-
-### onDiskSpelling — 21 survivor(s): 7 hole · 10 equivalent · 4 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 574 | ArithmeticOperator | `from - sep` | defence-in-depth | Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-cha… |
-| 574 | ConditionalExpression | `true` | hole | Forces the bound ON unconditionally. Reachable through the workspace allowance: repo && (real === repo \|\| real.startsWith(repo + sep)) calls onDiskSpelling(abs, resolve(b)) on a path legitimately OUT… |
-| 574 | ConditionalExpression | `false` | defence-in-depth | Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-cha… |
-| 574 | ConditionalExpression | `true` | hole | Forces the bound ON unconditionally. Reachable through the workspace allowance: repo && (real === repo \|\| real.startsWith(repo + sep)) calls onDiskSpelling(abs, resolve(b)) on a path legitimately OUT… |
-| 574 | ConditionalExpression | `false` | equivalent | The removed disjunct decides only when abs === from; everywhere else abs.startsWith(from + sep) already answers true. SENSITIVITY CONTROL: the nearby input is `file:.`, resolving exactly to the proje… |
-| 574 | EqualityOperator | `abs !== from` | hole | Inverts the identity test, so the disjunction is true whenever abs !== from — i.e. for every pointer, including those NOT under from. Forces the bound ON unconditionally. Reachable through the worksp… |
-| 574 | LogicalOperator | `abs === from && abs.startsWith(from.endsWit…` | defence-in-depth | Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-cha… |
-| 574 | MethodExpression | `abs.endsWith(from.endsWith(sep) ? from : fr…` | defence-in-depth | Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-cha… |
-| 574 | MethodExpression | `from.startsWith(sep)` | hole | On POSIX from is absolute, so from.startsWith(sep) is invariantly true and the ternary yields from instead of from + sep: the bound degrades to a bare string prefix and swallows any SIBLING whose nam… |
-| 575 | MethodExpression | `abs` | hole | Passes the WHOLE absolute path where the remainder below the bound was intended. With the bound engaged the walk matches no first segment and returns null for every in-project pointer. On a case-inse… |
-| 575 | StringLiteral | `""` | equivalent | Un-anchors the separator strip, which cannot matter because the string it runs on always BEGINS with the separator: base is non-null only when abs.startsWith(from + sep) held, so the slice starts at … |
-| 575 | StringLiteral | `""` | equivalent | Empties the search value, so on POSIX the regex source becomes ^\\\\/ (backslash-slash) instead of ^/ and the leading separator survives the strip. The walk absorbs it: parts[0] is then "", and the loo… |
-| 575 | StringLiteral | `""` | equivalent | Empties the replacement value. On POSIX the search value does not occur in sep ("/"), so the call is a no-op in both versions and the regex is ^/ either way — unobservable by construction on this pla… |
-| 575 | StringLiteral | `"Stryker was here!"` | hole | Splices a literal into the head of the bounded remainder. With the bound engaged the walk matches no first segment and returns null for every in-project pointer. On a case-insensitive volume spelling… |
-| 580 | ArithmeticOperator | `parts[0] - sep` | equivalent | Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly "", the parts[0] === "" test always takes… |
-| 580 | ConditionalExpression | `true` | equivalent | Forces a condition already invariantly true on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with / and parts[0] is always "". SENSITIVITY CONTROL: the separating inp… |
-| 580 | Regex | `/[A-Za-z]:$/` | equivalent | Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly "", the parts[0] === "" test always takes… |
-| 580 | Regex | `/^[A-Za-z]:/` | equivalent | Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly "", the parts[0] === "" test always takes… |
-| 580 | Regex | `/^[^A-Za-z]:$/` | equivalent | Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly "", the parts[0] === "" test always takes… |
-| 586 | EqualityOperator | `i <= parts.length` | equivalent | Adds one iteration past the end. parts[parts.length] is undefined and the body first statement is if (!want) continue, so the extra pass does nothing and the loop exits. SENSITIVITY CONTROL: the near… |
-| 588 | ConditionalExpression | `false` | hole | Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8 'no observable difference'). COULD NOT CLEAR. Removing the `!want` skip only matters when a path component… |
-
-### committedJUnitLedger — 15 survivor(s): 15 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1748 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1751 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1753 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1761 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1768 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1771 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1772 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1772 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1772 | EqualityOperator | `p.testName.trim().length <= 2` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1772 | LogicalOperator | `p.malformed && !p.path` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1772 | MethodExpression | `p.testName` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1775 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1779 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1785 | MethodExpression | `[...reports]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1791 | MethodExpression | `[...all]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-
-### evidenceBreakdown — 14 survivor(s): 8 hole · 5 equivalent · 1 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1498 | MethodExpression | `(row.evidence \|\| "").replace(/\s+/g, " ")` | hole | Mission m1-dup. `node scripts/mutation-probe.mjs --function evidenceBreakdown --mission <m1-dup>/runward` reports OBSERVABLE: json (ledger probe-m1-dup.jsonl; re-run once, same result), and scripts/p… |
-| 1498 | Regex | `/\s/g` | hole | THE ONE THAT MATTERS. Mission m1-dup: two `applied` rows carry the same two pointers, one written with a double space between them (`alpha file:code/src/core/domain/guard.ts file:code/src/core/domain… |
-| 1498 | StringLiteral | `"Stryker was here!"` | hole | Mission m2-empty (three `applied` rows whose Evidence cell is empty: `\| hexa-architecture \| applied \| \|`). Pristine baseline: exit 1, evidence.duplicated = []. Official probe: OBSERVABLE: json (probe… |
-| 1498 | StringLiteral | `""` | hole | Two directions, both measured. (a) m1-dup, official probe OBSERVABLE: json (twice), dual json+print: counters unchanged, but every duplicate key is re-spelled with its whitespace DELETED — "alpha fil… |
-| 1499 | ConditionalExpression | `true` | hole | Mission m2-empty. Official probe OBSERVABLE: json (probe-m2-empty.jsonl, two runs); dual probe json+print; also OBSERVABLE on m9-combined. probe-delta: duplicated goes from [] to [{"evidence":"","rul… |
-| 1521 | StringLiteral | `"Stryker was here!"` | equivalent | The mutated literal is only ever read when `row.evidence` is falsy. Two facts, both measured rather than reasoned: (a) `row.evidence` is always a string — scripts/probe-fuzz.mjs runs readManifest ove… |
-| 1524 | ConditionalExpression | `false` | equivalent | Deleting the guard changes the value returned only if some pointer with a falsy `path` can reach a different outcome through `resolveFile(p.path, bases)`. It cannot, for two measured reasons. (a) `ad… |
-| 1525 | BooleanLiteral | `true` | equivalent | Dedicated control built (no changing sibling): `typed++` -> `typed += 2` makes the probe diverge on `breakdown\|*`. The two survivors are on a `return false` of an inner function whose caller already … |
-| 1527 | LogicalOperator | `!abs && !isRegularFile(abs)` | hole | \|\| -> && disables the guard for the one input on which the two operators differ: a pointer that RESOLVES to something that is not a regular file. resolvePointer already requires existsSync, so that m… |
-| 1537 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback is used only when the Evidence cell is empty, and it is passed to parseEvidencePointers, which emits a pointer only for a chunk matching POINTER_PREFIX = /\b(file\|test\|adr):(\S.\*)$/. "St… |
-| 1541 | LogicalOperator | `!abs && !isRegularFile(abs)` | equivalent | Dedicated control built (no changing sibling): `typed++` -> `typed += 2` makes the probe diverge on `breakdown\|*`. The two survivors are on a `return false` of an inner function whose caller already … |
-| 1548 | MethodExpression | `[...byEvidence.entries()].filter(([, rs]) =…` | hole | Two missions. m1-dup (2 duplicate groups, inserted zeta-then-alpha so the sorted order is the reverse of the insertion order): official probe OBSERVABLE: json on two runs, dual probe json+print, prob… |
-| 1551 | ArrowFunction | `() => undefined` | hole | Same measurements as 803\|24\|806\|62 and the same result, taken separately: m1-dup official probe OBSERVABLE: json on two runs and dual probe json+print, with probe-delta showing duplicated flipping fr… |
-| 1559 | ConditionalExpression | `true` | defence-in-depth | Unreachable. t ranges over resolvedTargets, and a path enters that set only after if (!abs \|\| !isRegularFile(abs)) continue; three lines above — so every t is a regular file, while missionAbs is real… |
-
-### spellingViaRealpath — 14 survivor(s): 13 hole · 1 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 671 | BlockStatement | `{}` | hole | COULD NOT BE CLEARED, and filed as a hole for that reason rather than argued equivalent. Corrected probe on all four missions: identical everywhere, because the catch never runs — scripts/catch-reach… |
-| 674 | ArithmeticOperator | `canonBase - sep` | hole | Mission A: exit 1 -> exit 0, conformance []. `canonBase - sep` on two strings is NaN, `startsWith` coerces it to "NaN", the test fails for every path and the function returns null. Missions B, C, D u… |
-| 674 | BooleanLiteral | `canon.startsWith(canonBase + sep)` | hole | Corrected probe and per-mutant-detail on mission A: baseline exit 1 with the two case-insensitive violations; with the mutant applied, exit 0 and conformance []. Dropping the `!` makes the function r… |
-| 674 | ConditionalExpression | `false` | equivalent | The mutant deletes an early `return null`, so it can only change the RESULT in a state where the guard fires — canon not under canonBase + sep — AND where the surviving expression then answers non-nu… |
-| 674 | ConditionalExpression | `true` | hole | Same runs. Mission A: exit 1 -> exit 0, conformance [] (the guard becomes an unconditional `return null`). Missions B, C, D unchanged. A false green on a mis-spelled pointer, produced by a one-token … |
-| 674 | MethodExpression | `canon.endsWith(canonBase + sep)` | hole | Mission A: exit 1 -> exit 0, conformance []. A canonical file path never ends with its base directory + separator, so the negated test is always true and the function returns null before it ever comp… |
-| 676 | ArithmeticOperator | `canonBase.length - 1` | hole | Mission A: exit 1 -> exit 0, conformance []. The off-by-two slice carries the last character of the base plus the separator into `disk`, which then never case-matches the pointer. Missions B, C, D un… |
-| 676 | MethodExpression | `canon` | hole | Mission A: exit 1 -> exit 0, conformance []. With `disk` set to the whole absolute canonical path instead of the pointer-relative suffix, it can never case-match the pointer as written, so the case c… |
-| 687 | StringLiteral | `""` | hole | FALSE GREEN, measured. Shipped probe on the self-gate: no observable difference (exit 0, 4416 bytes) — no pointer in runward's own mission has a diverging spelling. split('/') becoming split('') inte… |
-| 688 | ConditionalExpression | `true` | hole | Caught in the OTHER direction, by mission B: baseline exit 0 (green) -> exit 1 with 'typed pointer file:code/src/core/domain/guard-alias.ts#guardFields — this filesystem is case-insensitive; on a cas… |
-| 688 | ConditionalExpression | `false` | hole | Mission A: exit 1 -> exit 0, conformance []. The whole ternary condition forced false makes the function return null unconditionally — the same false green as emptying it. Missions B, C, D unchanged. |
-| 688 | EqualityOperator | `disk.toLowerCase() !== wrote.toLowerCase()` | hole | Observable in BOTH directions, which is what makes it the most serious of the fifteen. Mission A: exit 1 -> exit 0, conformance [] (a real case mis-spelling is certified green). Mission B: exit 0 -> … |
-| 688 | MethodExpression | `disk.toUpperCase()` | hole | Mission A: exit 1 -> exit 0, conformance []. Comparing disk.toUpperCase() with wrote.toLowerCase() can only be equal for a path with no cased letters, so the case rung answers null for every real poi… |
-| 688 | MethodExpression | `wrote.toUpperCase()` | hole | Mission A: exit 1 -> exit 0, conformance []. Same asymmetric folding on the other operand, same false green. Missions B, C, D unchanged. |
-
-### citedJUnitNotGreen — 13 survivor(s): 13 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1676 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1683 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1687 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1689 | StringLiteral | `"Stryker was here!"` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1693 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1693 | LogicalOperator | `!abs && !isRegularFile(abs)` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1699 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1702 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1702 | LogicalOperator | `!isJUnitReport(content) && isRunwardJUnit(c…` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1705 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1707 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1717 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-| 1719 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 4061744… |
-
-### resolvePointer — 11 survivor(s): 9 hole · 2 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 696 | StringLiteral | `""` | display-only | Ran `node scripts/mutation-probe.mjs --function resolvePointer --mission <esc>`: OBSERVABLE: json, not exit-code (ledger reports/mutation/probe-resolvePointer-esc.jsonl). Applied the mutant alone and… |
-| 726 | ConditionalExpression | `false` | hole | Deletes the realpath fallback: walked === null silently becomes 'already matches'. Identical on eleven missions across all eight surfaces, with live controls moving in the same batteries. NOT equival… |
-| 726 | ConditionalExpression | `true` | hole | Makes the realpath rung answer for EVERY pointer, discarding the walk's verdict. Observable twice, in opposite directions. m-unlist: pristine gaps/exit 1/conformance 5 becomes clean/exit 0/conformanc… |
-| 726 | EqualityOperator | `walked !== null` | hole | Inverts the guard: the rung answers for verified, UNCHECKABLE and every real spelling, and the one input it was written for falls to the other arm. Same profile as the first, measured independently. … |
-| 727 | ConditionalExpression | `false` | hole | No surface moved anywhere, over eleven missions and eight surfaces, with live controls moving in the same batteries. Filed hole rather than equivalent because the mutant IS in effect and the differen… |
-| 727 | ConditionalExpression | `true` | hole | Collapses every answer the walk can give into null: a real spelling and UNCHECKABLE both reported as 'already matches'. The widest of the nine. m-case: gaps/exit 1/conformance 1 to clean/exit 0/confo… |
-| 727 | EqualityOperator | `walked !== SPELLING_VERIFIED` | hole | Inverts the sentinel test: a real spelling and UNCHECKABLE become null, both refusals lost, while the sentinel passes through raw. Observable exactly like the ConditionalExpression true. m-case and m… |
-| 745 | ConditionalExpression | `false` | hole | The repository-root twin: no surface moved on any of the eleven missions, with the repoD battery moving for its siblings. Filed hole for the same measured reason: the value diagnostic shows pristine … |
-| 745 | ConditionalExpression | `true` | hole | The repository-root branch, which has NO realpath fallback below it: this makes it report null for every walk answer. repoA and repoC flip gaps/exit 1 to clean/exit 0. repoD: all eight surfaces diffe… |
-| 745 | EqualityOperator | `walked !== SPELLING_VERIFIED` | hole | Inverts the sentinel test in the repository-root branch: a real spelling and UNCHECKABLE become null, the sentinel passes through raw. repoA and repoC flip to clean/exit 0, the unlistable-directory r… |
-| 749 | StringLiteral | `""` | display-only | Ran the probe on esc: OBSERVABLE: json, not exit-code (probe-resolvePointer-esc.jsonl). Applied the mutant alone and diffed the payloads: pristine exit 1 / 6062 bytes, mutated exit 1 / 5734 bytes, an… |
-
-### verifyEvidenceLock — 11 survivor(s): 5 hole · 3 equivalent · 3 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1432 | StringLiteral | `""` | equivalent | `readFileSync(path, "")` does not throw: an empty encoding is falsy, so Node returns the raw Buffer instead of decoding. The ONLY consumer of that value is `JSON.parse(...)` on the very next token, a… |
-| 1435 | StringLiteral | `""` | hole | The mutated literal is the violation's RULE ATTRIBUTION, `rule: "(seal)"`, not its message. Battery: observable on 5 (json:t-corrupt-lock, json:t-lock-badutf8, json:t-lock-bom, json:t-lock-utf16, tex… |
-| 1443 | StringLiteral | `""` | hole | Same literal, the unknown-version branch. Battery: observable on 3 (json:t-unknown-version, json:t-multi, text:t-multi). tools/rulefield.mjs on t-unknown-version: pristine `exit=1 ["(seal)"]`, mutant… |
-| 1448 | StringLiteral | `""` | hole | Same literal, the zero-files branch. Battery: observable on 2 (json:t-zero-files, text:t-zero-files). tools/rulefield.mjs on t-zero-files: pristine `exit=1 ["(seal)"]`, mutant `exit=1 [""]`, the mess… |
-| 1456 | ConditionalExpression | `false` | display-only | The mutated node is `abs === rootAbs`, so the containment test becomes `isAbsolute(rel) \|\| !(false \|\| abs.startsWith(rootAbs + sep))`. Built t-root-key for it: a lock whose key is `.`, the only input… |
-| 1457 | StringLiteral | `""` | hole | Same `rule: "(seal)"` literal, the escapes-the-project branch. Battery: observable on 4 (json:t-escape-abs, json:t-escape-dotdot, json:t-multi, text:t-multi). tools/rulefield.mjs on t-escape-abs (a l… |
-| 1461 | StringLiteral | `""` | hole | Same literal, the sealed-evidence-missing branch. Battery: observable on 5 (json:t-missing-file, json:t-root-key, json:t-multi, text:t-multi, text:t-root-key). tools/rulefield.mjs on t-missing-file (… |
-| 1585 | ConditionalExpression | `false` | equivalent | `!SEAL_HASH_KINDS.has(kind)` is true for every non-string kind (the Set holds two strings), so the `typeof kind !== "string"` disjunct never decides the branch. |
-| 1605 | ConditionalExpression | `false` | equivalent | SEAL_HASH_KINDS is a Set of two strings, so `!SEAL_HASH_KINDS.has(recorded)` is already true for every non-string `recorded`; dropping the typeof test leaves the condition true on exactly the same va… |
-| 1621 | ConditionalExpression | `true` | display-only | Measured on `lock-forms` (migrate-not-junit, rendering/nul/html-over-bytes), `seal-plain` bytes-changed, `seal-symlink` repointed, `seal-adr` and `seal-forms`: every bytes drift gains the suffix `(th… |
-| 1623 | StringLiteral | `"Stryker was here!"` | display-only | Measured on the same steps as the condition mutant: every bytes drift message ends with `Stryker was here!`; exit and counts unchanged. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614… |
-
-### conformanceRow — 10 survivor(s): 6 hole · 4 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 853 | ConditionalExpression | `false` | equivalent | with no pipe in the line the split yields a one-element array and the next line's cell-count test returns false regardless. One call site, so this oracle covers every use. Also survives the whole net… |
-| 853 | StringLiteral | `""` | equivalent | includes of the empty string is true for every string, so the guard never fires — the same state the neighbour produces by returning false outright, and the two produce IDENTICAL digests, so that is … |
-| 855 | StringLiteral | `"Stryker was here!"` | equivalent | The FIRST replace's replacement, the one stripping the leading pipe. The replacement text carries no pipe, so the pipe count is unchanged and the split returns exactly the same number of cells; the o… |
-| 855 | StringLiteral | `"Stryker was here!"` | equivalent | The SECOND replace's replacement, stripping the trailing pipe. Both pristine and mutant CONSUME the trailing pipe — one replaces it with nothing, the other with pipe-free text — so the pipe count and… |
-| 861 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 861 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 861 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 861 | EqualityOperator | `proposedStatus(st) === null` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 862 | BooleanLiteral | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 887 | MethodExpression | `t.endsWith("\|")` | hole | Observable in BOTH directions, through the gate, on both filesystems. FALSE GREEN on m-crow-green: pristine exit 1 / gaps / one gap; mutant exit 0 / clean / zero. sarif results 1 to 0, attest verdict… |
-
-### sealableEvidencePaths — 10 survivor(s): 10 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1465 | ConditionalExpression | `false` | equivalent | readManifest (conformance.ts) already drops every row whose trimmed rule matches the same `/^\[.*\]$/` before returning it (RWD-2026-0097), and parseManifest returns those rows; the cell text is the … |
-| 1465 | Regex | `/^\[.\]$/` | equivalent | Same as the `false` sibling: readManifest removes every `/^\[.*\]$/` row before this loop, so narrowing the filter to one character between brackets removes nothing that reaches it. |
-| 1472 | ConditionalExpression | `false` | equivalent | adrId is assigned at exactly one site, the `kind === "adr"` branch of parseEvidencePointers (both the valid and the malformed pushes), so `!p.adrId` already excludes every file:/test: pointer and the… |
-| 1480 | StringLiteral | `"Stryker was here!"` | equivalent | `files` is a Map used as an ordered set: sealableEvidencePaths returns `[...files.keys()].sort()` and never reads a value, so the placeholder written by `files.set` cannot reach a caller. Re-measured… |
-| 1494 | StringLiteral | `"Stryker was here!"` | equivalent | Same Map-as-set argument: only the keys leave the function. |
-| 1502 | ConditionalExpression | `false` | equivalent | When `literal === abs`, falling through reaches `files.set` only if `isLink && isRegularFile(literal)`; `abs` comes from resolvePointer, which returns a real path (symlinks resolved), and a path equa… |
-| 1504 | BooleanLiteral | `true` | equivalent | The initialiser is dead: the only path to the `if` that skips `isLink = lstatSync(literal).isSymbolicLink()` is the throw, and the catch leaves the iteration with `continue`; isLink is declared insid… |
-| 1508 | BlockStatement | `{}` | equivalent | Falling out of the catch leaves isLink at its per-iteration `false`, so `isLink && …` short-circuits and nothing is added. It would be live only together with the `isLink = true` sibling. Re-measured… |
-| 1517 | StringLiteral | `"Stryker was here!"` | equivalent | Map-as-set: the value written for the link key is never read. The only read of `files` in sealableEvidencePaths is `[...files.keys()].sort()`. The same mutant on the line before the RWD-2026-0191 fix… |
-| 1522 | StringLiteral | `"Stryker was here!"` | equivalent | Map-as-set: the value is never read. Re-measured from the previous filing. |
-
-### testNameIndex — 9 survivor(s): 9 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 44 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 45 | UnaryOperator | `+1` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 47 | ArithmeticOperator | `name.length + 1` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 49 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 49 | EqualityOperator | `i >= 0` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 52 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 52 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 52 | EqualityOperator | `after <= content.length` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 52 | LogicalOperator | `tailWord \|\| after < content.length` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-
-### projectRelativeSpelling — 8 survivor(s): 3 hole · 3 equivalent · 2 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 935 | ArrayDeclaration | `["Stryker was here"]` | hole | Survives on macOS too, so not a filesystem artifact: net exit 0 / fail 0 over 723 tests, the four extra nets exit 0 with byte-identical output, self-gate and all four missions byte-identical on json,… |
-| 936 | ConditionalExpression | `false` | equivalent | Removes a fast path, not a decision. With every root falsy accepted is [], and the next guard if (!accepted.some(under)) return null returns the same null, since [].some(...) is false. SENSITIVITY CO… |
-| 946 | ConditionalExpression | `false` | equivalent | The disjunct is subsumed by the conjunction beside it: for r === "", "" !== ".." is true, "".startsWith("../") is false and isAbsolute("") is false — on path.posix and path.win32 alike — so the secon… |
-| 946 | ConditionalExpression | `true` | defence-in-depth | Lets under accept a spelling that is the PARENT of an accepted root. Shielded upstream: projectRelativeSpelling is only ever called on r.spelling, and resolvePointer produces a spelling only for a pa… |
-| 946 | StringLiteral | `"Stryker was here!"` | equivalent | Same subsumption as the r === "" -> false mutant on this line: for the real value "" the conjunction beside it already returns true, and for a relative path literally spelled Stryker was here! it als… |
-| 946 | StringLiteral | `""` | defence-in-depth | Behaviourally identical to the r !== ".." -> true mutant on this line: r !== "" is false only for r === "", where the first disjunct has already returned true, so the sole value whose verdict changes… |
-| 951 | ConditionalExpression | `false` | hole | Net exit 0 / fail 0, four extra nets exit 0, every mission byte-identical. Direct drive: 2 of 196 moved, both turning null into the bare parent marker. With the guard defeated the gate would render '… |
-| 951 | StringLiteral | `""` | hole | Measured separately from its neighbour on the same line — the two are only distinguishable by column. Net exit 0 / fail 0, every mission byte-identical, the same 2 of 196 battery cases moving with th… |
-
-### outsideManifestLines — 7 survivor(s): 7 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 805 | Regex | `/\s*(ˋˋˋ\|~~~)/` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 805 | Regex | `/^\S*(ˋˋˋ\|~~~)/` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 806 | BooleanLiteral | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 812 | Regex | `/#{1,6}\s/` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 815 | Regex | `/#{1,6}\s+Rule conformance/i` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 815 | Regex | `/^#{1,6}\sRule conformance/i` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-| 817 | EqualityOperator | `i <= lines.length` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-
-### splitPointers — 6 survivor(s): 6 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 133 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The mutant seeds the chunk accumulator with the constant string `Stryker was here`. `splitPointers` has exactly one consumer in the tree — the `for (const chunk of splitPointers(segment))` loop in `p… |
-| 134 | StringLiteral | `"Stryker was here!"` | equivalent | The mutant makes the FIRST chunk carry the prefix `Stryker was here!`. Every path by which that could move a pointer is closed. (1) It cannot CREATE one: the literal has no `:`, and `POINTER_PREFIX` … |
-| 148 | Regex | `/([\s,])(file\|test\|adr):\S/` | equivalent | The mutant deletes the `^` alternative, and that alternative is unreachable code at this call site. The regex is only ever evaluated as the right-hand operand of `if (/\s\|,/.test(ch) && /(^\|[\s,])(fi… |
-| 150 | StringLiteral | `"Stryker was here!"` | equivalent | Same mechanism as the line-66 mutant, applied to every chunk after a cut rather than to the first: the buffer restarts with `Stryker was here!` instead of empty. The closures are identical and none o… |
-| 161 | MethodExpression | `out` | equivalent | Removing the filter changes exactly which chunks reach the consumer, and the chunks it removes are precisely those on which the consumer is a no-op. `out.filter((x) => x.trim())` drops a chunk if and… |
-| 161 | MethodExpression | `x` | equivalent | The predicate becomes the truthiness of the raw chunk instead of the truthiness of its trimmed form. For strings those two predicates disagree on exactly one class of value: the whitespace-only chunk… |
-
-### requiresLedger — 5 survivor(s): 5 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1614 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1614 | LogicalOperator | `r.requires \|\| REQUIRABLE_NATURES.has(r.requ…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1617 | ArrayDeclaration | `["Stryker was here"]` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1359, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
-| 1629 | ConditionalExpression | `false` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1368, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
-| 1631 | StringLiteral | `"Stryker was here!"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-### sealHash — 5 survivor(s): 5 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1393 | ConditionalExpression | `true` | display-only | Measured on `seal-forms`: the freeze prints two extra notes, `note code/page.html — it reads as a JUnit report but does not parse whole as one…` and the same for `code/reports/nul.xml`; the lock byte… |
-| 1393 | ConditionalExpression | `true` | display-only | Measured on `seal-forms`: same two extra freeze notes; lock bytes and verdicts identical. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js byte-identical to the … |
-| 1393 | LogicalOperator | `!text.includes("\0") && isJUnitReport(text)…` | display-only | Measured on `seal-forms`: same two extra freeze notes (page.html, nul.xml); lock bytes and verdicts identical. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js b… |
-| 1393 | LogicalOperator | `!text.includes("\0") \|\| isJUnitReport(text)` | display-only | Measured on every freeze of the battery: every sealed text file starting with `<`-less content still gets a note, e.g. `note AGENTS.md — it reads as a JUnit report…`, `note code/package.json — …`, `n… |
-| 1393 | Regex | `/^\uFEFF?\S*</` | display-only | Measured on `seal-forms`: the freeze note for `code/reports/broken.xml` (a report preceded by a newline and spaces that does not parse whole) disappears; the lock bytes and later verdicts are identic… |
-
-### quoteEscapingOnly — 4 survivor(s): 2 equivalent · 2 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1419 | StringLiteral | `""` | display-only | Measured on `seal-crlf-ml`: after the quote-escaping-only change of a CRLF report with a multi-line name, pristine says `changed only by the reporter's quote escaping`, the mutant says `its JUnit cas… |
-| 1422 | BooleanLiteral | `true` | display-only | Measured on `lock-forms` `unreadable` and `unreadable-empty-hash`: the refusal of the unreadable projected report becomes `changed only by the reporter's quote escaping (nodejs/node#65971)…` instead … |
-| 1424 | ConditionalExpression | `false` | equivalent | quoteEscapingOnly is called at one site, after hashOfKind read the same file the same way and returned neither `unreadable` nor `not-a-junit-report`, i.e. after `sealProjection(text)` returned non-nu… |
-| 1426 | ConditionalExpression | `true` | equivalent | junitProjectionQuoteVariants returns projectJUnit(content, spell) twice, and `spell` only rewrites attribute values after they are parsed: it cannot make the structural parse fail. projectJUnit with … |
-
-### textOutsideManifest — 4 survivor(s): 2 hole · 2 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 787 | StringLiteral | `"Stryker was here!"` | equivalent | `raw` is assigned unconditionally as the first statement of the `try`. The only path that skips that assignment is a throw inside `readFileSync`, and the `catch` returns a literal without ever readin… |
-| 791 | BlockStatement | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 792 | StringLiteral | `"Stryker was here!"` | equivalent | The `catch` cannot be entered on any call this code can receive. `textOutsideManifest` is called only from `circularEvidence`, only when `abs === self`, i.e. on the deliverable whose rows `evidenceRe… |
-| 795 | StringLiteral | `""` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-
-### echoTestName — 3 survivor(s): 3 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 129 | ConditionalExpression | `true` | display-only | Measured on `cells` and `cells2`. On `cells2` the report holds the green case `a"`, cited `::a""`: accepted on both builds (exit 0), only the witness `raw` moves from `test:…::"a&quot;"` to `test:…::… |
-| 131 | StringLiteral | `ˋˋ` | display-only | Measured on `cells` and `cells2`: the echo of a name carrying a `"` becomes empty: `typed pointer test:…::"a&quot;" — no JUnit test case named "a""` becomes `typed pointer test:…:: — no JUnit…` on `c… |
-| 131 | StringLiteral | `""` | display-only | Measured on `cells` and `cells2`: the echo writes `"a"` instead of `"a&quot;"` (refusal sentence on `cells`, witness `raw` on `cells2`); exit and testName unchanged. METHOD (2026-11-04, report of CI … |
-
-### repoRootAbove — 3 survivor(s): 2 hole · 1 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 755 | EqualityOperator | `i <= 24` | hole | Ran `node scripts/mutation-probe.mjs --function repoRootAbove --mission <d24>`: OBSERVABLE: exit-code (ledger reports/mutation/probe-repoRootAbove-d24.jsonl). Then applied the mutant alone and ran `n… |
-| 755 | UpdateOperator | `i--` | hole | Ran the probe on d24: OBSERVABLE: exit-code (probe-repoRootAbove-d24.jsonl). Ran it again on d25, where the EqualityOperator mutant above is already identical to the pristine build: still OBSERVABLE:… |
-| 761 | ConditionalExpression | `false` | equivalent | The guard only ends a walk that has already reached the filesystem root. The loop body examines `dir` for the five markers BEFORE computing `parent`, so the root is examined exactly once in the prist… |
-
-### collectEvidenceSeal — 2 survivor(s): 2 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1444 | ArrayDeclaration | `["Stryker was here"]` | display-only | Measured on every freeze: one extra line `note undefined — undefined (ADR-0102).`; `direct-unreadable` returns the stray element in `bytesFallbacks`. Lock bytes and every later verdict identical. MET… |
-| 1450 | ConditionalExpression | `true` | display-only | Measured on every freeze: one note per sealed file, `note AGENTS.md — undefined (ADR-0102).`, … ; lock bytes and verdicts identical. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, … |
-
-### isSpelling — 2 survivor(s): 1 hole · 1 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 520 | ConditionalExpression | `true` | equivalent | The empty spelling cannot pass either call site. At the exported parameter, the very next test rejects it for EVERY root: identity cannot hold because falsy roots are filtered out one line above, and… |
-| 520 | StringLiteral | `"Stryker was here!"` | hole | Two observable flips. (a) Case B6, as above: the empty spelling is no longer excluded, null becomes 'src'. (b) Case B7, unique to this mutant: a legitimate spelling equal to the marker string is now … |
-
-### splitSegments — 2 survivor(s): 2 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 96 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The mutant seeds the accumulator with one extra segment whose value is the constant string `Stryker was here`. Two facts make it unable to move anything. First, `splitSegments` has exactly one consum… |
-| 97 | StringLiteral | `"Stryker was here!"` | equivalent | The mutant makes the FIRST segment carry the prefix `Stryker was here!`. Three separate reasons close every path by which that could move a pointer. (1) It cannot CREATE one: the literal has no `:`, … |
-
-### caseFold — 1 survivor(s): 1 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 542 | MethodExpression | `s.normalize("NFC").toLowerCase().toUpperCas…` | equivalent | The fold's output is never rendered or returned; its single consumer compares two folded names, so only the PARTITION it induces can be observed. The two folds induce the same partition, measured thr… |
-
-### isRegularFile — 1 survivor(s): 1 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1005 | BlockStatement | `{}` | equivalent | catch {} returns undefined instead of false, and every consumer uses the result in boolean position, where the two are indistinguishable. All eight call sites in the module are !isRegularFile(x) or i… |
-
-### pathShaped — 1 survivor(s): 1 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 194 | Regex | `/\.[^./]+/` | equivalent | Dedicated control built (no changing sibling): inverting `token.includes("/")` makes the probe diverge on `ptr\|*`. The survivor lifts the `$` anchor of `/\.[^./]+$/`: on the ten tokens measured (`x.t… |
-
-### POINTER_PREFIX — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 87 | Regex | `/\b(file\|test\|adr):(\S.*)/` | hole | Verified by exit code. On m3, whose only cell is `file:code/deleted-j.ts<U+2028> a trailing note` and whose cited file does not exist, `check --strict --json` went from \*\*exit 0 to exit 1\*\*, gaining … |
-
-### projectionHash — 1 survivor(s): 1 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1380 | StringLiteral | `""` | equivalent | `Hash.update(string, encoding)` treats a falsy encoding as the default, which is UTF-8, so `""` and `"utf8"` encode the projection lines identically; the digest, the lock and every comparison against… |
-
-### prosePointerLedger — 1 survivor(s): 1 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1656 | StringLiteral | `"Stryker was here!"` | equivalent | Dedicated control built (no changing sibling): altering the pushed `deliverable` makes the probe diverge on `ledgerProse\|*`. The survivor replaces the `""` of `row.evidence \|\| ""` with a literal: it … |
-
-### realpathOr — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 997 | BlockStatement | `{}` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
-
-### symbolPresent — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 25 | Regex | `/[A-Za-z_$][A-Za-z0-9_$]*$/` | hole | FALSE GREEN, verified by exit code, and three further observations in three other shapes. (1) m2, whose only defect is the cell `file:code/b.ts#a.b`: `check --strict --json` went from \*\*exit 1 to exi… |
 
 ## Module: conformance
 
