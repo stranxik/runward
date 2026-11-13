@@ -109,7 +109,7 @@ re-derived by this command; the signature is verified outside it ».
 
 ## 6. The identity, verified by runward-fleet (D4a)
 
-`runward-fleet verify-run <bundle|envelope> --policy <trust-policy.json> --repository <host/owner/repo>
+`runward-fleet verify-run <bundle|envelope> --policy <trust-policy.json> --repository <host/path>
 --commit <sha> [--ref <ref>] [--statement <run.intoto.json>]` verifies offline, against the trusted
 roots and keys of the operator's trust policy (`runward-fleet-trust-policy/0`,
 [runward-fleet-index.md](runward-fleet-index.md) §2, which gains the signer kind `key`: `publicKey`, a

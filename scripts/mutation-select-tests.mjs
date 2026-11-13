@@ -9,9 +9,10 @@
 //                               build (absolute path, exported by the caller);
 //   test/unit-cost.json         the cheap/expensive split, read from the sandbox.
 //
-// It prints, on stdout, either the single word ALL or two lines: the cheap files that execute
-// the mutant's lines, then the expensive ones, each space-separated and sorted. On stderr it says
-// why, in one line, so a leg's log shows what each mutant paid for.
+// It prints, on stdout, either the single word ALL or at least two lines: the cheap files that
+// execute the mutant's lines (sorted), then the expensive ones in batches of increasing cost, one
+// batch per line (an empty second line when there is none). Each line is space-separated. On
+// stderr it says why, in one line, so a leg's log shows what each mutant paid for.
 //
 // EVERY DOUBT ANSWERS ALL. A missing input, a table measured on another build than the map, a
 // sandbox file carrying a different number of mutant markers than the table, an id the table does
@@ -75,9 +76,39 @@ for (const f of files) if (!existsSync(f)) all(`${f} is in the map and not in th
 
 const slow = new Set(cost.slow);
 const fast = files.filter((f) => !slow.has(f)).sort();
-const expensive = files.filter((f) => slow.has(f)).sort();
 const seconds = Object.fromEntries(cost.files.map((f) => [f.file, f.seconds]));
 const sum = files.reduce((n, f) => n + (seconds[f] ?? 0), 0);
+
+// The expensive files in BATCHES OF INCREASING COST (ADR-0131 C). Until 2026-11-12 they were one
+// `node --test` invocation, which runs every file it is given even after one has failed, so a
+// killed mutant paid for the whole expensive set exactly like a survivor. Measured on the 0.47.0
+// `evidence` measure (run 43208399067): a mutant of the comment lexer (ADR-0114) sits on lines that
+// run at module load, 185 files execute them, the file that kills it is on the slow list, and the
+// leg paid 200 to 330 s per mutant, killed or not. In batches, cheapest first, with the test command
+// stopping at the first batch that fails, a killed mutant pays up to the batch that kills it.
+//
+// A batch holds the cheapest remaining files until their measured seconds reach the batch's budget:
+// FIRST_BATCH_SECONDS for the first, then the sum of every batch before it, so budgets double and
+// a set of S seconds is at most about log2(S / FIRST_BATCH_SECONDS) + 2 invocations. A file always
+// joins a batch, so a single file dearer than the budget is a batch of its own; a file the cost
+// file does not price joins the last batch. The SET is unchanged: a survivor still runs every covering file,
+// in more invocations (each pays a runner start and waits for its slowest file before the next).
+const FIRST_BATCH_SECONDS = 30;
+const priced = (f) => seconds[f] ?? Number.POSITIVE_INFINITY;
+const expensive = files.filter((f) => slow.has(f)).sort((a, b) => priced(a) - priced(b) || (a < b ? -1 : a > b ? 1 : 0));
+const batches = [];
+let spent = 0;
+for (const f of expensive) {
+  const open = batches[batches.length - 1];
+  const budget = Math.max(FIRST_BATCH_SECONDS, spent - (open?.seconds ?? 0));
+  if (!open || (open.seconds >= budget)) batches.push({ files: [f], seconds: priced(f) });
+  else { open.files.push(f); open.seconds += priced(f); }
+  spent += priced(f);
+}
 say(`${moduleName} L${mutant.line}${mutant.endLine !== mutant.line ? `-${mutant.endLine}` : ""} ` +
-  `mutant ${id}: ${files.length} covering file(s), ${sum.toFixed(1)} s of ${cost.totalSeconds} s`);
-process.stdout.write(`${fast.join(" ")}\n${expensive.join(" ")}\n`);
+  `mutant ${id}: ${files.length} covering file(s), ${sum.toFixed(1)} s of ${cost.totalSeconds} s, ` +
+  `the expensive ${expensive.length} in ${batches.length} batch(es)`);
+// Line 1: the cheap files. Then one line per expensive batch, cheapest first; an empty line when
+// there is none, as before batches existed.
+const rows = batches.length ? batches.map((b) => b.files.join(" ")) : [""];
+process.stdout.write(`${[fast.join(" "), ...rows].join("\n")}\n`);

@@ -8,7 +8,7 @@
   ],
   "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 854.5,
+  "totalSeconds": 855.1,
   "slowSeconds": 792.9,
   "slow": [
     "test/unit/fleet-documents.test.js",
@@ -18,6 +18,7 @@
     "test/unit/run-executor.test.js",
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
+    "test/unit/mutation-timeouts.test.js",
     "test/unit/mission-name-independent-of-checkout.test.js",
     "test/unit/verdict-witness.test.js",
     "test/unit/verify-predicate.test.js",
@@ -678,6 +679,11 @@
     {
       "file": "test/unit/mutation-plan.test.js",
       "seconds": 0.5,
+      "passed": true
+    },
+    {
+      "file": "test/unit/mutation-timeouts.test.js",
+      "seconds": 10,
       "passed": true
     },
     {
@@ -1463,6 +1469,11 @@
     {
       "file": "test/unit/fleet-mission.test.js",
       "seconds": 0.74,
+      "passed": true
+    },
+    {
+      "file": "test/unit/fleet-repository.test.js",
+      "seconds": 0.63,
       "passed": true
     }
   ]

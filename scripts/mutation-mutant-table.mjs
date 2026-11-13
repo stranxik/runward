@@ -23,57 +23,83 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Instrumenter } from "@stryker-mutator/instrumenter";
-
-const argv = process.argv.slice(2);
-const value = (name) => { const i = argv.indexOf(`--${name}`); return i === -1 ? null : argv[i + 1]; };
-const mutate = value("mutate");
-const out = value("out") ?? "reports/mutation/mutant-table.json";
-if (!mutate) {
-  console.error("usage: mutation-mutant-table.mjs --mutate <file>[:<start>-<end>] [--out <file>]");
-  process.exit(2);
-}
 
 // The same regex and the same arithmetic as Stryker's project reader (fs/project-reader.js):
 // one-based lines on the command line, zero-based in the description, +1 again for Babel.
 const RANGE = /(.*?):((\d+)(?::(\d+))?-(\d+)(?::(\d+))?)$/;
-const m = RANGE.exec(mutate);
-const file = m ? m[1] : mutate;
-const range = m
-  ? [{ start: { line: parseInt(m[3]) - 1, column: parseInt(m[4] ?? "0") },
-      end: { line: parseInt(m[5]) - 1, column: parseInt(m[6] ?? String(Number.MAX_SAFE_INTEGER)) } }]
-  : true;
 
-const cfg = JSON.parse(readFileSync("stryker.config.json", "utf8"));
-if (cfg.mutator !== undefined || cfg.ignorers !== undefined) {
-  console.error("stryker.config.json sets `mutator` or `ignorers`; this table would not number the same mutants");
-  process.exit(2);
+/** `<file>[:<start>-<end>]` as Stryker's project reader splits it: the file, and its range or `true`. */
+export function parseMutate(mutate) {
+  const m = RANGE.exec(mutate);
+  const file = m ? m[1] : mutate;
+  const range = m
+    ? [{ start: { line: parseInt(m[3]) - 1, column: parseInt(m[4] ?? "0") },
+        end: { line: parseInt(m[5]) - 1, column: parseInt(m[6] ?? String(Number.MAX_SAFE_INTEGER)) } }]
+    : true;
+  return { file, range };
 }
 
-const content = readFileSync(file, "utf8");
 const silent = { isDebugEnabled: () => false, debug() {}, info() {}, warn() {}, error() {}, trace() {}, fatal() {} };
-const result = await new Instrumenter(silent).instrument(
-  [{ name: resolve(file), content, mutate: range }],
-  { ignorers: [], excludedMutations: [], plugins: null },
-);
 
-const table = {
-  _comment: [
-    "ADR-0105. The mutants `stryker run --mutate <mutate>` places, in Stryker's own numbering, each with",
-    "the lines of the build it spans. Written by scripts/mutation-mutant-table.mjs; read by",
-    "scripts/mutation-testcmd.sh with the coverage map to run only the test files that execute the",
-    "mutant under test. Meaningful only for the file digest it records.",
-  ],
-  mutate,
-  file,
-  sha256: createHash("sha256").update(content).digest("hex"),
-  mutants: result.mutants.map((x) => ({
+/**
+ * The mutants Stryker's instrumenter places in `content` (the text of `file`) for `range`, in its
+ * own numbering: [{ id, mutator, line, endLine }], one-based lines of that text. Also read by
+ * scripts/mutation-plan.mjs, which places the mutants of a module its cost record no longer
+ * describes where they are in the build it plans (ADR-0131 B).
+ */
+export async function placeMutants(file, content, range = true) {
+  const result = await new Instrumenter(silent).instrument(
+    [{ name: resolve(file), content, mutate: range }],
+    { ignorers: [], excludedMutations: [], plugins: null },
+  );
+  return result.mutants.map((x) => ({
     id: x.id,
     mutator: x.mutatorName,
     line: x.location.start.line + 1,
     endLine: x.location.end.line + 1,
-  })),
-};
-mkdirSync(resolve(out, ".."), { recursive: true });
-writeFileSync(out, `${JSON.stringify(table)}\n`);
-console.error(`${out}: ${table.mutants.length} mutant(s) for ${mutate}`);
+  }));
+}
+
+/** Refuses a configuration whose `mutator` or `ignorers` this script's call would not mirror. */
+export function mirrorsConfig(cfg) {
+  return cfg.mutator === undefined && cfg.ignorers === undefined;
+}
+
+async function main(argv) {
+  const value = (name) => { const i = argv.indexOf(`--${name}`); return i === -1 ? null : argv[i + 1]; };
+  const mutate = value("mutate");
+  const out = value("out") ?? "reports/mutation/mutant-table.json";
+  if (!mutate) {
+    console.error("usage: mutation-mutant-table.mjs --mutate <file>[:<start>-<end>] [--out <file>]");
+    return 2;
+  }
+  const { file, range } = parseMutate(mutate);
+  const cfg = JSON.parse(readFileSync("stryker.config.json", "utf8"));
+  if (!mirrorsConfig(cfg)) {
+    console.error("stryker.config.json sets `mutator` or `ignorers`; this table would not number the same mutants");
+    return 2;
+  }
+  const content = readFileSync(file, "utf8");
+  const table = {
+    _comment: [
+      "ADR-0105. The mutants `stryker run --mutate <mutate>` places, in Stryker's own numbering, each with",
+      "the lines of the build it spans. Written by scripts/mutation-mutant-table.mjs; read by",
+      "scripts/mutation-testcmd.sh with the coverage map to run only the test files that execute the",
+      "mutant under test. Meaningful only for the file digest it records.",
+    ],
+    mutate,
+    file,
+    sha256: createHash("sha256").update(content).digest("hex"),
+    mutants: await placeMutants(file, content, range),
+  };
+  mkdirSync(resolve(out, ".."), { recursive: true });
+  writeFileSync(out, `${JSON.stringify(table)}\n`);
+  console.error(`${out}: ${table.mutants.length} mutant(s) for ${mutate}`);
+  return 0;
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  process.exit(await main(process.argv.slice(2)));
+}

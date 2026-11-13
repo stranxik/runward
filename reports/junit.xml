@@ -948,6 +948,21 @@
 	<testcase name="release chain: the isolated builder packs runward-fleet in its own directory, and the job that signs, which builds nothing, attests it (ADR-0116)" classname="test"/>
 	<testcase name="release chain: the fleet tarball is byte-matched, attached as the ninth asset, read back, and never published to npm" classname="test"/>
 	<testcase name="the fleet Action is exercised in CI on this tree's own exports, and writes the page the build writes" classname="test"/>
+	<testcase name="the grammar accepts GitHub, GitLab nested groups and Azure DevOps, and gives each one canonical form" classname="test"/>
+	<testcase name="each planted control is refused, says why, and its accepted neighbour is read" classname="test"/>
+	<testcase name="the canonical form reads back as itself and needs no encoding in a URL" classname="test"/>
+	<testcase name="a three-segment identity reads exactly as before; what the former pattern let through and is now refused is listed" classname="test"/>
+	<testcase name="fleet.json: nested and Azure identities build an index; a planted identity stops the build and the message says why" classname="test"/>
+	<testcase name="trust-policy.json: the same grammar; a planted identity among a signer's repositories stops the build" classname="test"/>
+	<testcase name="verify-run: a key pinned for an Azure DevOps or a nested GitLab repository is accepted for it, in any spelling a forge writes" classname="test"/>
+	<testcase name="verify-run: a sibling, a parent group, a prefix or a planted name is another repository, and an expectation outside the grammar is not asked" classname="test"/>
+	<testcase name="verify-run, keyless on GitLab: a runner project and a mission in nested groups; the mission's own pipeline is still refused" classname="test"/>
+	<testcase name="the build, keyless: a certificate for a nested GitLab project raises its mission; a sibling, a parent or a name that is no identity raises nothing" classname="test"/>
+	<testcase name="verify-run, keyless: the certificate's repository is compared as an identity, and one that is none never hands the mission to the Statement" classname="test"/>
+	<testcase name="the build: an Ed25519 manifest whose repository folds into the mission's under Unicode rules raises nothing" classname="test"/>
+	<testcase name="every view of a fleet of GitLab and Azure DevOps repositories builds, the page passes its rules, and the identities are shown as declared" classname="test"/>
+	<testcase name="documents: a deployment's `source` built on repositoryUrl links a file of a nested GitLab project; an address that does not end with the path stays text" classname="test"/>
+	<testcase name="the identity is read in time linear in its length, which is bounded first" classname="test"/>
 	<testcase name="a real actions/attest bundle verifies offline: log, inclusion, checkpoint, chain, envelope" classname="test"/>
 	<testcase name="the real bundle, falsified anywhere, is refused by the check that guards that part" classname="test"/>
 	<testcase name="the real bundle against a trusted root without its authority, or without its log, does not verify" classname="test"/>
@@ -1298,6 +1313,8 @@
 	<testcase name="plan: chunks come out longest first, ties broken by module then start" classname="test"/>
 	<testcase name="plan: deterministic — the same inputs give the same plan, byte for byte" classname="test"/>
 	<testcase name="plan: a stale or absent record changes the cut, never the coverage" classname="test"/>
+	<testcase name="plan (ADR-0131 B): a stale module's mutants are priced where they are in the build, at the module's mean, and a chunk of it holds at most the cap" classname="test"/>
+	<testcase name="positive control: a file grown in the middle is re-cut at the cap; the old line-number reading made one oversized range of it" classname="test"/>
 	<testcase name="plan: `--module` narrows to one module, an unknown module is an error, and the matrix limit is enforced" classname="test"/>
 	<testcase name="cutModule and predict: the arithmetic the plan rests on" classname="test"/>
 	<testcase name="record: a merged Stryker report becomes per-line killed and surviving counts, and round-trips through the file" classname="test"/>
@@ -1324,6 +1341,9 @@
 	<testcase name="the selector names the covering files, cheap line then expensive line, and ALL on every doubt" classname="test"/>
 	<testcase name="the test command runs the selected files cheap-first and stops at the first failure; without a map it runs the whole suite" classname="test"/>
 	<testcase name="positive control: the map selects the one slow CLI-spawning file that executes check-contract's `--witness` beside `--freeze` refusal" classname="test"/>
+	<testcase name="the phase-B bound follows the leg's dry run, never under the old constant, and is well above every measured suite without one" classname="test"/>
+	<testcase name="the verdict of the two phases: a hang is `timedOut`, never an exit code" classname="test"/>
+	<testcase name="a survivor slower than a bound set the old way is filed Survived; the old fixed bound files it a hang (positive control)" classname="test"/>
 	<testcase name="the net has one definition, and the pass that runs it does not keep a copy" classname="test"/>
 	<testcase name="every leg of the net is a script that exists, and the composition is written down" classname="test"/>
 	<testcase name="the digest moves when a leg's content moves, and not otherwise" classname="test"/>
@@ -2333,9 +2353,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2329 -->
+	<!-- tests 2349 -->
 	<!-- suites 0 -->
-	<!-- pass 2328 -->
+	<!-- pass 2348 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->
