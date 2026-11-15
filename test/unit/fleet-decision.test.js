@@ -148,9 +148,9 @@ const differences = (code) => Object.entries(code).flatMap(([name, values]) => {
 test("the closed lists are the values the CLI of this tree writes, read from its code; a planted value reddens", async () => {
   assert.deepEqual(differences(await cliValues()), [], "docs/spec/runward-closed-values.json and the CLI agree on every closed field");
   assert.equal(listOf("conformanceKind").length, 39);
-  // The published list is the record of a survey of the 0.46.0 tarball (docs/spec/runward-closed-values.json
+  // The published list is the record of a survey of the 0.47.0 tarball (docs/spec/runward-closed-values.json
   // names its integrity); the suite reads no registry, so it holds the record, not the tarball.
-  assert.equal(CLOSED.lists.conformanceKind.published.length, 31);
+  assert.equal(CLOSED.lists.conformanceKind.published.length, 39);
   // A kind the extraction cannot read is reported, not skipped.
   const hidden = writtenBy(fn(source("x.ts", 'function conformanceEntries(v) { const k = v.flag ? "a-kind" : "b-kind"; rows.push({ scope: "corpus", kind: k }); whole("corpus", f, "p", pick(v), "file"); }'), "conformanceEntries"));
   assert.deepEqual(hidden.unread, ["k", "pick(v)"]);

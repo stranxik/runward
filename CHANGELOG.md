@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### The closed values runward-fleet reads are recorded as published by 0.47.0
+
+`docs/spec/runward-closed-values.json` named the values the published 0.46.0 writes, and listed the ones
+only the tree wrote as `unreleased`. 0.47.0 is on npm: its tarball, read from the registry on 2026-11-15
+with its integrity compared, has a `dist/` byte-identical to the build of the tag `v0.47.0`, whose `src/` is
+this tree's. The ten values that were unreleased (`level-not-met`, `requires-unmet`, the seven
+`analysis-*` kinds and the `analysis` scope) move to `published`, and every `unreleased` list is empty.
+No value is added or removed, and no shipped file changes.
+
 ## 0.47.0
 
 ### A level of proof, code read against what the mission declares, and three packages released with runward
