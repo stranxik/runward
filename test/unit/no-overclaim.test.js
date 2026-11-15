@@ -175,3 +175,53 @@ test("a frozen citation is writable verbatim, and every paraphrase of it still f
     assert.ok(!FROZEN_CITATIONS.some((x) => paraphrase.includes(x)), "and must not be exempt");
   }
 });
+
+test("RWD-2026-0212: a French denial passes the screen, and \"not just\" is no longer a denial in either language", () => {
+  // Measured on 0.47.0: the screen knew `jamais`, `aucun` and `sans` but neither `pas` nor `ni`, so the
+  // French sentence that DENIES the claim was refused where its English twin passed. Both directions,
+  // both languages, because widening a screen is how a guard becomes a loophole: the second list
+  // holds the sentences a careless widening (adding `pas` with nothing after it) would let through.
+  const fires = (line) => RULES.filter((r) => r.re.test(line) && !NEGATED.test(line)).map((r) => r.name);
+  const platform = RULES.find((r) => r.name === "runward called a platform");
+  for (const denial of [
+    "runward est une couche de provenance amont, pas une plateforme.",
+    "runward n’est pas une plateforme.",
+    "runward n'est pas une plateforme.",
+    "runward n'est ni un outil de GRC ni une plateforme.",
+    "runward n'est nullement une plateforme.",
+    "runward est un outil en ligne de commande, non une plateforme.",
+    "runward is an upstream provenance layer, not a platform.",
+    "runward is not a platform.",
+    "runward is never a platform.",
+    "this doesn’t make you compliant",
+  ]) {
+    assert.deepEqual(fires(denial), [], `a denial must pass: ${denial}`);
+  }
+  for (const affirmation of [
+    "runward is not just a platform",
+    "runward is not only a platform, it is a method",
+    "runward is not merely a platform",
+    "runward is not simply a platform",
+    "runward is never just a platform",
+    "runward is more than a platform",
+    "runward n'est pas seulement une plateforme",
+    "runward n’est pas uniquement une plateforme",
+    "runward n'est pas juste une plateforme",
+    "runward n'est pas simplement une plateforme",
+    "runward n'est pas qu'une plateforme",
+    "runward n’est pas qu’une plateforme",
+    "runward est non seulement un outil mais une plateforme",
+    "runward n'est jamais qu'une plateforme",
+    "runward n'est qu'une plateforme",
+    "runward est plus qu'une plateforme",
+    "runward est une plateforme",
+    // `non-` qualifies a noun; it denies nothing.
+    "runward is a non-trivial platform",
+    // JavaScript's `\b` is ASCII-only: `pas` inside "trépas" and `ni` inside "béni" are not negators.
+    "runward est une plateforme jusqu'au trépas",
+    "runward est une plateforme bénie, béni soit son auteur",
+  ]) {
+    assert.ok(platform.re.test(affirmation), `the rule must see: ${affirmation}`);
+    assert.ok(fires(affirmation).includes(platform.name), `an affirmation must still be refused: ${affirmation}`);
+  }
+});

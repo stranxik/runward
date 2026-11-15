@@ -1370,6 +1370,7 @@
 	<testcase name="the guard does not fire on legitimate prose" classname="test"/>
 	<testcase name="2026-11-06: the four sentences an adversarial review wrote now fire, and the honest neighbours do not" classname="test"/>
 	<testcase name="a frozen citation is writable verbatim, and every paraphrase of it still fires" classname="test"/>
+	<testcase name="RWD-2026-0212: a French denial passes the screen, and &quot;not just&quot; is no longer a denial in either language" classname="test"/>
 	<testcase name="ADR-0088 decision 10: the documents that say how runward is run carry the one-accountable-person disclosure" classname="test"/>
 	<testcase name="ADR-0088 decision 10: the unqualified claims of 2026-10-01 do not come back" classname="test"/>
 	<testcase name="ADR-0088: runward's SLSA Source level is stated as not measured, never as a level" classname="test"/>
@@ -2348,9 +2349,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2344 -->
+	<!-- tests 2345 -->
 	<!-- suites 0 -->
-	<!-- pass 2343 -->
+	<!-- pass 2344 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->
