@@ -71,5 +71,5 @@ jobs:
         if: ${{ !cancelled() }}
         uses: stranxik/runward@0000000000000000000000000000000000000000 # REPLACE: the runward Action at a commit
         with:
-          version: "0.46.0" # REPLACE: the runward version your mission pins
+          version: "0.47.0" # REPLACE: the runward version your mission pins
           hooks: "false"

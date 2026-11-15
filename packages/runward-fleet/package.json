@@ -1,6 +1,6 @@
 {
   "name": "runward-fleet",
-  "version": "0.46.0",
+  "version": "0.47.0",
   "private": true,
   "description": "A static view of every runward mission of an organisation, built from the files runward writes, with the signatures verified against the operator's trust policy (ADR-0093 decision 10). Imports nothing from runward.",
   "license": "MIT",

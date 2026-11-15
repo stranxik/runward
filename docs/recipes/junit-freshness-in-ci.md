@@ -301,9 +301,9 @@ accepted. What each control plants, and what each recipe does not catch, is in t
 <!-- runward-integrations:count — generated from the recipes' manifests by `node packages/runward-integrations/src/cli.js count --write`; CI refuses a text that counts a recipe whose control does not pass on the tree (runward ADR-0122 decision 3) -->
 | Recipe | Report | `requires:` | Steps | Level of its report | Maintainer | Count |
 |---|---|---|---|---|---|---|
-| [`sarif`](https://github.com/stranxik/runward/blob/main/packages/runward-integrations/recipes/sarif/manifest.json) | SARIF 2.1.0 | `sarif` | GitHub Actions, GitLab CI | `declared` as a CI step; `attested` as a runward-run leg, once the run is signed | stranxik | counted: its control passed on 2026-11-06, with runward 0.46.0 |
-| [`junit`](https://github.com/stranxik/runward/blob/main/packages/runward-integrations/recipes/junit/manifest.json) | JUnit XML | `junit` | GitHub Actions, GitLab CI | `declared` as a CI step; `attested` as a runward-run leg, once the run is signed | stranxik | counted: its control passed on 2026-11-06, with runward 0.46.0 |
-| [`coverage`](https://github.com/stranxik/runward/blob/main/packages/runward-integrations/recipes/coverage/manifest.json) | LCOV | `coverage` | GitHub Actions, GitLab CI | `declared` as a CI step; `attested` as a runward-run leg, once the run is signed | stranxik | counted: its control passed on 2026-11-06, with runward 0.46.0 |
+| [`sarif`](https://github.com/stranxik/runward/blob/main/packages/runward-integrations/recipes/sarif/manifest.json) | SARIF 2.1.0 | `sarif` | GitHub Actions, GitLab CI | `declared` as a CI step; `attested` as a runward-run leg, once the run is signed | stranxik | counted: its control passed on 2026-11-10, with runward 0.47.0 |
+| [`junit`](https://github.com/stranxik/runward/blob/main/packages/runward-integrations/recipes/junit/manifest.json) | JUnit XML | `junit` | GitHub Actions, GitLab CI | `declared` as a CI step; `attested` as a runward-run leg, once the run is signed | stranxik | counted: its control passed on 2026-11-10, with runward 0.47.0 |
+| [`coverage`](https://github.com/stranxik/runward/blob/main/packages/runward-integrations/recipes/coverage/manifest.json) | LCOV | `coverage` | GitHub Actions, GitLab CI | `declared` as a CI step; `attested` as a runward-run leg, once the run is signed | stranxik | counted: its control passed on 2026-11-10, with runward 0.47.0 |
 
 **Counted: 3** (`sarif`, `junit`, `coverage`). **Not counted: 0**.
 <!-- /runward-integrations:count -->

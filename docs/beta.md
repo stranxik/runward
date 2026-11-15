@@ -43,7 +43,7 @@ All five hold, and nothing else is asked:
    your team's, greenfield or brownfield. No production stakes required, no model or agent required.
 2. **One person who answers for the mission** on your side: runs the commands, owns each crossing,
    writes the feedback.
-3. **The published package, pinned**: `npx --yes runward@0.46.0`, with Node.js 22.12 or later and
+3. **The published package, pinned**: `npx --yes runward@0.47.0`, with Node.js 22.12 or later and
    git.
 4. **The structured feedback, twice** ([below](#what-is-asked-a-structured-feedback)).
 5. **Nothing confidential in the public issue.** If your organisation cannot describe the mission in
@@ -62,12 +62,12 @@ did not write. The feedback asks for yours.
 ## Start
 
 ```bash
-npx --yes runward@0.46.0 characterize     # existing code: an inventory in runward/characterization.md, your code never modified
-npx --yes runward@0.46.0 init             # the mission; the wizard asks where you start
-npx --yes runward@0.46.0 check --strict   # the verdict, whenever you want it
+npx --yes runward@0.47.0 characterize     # existing code: an inventory in runward/characterization.md, your code never modified
+npx --yes runward@0.47.0 init             # the mission; the wizard asks where you start
+npx --yes runward@0.47.0 check --strict   # the verdict, whenever you want it
 ```
 
-A spec you already have: `npx --yes runward@0.46.0 spec-check <spec>` checks it, no mission needed.
+A spec you already have: `npx --yes runward@0.47.0 spec-check <spec>` checks it, no mission needed.
 To watch the gate catch something before you start on your own code, follow
 [your first mission](first-mission.md) on the shipped example.
 
@@ -142,12 +142,10 @@ judges no semantics (its own stated non-scope). `check --hooks` runs the command
 `runward/hooks.json` names, and a failing one fails the gate. The bridge is the path from what a
 mission declares to what its code does, and the slot helps you lay it on your repository.
 
-- **Today, with 0.46.0**: [prove a committed JUnit report is fresh, in your CI](recipes/junit-freshness-in-ci.md).
+- **Today, with 0.47.0**: [prove a committed JUnit report is fresh, in your CI](recipes/junit-freshness-in-ci.md).
   Your CI regenerates the report your rows cite, and refuses when it records other cases, or other
   verdicts, than the committed one.
-- **Planned for the next release**, in two pull requests open on 2026-11-06. Neither is in runward
-  0.46.0, the current release, and until a release carries them this section describes them, not
-  the package:
+- **Also in 0.47.0**, from two pull requests merged on 2026-11-06:
   - [#483](https://github.com/stranxik/runward/pull/483): the shipped example cites four reports a
     tool writes (JUnit, LCOV coverage, ESLint JSON and SARIF). Under
     `runward check --strict --hooks`, its hook regenerates them and compares them with the committed

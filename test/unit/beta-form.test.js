@@ -19,7 +19,6 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const read = (rel) => readFileSync(join(ROOT, rel), "utf8");
 const FORM = loadYaml(read(".github/ISSUE_TEMPLATE/beta_mission.yml"));
 const PAGE = read("docs/beta.md");
-const VERSION = JSON.parse(read("package.json")).version;
 // The page is hard-wrapped, so every sentence match tolerates a line break.
 const loose = (s) => new RegExp(s.trim().split(/\s+/).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s+"), "i");
 // The same tolerance for a plain substring: SUPPORT.md wraps its address route across two lines.
@@ -143,14 +142,16 @@ test("beta page: the beta is not the pilot, changes nothing in it, and does not 
   assert.match(PAGE, new RegExp(`sets it on ${deadline}`), "the page names the ADR's date");
 });
 
-test("beta page: the bridge is said to be unreleased while the current release lacks it", () => {
-  // The page names the release that does not carry #483 and #484. When package.json moves, this
-  // reddens until someone says whether the new release carries them and rewrites the section.
-  const named = PAGE.match(/Neither is in runward\s+(\d+\.\d+\.\d+), the current release/)?.[1];
-  assert.ok(named, "the bridge section names the current release as one that does not carry it");
-  assert.equal(named, VERSION, `docs/beta.md calls runward ${named} the current release and package.json is ${VERSION}: say whether ${VERSION} carries #483 and #484, rewrite the bridge section, then this test`);
+test("beta page: the bridge is said to be released, in the release that carries it", () => {
+  // Until 0.47.0 the page named the current release as one that did not carry #483 and #484, and this
+  // test reddened when package.json moved, so that the release rewrote the section (runbook §3). 0.47.0
+  // carries both (CHANGELOG, `## 0.47.0`): the page names that release, and calls nothing it carries planned.
+  const named = PAGE.match(/\*\*Also in (\d+\.\d+\.\d+)\*\*, from two pull requests merged on 2026-11-06/)?.[1];
+  assert.ok(named, "the bridge section names the release that carries #483 and #484");
+  assert.equal(named, "0.47.0", "the release that carries them, not whatever version package.json reads next");
+  assert.match(read("CHANGELOG.md"), new RegExp(`^## ${named.replaceAll(".", "\\.")}$`, "m"), "a release the CHANGELOG records");
   for (const pr of ["483", "484"]) assert.ok(links(PAGE).has(`https://github.com/stranxik/runward/pull/${pr}`), `#${pr} is linked`);
-  assert.match(PAGE, /Planned for the next release/, "planned, never shipped, until a release carries it");
+  assert.doesNotMatch(PAGE, /Planned for the next release/, "nothing a published release carries is called planned");
 });
 
 test("beta page: the weekly slot is time set aside, not a response-time promise", () => {

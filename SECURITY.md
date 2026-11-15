@@ -6,8 +6,8 @@ Only the latest published minor line is supported. It receives everything, featu
 
 | Line | Status | Until |
 |---|---|---|
-| 0.46.x | supported (features + security) | the next minor ships |
-| ≤ 0.45.x | unsupported | — |
+| 0.47.x | supported (features + security) | the next minor ships |
+| ≤ 0.46.x | unsupported | — |
 
 **What changed on 2026-10-28, and why.** From 2026-09-09 to 2026-10-28 this section promised two supported lines: the latest minor, and the previous one receiving security fixes for six months from the day the newer minor shipped, with dated windows for 0.37.x to 0.42.x running until March and April 2027. That promise was not kept. No line older than the latest one ever received a release: every fix with a published advisory released since then, fourteen from 0.39.0 to 0.44.1, shipped on the latest line only, and the advisories say so. Among them are RWD-2026-0165 (fixed in 0.43.1) and RWD-2026-0168 (fixed in 0.44.1), two S1 fixes found after 2026-10-01, when shipping a fix to every older supported line it applies to without rework had become the stated default. ADR-0068 had named that outcome in advance: if the backport is skipped once, the policy is theatre and it reopens toward latest-only. It is withdrawn rather than left standing, and the dated windows end on 2026-10-28. The table had also stayed at 0.43.x through 0.44.0, 0.45.0 and 0.46.0; a test now fails when it does not name the package's current minor as the one supported line.
 
