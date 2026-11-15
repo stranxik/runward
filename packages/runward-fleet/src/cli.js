@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // runward-fleet build <fleet.json> [--out <dir>]
-// runward-fleet verify-run <bundle|envelope> --policy <trust-policy.json> --repository <host/owner/repo>
+// runward-fleet verify-run <bundle|envelope> --policy <trust-policy.json> --repository <host/path>
 //                          --commit <sha> [--ref <ref>] [--statement <run.intoto.json>] [--json]
 //
 // Reads fleet.json and the files it declares, verifies the declared signatures against the trust
@@ -17,7 +17,7 @@ import { REASON_TEXT, verifyRunSignature } from "./run-signature.js";
 import { renderPage } from "./site.js";
 
 const PKG = join(dirname(fileURLToPath(import.meta.url)), "..");
-const USAGE = "usage: runward-fleet build <fleet.json> [--out <dir>]\n       runward-fleet verify-run <bundle|envelope> --policy <trust-policy.json> --repository <host/owner/repo> --commit <sha> [--ref <ref>] [--statement <run.intoto.json>] [--json]";
+const USAGE = "usage: runward-fleet build <fleet.json> [--out <dir>]\n       runward-fleet verify-run <bundle|envelope> --policy <trust-policy.json> --repository <host/path> --commit <sha> [--ref <ref>] [--statement <run.intoto.json>] [--json]";
 
 export function version() {
   return JSON.parse(readFileSync(join(PKG, "package.json"), "utf8")).version;

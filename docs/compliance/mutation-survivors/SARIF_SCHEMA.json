@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "18|29|18|76|StringLiteral|\"\"",
-   "line": 18,
+   "key": "20|29|20|76|StringLiteral|\"\"",
+   "line": 20,
    "mutator": "StringLiteral",
    "filing": "defence-in-depth",
    "evidence": "Applied it: $schema becomes \"\" in every emitted document across 13 mission states. `node test/sarif-shape.js` goes red (exit 1) with 8 failures — `carries $schema` and `validates against the OASIS SARIF 2.1.0 schema` on all four of its fixtures.",

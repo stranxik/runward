@@ -23,7 +23,7 @@ of the cited lines, JavaScript and TypeScript first; and R3, the evals leg.
 runward check -p mission --strict --require attested --json > check.json   # the expected set, from the tree
 runward-run run --policy run-policy.json --tree mission --check check.json --out out \
   [--runtime docker|podman|<path>] [--scratch <dir>] \
-  [--repository <host/owner/repo>] [--commit <sha>] [--ref <ref>]
+  [--repository <host/path>] [--commit <sha>] [--ref <ref>]
 ```
 
 1. It refuses, before anything runs: a run policy inside the judged tree (the agent would choose the

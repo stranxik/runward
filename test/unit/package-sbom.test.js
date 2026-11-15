@@ -12,7 +12,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -202,10 +202,32 @@ test("package SBOM: an author's name is the one npm reads, and a long field is r
 // ── the real tree ─────────────────────────────────────────────────────────────────────────────────
 // Packed here as `npm pack` packs it for the release; `--ignore-scripts` because nothing of the suite
 // must run again from inside the suite (example-packed.test.js does the same).
+//
+// Packed where its `node_modules` really is. In a mutation sandbox, Stryker copies the tree into
+// `.stryker-tmp/` and links `node_modules` back to the checkout's, and npm packs a bundled dependency's
+// own dependencies through that link only while the hidden lockfile (`node_modules/.package-lock.json`)
+// is newer than every package folder: once one folder is newer, npm reads the tree through the link and
+// the tarball bundles the 3 direct dependencies of the 27. Measured on 2026-11-10, a sandbox of this
+// tree with one package folder touched: 27 bundled, then 3, then 27 once the hidden lockfile was the
+// newest again; packed from the checkout itself, 27 either way. That day every leg of seven
+// measure-mode runs of mutation-ratchet.yml on main at 5a9cdf0 failed Stryker's initial run on the two
+// tests below, so no module could be measured. The checkout the link points to holds the same
+// package.json and lockfile as the sandbox, so packing it checks what the release packs. The two tests
+// read the bundle and the SBOM, never a module's code, and this file executes no line of a module of the
+// mutation perimeter (the coverage map of ADR-0105 records it with none): packing the checkout rather
+// than its instrumented copy changes nothing a mutant could be caught by.
+function packRoot() {
+  const nm = join(ROOT, "node_modules");
+  try {
+    if (!lstatSync(nm).isSymbolicLink()) return ROOT;
+    const checkout = dirname(realpathSync(nm));
+    return existsSync(join(checkout, "package.json")) ? checkout : ROOT;
+  } catch { return ROOT; }
+}
 function packTree() {
   const work = mkdtempSync(join(tmpdir(), "rw-sbom-"));
   const win = process.platform === "win32";
-  execFileSync(win ? "npm.cmd" : "npm", ["pack", "--ignore-scripts", "--pack-destination", work], { cwd: ROOT, stdio: "pipe", shell: win });
+  execFileSync(win ? "npm.cmd" : "npm", ["pack", "--ignore-scripts", "--pack-destination", work], { cwd: packRoot(), stdio: "pipe", shell: win });
   const name = readdirSync(work).find((f) => f.endsWith(".tgz"));
   assert.ok(name, "npm pack produced a tarball");
   return { work, file: join(work, name) };

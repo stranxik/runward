@@ -1,0 +1,24 @@
+{
+ "function": "renderScaffoldLock",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "138|9|138|31|ConditionalExpression|true",
+   "line": 138,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222280584 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 fa1b2948eccafdec4330f007bf4bed436d973d3851911b774850f7622af1b031 (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222280584 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 fa1b2948eccafdec4330f007bf4bed436d973d3851911b774850f7622af1b031 (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "scaffold-lock\u0001renderScaffoldLock\u0001ConditionalExpression\u0001true\u0001analysis !== undefined\u0001if (analysis !== undefined)"
+  },
+  {
+   "key": "142|9|142|36|ConditionalExpression|true",
+   "line": 142,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222280584 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 fa1b2948eccafdec4330f007bf4bed436d973d3851911b774850f7622af1b031 (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 42222280584 (mode=measure, this module alone) on branch integration/2026-11-06-c at commit ebf9966 (Stryker 10.1.1, now in main); the report's embedded source is byte-identical to the build of main at 5a9cdf0 (after #496), merged report sha256 fa1b2948eccafdec4330f007bf4bed436d973d3851911b774850f7622af1b031 (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 39947132062 2026-10-23, measured ): the code it sits on, or the tests that reach it, changed between that measurement and main at 5a9cdf0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "scaffold-lock\u0001renderScaffoldLock\u0001ConditionalExpression\u0001true\u0001requiredLevel !== undefined\u0001if (requiredLevel !== undefined)"
+  }
+ ]
+}

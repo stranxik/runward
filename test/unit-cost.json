@@ -8,7 +8,7 @@
   ],
   "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 854.5,
+  "totalSeconds": 855.1,
   "slowSeconds": 792.9,
   "slow": [
     "test/unit/fleet-documents.test.js",
@@ -1463,6 +1463,11 @@
     {
       "file": "test/unit/fleet-mission.test.js",
       "seconds": 0.74,
+      "passed": true
+    },
+    {
+      "file": "test/unit/fleet-repository.test.js",
+      "seconds": 0.63,
       "passed": true
     }
   ]

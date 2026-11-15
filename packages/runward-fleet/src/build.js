@@ -11,7 +11,8 @@
 import { createHash } from "node:crypto";
 import { posix } from "node:path";
 import { BuildError } from "./errors.js";
-import { describePolicy, evaluateSignature, normRepo, readPolicy } from "./trust.js";
+import { REPOSITORY_SHAPE, canonRepository, repositoryProblem } from "./repository.js";
+import { describePolicy, evaluateSignature, readPolicy } from "./trust.js";
 
 export const INDEX_FORMAT = "runward-fleet-index/0";
 export const MANIFEST_FORMAT = "runward-fleet-manifest/0";
@@ -81,7 +82,8 @@ export function readManifest(doc) {
     if (ids.has(m.id)) fail(`${where}: id ${m.id} is used twice`);
     ids.add(m.id);
     if (typeof m.name !== "string" || !m.name) fail(`${where}: name is required`);
-    if (typeof m.repository !== "string" || !/^[a-z0-9.-]+\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(m.repository)) fail(`${where}: repository must read host/owner/repo (e.g. github.com/org/app)`);
+    const refused = repositoryProblem(m.repository);
+    if (refused) fail(`${where}: repository must read ${REPOSITORY_SHAPE}: ${refused}`);
     if (m.commit !== undefined && m.commit !== null && !/^[0-9a-f]{40}([0-9a-f]{24})?$/.test(String(m.commit))) fail(`${where}: commit must be a full git commit digest`);
     if (m.commitSource !== undefined && m.commitSource !== null) {
       if (typeof m.commitSource !== "string" || !m.commitSource.trim() || m.commitSource.length > 200) fail(`${where}: commitSource names where commit was read from, in 200 characters at most`);
@@ -372,7 +374,7 @@ export function buildIndex({ manifest: given, read, version }) {
   const persons = []; // with names omitted: each person an export declares, to be kept off the page
   const missions = manifest.missions.map((m) => {
     const out = {
-      id: m.id, name: m.name, role: m.role, repository: normRepo(m.repository), path: m.path,
+      id: m.id, name: m.name, role: m.role, repository: canonRepository(m.repository), path: m.path,
       // `commitSource`, when the inventory names one: where its author read the commit (a hosted
       // deployment, the claim of the upload's workload identity token). Carried as declared, never checked.
       commit: m.commit ? { value: m.commit, source: "fleet.json (declared)", ...(m.commitSource ? { commitSource: m.commitSource } : {}) } : null,

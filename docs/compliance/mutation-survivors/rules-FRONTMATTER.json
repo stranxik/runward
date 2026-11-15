@@ -3,12 +3,12 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "18|21|18|50|Regex|/---\\r?\\n([\\s\\S]*?)\\r?\\n---/",
-   "line": 18,
+   "key": "25|21|25|50|Regex|/---\\r?\\n([\\s\\S]*?)\\r?\\n---/",
+   "line": 25,
    "mutator": "Regex",
    "filing": "hole",
-   "evidence": "Dropping the ^ anchor lets any ---...--- block in the file be read as frontmatter. Measured: content 'intro line\\n\\n---\\ntitle: Sneaky\\nimpact: CRITICAL\\n---\\n\\nreal body' parsed to title 'Sneaky' / impact 'CRITICAL' (base: slug fallback and empty impact) and ruleBody deleted the block; a \\r\\n-prefixed rule file flipped from slug-fallback title to 'Z'. check --strict, smoke, audit-corpus and spelling all stayed green.",
-   "argument": "Dropping the ^ anchor lets any ---...--- block in the file be read as frontmatter. Measured: content 'intro line\\n\\n---\\ntitle: Sneaky\\nimpact: CRITICAL\\n---\\n\\nreal body' parsed to title 'Sneaky' / impact 'CRITICAL' (base: slug fallback and empty impact) and ruleBody deleted the block; a \\r\\n-prefixed rule file flipped from slug-fallback title to 'Z'. check --strict, smoke, audit-corpus and spelling all stayed green.",
+   "evidence": "Dropping the ^ anchor lets any ---...--- block in the file be read as frontmatter. Measured: content 'intro line\\n\\n---\\ntitle: Sneaky\\nimpact: CRITICAL\\n---\\n\\nreal body' parsed to title 'Sneaky' / impact 'CRITICAL' (base: slug fallback and empty impact) and ruleBody deleted the block; a \\r\\n-prefixed rule file flipped from slug-fallback title to 'Z'. check --strict, smoke, audit-corpus and spelling all stayed green. Re-measured 2026-11-10 (mutation-ratchet.yml run 42807518226, mode=measure, at 7d1846b): Stryker reported it Killed only because test/unit/example-packed.test.js refused the tarball npm packed inside Stryker's sandbox (`tar -xzf`, members under package/../../node_modules), a failure independent of the mutant, while every other covering test passed; re-run alone on that test on 2026-11-13 against a local build byte-identical to the measured source, it survives, so this filing stands.",
+   "argument": "Dropping the ^ anchor lets any ---...--- block in the file be read as frontmatter. Measured: content 'intro line\\n\\n---\\ntitle: Sneaky\\nimpact: CRITICAL\\n---\\n\\nreal body' parsed to title 'Sneaky' / impact 'CRITICAL' (base: slug fallback and empty impact) and ruleBody deleted the block; a \\r\\n-prefixed rule file flipped from slug-fallback title to 'Z'. check --strict, smoke, audit-corpus and spelling all stayed green. Re-measured 2026-11-10 (mutation-ratchet.yml run 42807518226, mode=measure, at 7d1846b): Stryker reported it Killed only because test/unit/example-packed.test.js refused the tarball npm packed inside Stryker's sandbox (`tar -xzf`, members under package/../../node_modules), a failure independent of the mutant, while every other covering test passed; re-run alone on that test on 2026-11-13 against a local build byte-identical to the measured source, it survives, so this filing stands.",
    "stableKey": "rules\u0001FRONTMATTER\u0001Regex\u0001/---\\r?\\n([\\s\\S]*?)\\r?\\n---/\u0001/^---\\r?\\n([\\s\\S]*?)\\r?\\n---/\u0001const FRONTMATTER = /^---\\r?\\n([\\s\\S]*?)\\r?\\n---/;"
   }
  ]

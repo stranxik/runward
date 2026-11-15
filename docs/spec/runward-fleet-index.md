@@ -32,7 +32,7 @@ and not received is shown as such.
 | `missions[]` | one entry per runward mission |
 | `missions[].id` | a plain identifier, the stable join key; source ids derive from it |
 | `missions[].name`, `role`, `path` | labels |
-| `missions[].repository` | `host/owner/repo`; a signature must have been made for this repository |
+| `missions[].repository` | the repository identity, `host/path` (§1.1): `github.com/org/app`, `gitlab.example.com/group/subgroup/project`, `dev.azure.com/org/project/_git/repo`; a signature must have been made for this repository |
 | `missions[].commit` | the landing commit the exports were produced at, declared; a signed commit is compared with it |
 | `missions[].commitSource` | optional, where the author of `fleet.json` read `commit` (a label of 200 characters at most, e.g. the claim of an upload's workload identity token for a hosted deployment); carried as declared, never checked; refused without `commit` |
 | `missions[].expects[]` | the kinds the operator expects (`check`, `attestation`, `verify`, `witness`, `summary`, `report`, `history`, `signature`); a missing one is a finding |
@@ -46,6 +46,49 @@ digest only) and `history` (JSON lines of records, today the replay of `scripts/
 prototype of ADR-0093's `ledger replay`). The verdict is read from `check`, else from the attestation's
 predicate, which carries the same fields.
 
+### 1.1 The repository identity
+
+One grammar for GitHub, GitLab and Azure DevOps ([ADR-0130](../adr/ADR-0130-a-repository-identity-is-a-host-and-a-path-of-two-to-eight-segments-read-by-one-closed-grammar-for-github-gitlab-and-azure-devops.md), `src/repository.js`), read in the inventory, in the trust
+policy, in what a signature names and in `verify-run --repository`. **Scope**: these three forges resolve a
+path without regard to case, which is what justifies the lower-case canonical form; a forge that tells two
+repositories apart by case alone (Gerrit with nested projects, gitolite or cgit on a case-sensitive
+filesystem) must not be declared, because two of its repositories would read as one identity.
+
+- **host**: a DNS name in ASCII, labels of letters, digits and inner hyphens (63 characters at most each,
+  253 in all), the last label starting with a letter. No scheme, no credentials, no address
+  (`10.0.0.1`), no internationalised label (`xn--`);
+- **port**, optional: `host:port`, 1 to 65535 in decimal digits without a leading zero
+  (`gitlab.internal:8929/group/project`). It is part of the identity: the same path on another port, or on
+  none, is another repository. `:443` is dropped, an https address having it without saying so;
+- **path**: 2 to 8 segments separated by `/`, each of letters, digits, `_`, `.` and `-` (255 characters at
+  most). No segment is empty or made of dots alone (`.`, `..`). Nothing is decoded: `%`, `\`, `?`, `#`,
+  `@`, `:` and a space are outside the set;
+- one `.git` at the end is the clone suffix and is dropped; a name that still ends in `.git` is refused;
+- 512 characters at most in all.
+
+The **canonical form** is the lower-case spelling, folded in ASCII only after the identity was read:
+`GitLab.Example.com/Group/Project.git` is `gitlab.example.com/group/project`. DNS, GitHub, GitLab and Azure
+DevOps resolve a path without regard to case, so two spellings that differ by case are one repository. The
+index carries the canonical form; it reads back as itself and needs no encoding in a URL
+(`repositoryUrl(id)` is `https://` followed by it). An identity outside the grammar stops the build and
+the message says which rule it breaks: the inventory and the policy are read as written, without a scheme
+and without a trailing slash. A name a signature carries, and what `verify-run --repository` is given, are
+read by the same grammar once one `https://` or `http://` in front and the slashes at the end are taken
+off; a name that is not an identity is equal to no repository, and `verify-run` stops on one (exit 2). The
+scheme is dropped, never read, and only `:443` is removed: `http://host:80/a/b` is `host:80/a/b`, another
+identity than `host/a/b`. A three-segment identity (`host/owner/repo`) reads as it did before ADR-0130,
+so an inventory, a policy and an index written before it are unchanged.
+
+Not representable, and refused: an Azure DevOps project or repository whose name holds a space or another
+character outside the set; a host that is an IP address (`10.0.0.1/group/project`, which the pattern before
+ADR-0130 accepted: an instance declared by address is declared by a name); an internationalised host.
+
+Azure DevOps: the identity is the host and path of the clone address **without its `org@`**
+(`dev.azure.com/org/project/_git/repo`; `https://org@dev.azure.com/…` carries credentials and is refused).
+`org.visualstudio.com/project/_git/repo`, with or without `DefaultCollection`, and
+`dev.azure.com/org/_git/repo` (a project's default repository) are other identities, not spellings of the
+first: the inventory, the policy and what a signature names must use the same one.
+
 ## 2. `runward-fleet-trust-policy/0`: `trust-policy.json`
 
 | Field | Meaning |
@@ -55,7 +98,7 @@ predicate, which carries the same fields.
 | `signers[]` | the identities the operator trusts |
 | `signers[].id` | a plain identifier |
 | `signers[].kind` | `sigstore` or `ed25519`; or `key`, read by `verify-run` only (runward-run Statements, [runward-run.md](runward-run.md) §6) |
-| `signers[].repositories[]` | the repositories this signer may sign for, `host/owner/repo` |
+| `signers[].repositories[]` | the repositories this signer may sign for, each a repository identity (§1.1) |
 | `signers[].ref` | the protected ref; an entry raises only if it is `refs/heads/main` |
 | `issuer`, `workflow` (sigstore) | the OIDC issuer and the Build Signer URI, compared exactly |
 | `workflowDigests[]` (sigstore) | the Build Signer Digests (the commit of the workflow file) the policy pins |
@@ -152,7 +195,8 @@ Unknown values read `not-observed`. A grouping is always `{ state, n, N, list }`
 | `absent[]` | what runward does not produce yet: `{ what, state, contract, delivery }` |
 | `sources[]` | every file read: `{ id, path, sha256, bytes, kind, producedBy, at, origin, declaredIn }`; an export declared by its digest only is a source too, `{ …, path: null, bytes: null, origin: "declared", content: "digest-only" }`, its `sha256` the one `fleet.json` declares, never computed |
 
-A mission carries `id`, `name`, `role`, `repository`, `path`, `commit` (`{ value, source }` or `null`;
+A mission carries `id`, `name`, `role`, `repository` (the canonical identity of §1.1, a text of the same
+shape whatever the forge: `runward-fleet-index/0` did not change), `path`, `commit` (`{ value, source }` or `null`;
 `source` is `fleet.json (declared)`, and `commitSource` is added, as written in the inventory, only when
 the inventory names one),
 `expects`, `findings[]` (`{ what, state, why, ... }`, `why` one of `declared-file-absent`,

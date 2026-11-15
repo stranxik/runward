@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "54|21|54|105|MethodExpression|readdirSync(dir, {\n  withFileTypes: true\n})",
-   "line": 54,
+   "key": "59|21|59|105|MethodExpression|readdirSync(dir, {\n  withFileTypes: true\n})",
+   "line": 59,
    "mutator": "MethodExpression",
    "filing": "equivalent",
    "evidence": "hashTree has only one consumer, missionStateDigest, which RE-SORTS every key at canonicalisation; the content of the map is independent of the traversal order (unique rel keys, no collision). Measured: attestation byte-identical to shipped on M0 AND on the 9 altered trees, identical digest, idempotent, cross verify green. Positive control: the same digest probe lights up under 8, 16, 17 and 19.",
@@ -12,8 +12,8 @@
    "stableKey": "attestation\u0001hashTree\u0001MethodExpression\u0001readdirSync(dir, { withFileTypes: true })\u0001readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))\u0001for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {"
   },
   {
-   "key": "54|68|54|104|ArrowFunction|() => undefined",
-   "line": 54,
+   "key": "59|68|59|104|ArrowFunction|() => undefined",
+   "line": 59,
    "mutator": "ArrowFunction",
    "filing": "equivalent",
    "evidence": "A comparator that returns undefined counts as 0 for Array.sort (ToNumber -> NaN -> 0): a no-op stable sort = readdir order = mutant 9. Same argument (canonicalisation re-sorts, content independent of order) and same measurements: bytes identical to shipped everywhere, identical digest, sensitivity intact. Positive control: 8/16/17/19.",
@@ -21,8 +21,8 @@
    "stableKey": "attestation\u0001hashTree\u0001ArrowFunction\u0001() => undefined\u0001(a, b) => (a.name < b.name ? -1 : 1)\u0001for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {"
   },
   {
-   "key": "54|79|54|94|ConditionalExpression|true",
-   "line": 54,
+   "key": "59|79|59|94|ConditionalExpression|true",
+   "line": 59,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "Inconsistent comparator = an arbitrary but deterministic permutation of the traversal; the content of the map does not depend on the order and missionStateDigest re-sorts the keys. Measured: bytes identical to shipped on M0 and the 9 alterations, idempotent, cross verify green. Positive control: 8/16/17/19 light up the same probe.",
@@ -30,8 +30,8 @@
    "stableKey": "attestation\u0001hashTree\u0001ConditionalExpression\u0001true\u0001a.name < b.name\u0001for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {"
   },
   {
-   "key": "54|79|54|94|ConditionalExpression|false",
-   "line": 54,
+   "key": "59|79|59|94|ConditionalExpression|false",
+   "line": 59,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "Same class as mutant 11: only the traversal order moves, the content is identical, canonicalisation re-sorts. Measured: bytes identical to shipped everywhere, digest and sensitivity unchanged. Positive control: 8/16/17/19.",
@@ -39,8 +39,8 @@
    "stableKey": "attestation\u0001hashTree\u0001ConditionalExpression\u0001false\u0001a.name < b.name\u0001for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {"
   },
   {
-   "key": "54|79|54|94|EqualityOperator|a.name <= b.name",
-   "line": 54,
+   "key": "59|79|59|94|EqualityOperator|a.name <= b.name",
+   "line": 59,
    "mutator": "EqualityOperator",
    "filing": "equivalent",
    "evidence": "The names within one directory are unique (readdir): the equality case does not even exist, the mutated comparator is pointwise identical to shipped. Measured: identical bytes everywhere. Positive control: 8/16/17/19.",
@@ -48,8 +48,8 @@
    "stableKey": "attestation\u0001hashTree\u0001EqualityOperator\u0001a.name <= b.name\u0001a.name < b.name\u0001for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {"
   },
   {
-   "key": "54|79|54|94|EqualityOperator|a.name >= b.name",
-   "line": 54,
+   "key": "59|79|59|94|EqualityOperator|a.name >= b.name",
+   "line": 59,
    "mutator": "EqualityOperator",
    "filing": "equivalent",
    "evidence": "Reversed traversal: a pure permutation, identical map content, keys re-sorted at canonicalisation. Measured: bytes identical to shipped on M0 and the 9 altered trees, idempotent. Positive control: 8/16/17/19.",
@@ -57,8 +57,8 @@
    "stableKey": "attestation\u0001hashTree\u0001EqualityOperator\u0001a.name >= b.name\u0001a.name < b.name\u0001for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {"
   },
   {
-   "key": "54|97|54|99|UnaryOperator|+1",
-   "line": 54,
+   "key": "59|97|59|99|UnaryOperator|+1",
+   "line": 59,
    "mutator": "UnaryOperator",
    "filing": "equivalent",
    "evidence": "Identical in effect to mutant 12 (constant comparator): traversal order permuted, content unchanged, canonicalisation re-sorts. Measured: bytes identical to shipped everywhere, identical digest, sensitivity intact. Positive control: 8/16/17/19.",

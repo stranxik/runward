@@ -6,7 +6,7 @@
 
 ### A level of proof, code read against what the mission declares, and three packages released with runward
 
-A minor release, cut on 2026-11-13, of everything merged since 0.46.0. **Verdicts change, on purpose,
+A minor release, cut on 2026-11-15, of everything merged since 0.46.0. **Verdicts change, on purpose,
 under `--strict`:** a mission none of whose applied rows the gate verified exits 5 (`verdict:
 "level-not-met"`), and `--require traced` accepts it by name (ADR-0114); a `#SYMBOL` of identifier form is
 looked for outside the file's comments (ADR-0114, RWD-2026-0194); an `applied` row whose pointers resolve
@@ -20,8 +20,9 @@ them before the gate (ADR-0115). Three packages of this repository are released 
 attested by the isolated builder and attached to the release, none published to npm by it:
 `runward-fleet` (the fleet view, its decision reading in English and French from a closed lexicon, its
 refusals grouped by kind and by text, the projections of each application on the six steps of the method, a
-renderer for a mission's documents and the register of its decision records, and `verify-run`; ADR-0093 D4,
-ADR-0125 to ADR-0128, ADR-0120 D4a), `runward-run` (the tests and
+renderer for a mission's documents and the register of its decision records, repositories of GitHub,
+GitLab and Azure DevOps read by one closed grammar, and `verify-run`; ADR-0093 D4, ADR-0125 to ADR-0128,
+ADR-0130, ADR-0120 D4a), `runward-run` (the tests and
 the declared reports run out of the agent's reach, read at `attested`, ADR-0120) and
 `runward-integrations` (three recipes, each counted only while its control passes, ADR-0122). The tarball
 bundles its runtime dependencies at the lockfile's versions, and the SBOM is the package's (ADR-0116).
@@ -32,6 +33,60 @@ minutes (RWD-2026-0205). The mutation register describes the build this release 
 (`npm run mutation:fresh`, ADR-0103), and the 0.46.0 mutation ratchet summary is committed unchanged
 (`docs/compliance/ratchet-summaries/ratchet-summary-0.46.0.json`, verdict: the register describes this
 tree).
+
+### Fixed: the packed-example test runs in Stryker's sandbox, so it no longer kills every mutant it meets
+
+`test/unit/example-packed.test.js` packs the tarball and extracts it with `tar -xzf`. In Stryker's
+sandbox, whose `node_modules` is a link to the checkout's, npm writes the bundled dependencies' own
+dependencies under `package/../../node_modules/` once the hidden lockfile is older than one package
+folder, and `tar` refuses those members. The failure does not depend on the mutant, so every mutant
+whose only failing test was this one was counted Killed: 596 in `mission` (run 43208428078), and 65 in
+`attestation`, 61 in `verdict`, 16 in `check-contract`, 6 in `rules` and 1 in `paths` in the runs at
+`7d1846b`. The test now packs where `node_modules` really is, as the SBOM tests do since `7d1846b`, and
+then ships the tree under test's own files in the extracted package, so the CLI it runs is still the
+sandbox's code, mutant included: packing the checkout alone would have turned this test's real kills into
+survivors. Reproduced on a copy of the tree with a linked `node_modules` and a stale hidden lockfile:
+`main`'s test fails on `tar` with or without a mutant, this one passes on the pristine copy and fails on
+`init --example` under the `mission.js` line 549 `LogicalOperator` mutant. Outside a sandbox nothing
+changes. Mutation measures taken before this fix count those kills and need the same re-verification.
+No shipped file changes.
+
+### runward-fleet reads a repository of GitHub, GitLab and Azure DevOps: a host and a path of two to eight segments (ADR-0130, proposed)
+
+`runward-fleet` read a repository as exactly `host/owner/repo`, GitHub's shape, so a GitLab project in
+nested groups and an Azure DevOps repository were refused in the inventory, in the trust policy and by
+`verify-run`. The identity is now a host and a path of two to eight segments, read by one closed grammar
+(`src/repository.js`): `github.com/org/app`, `gitlab.example.com/group/subgroup/project`,
+`dev.azure.com/org/project/_git/repo`. The host is a DNS name in ASCII, without scheme, address or
+internationalised label, and may be followed by a port (`gitlab.internal:8929/group/project`, 1 to 65535,
+part of the identity; `:443` is dropped); a segment holds letters, digits, `_`, `.` and `-`, is never empty and never made
+of dots alone, and nothing is decoded, so an encoded slash has no way in. The canonical form is the
+lower-case spelling without `.git`: DNS and the three forges resolve a path without regard to case, so two
+spellings that differ by case are one repository. That holds for GitHub, GitLab and Azure DevOps only: a
+forge that tells two repositories apart by case alone (Gerrit, gitolite, cgit) must not be declared. The
+build and `verify-run` stop on anything else and say which rule it breaks; `verify-run --repository` also
+accepts a forge address (one `https://` or `http://` in front, slashes at the end).
+
+Equality is decided on canonical identities only. A name a signature carries is read by the same grammar,
+and one that is not an identity is equal to no repository; it was lower-cased with Unicode rules before
+being compared, and U+212A (the Kelvin sign) folds to `k` (RWD-2026-0211, in code no release carried). The
+former pattern also accepted a dot segment (`github.com/../app`) and a host that is not a name: both are
+refused now.
+
+**Breaking, for an instance declared by its IP address**: the former pattern accepted
+`10.0.0.1/group/project`; a host that is an address is now refused, and such an instance is declared by a
+name. Whether dotted-decimal IPv4 should be admitted is left open in ADR-0130.
+
+`runward-fleet-index/0` does not change: `repository` stays one text, and a three-segment identity reads
+as it did, byte for byte (compared with the former reading over 4,860 identities; the golden files are
+not regenerated). `repositoryUrl(id)` and `repositoryParts(id)` are exported from `runward-fleet/trust`
+for a deployment that puts the identity in an address. Not representable, and refused: an Azure DevOps
+name with a space, an internationalised host. The Azure DevOps identity is the clone address without its
+`org@` (`dev.azure.com/org/project/_git/repo`); `org.visualstudio.com/…` and `dev.azure.com/org/_git/repo`
+are other identities. A relative link in a document of an
+Azure DevOps mission is shown as text, because that forge addresses a file in the query and the documents'
+rule asks that a forge address end with the path. `test/unit/fleet-repository.test.js` holds 49 planted
+identities, each refused for its own reason beside an accepted neighbour.
 
 ### runward-fleet renders a mission's documents from a closed subset of Markdown, and reads the register of its decision records (ADR-0127)
 
