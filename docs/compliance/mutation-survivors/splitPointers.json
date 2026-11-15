@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "133|17|133|19|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 133,
+   "key": "542|17|542|19|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 542,
    "mutator": "ArrayDeclaration",
    "filing": "equivalent",
    "evidence": "Applied on m1, on m6, on m5, on m2 and on the self-gate: the `check --strict --json` payload was byte-identical to baseline every time — the probe compares the WHOLE payload, not the exit code (m1: exit 1 -> 1, 15 violations -> 15, evidence typed 22 / prose 1 unchanged; m6: exit 1 -> 1, 11 -> 11; m2: exit 1 -> 1 on a mission with a single defect; m5: exit 0 -> 0 on a mission that is green). Ledgers reports/mutation/probe-splitPointers-{m1,m6,m5,m2,selfgate}.jsonl. Parse-level: 0 differing pointer arrays out of 1 410 designed cells and 0 out of 40 000 fuzzed cells.",
@@ -12,8 +12,8 @@
    "stableKey": "evidence\u0001splitPointers\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const out = [];"
   },
   {
-   "key": "134|15|134|17|StringLiteral|\"Stryker was here!\"",
-   "line": 134,
+   "key": "543|15|543|17|StringLiteral|\"Stryker was here!\"",
+   "line": 543,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Applied on m1, on m6, on m5, on m2 and on the self-gate: byte-identical `check --strict --json` payload every time. m6 is the mission built for exactly this mutant's shape — ten cells whose pointers are all preceded by prose, a quote opener or a comma run, each dead file worth one violation — and it stayed at exit 1 with its 11 violations, unchanged, with every counter identical. Ledgers reports/mutation/probe-splitPointers-{m1,m6,m5,m2,selfgate}.jsonl. Parse-level: 0 differing pointer arrays over 1 410 designed cells (including `x file:code/b.ts`, `prose says file:code/b.ts`, `xfile:code/b.ts` and every whitespace form as separator) and 0 over 40 000 fuzzed cells.",
@@ -21,17 +21,26 @@
    "stableKey": "evidence\u0001splitPointers\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001let buf = \"\", quote = null;"
   },
   {
-   "key": "148|32|148|61|Regex|/([\\s,])(file|test|adr):\\S/",
-   "line": 148,
-   "mutator": "Regex",
-   "filing": "equivalent",
-   "evidence": "Applied on m1, on m6, on m5, on m2 and on the self-gate: byte-identical `check --strict --json` payload every time, including on m6 and m1, whose cells put a pointer immediately after a leading comma (`,file:code/b.ts#companion`), after leading whitespace (`  file:code/b.ts#companion  `, `  ,  file:code/deleted-r.ts`), after a `;` with no space (`;file:code/deleted-v.ts;`) and after a CR — every position in which an anchor at the start of the scanned suffix could conceivably matter. Ledgers reports/mutation/probe-splitPointers-{m1,m6,m5,m2,selfgate}.jsonl. Parse-level: 0 differing pointer arrays over 1 410 designed and 40 000 fuzzed cells.",
-   "argument": "The mutant deletes the `^` alternative, and that alternative is unreachable code at this call site. The regex is only ever evaluated as the right-hand operand of `if (/\\s|,/.test(ch) && /(^|[\\s,])(file|test|adr):\\S/.test(segment.slice(i)))`, with `ch === segment[i]`. `&&` short-circuits, so the regex runs only when `/\\s|,/.test(ch)` is true — that is, only when `segment[i]` is a whitespace character or a comma. Its subject is `segment.slice(i)`, whose character 0 IS that same `segment[i]`. The `^` branch matches the empty string at index 0 and then requires `file`, `test` or `adr` at index 0; index 0 holds a whitespace character or a comma, so that branch can never succeed. `^` without the `m` flag matches nowhere else. Every match the original can find therefore goes through the `[\\s,]` branch, which the mutant keeps unchanged, and the two patterns return the same `.test()` result on every subject this call site can construct. The mutated capture group is never read — the call is `.test`, not `.match`. No cell, and therefore no mission, can distinguish them.",
-   "stableKey": "evidence\u0001splitPointers\u0001Regex\u0001/([\\s,])(file|test|adr):\\S/\u0001/(^|[\\s,])(file|test|adr):\\S/\u0001if (/\\s|,/.test(ch) && /(^|[\\s,])(file|test|adr):\\S/.test(segment.slice(i))) {"
+   "key": "550|18|550|36|ArithmeticOperator|segment.length + 1",
+   "line": 550,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820797 (mode=measure, this module alone) on branch measure/evidence-2026-11-13 at commit cba5d90 (the register branch at 66389a6 with fix/mutation-plan-stale at e056d0b and #517 merged; no file under src/, no build input and no lockfile changes against this branch); the report's embedded source is byte-identical to the local build of this branch, merged report sha256 73e0c9185ea8ac08a82465c5190119ac2352111320bf22154b6842af06388fb8 (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 42042763545, measured 2026-11-05): the code it sits on, or the tests that reach it, changed between that measurement and this one. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820797 (mode=measure, this module alone) on branch measure/evidence-2026-11-13 at commit cba5d90 (the register branch at 66389a6 with fix/mutation-plan-stale at e056d0b and #517 merged; no file under src/, no build input and no lockfile changes against this branch); the report's embedded source is byte-identical to the local build of this branch, merged report sha256 73e0c9185ea8ac08a82465c5190119ac2352111320bf22154b6842af06388fb8 (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 42042763545, measured 2026-11-05): the code it sits on, or the tests that reach it, changed between that measurement and this one. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "evidence\u0001splitPointers\u0001ArithmeticOperator\u0001segment.length + 1\u0001segment.length - 1\u0001for (let i = segment.length - 1; i >= 0; i--) {"
   },
   {
-   "key": "150|19|150|21|StringLiteral|\"Stryker was here!\"",
-   "line": 150,
+   "key": "550|38|550|44|EqualityOperator|i > 0",
+   "line": 550,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820797 (mode=measure, this module alone) on branch measure/evidence-2026-11-13 at commit cba5d90 (the register branch at 66389a6 with fix/mutation-plan-stale at e056d0b and #517 merged; no file under src/, no build input and no lockfile changes against this branch); the report's embedded source is byte-identical to the local build of this branch, merged report sha256 73e0c9185ea8ac08a82465c5190119ac2352111320bf22154b6842af06388fb8 (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 42042763545, measured 2026-11-05): the code it sits on, or the tests that reach it, changed between that measurement and this one. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "argument": "NOT YET INSTRUCTED: filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 43421820797 (mode=measure, this module alone) on branch measure/evidence-2026-11-13 at commit cba5d90 (the register branch at 66389a6 with fix/mutation-plan-stale at e056d0b and #517 merged; no file under src/, no build input and no lockfile changes against this branch); the report's embedded source is byte-identical to the local build of this branch, merged report sha256 73e0c9185ea8ac08a82465c5190119ac2352111320bf22154b6842af06388fb8 (single-module runs write no signed summary); it is not among the survivors of the module's previous filing (run 42042763545, measured 2026-11-05): the code it sits on, or the tests that reach it, changed between that measurement and this one. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.47.0 release preparation.",
+   "stableKey": "evidence\u0001splitPointers\u0001EqualityOperator\u0001i > 0\u0001i >= 0\u0001for (let i = segment.length - 1; i >= 0; i--) {"
+  },
+  {
+   "key": "568|19|568|21|StringLiteral|\"Stryker was here!\"",
+   "line": 568,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Applied on m1, on m6, on m5, on m2 and on the self-gate: byte-identical `check --strict --json` payload every time. This is the mutant that touches every chunk AFTER a cut, so the missions that matter are the multi-pointer ones: m1's `file:code/b.ts#companion file:code/deleted-a.ts`, `…,file:code/deleted-b.ts`, `…<CR> file:code/deleted-g.ts` and m6's ten prose-then-pointer cells all stayed at their exact baselines (exit 1 / 15 violations and exit 1 / 11 violations, all counters unchanged). Ledgers reports/mutation/probe-splitPointers-{m1,m6,m5,m2,selfgate}.jsonl. Parse-level: 0 differing pointer arrays over 1 410 designed and 40 000 fuzzed cells.",
@@ -39,8 +48,8 @@
    "stableKey": "evidence\u0001splitPointers\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001buf = \"\";"
   },
   {
-   "key": "161|12|161|39|MethodExpression|out",
-   "line": 161,
+   "key": "579|12|579|39|MethodExpression|out",
+   "line": 579,
    "mutator": "MethodExpression",
    "filing": "equivalent",
    "evidence": "Applied on m1, on m6, on m5, on m2 and on the self-gate: byte-identical `check --strict --json` payload every time. The missions that manufacture blank chunks in bulk are m1 (`,file:code/b.ts#companion` — a leading comma leaves an empty first chunk; `file:code/b.ts#companion; ; file:…#twoCharSym` — a whitespace-only segment; `…;;` — two empty trailing segments; `  file:code/b.ts#companion  `) and m6 (`  ,  file:code/deleted-r.ts ,, file:code/b.ts#twoCharSym` and `;file:code/deleted-v.ts;`), and both held their exact baselines (exit 1 / 15 and exit 1 / 11, every counter unchanged). Ledgers reports/mutation/probe-splitPointers-{m1,m6,m5,m2,selfgate}.jsonl. Parse-level: 0 differing pointer arrays over 1 410 designed cells — which deliberately include cells that are nothing but whitespace, `;`, `,` or a lone quote — and 0 over 40 000 fuzzed cells.",
@@ -48,8 +57,8 @@
    "stableKey": "evidence\u0001splitPointers\u0001MethodExpression\u0001out\u0001out.filter((x) => x.trim())\u0001return out.filter((x) => x.trim());"
   },
   {
-   "key": "161|30|161|38|MethodExpression|x",
-   "line": 161,
+   "key": "579|30|579|38|MethodExpression|x",
+   "line": 579,
    "mutator": "MethodExpression",
    "filing": "equivalent",
    "evidence": "Applied on m1, on m6, on m5, on m2 and on the self-gate: byte-identical `check --strict --json` payload every time, on the same blank-chunk-rich cells listed for the sibling mutant above (m1's leading comma, empty middle segment and doubled trailing `;`; m6's comma runs and leading/trailing `;`). Ledgers reports/mutation/probe-splitPointers-{m1,m6,m5,m2,selfgate}.jsonl. Parse-level: 0 differing pointer arrays over 1 410 designed and 40 000 fuzzed cells.",

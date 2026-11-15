@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "159|16|159|145|ObjectLiteral|{}",
-   "line": 159,
+   "key": "165|16|165|145|ObjectLiteral|{}",
+   "line": 165,
    "mutator": "ObjectLiteral",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -12,8 +12,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ObjectLiteral\u0001{}\u0001{ kind: p.kind, raw: p.raw, malformed: p.malformed ?? null, adr: p.adrId === undefined ? null : adrFacts(ctx, `ADR-${p.adrId}`) }\u0001return { kind: p.kind, raw: p.raw, malformed: p.malformed ?? null, adr: p.adrId === undefined ? null : adrFacts(ctx, `ADR-${p.adrId}`) };"
   },
   {
-   "key": "159|55|159|74|LogicalOperator|p.malformed && null",
-   "line": 159,
+   "key": "165|55|165|74|LogicalOperator|p.malformed && null",
+   "line": 165,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -21,8 +21,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001LogicalOperator\u0001p.malformed && null\u0001p.malformed ?? null\u0001return { kind: p.kind, raw: p.raw, malformed: p.malformed ?? null, adr: p.adrId === undefined ? null : adrFacts(ctx, `ADR-${p.adrId}`) };"
   },
   {
-   "key": "159|81|159|102|ConditionalExpression|true",
-   "line": 159,
+   "key": "165|81|165|102|ConditionalExpression|true",
+   "line": 165,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -30,8 +30,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001true\u0001p.adrId === undefined\u0001return { kind: p.kind, raw: p.raw, malformed: p.malformed ?? null, adr: p.adrId === undefined ? null : adrFacts(ctx, `ADR-${p.adrId}`) };"
   },
   {
-   "key": "159|81|159|102|ConditionalExpression|false",
-   "line": 159,
+   "key": "165|81|165|102|ConditionalExpression|false",
+   "line": 165,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -39,8 +39,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001false\u0001p.adrId === undefined\u0001return { kind: p.kind, raw: p.raw, malformed: p.malformed ?? null, adr: p.adrId === undefined ? null : adrFacts(ctx, `ADR-${p.adrId}`) };"
   },
   {
-   "key": "159|81|159|102|EqualityOperator|p.adrId !== undefined",
-   "line": 159,
+   "key": "165|81|165|102|EqualityOperator|p.adrId !== undefined",
+   "line": 165,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -48,8 +48,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001EqualityOperator\u0001p.adrId !== undefined\u0001p.adrId === undefined\u0001return { kind: p.kind, raw: p.raw, malformed: p.malformed ?? null, adr: p.adrId === undefined ? null : adrFacts(ctx, `ADR-${p.adrId}`) };"
   },
   {
-   "key": "159|126|159|142|StringLiteral|``",
-   "line": 159,
+   "key": "165|126|165|142|StringLiteral|``",
+   "line": 165,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -57,8 +57,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001StringLiteral\u0001``\u0001`ADR-${p.adrId}`\u0001return { kind: p.kind, raw: p.raw, malformed: p.malformed ?? null, adr: p.adrId === undefined ? null : adrFacts(ctx, `ADR-${p.adrId}`) };"
   },
   {
-   "key": "162|38|162|40|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 162,
+   "key": "168|38|168|40|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 168,
    "mutator": "ArrayDeclaration",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -66,8 +66,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const lines = content === null ? [] : content.split(\"\\n\");"
   },
   {
-   "key": "162|57|162|61|StringLiteral|\"\"",
-   "line": 162,
+   "key": "168|57|168|61|StringLiteral|\"\"",
+   "line": 168,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -75,8 +75,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001StringLiteral\u0001\"\"\u0001\"\\n\"\u0001const lines = content === null ? [] : content.split(\"\\n\");"
   },
   {
-   "key": "163|9|163|26|ConditionalExpression|false",
-   "line": 163,
+   "key": "169|9|169|26|ConditionalExpression|false",
+   "line": 169,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -84,8 +84,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001false\u0001p.kind === \"test\"\u0001if (p.kind === \"test\") {"
   },
   {
-   "key": "163|20|163|26|StringLiteral|\"\"",
-   "line": 163,
+   "key": "169|20|169|26|StringLiteral|\"\"",
+   "line": 169,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -93,17 +93,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001StringLiteral\u0001\"\"\u0001\"test\"\u0001if (p.kind === \"test\") {"
   },
   {
-   "key": "163|28|178|6|BlockStatement|{}",
-   "line": 163,
-   "mutator": "BlockStatement",
-   "filing": "hole",
-   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
-   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
-   "stableKey": "witness\u0001pointerFacts\u0001BlockStatement\u0001{}\u0001{ // Where the named test is: each JUnit case the name selects, or the first line carrying it. let testAt = null; let junit = null; if (content !== null && p.testName !== undefined) { if (isJUnitReport(content)) junit = junitTestCases(content, p.testName).map((x) => ({ line: lineOf(content, x.index), green: x.green })); else { // The verdict's own boundary-aware match (RWD-2026-0170), never a second reading of it. const i = lines.findIndex((l) => testNameIndex(l, p.testName) !== -1); testAt = i === -1 ? null : i + 1; } } return { kind: p.kind, raw: p.raw, path: p.path, testName: p.testName ?? null, testNameDeclared: p.testNameDeclared === true, target, unresolved, testAt, junit }; }\u0001if (p.kind === \"test\") {"
-  },
-  {
-   "key": "167|13|167|57|ConditionalExpression|true",
-   "line": 167,
+   "key": "173|13|173|57|ConditionalExpression|true",
+   "line": 173,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -111,8 +102,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001true\u0001content !== null && p.testName !== undefined\u0001if (content !== null && p.testName !== undefined) {"
   },
   {
-   "key": "167|13|167|57|ConditionalExpression|false",
-   "line": 167,
+   "key": "173|13|173|57|ConditionalExpression|false",
+   "line": 173,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -120,8 +111,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001false\u0001content !== null && p.testName !== undefined\u0001if (content !== null && p.testName !== undefined) {"
   },
   {
-   "key": "167|13|167|57|LogicalOperator|content !== null || p.testName !== undefined",
-   "line": 167,
+   "key": "173|13|173|57|LogicalOperator|content !== null || p.testName !== undefined",
+   "line": 173,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -129,8 +120,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001LogicalOperator\u0001content !== null || p.testName !== undefined\u0001content !== null && p.testName !== undefined\u0001if (content !== null && p.testName !== undefined) {"
   },
   {
-   "key": "167|13|167|29|ConditionalExpression|true",
-   "line": 167,
+   "key": "173|13|173|29|ConditionalExpression|true",
+   "line": 173,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -138,8 +129,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001true\u0001content !== null\u0001if (content !== null && p.testName !== undefined) {"
   },
   {
-   "key": "167|13|167|29|EqualityOperator|content === null",
-   "line": 167,
+   "key": "173|13|173|29|EqualityOperator|content === null",
+   "line": 173,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -147,8 +138,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001EqualityOperator\u0001content === null\u0001content !== null\u0001if (content !== null && p.testName !== undefined) {"
   },
   {
-   "key": "167|33|167|57|ConditionalExpression|true",
-   "line": 167,
+   "key": "173|33|173|57|ConditionalExpression|true",
+   "line": 173,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -156,8 +147,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001true\u0001p.testName !== undefined\u0001if (content !== null && p.testName !== undefined) {"
   },
   {
-   "key": "167|33|167|57|EqualityOperator|p.testName === undefined",
-   "line": 167,
+   "key": "173|33|173|57|EqualityOperator|p.testName === undefined",
+   "line": 173,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -165,8 +156,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001EqualityOperator\u0001p.testName === undefined\u0001p.testName !== undefined\u0001if (content !== null && p.testName !== undefined) {"
   },
   {
-   "key": "167|59|175|10|BlockStatement|{}",
-   "line": 167,
+   "key": "173|59|181|10|BlockStatement|{}",
+   "line": 173,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -174,8 +165,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001BlockStatement\u0001{}\u0001{ if (isJUnitReport(content)) junit = junitTestCases(content, p.testName).map((x) => ({ line: lineOf(content, x.index), green: x.green })); else { // The verdict's own boundary-aware match (RWD-2026-0170), never a second reading of it. const i = lines.findIndex((l) => testNameIndex(l, p.testName) !== -1); testAt = i === -1 ? null : i + 1; } }\u0001if (content !== null && p.testName !== undefined) {"
   },
   {
-   "key": "168|17|168|39|ConditionalExpression|true",
-   "line": 168,
+   "key": "174|17|174|39|ConditionalExpression|true",
+   "line": 174,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -183,8 +174,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001true\u0001isJUnitReport(content)\u0001if (isJUnitReport(content))"
   },
   {
-   "key": "168|17|168|39|ConditionalExpression|false",
-   "line": 168,
+   "key": "174|17|174|39|ConditionalExpression|false",
+   "line": 174,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -192,8 +183,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001false\u0001isJUnitReport(content)\u0001if (isJUnitReport(content))"
   },
   {
-   "key": "169|65|169|124|ArrowFunction|() => undefined",
-   "line": 169,
+   "key": "175|65|175|124|ArrowFunction|() => undefined",
+   "line": 175,
    "mutator": "ArrowFunction",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -201,8 +192,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ArrowFunction\u0001() => undefined\u0001(x) => ({ line: lineOf(content, x.index), green: x.green })\u0001junit = junitTestCases(content, p.testName).map((x) => ({ line: lineOf(content, x.index), green: x.green }));"
   },
   {
-   "key": "169|73|169|123|ObjectLiteral|{}",
-   "line": 169,
+   "key": "175|73|175|123|ObjectLiteral|{}",
+   "line": 175,
    "mutator": "ObjectLiteral",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -210,8 +201,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ObjectLiteral\u0001{}\u0001{ line: lineOf(content, x.index), green: x.green }\u0001junit = junitTestCases(content, p.testName).map((x) => ({ line: lineOf(content, x.index), green: x.green }));"
   },
   {
-   "key": "170|18|174|14|BlockStatement|{}",
-   "line": 170,
+   "key": "176|18|180|14|BlockStatement|{}",
+   "line": 176,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -219,8 +210,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001BlockStatement\u0001{}\u0001{ // The verdict's own boundary-aware match (RWD-2026-0170), never a second reading of it. const i = lines.findIndex((l) => testNameIndex(l, p.testName) !== -1); testAt = i === -1 ? null : i + 1; }\u0001else {"
   },
   {
-   "key": "172|43|172|85|ArrowFunction|() => undefined",
-   "line": 172,
+   "key": "178|43|178|85|ArrowFunction|() => undefined",
+   "line": 178,
    "mutator": "ArrowFunction",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -228,8 +219,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ArrowFunction\u0001() => undefined\u0001(l) => testNameIndex(l, p.testName) !== -1\u0001const i = lines.findIndex((l) => testNameIndex(l, p.testName) !== -1);"
   },
   {
-   "key": "172|50|172|85|ConditionalExpression|true",
-   "line": 172,
+   "key": "178|50|178|85|ConditionalExpression|true",
+   "line": 178,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -237,8 +228,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001true\u0001testNameIndex(l, p.testName) !== -1\u0001const i = lines.findIndex((l) => testNameIndex(l, p.testName) !== -1);"
   },
   {
-   "key": "172|50|172|85|ConditionalExpression|false",
-   "line": 172,
+   "key": "178|50|178|85|ConditionalExpression|false",
+   "line": 178,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -246,8 +237,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001false\u0001testNameIndex(l, p.testName) !== -1\u0001const i = lines.findIndex((l) => testNameIndex(l, p.testName) !== -1);"
   },
   {
-   "key": "172|50|172|85|EqualityOperator|testNameIndex(l, p.testName) === -1",
-   "line": 172,
+   "key": "178|50|178|85|EqualityOperator|testNameIndex(l, p.testName) === -1",
+   "line": 178,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -255,8 +246,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001EqualityOperator\u0001testNameIndex(l, p.testName) === -1\u0001testNameIndex(l, p.testName) !== -1\u0001const i = lines.findIndex((l) => testNameIndex(l, p.testName) !== -1);"
   },
   {
-   "key": "172|83|172|85|UnaryOperator|+1",
-   "line": 172,
+   "key": "178|83|178|85|UnaryOperator|+1",
+   "line": 178,
    "mutator": "UnaryOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -264,8 +255,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001UnaryOperator\u0001+1\u0001-1\u0001const i = lines.findIndex((l) => testNameIndex(l, p.testName) !== -1);"
   },
   {
-   "key": "173|26|173|34|ConditionalExpression|true",
-   "line": 173,
+   "key": "179|26|179|34|ConditionalExpression|true",
+   "line": 179,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -273,8 +264,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001true\u0001i === -1\u0001testAt = i === -1 ? null : i + 1;"
   },
   {
-   "key": "173|26|173|34|ConditionalExpression|false",
-   "line": 173,
+   "key": "179|26|179|34|ConditionalExpression|false",
+   "line": 179,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -282,8 +273,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001false\u0001i === -1\u0001testAt = i === -1 ? null : i + 1;"
   },
   {
-   "key": "173|26|173|34|EqualityOperator|i !== -1",
-   "line": 173,
+   "key": "179|26|179|34|EqualityOperator|i !== -1",
+   "line": 179,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -291,8 +282,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001EqualityOperator\u0001i !== -1\u0001i === -1\u0001testAt = i === -1 ? null : i + 1;"
   },
   {
-   "key": "173|32|173|34|UnaryOperator|+1",
-   "line": 173,
+   "key": "179|32|179|34|UnaryOperator|+1",
+   "line": 179,
    "mutator": "UnaryOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -300,8 +291,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001UnaryOperator\u0001+1\u0001-1\u0001testAt = i === -1 ? null : i + 1;"
   },
   {
-   "key": "173|44|173|49|ArithmeticOperator|i - 1",
-   "line": 173,
+   "key": "179|44|179|49|ArithmeticOperator|i - 1",
+   "line": 179,
    "mutator": "ArithmeticOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -309,8 +300,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ArithmeticOperator\u0001i - 1\u0001i + 1\u0001testAt = i === -1 ? null : i + 1;"
   },
   {
-   "key": "176|16|177|48|ObjectLiteral|{}",
-   "line": 176,
+   "key": "182|16|183|48|ObjectLiteral|{}",
+   "line": 182,
    "mutator": "ObjectLiteral",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -318,8 +309,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ObjectLiteral\u0001{}\u0001{ kind: p.kind, raw: p.raw, path: p.path, testName: p.testName ?? null, testNameDeclared: p.testNameDeclared === true, target, unresolved, testAt, junit }\u0001return { kind: p.kind, raw: p.raw, path: p.path, testName: p.testName ?? null, testNameDeclared: p.testNameDeclared === true,"
   },
   {
-   "key": "176|68|176|86|LogicalOperator|p.testName && null",
-   "line": 176,
+   "key": "182|68|182|86|LogicalOperator|p.testName && null",
+   "line": 182,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -327,8 +318,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001LogicalOperator\u0001p.testName && null\u0001p.testName ?? null\u0001return { kind: p.kind, raw: p.raw, path: p.path, testName: p.testName ?? null, testNameDeclared: p.testNameDeclared === true,"
   },
   {
-   "key": "176|106|176|133|ConditionalExpression|true",
-   "line": 176,
+   "key": "182|106|182|133|ConditionalExpression|true",
+   "line": 182,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -336,8 +327,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001true\u0001p.testNameDeclared === true\u0001return { kind: p.kind, raw: p.raw, path: p.path, testName: p.testName ?? null, testNameDeclared: p.testNameDeclared === true,"
   },
   {
-   "key": "176|106|176|133|ConditionalExpression|false",
-   "line": 176,
+   "key": "182|106|182|133|ConditionalExpression|false",
+   "line": 182,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -345,8 +336,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001false\u0001p.testNameDeclared === true\u0001return { kind: p.kind, raw: p.raw, path: p.path, testName: p.testName ?? null, testNameDeclared: p.testNameDeclared === true,"
   },
   {
-   "key": "176|106|176|133|EqualityOperator|p.testNameDeclared !== true",
-   "line": 176,
+   "key": "182|106|182|133|EqualityOperator|p.testNameDeclared !== true",
+   "line": 182,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -354,8 +345,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001EqualityOperator\u0001p.testNameDeclared !== true\u0001p.testNameDeclared === true\u0001return { kind: p.kind, raw: p.raw, path: p.path, testName: p.testName ?? null, testNameDeclared: p.testNameDeclared === true,"
   },
   {
-   "key": "176|129|176|133|BooleanLiteral|false",
-   "line": 176,
+   "key": "182|129|182|133|BooleanLiteral|false",
+   "line": 182,
    "mutator": "BooleanLiteral",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -363,8 +354,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001BooleanLiteral\u0001false\u0001true\u0001return { kind: p.kind, raw: p.raw, path: p.path, testName: p.testName ?? null, testNameDeclared: p.testNameDeclared === true,"
   },
   {
-   "key": "182|9|182|51|ConditionalExpression|false",
-   "line": 182,
+   "key": "188|9|188|51|ConditionalExpression|false",
+   "line": 188,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -372,8 +363,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001false\u0001content !== null && p.symbol !== undefined\u0001if (content !== null && p.symbol !== undefined) {"
   },
   {
-   "key": "182|29|182|51|ConditionalExpression|true",
-   "line": 182,
+   "key": "188|29|188|51|ConditionalExpression|true",
+   "line": 188,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -381,8 +372,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001true\u0001p.symbol !== undefined\u0001if (content !== null && p.symbol !== undefined) {"
   },
   {
-   "key": "182|29|182|51|EqualityOperator|p.symbol === undefined",
-   "line": 182,
+   "key": "188|29|188|51|EqualityOperator|p.symbol === undefined",
+   "line": 188,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -390,8 +381,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001EqualityOperator\u0001p.symbol === undefined\u0001p.symbol !== undefined\u0001if (content !== null && p.symbol !== undefined) {"
   },
   {
-   "key": "182|53|191|6|BlockStatement|{}",
-   "line": 182,
+   "key": "188|53|197|6|BlockStatement|{}",
+   "line": 188,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -399,8 +390,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001BlockStatement\u0001{}\u0001{ report = reportResult(content, p.symbol); if (report === null) { const i = lines.findIndex((l) => symbolPresent(l, p.symbol)); symbolAt = i === -1 ? null : i + 1; } if (target?.real === deliverable) { outsideAt = outsideManifestLines(content).find((n) => lines[n - 1].includes(p.symbol)) ?? null; } }\u0001if (content !== null && p.symbol !== undefined) {"
   },
   {
-   "key": "184|13|184|28|ConditionalExpression|true",
-   "line": 184,
+   "key": "190|13|190|28|ConditionalExpression|true",
+   "line": 190,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -408,8 +399,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001true\u0001report === null\u0001if (report === null) {"
   },
   {
-   "key": "184|13|184|28|ConditionalExpression|false",
-   "line": 184,
+   "key": "190|13|190|28|ConditionalExpression|false",
+   "line": 190,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -417,8 +408,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001false\u0001report === null\u0001if (report === null) {"
   },
   {
-   "key": "184|13|184|28|EqualityOperator|report !== null",
-   "line": 184,
+   "key": "190|13|190|28|EqualityOperator|report !== null",
+   "line": 190,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -426,8 +417,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001EqualityOperator\u0001report !== null\u0001report === null\u0001if (report === null) {"
   },
   {
-   "key": "184|30|187|10|BlockStatement|{}",
-   "line": 184,
+   "key": "190|30|193|10|BlockStatement|{}",
+   "line": 190,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -435,8 +426,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001BlockStatement\u0001{}\u0001{ const i = lines.findIndex((l) => symbolPresent(l, p.symbol)); symbolAt = i === -1 ? null : i + 1; }\u0001if (report === null) {"
   },
   {
-   "key": "185|39|185|72|ArrowFunction|() => undefined",
-   "line": 185,
+   "key": "191|39|191|72|ArrowFunction|() => undefined",
+   "line": 191,
    "mutator": "ArrowFunction",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -444,8 +435,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ArrowFunction\u0001() => undefined\u0001(l) => symbolPresent(l, p.symbol)\u0001const i = lines.findIndex((l) => symbolPresent(l, p.symbol));"
   },
   {
-   "key": "186|24|186|32|ConditionalExpression|true",
-   "line": 186,
+   "key": "192|24|192|32|ConditionalExpression|true",
+   "line": 192,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -453,8 +444,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001true\u0001i === -1\u0001symbolAt = i === -1 ? null : i + 1;"
   },
   {
-   "key": "186|24|186|32|ConditionalExpression|false",
-   "line": 186,
+   "key": "192|24|192|32|ConditionalExpression|false",
+   "line": 192,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -462,8 +453,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001false\u0001i === -1\u0001symbolAt = i === -1 ? null : i + 1;"
   },
   {
-   "key": "186|24|186|32|EqualityOperator|i !== -1",
-   "line": 186,
+   "key": "192|24|192|32|EqualityOperator|i !== -1",
+   "line": 192,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -471,8 +462,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001EqualityOperator\u0001i !== -1\u0001i === -1\u0001symbolAt = i === -1 ? null : i + 1;"
   },
   {
-   "key": "186|30|186|32|UnaryOperator|+1",
-   "line": 186,
+   "key": "192|30|192|32|UnaryOperator|+1",
+   "line": 192,
    "mutator": "UnaryOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -480,8 +471,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001UnaryOperator\u0001+1\u0001-1\u0001symbolAt = i === -1 ? null : i + 1;"
   },
   {
-   "key": "186|42|186|47|ArithmeticOperator|i - 1",
-   "line": 186,
+   "key": "192|42|192|47|ArithmeticOperator|i - 1",
+   "line": 192,
    "mutator": "ArithmeticOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -489,8 +480,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ArithmeticOperator\u0001i - 1\u0001i + 1\u0001symbolAt = i === -1 ? null : i + 1;"
   },
   {
-   "key": "188|13|188|41|ConditionalExpression|true",
-   "line": 188,
+   "key": "194|13|194|41|ConditionalExpression|true",
+   "line": 194,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -498,8 +489,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001true\u0001target?.real === deliverable\u0001if (target?.real === deliverable) {"
   },
   {
-   "key": "188|13|188|41|ConditionalExpression|false",
-   "line": 188,
+   "key": "194|13|194|41|ConditionalExpression|false",
+   "line": 194,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -507,8 +498,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ConditionalExpression\u0001false\u0001target?.real === deliverable\u0001if (target?.real === deliverable) {"
   },
   {
-   "key": "188|13|188|41|EqualityOperator|target?.real !== deliverable",
-   "line": 188,
+   "key": "194|13|194|41|EqualityOperator|target?.real !== deliverable",
+   "line": 194,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -516,8 +507,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001EqualityOperator\u0001target?.real !== deliverable\u0001target?.real === deliverable\u0001if (target?.real === deliverable) {"
   },
   {
-   "key": "188|13|188|25|OptionalChaining|target.real",
-   "line": 188,
+   "key": "194|13|194|25|OptionalChaining|target.real",
+   "line": 194,
    "mutator": "OptionalChaining",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -525,8 +516,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001OptionalChaining\u0001target.real\u0001target?.real\u0001if (target?.real === deliverable) {"
   },
   {
-   "key": "188|43|190|10|BlockStatement|{}",
-   "line": 188,
+   "key": "194|43|196|10|BlockStatement|{}",
+   "line": 194,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -534,8 +525,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001BlockStatement\u0001{}\u0001{ outsideAt = outsideManifestLines(content).find((n) => lines[n - 1].includes(p.symbol)) ?? null; }\u0001if (target?.real === deliverable) {"
   },
   {
-   "key": "189|25|189|107|LogicalOperator|outsideManifestLines(content).find(n => lines[n - 1].includes(p.symbol)) && null",
-   "line": 189,
+   "key": "195|25|195|107|LogicalOperator|outsideManifestLines(content).find(n => lines[n - 1].includes(p.symbol)) && null",
+   "line": 195,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -543,8 +534,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001LogicalOperator\u0001outsideManifestLines(content).find(n => lines[n - 1].includes(p.symbol)) && null\u0001outsideManifestLines(content).find((n) => lines[n - 1].includes(p.symbol)) ?? null\u0001outsideAt = outsideManifestLines(content).find((n) => lines[n - 1].includes(p.symbol)) ?? null;"
   },
   {
-   "key": "189|60|189|98|ArrowFunction|() => undefined",
-   "line": 189,
+   "key": "195|60|195|98|ArrowFunction|() => undefined",
+   "line": 195,
    "mutator": "ArrowFunction",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -552,8 +543,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001ArrowFunction\u0001() => undefined\u0001(n) => lines[n - 1].includes(p.symbol)\u0001outsideAt = outsideManifestLines(content).find((n) => lines[n - 1].includes(p.symbol)) ?? null;"
   },
   {
-   "key": "192|60|192|74|LogicalOperator|p.line && null",
-   "line": 192,
+   "key": "198|60|198|74|LogicalOperator|p.line && null",
+   "line": 198,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -561,8 +552,8 @@
    "stableKey": "witness\u0001pointerFacts\u0001LogicalOperator\u0001p.line && null\u0001p.line ?? null\u0001return { kind: p.kind, raw: p.raw, path: p.path, line: p.line ?? null, symbol: p.symbol ?? null, symbolDeclared: p.symbolDeclared === true,"
   },
   {
-   "key": "192|118|192|143|ConditionalExpression|true",
-   "line": 192,
+   "key": "198|118|198|143|ConditionalExpression|true",
+   "line": 198,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123673637 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 db9b34590a657248bc01d105cf01a9d0c6a2fcd9c9dc5910e203ca87e2beeda9 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the module entered the measured perimeter in 0.44.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",

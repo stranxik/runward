@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "187|53|187|59|Regex|/\\n+/",
-   "line": 187,
+   "key": "279|53|279|59|Regex|/\\n+/",
+   "line": 279,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "/^\\n+/ -> /\\n+/ drops the anchor and (with no g flag) deletes the FIRST newline run anywhere instead of the leading ones. Measured on ruleBody: '# Heading\\n\\nbody\\n' -> '# Headingbody\\n', 'text\\ntitle: Y...' -> 'texttitle: Y...', and a CRLF rule body '\\r\\n\\r\\nbody\\r\\n' -> '\\r\\r\\nbody\\r\\n' — the exact core.autocrlf shape audit-corpus documents. No layer went red.",

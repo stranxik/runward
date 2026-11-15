@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "201|39|201|108|LogicalOperator|per.find(p => p.path === f.path)?.criteria.map(c => c.line) && []",
-   "line": 201,
+   "key": "193|39|193|108|LogicalOperator|per.find(p => p.path === f.path)?.criteria.map(c => c.line) && []",
+   "line": 193,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "The .map() always returns an array (truthy), so `a && []` ALWAYS empties declaredLines: the lines that DECLARE a criterion are reread as references. RECIPE (caseE): bundle specs/spec.md, section `## Acceptance Criteria`, one criterion line of 112 chars — green pointer `file:code/router.ts#classifyRequest` (shipped artifact), padding, then ` REQ-77` at position 106, beyond c.text's truncation at 99; `node dist/cli.js spec-check specs --json -p .`. MEASURED: shipped exit 0, dangling=[]; mutated exit 1, dangling=[{spec.md:3,REQ-77}] — false red on a compliant bundle. The two dedicated tests miss it: all their criterion lines are <100 chars, so every id on a criterion line is also in `declared` via c.text and the exclusion is redundant there; they cannot see it die.",
@@ -12,8 +12,8 @@
    "stableKey": "spec-conformance\u0001specBundleConformance\u0001LogicalOperator\u0001per.find(p => p.path === f.path)?.criteria.map(c => c.line) && []\u0001per.find((p) => p.path === f.path)?.criteria.map((c) => c.line) ?? []\u0001const declaredLines = new Set(per.find((p) => p.path === f.path)?.criteria.map((c) => c.line) ?? []);"
   },
   {
-   "key": "201|39|201|83|OptionalChaining|per.find(p => p.path === f.path).criteria",
-   "line": 201,
+   "key": "193|39|193|83|OptionalChaining|per.find(p => p.path === f.path).criteria",
+   "line": 193,
    "mutator": "OptionalChaining",
    "filing": "equivalent",
    "evidence": "`per` is built by `files.map(...)` over the SAME `files` array iterated afterwards: for every f there exists p with p.path===f.path, `find` never returns undefined, the `?.` guard is dead code by construction. MEASURED SENSITIVITY CONTROL (C1): the same mutation with the predicate forced to false (guarded scenario made reachable) makes the probe crash with a TypeError \"Cannot read properties of undefined (reading 'criteria')\" on the 8 cases — so the probe does distinguish the guard when it serves; mutated alone: strictly identical output on the 8 cases, function and CLI.",
@@ -21,8 +21,8 @@
    "stableKey": "spec-conformance\u0001specBundleConformance\u0001OptionalChaining\u0001per.find(p => p.path === f.path).criteria\u0001per.find((p) => p.path === f.path)?.criteria\u0001const declaredLines = new Set(per.find((p) => p.path === f.path)?.criteria.map((c) => c.line) ?? []);"
   },
   {
-   "key": "201|48|201|72|ArrowFunction|() => undefined",
-   "line": 201,
+   "key": "193|48|193|72|ArrowFunction|() => undefined",
+   "line": 193,
    "mutator": "ArrowFunction",
    "filing": "hole",
    "evidence": "`find` no longer finds anything → `?.`→undefined → `?? []` → declaredLines empty: the same collapse as mutant 1, the declaration lines are reread as references. MEASURED on the caseE recipe (criterion of 112 chars, REQ-77 beyond the truncation, green pointer to a shipped artifact, `spec-check specs --json -p .`): shipped exit 0 dangling=[]; mutated exit 1 dangling=[{spec.md:3,REQ-77}] — false red. Why the dedicated tests miss it: short criterion lines (<100 chars), so excluding declaration lines is never the only rampart against a ghost dangling there.",
@@ -30,8 +30,8 @@
    "stableKey": "spec-conformance\u0001specBundleConformance\u0001ArrowFunction\u0001() => undefined\u0001(p) => p.path === f.path\u0001const declaredLines = new Set(per.find((p) => p.path === f.path)?.criteria.map((c) => c.line) ?? []);"
   },
   {
-   "key": "201|55|201|72|ConditionalExpression|false",
-   "line": 201,
+   "key": "193|55|193|72|ConditionalExpression|false",
+   "line": 193,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "Identical to mutant 3 by another path: `find` always fails → declaredLines empty. MEASURED (caseE, same recipe: spec with a criterion >100 chars carrying REQ-77 after the truncation, shipped artifact code/router.ts, `spec-check specs --json -p .`): exit 0→1, dangling []→[{spec.md:3,REQ-77}] — false red on a compliant bundle. The dedicated tests have no criterion line exceeding c.text's truncation at 99 characters, the only ground where the exclusion diverges from the `declared` set.",
@@ -39,8 +39,8 @@
    "stableKey": "spec-conformance\u0001specBundleConformance\u0001ConditionalExpression\u0001false\u0001p.path === f.path\u0001const declaredLines = new Set(per.find((p) => p.path === f.path)?.criteria.map((c) => c.line) ?? []);"
   },
   {
-   "key": "201|88|201|101|ArrowFunction|() => undefined",
-   "line": 201,
+   "key": "193|88|193|101|ArrowFunction|() => undefined",
+   "line": 193,
    "mutator": "ArrowFunction",
    "filing": "hole",
    "evidence": "declaredLines becomes Set{undefined}: `has(i+1)` (a number) is never true any more — the same collapse of the exclusion. MEASURED (caseE): exit 0→1, dangling []→[{spec.md:3,REQ-77}] through the function AND the CLI — false red. Why the tests miss it: in their fixtures every id present on a criterion line is also declared via c.text (short lines), so scanning those lines never produces a dangling there; it takes a criterion line truncated when c.text is written to see the difference, and none exists.",
@@ -48,8 +48,8 @@
    "stableKey": "spec-conformance\u0001specBundleConformance\u0001ArrowFunction\u0001() => undefined\u0001(c) => c.line\u0001const declaredLines = new Set(per.find((p) => p.path === f.path)?.criteria.map((c) => c.line) ?? []);"
   },
   {
-   "key": "201|106|201|108|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 201,
+   "key": "193|106|193|108|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 193,
    "mutator": "ArrayDeclaration",
    "filing": "equivalent",
    "evidence": "Dead twice over. (1) The `?? []` fallback is unreachable: `per.find` never misses (per = map of the same files array), proven by control C1 (predicate forced to false → TypeError crash under mutant 2, so the branch is correctly identified). (2) Even if reached, it would have no effect: MEASURED CONTROL C2 vs C3 — fallback made reachable (predicate forced to false), `[\"Stryker was here\"]` and `[]` give STRICTLY identical output on the 8 cases, because `declaredLines.has(i+1)` compares a number and a string element is invisible. Counter-control C4: the fallback `[3]` (a number) made reachable changes the output on 5 cases (e.g. caseA dangling 1→0) — the probe is sensitive to the fallback's VALUE; the survival is structural, not a blindness of the probe.",
@@ -57,8 +57,8 @@
    "stableKey": "spec-conformance\u0001specBundleConformance\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const declaredLines = new Set(per.find((p) => p.path === f.path)?.criteria.map((c) => c.line) ?? []);"
   },
   {
-   "key": "203|17|203|41|ConditionalExpression|false",
-   "line": 203,
+   "key": "195|17|195|41|ConditionalExpression|false",
+   "line": 195,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "The guard excluding declaration lines becomes inert: the same effects as mutant 1. MEASURED (caseE: criterion of 112 chars with REQ-77 at position 106, green pointer to the shipped code/router.ts, `spec-check specs --json -p .`): shipped exit 0 dangling=[]; mutated exit 1 dangling=[{spec.md:3,REQ-77}] — spec-check turns red on a compliant bundle. The two test files check \"the line that DECLARES AC1 does not dangle\" only with an id located within the first 99 characters, a case where the `declared` set masks the death of the exclusion.",
@@ -66,8 +66,8 @@
    "stableKey": "spec-conformance\u0001specBundleConformance\u0001ConditionalExpression\u0001false\u0001declaredLines.has(i + 1)\u0001if (declaredLines.has(i + 1))"
   },
   {
-   "key": "203|35|203|40|ArithmeticOperator|i - 1",
-   "line": 203,
+   "key": "195|35|195|40|ArithmeticOperator|i - 1",
+   "line": 195,
    "mutator": "ArithmeticOperator",
    "filing": "hole",
    "evidence": "The exclusion slides by two lines: the line TWO lines below a criterion is excluded from the scan, and the criterion line itself no longer is. DOUBLE effect measured. FALSE GREEN (caseF): spec.md with a green criterion on l.3 (`file:code/router.ts#classifyRequest`, shipped artifact) and prose `Also covers AC7.` on l.5; shipped: exit 1, dangling=[{spec.md:5,AC7}]; mutated: exit 0, dangling=[] — a real dangling reference disappears from the CLI verdict. Plus the caseE false red (exit 0→1, ghost REQ-77). Why the tests miss it: their dangling references live in plan.md/tasks.md WITHOUT a criteria section (declaredLines empty, the offset is invisible); no fixture places a reference within ±2 lines of a criterion in the same file.",
@@ -75,8 +75,8 @@
    "stableKey": "spec-conformance\u0001specBundleConformance\u0001ArithmeticOperator\u0001i - 1\u0001i + 1\u0001if (declaredLines.has(i + 1))"
   },
   {
-   "key": "207|64|207|81|ConditionalExpression|true",
-   "line": 207,
+   "key": "199|64|199|81|ConditionalExpression|true",
+   "line": 199,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "The dedup ignores the file: same line + same id is enough, across files. RECIPE (caseD): bundle spec.md (AC1 linked, shipped artifact code/router.ts) + plan.md l.3 `do AC7` + tasks.md l.3 `do AC7`; `spec-check specs --json -p .`. MEASURED: shipped dangling=[{plan.md:3,AC7},{tasks.md:3,AC7}] (2); mutated [{plan.md:3,AC7}] (1) — the tasks.md occurrence disappears from the CLI report because it falls on the same line number in another file. Exit 1 unchanged. Why the tests miss it: no fixture has the same dangling id in two files, let alone on the same line number.",
@@ -84,8 +84,8 @@
    "stableKey": "spec-conformance\u0001specBundleConformance\u0001ConditionalExpression\u0001true\u0001d.file === f.path\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
   },
   {
-   "key": "207|105|207|118|ConditionalExpression|true",
-   "line": 207,
+   "key": "199|105|199|118|ConditionalExpression|true",
+   "line": 199,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "The dedup ignores the id: same file + same line is enough — the SECOND dangling identifier on the same line is swallowed. RECIPE (caseC): tasks.md l.3 `do AC7 then FR9` (two ids declared nowhere) in a bundle whose AC1 is linked to the shipped artifact; `spec-check specs --json -p .`. MEASURED: shipped dangling=[{tasks.md:3,AC7},{tasks.md:3,FR9}]; mutated [{tasks.md:3,AC7}] — FR9 disappears entirely from the report, one broken reference fewer to fix in the operator's eyes. Exit 1 unchanged. Why the tests miss it: never two distinct dangling ids on the same line in their fixtures.",
@@ -93,8 +93,8 @@
    "stableKey": "spec-conformance\u0001specBundleConformance\u0001ConditionalExpression\u0001true\u0001d.id === m[1]\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
   },
   {
-   "key": "217|22|217|42|MethodExpression|[...declared]",
-   "line": 217,
+   "key": "209|22|209|42|MethodExpression|[...declared]",
+   "line": 209,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "`declaredIds` comes out in insertion order instead of sorted order in spec-check's machine JSON (a field of the ADR-0056 contract, consumed as is — not display text). RECIPE (caseG): spec.md declaring `- AC2 ...` then `- AC10 ...`, both linked to the shipped artifact; `spec-check specs --json -p .`. MEASURED: shipped declaredIds=[\"AC10\",\"AC2\"] (lexicographic sort, canonical: reordering the criteria does not change the report); mutated [\"AC2\",\"AC10\"]. No verdict or count moves (exit 0 for both) — the most benign of the 20, but the report's canonical field changes and nothing sees it. Why the tests miss it: the only assert (`deepEqual(declaredIds, [\"AC1\",\"AC2\"])`) is on a degenerate case where insertion order and sorted order coincide.",
