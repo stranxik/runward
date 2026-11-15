@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### Fixed: a French sentence that denies a forbidden claim passes the claims screen, and "not just" no longer does
+
+The list of claims runward may not make (`src/lib/claims-rules.ts`, exported as `runward/claims`) refuses
+a line when a rule matches it and the `NEGATED` screen does not. The screen did not read French negation:
+on 0.47.0, `runward est une couche de provenance amont, pas une plateforme.`, `runward n’est pas une
+plateforme.` and `runward n'est ni un outil de GRC ni une plateforme.` were each refused as "runward
+called a platform", where `runward is an upstream provenance layer, not a platform.` passed
+(RWD-2026-0212; the website's synchronisation to 0.47.0 failed on such a sentence). The screen now reads
+`pas`, `ni`, `non`, `nullement` and the English contractions in n't, with the straight or the typographic
+apostrophe, on Unicode word boundaries. It is also narrowed, in both languages: a negator directly
+followed by a restrictive word no longer exempts, so `runward is not just a platform`, which passed until
+now, is refused, as are `not only`, `not merely`, `never just`, `pas seulement`, `pas uniquement` and
+`pas qu'une`. `plus` is left out, because "n'est plus une plateforme" denies and "est plus qu'une
+plateforme" asserts: word that denial with `pas`. Over the files the guard scans in this repository
+no line changes side. `NEGATED` now carries the `u` flag; it is still one `RegExp` used with `.test()`.
+The screen still reads a line, not a clause. No command applies the list to a mission, so no verdict and
+no exit code of runward's changes; a site guard that consumes the export gains this when it moves its pin.
+
 ### The closed values runward-fleet reads are recorded as published by 0.47.0
 
 `docs/spec/runward-closed-values.json` named the values the published 0.46.0 writes, and listed the ones

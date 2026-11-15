@@ -31,8 +31,44 @@ export interface ClaimRule {
   why: string;
 }
 
-/** A line is exempt when it argues AGAINST the claim, lists it as forbidden, or plans it. */
-export const NEGATED = /\b(not|never|no|cannot|can't|without|forbidden|interdit|jamais|refus|aucun|sans)\b|^\s*[-*]\s*(Interdit|Forbidden)|→|->/i;
+/**
+ * A line is exempt when it argues AGAINST the claim, lists it as forbidden, or plans it.
+ *
+ * What exempts a line:
+ *   - an English negator: not, never, no, cannot, without, forbidden, and any contraction in n't
+ *     (can't, isn't, doesn't), with the straight or the typographic apostrophe;
+ *   - a French negator: pas, ni, non, nullement, jamais, aucun, sans, interdit, refus. `pas` and `ni`
+ *     carry "ne … pas", "n'est pas", "n’est pas" and "ni … ni"; the elided `n'` alone exempts nothing,
+ *     because "n'est qu'une plateforme" (is only a platform) asserts the claim;
+ *   - a forbidden-list entry (`- Interdit`, `- Forbidden`) or an arrow (a rewrite, a roadmap item).
+ *
+ * What does NOT exempt, in both languages, because the sentence then ASSERTS the claim and adds to it:
+ * a negator directly followed by a restrictive word. "not just / only / merely / simply / solely a
+ * platform", "pas seulement / uniquement / juste / simplement une plateforme", "pas qu'une
+ * plateforme", "non seulement", "jamais qu'une" all mean "a platform, and more". Until RWD-2026-0212
+ * the English form passed on the word `not` alone.
+ *
+ * Left out on purpose:
+ *   - `plus`: "n'est plus une plateforme" denies, "est plus qu'une plateforme" asserts, and the word
+ *     alone cannot tell them apart; a line that needs it is reworded with `pas`;
+ *   - `non-` as a prefix ("non-trivial", "non-hosted") qualifies a noun and denies nothing.
+ *
+ * Boundaries are written with Unicode classes: `\b` is ASCII-only in JavaScript, so `\bpas\b` would
+ * match inside "trépas" and `\bni\b` inside "béni".
+ *
+ * Known limit, unchanged: the screen reads a LINE, not a clause. A line that asserts a claim and
+ * carries an unrelated negation elsewhere still passes; that is the price of design rule 1.
+ */
+const WORD_START = "(?<![\\p{L}\\p{N}_])";
+const WORD_END = "(?![\\p{L}\\p{N}_])";
+const NEGATORS = "not|never|no|cannot|without|forbidden|interdit|jamais|refus|aucun|sans|pas|ni|nullement|non(?!-)";
+const RESTRICTIVE = "just|only|merely|simply|solely|seulement|uniquement|juste|simplement|que";
+export const NEGATED = new RegExp(
+  `(?:${WORD_START}(?:${NEGATORS})|\\p{L}n['’]t)${WORD_END}` +
+    `(?!\\s+(?:${RESTRICTIVE})${WORD_END}|\\s+qu['’])` +
+    "|^\\s*[-*]\\s*(?:Interdit|Forbidden)|→|->",
+  "iu",
+);
 
 export const CLAIMS_RULES: ClaimRule[] = [
   {
